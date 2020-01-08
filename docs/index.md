@@ -1,4 +1,4 @@
-![Arisztokréta](ellenorzo_logo.png)
+<p align="center"><img class="center" src="ellenorzo_logo.png" width="200"/></p>
 
 Ez egy **nem hivatalos** ellenőrző alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel. 
 
@@ -20,9 +20,10 @@ A szoftver [nyílt forráskódú](https://github.com/Coware-Apps/naplo/), a [GPL
 
 ### Felhasznált projektek
 - A program az Ionic Framework használatával készült (MIT)
-- A logóban található ikont Paomedia készítette (CC BY 3.0)
+- A KRÉTA API dokumentációt [boapps](https://github.com/boapps) készítette, [itt](https://github.com/boapps/e-kreta-api-docs) található
+- A logót [Raedrim](https://github.com/Raerdrim) készítette, [iconsider](https://www.iconfinder.com/iconsider) ikonja alapján
 
 ### Adatkezelés
-A program személyes adatokat nem gyűjt és nem továbbít a fejlesztők felé. Az adatkezelési tájékoztatót [ezen az oldalon](https://coware-apps.github.io/naplo/privacy) olvashatod.
+A program személyes adatokat nem gyűjt és nem továbbít a fejlesztők felé. Az adatkezelési tájékoztatót [ezen az oldalon](https://coware-apps.github.io/ellenorzo/privacy) olvashatod.
 
 Mivel a személyes adatokat az eKRÉTA Informatikai Zrt. tárolja és kezeli, olvasd el az [ő tájékoztatójukat is](https://tudasbazis.ekreta.hu/pages/viewpage.action?pageId=4064926).
