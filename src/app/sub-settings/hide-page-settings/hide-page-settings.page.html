@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Oldalak elrejtése</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <div *ngFor="let page of this.appPages">
+      <ion-item *ngIf="page.title != 'Beállítások'" >
+        <ion-label>{{page.title}}</ion-label>
+        <ion-buttons slot="end">
+          <ion-button [color]="page.show ? 'primary' : ''" (click)="show(page.title)">
+            <ion-icon slot="icon-only" name="eye"></ion-icon>
+          </ion-button>
+          <ion-button [color]="!page.show ? 'primary' : ''" (click)="hide(page.title)">
+            <ion-icon slot="icon-only" name="eye-off"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    </div>
+    
+  </ion-list>
+</ion-content>

@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="start" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Részletek</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="changeGraph(0)">
+        <ion-icon [color]="focused == 'gauge' ? 'primary' : 'dark'" slot="icon-only" name="speedometer"></ion-icon>
+      </ion-button>
+      <ion-button (click)="changeGraph(1)">
+        <ion-icon [color]="focused == 'line' ? 'primary' : 'dark'" slot="icon-only" name="analytics"></ion-icon>
+      </ion-button>
+      <ion-button (click)="changeGraph(2)">
+        <ion-icon [color]="focused == 'column' ? 'primary' : 'dark'" slot="icon-only" name="stats"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
+        <ion-slide class="wide">
+          <div float="center" id="gauge" class="chart"></div>
+        </ion-slide>
+
+        <ion-slide class="wide">
+          <div id="line" class="chart"></div>
+        </ion-slide>
+
+        <ion-slide class="wide">
+          <div id="column" class="chart"></div>
+        </ion-slide>
+      </ion-slides>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label>Jegy</ion-label>
+          <ion-label>Súly</ion-label>
+        </ion-item>
+        <div *ngFor="let item of grades">
+          <ion-item (click)="showAlert(item)" *ngIf="item.extraId == 0"
+            [ngStyle]="{'color': ((item.weight == '100%') ? contrast : ((item.weight == '50%') ? 'green' : ((item.weight == '150%') ? '#d1ab00' : ((item.weight == '200%' ? 'red' : 'pink')))) )}">
+            <ion-label>{{item.grade}}</ion-label>
+            <ion-label>{{item.weight}}</ion-label>
+          </ion-item>
+          <ion-item *ngIf="item.extraId != 0"
+            [ngStyle]="{'color': ((item.weight == '100%') ? contrast : ((item.weight == '50%') ? 'green' : ((item.weight == '150%') ? '#d1ab00' : ((item.weight == '200%' ? 'red' : 'pink')))) )}">
+            <ion-label>{{item.grade}}</ion-label>
+            <ion-label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.weight}}</ion-label>
+            <ion-button (click)="removeGrade(item.extraId)">
+              <ion-icon slot="icon-only" name="trash"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+        <ion-list-header>
+          <ion-label>Mi lenne, ha?</ion-label>
+        </ion-list-header>
+        <ion-item [ngClass]="{'item-has-focus': this.unfilled}">
+          <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newGrade" maxlength="1" type="number" placeholder="Jegy"></ion-input>
+          <ion-label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ion-label>
+          <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newPercent" maxLength="3" name="input" type="number" placeholder="%"></ion-input>
+          <ion-button type="submit" (click)="addGrade()">
+            <ion-icon slot="icon-only" name="add"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

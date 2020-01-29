@@ -1,0 +1,133 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      Főoldal
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showPicker()">
+        <ion-icon slot="start" name="color-palette"></ion-icon>
+        Színek &nbsp;&nbsp;&nbsp;
+      </ion-button>
+    </ion-buttons>
+    <ion-spinner *ngIf="!this.hasItLoaded" slot="end" name="lines"></ion-spinner>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="!sans">
+    <ion-list>
+      <ion-item>
+        <ion-label>{{this.monthsName[this.showingMonth - 1]}}</ion-label>
+        <ion-buttons slot="end">
+          <ion-button (click)="showOrHide('evaluations')">
+            <ion-icon slot="icon-only" [color]="showEvaluations ? 'primary' : 'dark'" name="book"></ion-icon>
+          </ion-button>
+          <ion-button (click)="showOrHide('absences')">
+            <ion-icon slot="icon-only" [color]="showAbsences ? 'primary' : 'dark'" name="calendar"></ion-icon>
+          </ion-button>
+          <ion-button (click)="showOrHide('notes')">
+            <ion-icon slot="icon-only" [color]="showNotes ? 'primary' : 'dark'" name="clipboard"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+      <div *ngFor="let item of this.allData">
+        <!-- Evaluation -->
+        <ion-card button [hidden]="!this.showEvaluations" *ngIf="item.EvaluationId != null && item.Type == 'MidYear'"
+          (click)="graphOrAlert(item.Subject, item.Form != 'Mark' ? item : null)"
+          [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.NumberValue, item.Form)">
+          <ion-card-content>
+            <div *ngIf="item.NumberValue == 0 then thenblock else elseblock"></div>
+            <!-- NumberValue == 0 -->
+            <ng-template #thenblock>
+              <div style="float: right">
+                <h1 *ngIf="item.Form == 'Mark'">-</h1>
+                <ion-buttons *ngIf="item.Form == 'Text'" slot="end">
+                  <ion-button>
+                    <ion-icon slot="icon-only" name="text"></ion-icon>
+                  </ion-button>
+                </ion-buttons>
+              </div>
+            </ng-template>
+            <!-- NumberValue != 0 -->
+            <ng-template #elseblock>
+              <div style="float: right;">
+                <h1 *ngIf="item.Form == 'Mark'" slot="start">{{item.NumberValue}}</h1>
+                <h1 *ngIf="item.Form == 'Percent'" slot="start">{{item.NumberValue}}%</h1>
+              </div>
+            </ng-template>
+            <ion-label>
+            <h1>{{item.Subject}} <small>{{item.Weight}}</small></h1>
+
+            </ion-label>
+            <ion-label slot="start">{{item.Teacher + themeIf(item.Theme)}}</ion-label>
+            <br>
+            <ion-label slot="end">{{fDate.formatDate(item.CreatingTime)}}</ion-label>
+            <br>
+            <ion-label slot="end"></ion-label>
+          </ion-card-content>
+        </ion-card>
+        <!-- Absence -->
+        <ion-item button [hidden]="!this.showAbsences" *ngIf="item.AbsenceId != null" (click)="getMoreData(item)">
+          <ion-icon slot="start"
+            [name]="item.JustificationState == 'Justified' ? 'done-all' : item.JustificationState == 'BeJustified' ? 'warning' : 'close'"
+            [class]="item.JustificationState == 'Justified' ? 'green' : item.JustificationState == 'BeJustified' ? 'yellow' : 'red'"
+            size="large"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            {{item.Subject}}<br>
+            {{item.TypeName}}
+            <p *ngIf="item.Type == 'Delay'">({{item.DelayTimeMinutes}}p.)</p>
+          </ion-label>
+          <ion-label class="ion-text-wrap">
+            {{item.Teacher}}
+          </ion-label>
+        </ion-item>
+        <!-- Note -->
+        <ion-item button [hidden]="!this.showNotes" *ngIf="item.NoteId != null" (click)="getMoreData(item)">
+          <ion-label>{{item.Title}}</ion-label>
+          <ion-label>{{item.CreatingTime.substring(0, 10)}}</ion-label>
+        </ion-item>
+      </div>
+    </ion-list>
+    <!-- <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="bubbles"
+        loadingText="Loading more data...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+    <ion-button (click)="loadData('')">
+      loadData();
+    </ion-button> -->
+  </div>
+
+
+  <div *ngIf="sans">
+    <ion-list>
+      <div *ngFor="let i of [0, 1, 2, 3, 4, 5, 6]">
+        <ion-card [style.box-shadow]="'0px 0px 7px 3px'">
+          <ion-card-content>
+            <div style="float:right;">
+              <ion-item>
+                <ion-avatar style="float: right; padding-left: 30%;" slot="end">
+                  <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+                </ion-avatar>
+              </ion-item>
+            </div>
+            <ion-label>
+              <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+            </ion-label>
+            <ion-label slot="start">
+              <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+            </ion-label>
+            <br>
+            <ion-label slot="end">
+              <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+            </ion-label>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ion-list>
+  </div>
+</ion-content>

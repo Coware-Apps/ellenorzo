@@ -1,0 +1,95 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Beállítások</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-radio-group>
+      <ion-list-header>
+        <ion-label>
+          <h1>Téma</h1>
+        </ion-label>
+      </ion-list-header>
+
+      <ion-item>
+        <ion-label>Világos</ion-label>
+        <ion-radio slot="start" (click)="enableLight()" [checked]="currentTheme == 'light'"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Sötét</ion-label>
+        <ion-radio slot="start" (click)="enableDark()" [checked]="currentTheme == 'dark'"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Amoled sötét</ion-label>
+        <ion-radio slot="start" (click)="enableMinimalDark()" [checked]="currentTheme == 'minimalDark'"></ion-radio>
+      </ion-item>
+      <ion-button class="galleryButton" (click)="openBgSettings()">
+        <ion-icon slot="icon-only" name="settings"></ion-icon>
+      </ion-button>
+      <ion-button class="galleryButton" (click)="getImage()">
+        <ion-icon slot="icon-only" name="folder-open"></ion-icon>
+      </ion-button>
+      <ion-item class="custom">
+        <ion-label>[Exp] Saját háttér</ion-label>
+        <ion-radio slot="start" (click)="enableCustom()" [checked]="currentTheme == 'custom'"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+
+
+    <ion-item button (click)="showPicker()">
+      Színek testreszabása
+      <ion-icon slot="start" name="color-palette"></ion-icon>
+    </ion-item>
+
+    <ion-list-header>
+      <ion-label>
+        <h1>Oldalak</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label>Kezdőlap</ion-label>
+      <ion-select [(ngModel)]="defaultPage" (ionChange)="selectorChanged($event)"
+        [interfaceOptions]="customAlertOptions" interface="alert" slot="end" placeholder="Órarend">
+        <div *ngFor="let page of appPages">
+          <ion-select-option *ngIf="page.title != 'Beállítások' && page.show" value="{{page.url}}">{{page.title}}
+          </ion-select-option>
+        </div>
+      </ion-select>
+    </ion-item>
+    <ion-button fill="clear" class="galleryButton" (click)="showHideInfo()">
+      <ion-icon name="information-circle-outline"></ion-icon>
+    </ion-button>
+    <ion-item button class="width80" (click)="hidePages()">
+      <ion-label>Oldalak elrejtése</ion-label>
+    </ion-item>
+
+
+
+
+
+    <ion-list-header>
+      <ion-label>
+        <h1>Fiók</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item button (click)="logout()">
+      Kijelentkezés
+      <ion-icon slot="start" name="log-out"></ion-icon>
+    </ion-item>
+    <ion-list-header>
+      <ion-label>
+        <h1>Verzió</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item button>
+      <ion-label>{{this.appV}}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

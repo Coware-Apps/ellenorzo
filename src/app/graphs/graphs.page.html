@@ -1,0 +1,79 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons *ngIf="lineColumnButtons" slot="end">
+      <ion-button [fill]="active == 'line' ? 'solid' : 'clear'" (click)="chartSwitch('line')">
+        <ion-icon slot="icon-only" name="analytics"></ion-icon>
+      </ion-button>
+      <ion-button [fill]="active == 'column' ? 'solid' : 'clear'" (click)="chartSwitch('column')">
+        <ion-icon slot="icon-only" name="stats"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Részletes statisztika</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-toolbar *ngIf="!this.linecolumn">
+    <div *ngIf="!this.statisticsGrouping">
+      <ion-card *ngFor="let number of howMany" #thenblock>
+        <div id="container" style="display: block;"></div>
+        <ion-card-header>
+          <ion-card-subtitle>Összes jegy: {{this.howManyGrades}}</ion-card-subtitle>
+          <ion-card-title>{{this.title}}{{this.average}}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <div *ngIf="this.statisticsGrouping">
+      <ion-card #elseblock *ngFor="let subjectKey of helper">
+        <div id={{subjectKey}} style="display: block;"></div>
+        <ion-card-header>
+          <ion-card-subtitle>Összes jegy: {{getNumVals(subjectKey).length}}</ion-card-subtitle>
+          <ion-card-subtitle>Átlag: {{getAvg(subjectKey)}}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </ion-toolbar>
+
+
+  
+  <ion-slides *ngIf="this.linecolumn" (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">
+    <ion-slide class="wide">
+      <ion-card class="wide" *ngFor="let subjectKey of helper">
+        <div class="chart" [attr.id]="'line_' + subjectKey"></div>
+        <ion-card-header>
+          <ion-card-subtitle>Összes jegy: {{getNumVals(subjectKey).length}}</ion-card-subtitle>
+          <ion-card-subtitle>Átlag: {{getAvg(subjectKey)}}</ion-card-subtitle>
+        </ion-card-header>
+      </ion-card>
+    </ion-slide>
+    <ion-slide class="wide">
+      <ion-card class="wide" *ngFor="let subjectKey of helper">
+      <div class="chart" [attr.id]="'column_' + subjectKey" style="display: block;"></div>
+        <ion-card-header>
+          <ion-card-subtitle>Összes jegy: {{getNumVals(subjectKey).length}}</ion-card-subtitle>
+          <ion-card-subtitle>Átlag: {{getAvg(subjectKey)}}</ion-card-subtitle>
+        </ion-card-header>
+      </ion-card>
+    </ion-slide>
+  </ion-slides>
+</ion-content>
+
+
+
+<ion-footer *ngIf="this.linecolumn">
+  <ion-segment>
+    <ion-segment-button value="a1" [checked]="this.focused == 0" (click)="getData(0)">
+      <ion-icon name="analytics"></ion-icon>
+    </ion-segment-button>
+    <ion-segment-button value="a2" [checked]="this.focused == 1" (click)="getData(1)">
+      <ion-icon name="stats"></ion-icon>
+    </ion-segment-button>
+  </ion-segment>
+</ion-footer>

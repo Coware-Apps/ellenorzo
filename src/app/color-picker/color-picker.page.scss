@@ -1,0 +1,49 @@
+ion-card.home {
+    margin-bottom: 20px !important;
+  }
+ion-card.averages {
+  margin-bottom: 20px !important;
+}
+ion-card-header.home {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+    margin-top: 0px !important;
+}
+
+
+ion-card-content.home {
+  div>h1 {
+    font-size:3rem !important; 
+    font-weight: bold;
+  }
+  div {
+    padding-top: 10px;
+  }
+}
+ion-card-content.averages {
+  div>h1 {
+    font-size:2.5rem !important; 
+    font-weight: bold;
+  }
+  div {
+    padding-top: 5px;
+  }
+}
+
+.wide {
+  width: 95%;
+  display: block;
+}
+
+.tl {
+  text-align: left;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  min-width: min-content;
+}
+
+    

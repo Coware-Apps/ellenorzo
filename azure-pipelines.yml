@@ -1,0 +1,75 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      v=`node -p "const p = require('./package.json'); p.version;"`
+      echo "##vso[task.setvariable variable=packageVersion]$v"
+
+- task: Npm@1
+  inputs:
+    command: 'install'
+
+- task: IonicCommand@1
+  inputs:
+    ionicCommand: 'cordova build android'
+    ionicArgs: '--prod --release'
+
+- task: AndroidSigning@3
+  inputs:
+    apkFiles: '**/platforms/android/app/build/outputs/apk/release/*.apk'
+    apksignerKeystoreFile: 'coware_apk_key.keystore'
+    apksignerKeystoreAlias: 'coware_apk'
+    apksignerKeystorePassword: '$(coware_keystore_pass)'
+    apksignerArguments: '--verbose'
+    apksignerFile: '/usr/local/lib/android/sdk/build-tools/29.0.2/apksigner'
+    zipalignFile: '/usr/local/lib/android/sdk/build-tools/29.0.2/zipalign'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'platforms/android/app/build/outputs/apk/release/'
+    Contents: '*.apk'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: Gradle@2
+  inputs:
+    gradleWrapperFile: 'platforms/android/gradlew'
+    workingDirectory: 'platforms/android'
+    tasks: 'bundle'
+    publishJUnitResults: false
+    javaHomeOption: 'JDKVersion'
+    sonarQubeRunAnalysis: false
+
+- task: AndroidSigning@2
+  inputs:
+    apkFiles: '**/platforms/android/app/build/outputs/bundle/release/*.aab'
+    jarsignerKeystoreFile: 'coware_apk_key.keystore'
+    jarsignerKeystoreAlias: 'coware_apk'
+    jarsignerKeystorePassword: '$(coware_keystore_pass)'
+    jarsignerArguments: '-verbose -sigalg SHA256withRSA -digestalg SHA-256'
+    zipalignFile: '/usr/local/lib/android/sdk/build-tools/29.0.2/zipalign'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'platforms/android/app/build/outputs/bundle/release/'
+    Contents: '*.aab'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      mv $(Build.ArtifactStagingDirectory)/app-release-unsigned.apk $(Build.ArtifactStagingDirectory)/ellenorzo-$(packageVersion)-release-signed.apk
+      mv $(Build.ArtifactStagingDirectory)/app.aab $(Build.ArtifactStagingDirectory)/ellenorzo-$(packageVersion)-release-signed.aab
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'release-binary'
+    publishLocation: 'Container'

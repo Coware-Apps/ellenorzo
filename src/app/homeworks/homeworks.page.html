@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  <ion-title>Házi feladatok ({{fDate.getDate("today")}})</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+<ion-list>
+  <ion-list-header>
+    <ion-label><h1>Tanár által feladott</h1><p *ngIf="!this.sans && teacherHomeworks.length == 0">(üres)</p></ion-label>
+  </ion-list-header>
+  <div *ngIf="!sans">
+    <ion-card class="wide" *ngFor="let homework of teacherHomeworks">
+      <ion-card-header>
+        <ion-buttons style="float: right;">
+          <ion-button (click)="showInfo(homework)">
+            <ion-icon slot="icon-only" name="information-circle"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-card-title>{{homework.Tantargy}}</ion-card-title>
+      <ion-card-subtitle>{{homework.Rogzito}} - {{homework.FeladasDatuma.substring(0,10)}}</ion-card-subtitle>
+      <ion-card-subtitle class="deadlineText">Határidő: {{homework.Hatarido.substring(0, 10)}}</ion-card-subtitle>
+      <ion-card-title>
+        <div [innerHTML]="homework.Szoveg"></div>
+      </ion-card-title>
+      </ion-card-header>
+    </ion-card>
+  </div>
+  <div *ngIf="sans">
+    <ion-card class="wide">
+      <ion-card-header>
+        <ion-buttons style="float: right;">
+          <ion-button>
+            <ion-icon disabled slot="icon-only" name="information-circle"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-card-title><ion-skeleton-text animated width="30%"></ion-skeleton-text></ion-card-title>
+      <ion-card-subtitle><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-subtitle>
+      <ion-card-subtitle class="deadlineText"><ion-skeleton-text animated width="30%"></ion-skeleton-text></ion-card-subtitle>
+      <ion-card-title>
+        <div><ion-skeleton-text animated width="80%"></ion-skeleton-text></div>
+      </ion-card-title>
+      </ion-card-header>
+    </ion-card>
+  </div>
+
+  <ion-list-header>
+    <ion-label><h1>Tanuló által feladott</h1><p *ngIf="!this.sans && studentHomeworks.length == 0">(üres)</p></ion-label>
+  </ion-list-header>
+  <div>
+    <ion-card *ngFor="let homework of studentHomeworks">
+      <ion-card-header>
+      <ion-card-subtitle class="subtitles">{{homework.TanuloNev}} - {{homework.FeladasDatuma.substring(0,10)}}</ion-card-subtitle>
+      <ion-card-title [ngClass]="{'linethrough': homework.TanuloAltalTorolt}">
+        {{homework.FeladatSzovege}}
+      </ion-card-title>
+      </ion-card-header>
+    </ion-card>
+  </div>
+  <div *ngIf="sans">
+    <ion-card class="wide">
+      <ion-card-header>
+        <ion-buttons style="float: right;">
+          <ion-button>
+            <ion-icon disabled slot="icon-only" name="information-circle"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-card-title><ion-skeleton-text animated width="30%"></ion-skeleton-text></ion-card-title>
+      <ion-card-subtitle><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-subtitle>
+      <ion-card-subtitle class="deadlineText"><ion-skeleton-text animated width="30%"></ion-skeleton-text></ion-card-subtitle>
+      <ion-card-title>
+        <div><ion-skeleton-text animated width="80%"></ion-skeleton-text></div>
+      </ion-card-title>
+      </ion-card-header>
+    </ion-card>
+  </div>
+</ion-list>
+</ion-content>

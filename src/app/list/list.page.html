@@ -1,0 +1,192 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <div *ngIf="!sans">
+      <ion-title>
+        Órarend ({{weekToFrom}})
+      </ion-title>
+    </div>
+    <div *ngIf="sans">
+      <ion-skeleton-text width="33%"></ion-skeleton-text>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
+    <ion-slide *ngFor="let x of days2">
+      <ion-list>
+        <div *ngIf="!sans">
+          <div *ngFor="let item of this.timetable">
+
+            <ion-item button *ngIf="item.DayOfWeek == x" [ngClass]="getStateClass(item)" slot="start">
+
+
+              <ion-buttons *ngIf="item.IsTanuloHaziFeladatEnabled || item.TeacherHomeworkId != null" class="homeworksBtn" slot="end">
+                  <ion-button (click)="openHomeworks(item.TeacherHomeworkId, item.Subject, item.IsTanuloHaziFeladatEnabled, item.LessonId, item.CalendarOraType, item.StartTime)">
+                    <ion-icon *ngIf="item.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
+                    <ion-icon *ngIf="item.TeacherHomeworkId != null" color="warning" slot="icon-only" src="/assets/extraicons/homewarning.svg"></ion-icon>
+                  </ion-button>
+              </ion-buttons>
+
+              <ion-label (click)="getMoreData(item)" class="ion-text-wrap">
+                <h2 slot="start">{{item.Count}}. {{item.Subject}}</h2>
+              </ion-label>
+
+              <ion-label class="middleLabel" (click)="getMoreData(item)">
+                <div *ngIf="item.DeputyTeacher == ''; then thenBlock else elseBlock"></div>
+                <ng-template #thenBlock>
+                  <div *ngIf="item.StateName == 'Elmaradt tanóra'; then canceledBlock else notCanceledBlock"></div>
+                  <ng-template #canceledBlock>Elmarad</ng-template>
+                  <ng-template #notCanceledBlock>
+                    <p>{{item.ClassRoom}}</p>
+                    <p>{{getTime(item.StartTime, item.EndTime)}}</p>
+                  </ng-template>
+                </ng-template>
+                <ng-template #elseBlock>
+                  <p>Helyettesít:</p>
+                  <p>{{item.DeputyTeacher}}</p>
+                </ng-template>
+              </ion-label>
+            </ion-item>
+          </div>
+        </div>
+      </ion-list>
+    </ion-slide>
+  </ion-slides>
+
+  <div *ngIf="sans">
+    <ion-list>
+      <ion-list-header>
+        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+      </ion-list-header>
+      <ion-item>
+        <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        <ion-label class="item-note" slot="end">
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        <ion-label class="item-note" slot="end">
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        <ion-label class="item-note" slot="end">
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        <ion-label class="item-note" slot="end">
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        <ion-label class="item-note" slot="end">
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        <ion-label class="item-note" slot="end">
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        <ion-label class="item-note" slot="end">
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        </ion-label>
+        <ion-label slot="end">
+          <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons class="justify-content-center align-items-center" style="height: 100%; flex-direction: column">
+      <ion-row>
+        <ion-col>
+          <ion-button class="footerButton" [disabled]="sans" (click)="getPrevWeek()">
+            <ion-icon name="arrow-dropleft-circle"></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="monday">
+          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == 0}"
+            [fill]="this.focused == 0 ? 'solid' : 'outline'" (click)="getData(0)">
+            Hé
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="tuesday">
+          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == 1}"
+            [fill]="this.focused == 1 ? 'solid' : 'outline'" (click)="getData(1)">
+            Ke
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="wednesday">
+          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == 2}"
+            [fill]="this.focused == 2 ? 'solid' : 'outline'" (click)="getData(2)">
+            Sz
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="thursday">
+          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == 3}"
+            [fill]="this.focused == 3 ? 'solid' : 'outline'" (click)="getData(3)">
+            Cs
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="friday">
+          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == 4}"
+            [fill]="this.focused == 4 ? 'solid' : 'outline'" (click)="getData(4)">
+            Pé
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="saturday">
+          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == 5}"
+            [fill]="this.focused == 5 ? 'solid' : 'outline'" (click)="getData(5)">
+            Sz
+          </ion-button>
+        </ion-col>
+        <ion-col *ngIf="sunday">
+          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == 6}"
+            [fill]="this.focused == 6 ? 'solid' : 'outline'" (click)="getData(6)">
+            Va
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button [disabled]="sans" (click)="getNextWeek()">
+            <ion-icon name="arrow-dropright-circle"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,274 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Értékelések</ion-title>
+    <ion-select [(ngModel)]="selected" (ionChange)="selectorChanged($event)" [interfaceOptions]="customPopoverOptions"
+      interface="popover" slot="end" placeholder="Adatok">
+      <ion-select-option *ngFor="let option of selectOptions" value="{{option.id}}">{{option.name}}</ion-select-option>
+    </ion-select>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="!this.sans">
+    <ion-item *ngIf="this.sans == false" [hidden]="this.evaluations.length != 0" style="text-align: center;">
+      <ion-label style="text-align: center">Nincsenek naplózott értékelések.</ion-label>
+    </ion-item>
+    <!-- By dates -->
+    <div *ngFor="let date of dates">
+      <div *ngIf="this.selected == this.selectOptions[1].id">
+        <ion-list-header *ngIf="this.doMidYearEvaluationsExist(date)">
+          <ion-label>
+            <h1>{{date.substring(0,10)}}</h1>
+          </ion-label>
+        </ion-list-header>
+
+        <div *ngFor="let evaluation of getEvaluations(date, true, false, false, false, 1)">
+          <ion-card button (click)="this.getMoreData(evaluation)" *ngIf="evaluation.Type == 'MidYear'"
+            [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
+            <ion-card-content>
+              <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
+              <!-- NumberValue == 0 -->
+              <ng-template #thenblock>
+                <div style="float: right">
+                  <h1 *ngIf="evaluation.Form == 'Mark'">-</h1>
+                  <ion-buttons *ngIf="evaluation.Form == 'Text'" slot="end">
+                    <ion-button>
+                      <ion-icon slot="icon-only" name="text"></ion-icon>
+                    </ion-button>
+                  </ion-buttons>
+                </div>
+              </ng-template>
+              <!-- NumberValue != 0 -->
+              <ng-template #elseblock>
+                <div style="float: right;">
+                  <h1 *ngIf="evaluation.Form == 'Mark'" slot="start">{{evaluation.NumberValue}}</h1>
+                  <h1 *ngIf="evaluation.Form == 'Percent'" slot="start">{{evaluation.NumberValue}}%</h1>
+                </div>
+              </ng-template>
+              <ion-label>
+                <h1>
+                  {{evaluation.Subject}} <small>{{evaluation.Weight}}</small>
+                </h1>
+
+              </ion-label>
+              <ion-label slot="start">{{evaluation.Teacher + themeIf(evaluation.Theme)}}</ion-label>
+              <br>
+              <ion-label slot="end"></ion-label>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- By subjects -->
+    <div *ngFor="let subject of subjects">
+      <div *ngIf="this.selected == this.selectOptions[0].id">
+        <ion-list-header *ngIf="this.doMidYearEvaluationsExist(subject, false)">
+          <ion-item button (click)="showModal(subject)" style="width: 100%">
+            <ion-buttons slot="end" style="float: right">
+              <ion-button>
+                <ion-icon slot="icon-only" name="analytics"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+            <ion-label>
+              <h1>{{subject}}</h1>
+            </ion-label>
+          </ion-item>
+        </ion-list-header>
+        <div *ngFor="let evaluation of getEvaluations(subject, false, false, false, false, 0)">
+          <ion-card button (click)="this.getMoreData(evaluation)" *ngIf="evaluation.Type == 'MidYear'"
+            [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
+            <ion-card-content>
+              <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
+              <!-- NumberValue == 0 -->
+              <ng-template #thenblock>
+                <div style="float: right">
+                  <h1 *ngIf="evaluation.Form == 'Mark'">-</h1>
+                  <ion-buttons *ngIf="evaluation.Form == 'Text'" slot="end">
+                    <ion-button>
+                      <ion-icon slot="icon-only" name="text"></ion-icon>
+                    </ion-button>
+                  </ion-buttons>
+                </div>
+              </ng-template>
+              <!-- NumberValue != 0 -->
+              <ng-template #elseblock>
+                <div style="float: right;">
+                  <h1 *ngIf="evaluation.Form == 'Mark'" slot="start">{{evaluation.NumberValue}}</h1>
+                  <h1 *ngIf="evaluation.Form == 'Percent'" slot="start">{{evaluation.NumberValue}}%</h1>
+                </div>
+              </ng-template>
+              <ion-label>
+                <h1>
+                  {{evaluation.Date.substring(0,10)}} <small>{{evaluation.Weight}}</small>
+                </h1>
+
+              </ion-label>
+              <ion-label slot="start">{{evaluation.Teacher + themeIf(evaluation.Theme)}}</ion-label>
+              <br>
+              <ion-label slot="end"></ion-label>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- HalfYear -->
+    <div *ngIf="this.selected == this.selectOptions[2].id">
+      <ion-list-header *ngIf="this.evaluations.length != 0">
+        <ion-label>
+          <h1>Félévi értékelések</h1>
+        </ion-label>
+      </ion-list-header>
+      <div *ngFor="let evaluation of getEvaluations(null, false, true, false, false, 2)">
+        <ion-card button (click)="this.getMoreData(evaluation)"
+          [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
+          <ion-card-content>
+            <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
+            <!-- NumberValue == 0 -->
+            <ng-template #thenblock>
+              <div style="float: right">
+                <h1 *ngIf="evaluation.Form == 'Mark'">-</h1>
+                <ion-buttons *ngIf="evaluation.Form == 'Text'" slot="end">
+                  <ion-button>
+                    <ion-icon slot="icon-only" name="text"></ion-icon>
+                  </ion-button>
+                </ion-buttons>
+              </div>
+            </ng-template>
+            <!-- NumberValue != 0 -->
+            <ng-template #elseblock>
+              <div style="float: right;">
+                <h1 *ngIf="evaluation.Form == 'Mark'" slot="start">{{evaluation.NumberValue}}</h1>
+                <h1 *ngIf="evaluation.Form == 'Percent'" slot="start">{{evaluation.NumberValue}}%</h1>
+              </div>
+            </ng-template>
+            <ion-label>
+              <h1>
+                {{evaluation.Date.substring(0,10)}}
+              </h1>
+
+            </ion-label>
+            <ion-label slot="start">{{evaluation.Teacher + themeIf(evaluation.Theme)}}</ion-label>
+            <br>
+            <ion-label slot="end"></ion-label>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- EndYear -->
+    <div *ngIf="this.selected == this.selectOptions[3].id">
+      <ion-list-header *ngIf="this.evaluations.length != 0">
+        <ion-label>
+          <h1>Év végi értékelések</h1>
+        </ion-label>
+      </ion-list-header>
+      <div *ngFor="let evaluation of getEvaluations(null, false, false, true, false, 3)">
+        <ion-card button (click)="this.getMoreData(evaluation)"
+          [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
+          <ion-card-content>
+            <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
+            <!-- NumberValue == 0 -->
+            <ng-template #thenblock>
+              <div style="float: right">
+                <h1 *ngIf="evaluation.Form == 'Mark'">-</h1>
+                <ion-buttons *ngIf="evaluation.Form == 'Text'" slot="end">
+                  <ion-button>
+                    <ion-icon slot="icon-only" name="text"></ion-icon>
+                  </ion-button>
+                </ion-buttons>
+              </div>
+            </ng-template>
+            <!-- NumberValue != 0 -->
+            <ng-template #elseblock>
+              <div style="float: right;">
+                <h1 *ngIf="evaluation.Form == 'Mark'" slot="start">{{evaluation.NumberValue}}</h1>
+                <h1 *ngIf="evaluation.Form == 'Percent'" slot="start">{{evaluation.NumberValue}}%</h1>
+              </div>
+            </ng-template>
+            <ion-label>
+              <h1>
+                {{evaluation.Date.substring(0,10)}}
+              </h1>
+
+            </ion-label>
+            <ion-label slot="start">{{evaluation.Teacher + themeIf(evaluation.Theme)}}</ion-label>
+            <br>
+            <ion-label slot="end"></ion-label>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Other -->
+    <div *ngIf="this.selected == this.selectOptions[4].id">
+      <ion-list-header *ngIf="this.evaluations.length != 0">
+        <ion-label>
+          <h1>Egyéb értékelések</h1>
+        </ion-label>
+      </ion-list-header>
+      <div *ngFor="let evaluation of getEvaluations(null, false, false, false, true, 4)">
+        <ion-card button (click)="this.getMoreData(evaluation)"
+          [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
+          <ion-card-content>
+            <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
+            <!-- NumberValue == 0 -->
+            <ng-template #thenblock>
+              <div style="float: right">
+                <h1 *ngIf="evaluation.Form == 'Mark'">-</h1>
+                <ion-buttons *ngIf="evaluation.Form == 'Text'" slot="end">
+                  <ion-button>
+                    <ion-icon slot="icon-only" name="text"></ion-icon>
+                  </ion-button>
+                </ion-buttons>
+              </div>
+            </ng-template>
+            <!-- NumberValue != 0 -->
+            <ng-template #elseblock>
+              <div style="float: right;">
+                <h1 *ngIf="evaluation.Form == 'Mark'" slot="start">{{evaluation.NumberValue}}</h1>
+                <h1 *ngIf="evaluation.Form == 'Percent'" slot="start">{{evaluation.NumberValue}}%</h1>
+              </div>
+            </ng-template>
+            <ion-label>
+              <h1>
+                {{evaluation.TypeName}}
+              </h1>
+
+            </ion-label>
+            <ion-label slot="start">{{evaluation.Teacher + themeIf(evaluation.Theme)}}</ion-label>
+            <br>
+            <ion-label slot="end"></ion-label>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </ion-list>
+
+  <ion-list *ngIf="this.sans">
+    <ion-list-header>
+      <ion-skeleton-text width="80%"></ion-skeleton-text>
+    </ion-list-header>
+    <ion-card>
+      <ion-card-content *ngFor="let i of [0, 1, 2, 3, 4, 5]">
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+      </ion-card-content>
+    </ion-card>
+    <ion-list-header>
+      <ion-skeleton-text width="80%"></ion-skeleton-text>
+    </ion-list-header>
+    <ion-card>
+      <ion-card-content *ngFor="let i of [0, 1, 2, 3, 4, 5]">
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="60%"></ion-skeleton-text>
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+</ion-content>

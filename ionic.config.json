@@ -1,0 +1,7 @@
+{
+  "name": "NemKreta",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

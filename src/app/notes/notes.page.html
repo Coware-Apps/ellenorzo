@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+      <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+    <ion-title>Feljegyzések</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-list *ngIf="!sans">
+        <ion-item button (click)="getMoreData(note)" *ngFor="let note of notes">          
+          <ion-label>{{note.Title}}</ion-label>
+          <ion-label>{{note.CreatingTime.substring(0, 10)}}</ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-list *ngIf="sans">
+        <ion-item (click)="getMoreData(note)" *ngFor="let note of [0, 1, 2, 3, 4, 5, 6]">          
+          <ion-label><ion-skeleton-text animated width="80%"></ion-skeleton-text></ion-label>
+          <ion-label><ion-skeleton-text animated width="80%"></ion-skeleton-text></ion-label>
+        </ion-item>
+      </ion-list>
+</ion-content>

@@ -1,0 +1,46 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Átlagok</ion-title>
+    <ion-buttons slot="end" *ngIf="!sans">
+      <ion-button (click)="showPicker()">
+        <ion-icon slot="start" name="color-palette"></ion-icon>
+        Színek &nbsp;&nbsp;&nbsp;
+      </ion-button>
+    </ion-buttons>
+    <ion-spinner *ngIf="sans" slot="end" name="lines"></ion-spinner>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="!sans">
+    <ion-list>
+      <div *ngFor="let item of this.student.SubjectAverages">
+        <ion-card button [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.Value)" *ngIf="item.Value != 0" (click)="showModal(item.Subject, item.ClassValue)">
+          <ion-card-content>
+            <div style="float: right;">
+              <h1 [ngStyle]="{'color': color.getContrast()}">{{item.Value}}</h1>
+            </div>
+            <ion-card-title><h1>{{item.Subject}}</h1></ion-card-title>
+            <ion-card-subtitle [ngStyle]="{'color': color.getContrast()}">Osztályátlag: {{item.ClassValue}}
+            </ion-card-subtitle>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ion-list>
+  </div>
+
+  <div *ngIf="sans">
+    <ion-list>
+        <ion-card *ngFor="let item of [0, 1, 2, 3, 4, 5, 6]">
+          <ion-card-header>
+            <ion-card-title><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-title>
+            <ion-card-subtitle><ion-skeleton-text animated width="20%"></ion-skeleton-text></ion-card-subtitle>
+            <ion-card-subtitle><ion-skeleton-text animated  width="40%"></ion-skeleton-text ></ion-card-subtitle>
+          </ion-card-header>
+        </ion-card>
+    </ion-list>
+  </div>
+</ion-content>

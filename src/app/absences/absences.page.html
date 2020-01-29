@@ -1,0 +1,140 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="showTotal()">
+        <ion-icon slot="icon-only" name="information-circle"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Mulasztások - {{title}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content (ionScroll)="ionScroll($event)" scrollEvents="true" #scroll>
+  <ion-fab [hidden]="!a" vertical="top" horizontal="center" slot="fixed">
+    <ion-fab-button (click)="scrollToTop()" translucent="true">
+      <ion-icon name="arrow-up"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
+    <ion-slide>
+      <ion-list>
+        <ion-item *ngIf="this.justifiedExistingDates.length == 0 && this.sans == false" style="text-align: center;">
+          <ion-label>Nincsenek igazolt mulasztások.</ion-label>
+        </ion-item>
+        <div *ngFor="let date of justifiedExistingDates">
+          <ion-list-header>
+            <ion-label>
+              <h1>{{date}}</h1>
+            </ion-label>
+          </ion-list-header>
+          <div *ngFor="let absence of absences">
+            <ion-item button (click)="getMoreData(absence)"
+              *ngIf="absence.JustificationStateName == 'Igazolt mulasztás' && absence.LessonStartTime.substring(0,10) == date">
+              <ion-icon slot="start" name="done-all" class="green" size="large"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                {{absence.Subject}}<br>
+                {{absence.TypeName}}
+                <p *ngIf="absence.Type == 'Delay'">({{absence.DelayTimeMinutes}}p.)</p>
+              </ion-label>
+              <ion-label class="ion-text-wrap">
+                {{absence.Teacher}}
+              </ion-label>
+            </ion-item>
+          </div>
+        </div>
+      </ion-list>
+    </ion-slide>
+    <ion-slide>
+      <ion-list>
+        <ion-item *ngIf="this.beJustifiedExistingDates.length == 0 && this.sans == false" style="text-align: center;">
+          <ion-label>Nincsenek igazolandó mulasztások.</ion-label>
+        </ion-item>
+        <div *ngFor="let date of beJustifiedExistingDates">
+          <ion-list-header>
+            <ion-label>
+              <h1>{{date}}</h1>
+            </ion-label>
+          </ion-list-header>
+          <div *ngFor="let absence of absences">
+            <ion-item button (click)="getMoreData(absence)"
+              *ngIf="absence.JustificationStateName == 'Igazolandó mulasztás' && absence.LessonStartTime.substring(0,10) == date">
+              <ion-icon slot="start" name="warning" class="yellow" size="large"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                {{absence.Subject}}<br>
+                {{absence.TypeName}}
+                <p *ngIf="absence.Type == 'Delay'">({{absence.DelayTimeMinutes}}p.)</p>
+              </ion-label>
+              <ion-label class="ion-text-wrap">
+                {{absence.Teacher}}
+              </ion-label>
+            </ion-item>
+          </div>
+        </div>
+      </ion-list>
+    </ion-slide>
+    <ion-slide>
+      <ion-list>
+        <ion-item *ngIf="this.unJustifiedExistingDates.length == 0 && this.sans == false" style="text-align: center;">
+          <ion-label>Nincsenek igazolatlan mulasztások.</ion-label>
+        </ion-item>
+        <div *ngFor="let date of unJustifiedExistingDates">
+          <ion-list-header>
+            <ion-label>
+              <h1>{{date}}</h1>
+            </ion-label>
+          </ion-list-header>
+          <div *ngFor="let absence of absences">
+            <ion-item button (click)="getMoreData(absence)"
+              *ngIf="absence.JustificationStateName == 'Igazolatlan mulasztás' && absence.LessonStartTime.substring(0,10) == date">
+              <ion-icon slot="start" name="close" class="red" size="large"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                {{absence.Subject}}<br>
+                {{absence.TypeName}}
+                <p *ngIf="absence.Type == 'Delay'">({{absence.DelayTimeMinutes}}p.)</p>
+              </ion-label>
+              <ion-label class="ion-text-wrap">
+                {{absence.Teacher}}
+              </ion-label>
+            </ion-item>
+          </div>
+        </div>
+      </ion-list>
+    </ion-slide>
+  </ion-slides>
+
+  <ion-list *ngIf="sans">
+    <ion-list-header>
+      <ion-skeleton-text width="30%" animated></ion-skeleton-text>
+    </ion-list-header>
+    <ion-item *ngFor="let number of [0, 1, 2, 3, 4, 5, 6]">
+      <ion-avatar slot="start">
+        <ion-skeleton-text animated></ion-skeleton-text>
+      </ion-avatar>
+      <ion-label class="ion-text-wrap">
+        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+      </ion-label>
+      <ion-label>
+        <ion-skeleton-text animated></ion-skeleton-text>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-segment>
+      <ion-segment-button [disabled]="sans" value="a1" [checked]="this.focused == 0" (click)="getData(0)">
+        <ion-icon name="done-all"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button [disabled]="sans" value="a2" [checked]="this.focused == 1" (click)="getData(1)">
+        <ion-icon name="warning"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button [disabled]="sans" value="a3" [checked]="this.focused == 2" (click)="getData(2)">
+        <ion-icon name="close"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-footer>

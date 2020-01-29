@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-back-button slot="start"></ion-back-button>
+    <ion-title>Háttér testreszabása</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label>Háttér automatikus méretezése</ion-label>
+      <ion-toggle (ionChange)="sizeChange($event)" [(ngModel)]="sizeChanger" slot="end"></ion-toggle>
+    </ion-item>
+    <ion-item>
+        <ion-range min="-100" max = "100" [(ngModel)]="this.x" (ionChange)="xChange($event)" color="primary">
+            <ion-icon slot="start" name="arrow-back"></ion-icon>
+            <ion-icon slot="end" name="arrow-forward"></ion-icon>
+        </ion-range>
+      </ion-item>
+      <ion-item>
+          <ion-range [disabled]="sizeChanger" min="-100" max = "100" [(ngModel)]="this.y" (ionChange)="yChange($event)" color="primary">
+              <ion-icon slot="start" name="arrow-up"></ion-icon>
+              <ion-icon slot="end" name="arrow-down"></ion-icon>
+          </ion-range>
+        </ion-item>
+        <ion-item>
+          <ion-range [disabled]="sizeChanger" min="100" max = "200" [(ngModel)]="this.size" (ionChange)="sizeSlider($event)" color="primary">
+              <ion-icon size="small" slot="start" name="image"></ion-icon>
+              <ion-icon slot="end" name="image"></ion-icon>
+          </ion-range>
+        </ion-item>
+  </ion-list>
+</ion-content>
