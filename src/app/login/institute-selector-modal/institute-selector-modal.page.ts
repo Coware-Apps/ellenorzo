@@ -3,6 +3,7 @@ import { KretaService } from 'src/app/_services/kreta.service';
 import { ModalController } from '@ionic/angular';
 import { Institute } from 'src/app/_models/institute';
 import { Storage } from '@ionic/storage';
+import { DataService } from 'src/app/_services/data.service';
 
 @Component({
   selector: 'app-institute-selector-modal',
@@ -18,6 +19,7 @@ export class InstituteSelectorModalPage implements OnInit {
     private kreta: KretaService,
     private modalController: ModalController,
     private storage: Storage,
+    private data: DataService,
   ) { }
 
   async ngOnInit() {
@@ -35,7 +37,7 @@ export class InstituteSelectorModalPage implements OnInit {
   onSelectionChange(instituteCode: string) {
     const selected = this.institutes.find(x => x.InstituteCode == instituteCode);
     this.kreta.institute = selected;
-    this.storage.set("institute", selected);
+    this.data.setData("institute", selected);
     this.modalController.dismiss({ selectedInstitute: selected });
   }
 }

@@ -40,6 +40,7 @@ export class GraphsPage implements OnInit {
   public focused: number;
   public lineColumnButtons: boolean;
   public active: string;
+  public months: string[];
 
   evaluations: Array<evaluation> = [];
   statisticsType: string;
@@ -53,6 +54,7 @@ export class GraphsPage implements OnInit {
   ) {
     this.focused = 0;
     this.lineColumnButtons = false;
+    this.months = ['január', "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
   }
 
 

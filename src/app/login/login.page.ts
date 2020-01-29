@@ -6,6 +6,7 @@ import { InAppBrowser, InAppBrowserOptions } from '@ionic-native/in-app-browser/
 import { InstituteSelectorModalPage } from './institute-selector-modal/institute-selector-modal.page';
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
+import { DataService } from '../_services/data.service';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +26,7 @@ export class LoginPage implements OnInit {
 
     private browser: InAppBrowser,
     private kreta: KretaService,
-    private router: Router,
+    private data: DataService,
   ) { }
 
   ngOnInit() {
@@ -38,6 +39,7 @@ export class LoginPage implements OnInit {
     }
     else{
       await this.storage.set('username', this.user);
+      await this.storage.set('institute', this.data.getData('institute'));
       this.kreta.password = this.pass;
       await this.kreta.loginIfNotYetLoggedIn(true);
     }

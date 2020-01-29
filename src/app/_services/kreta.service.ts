@@ -16,6 +16,7 @@ import { AuthenticationService } from './authentication.service';
 import { Test } from '../_models/test';
 import { Router } from '@angular/router';
 import { FormattedDateService } from './formatted-date.service';
+import { MobileVersionInfo } from '../_models/mobileVersionInfo';
 
 
 @Injectable({
@@ -161,7 +162,12 @@ export class KretaService {
   async errorHandler() {
     this.errorStatus.subscribe(error => {
       switch (error) {
-        //plugin error
+
+        case 0: 
+        //successful request
+        break;
+
+        //client side / plugin error
         case -4:
           this.presentToast('Időtúllépési hiba, ellenőrizd az internetkapcsolatod!')
           break;
@@ -169,7 +175,7 @@ export class KretaService {
           this.presentToast("Nincs internetkapcsolat!");
           break;
         case -2:
-          this.presentToast("A Kréta szerver nem válaszol!");
+          this.presentToast("A KRÉTA szerver nem válaszol!");
           break;
         case -1:
           this.presentToast("Hiba az internetkapcsolattal!");
@@ -231,6 +237,8 @@ export class KretaService {
 
       this.access_token = x.access_token;
       console.log("[KRETA->getToken()] result: ", x);
+      //success
+      this.errorStatus.next(0);
       return x;
     } catch (error) {
       console.error("Hiba történt a 'Token' lekérése közben", error);
@@ -264,8 +272,8 @@ export class KretaService {
 
       let x = <Token>JSON.parse(response.data);
 
+      this.errorStatus.next(0);
       return x;
-
     } catch (error) {
       console.error("Hiba a 'Token' lekérése közben: ", error);
       this.errorStatus.next(await error.status);
@@ -277,8 +285,9 @@ export class KretaService {
   //#region KRÉTA->GET
   public async getStudent(fromDate: string, toDate: string): Promise<Student> {
     this.institute = await this.getInstituteFromStorage();
+    let urlPath = '/mapi/api/v1/Student';
 
-    let cacheDataIf = await this.cache.getCacheIf(this.institute.Url + '/mapi/api/v1/Student?fromDate=' + fromDate + '&toDate=' + toDate);
+    let cacheDataIf = await this.cache.getCacheIf(this.institute.Url + urlPath +'?fromDate=' + fromDate + '&toDate=' + toDate);
 
     if (cacheDataIf == false) {
       await this.loginIfNotYetLoggedIn();
@@ -289,7 +298,7 @@ export class KretaService {
         'Authorization': 'Bearer ' + this.access_token,
       }
       try {
-        let response = await this.http.get(this.institute.Url + '/mapi/api/v1/Student?fromDate=' + fromDate + '&toDate=' + toDate, null, headers);
+        let response = await this.http.get(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, null, headers);
         let x = <Student>JSON.parse(response.data);
 
         //cache
@@ -298,13 +307,11 @@ export class KretaService {
         this.studentKey = (a = await this.storage.get('studentKey')) != null ? a : "";
         this.cache.clearCacheByKey(this.studentKey);
 
-        this.studentKey = this.institute.Url + '/mapi/api/v1/Lesson?fromDate=' + fromDate + "&toDate=" + toDate;
+        this.studentKey = this.institute.Url + urlPath + '?fromDate=' + fromDate + "&toDate=" + toDate;
         await this.storage.set('studentKey', this.studentKey);
-        await this.cache.setCache(this.institute.Url + '/mapi/api/v1/Student?fromDate=' + fromDate + '&toDate=' + toDate, x);
+        await this.cache.setCache(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, x);
 
         return x;
-
-
       }
       catch (error) {
         console.error("Hiba a tanuló lekérdezése közben", error);
@@ -318,8 +325,9 @@ export class KretaService {
 
   public async getLesson(fromDate: string, toDate: string, skipCache: boolean = false): Promise<Lesson[]> {
     this.institute = await this.getInstituteFromStorage();
+    let urlPath = '/mapi/api/v1/LessonAmi';
 
-    let cacheDataIf = await this.cache.getCacheIf(this.institute.Url + '/mapi/api/v1/Lesson?fromDate=' + fromDate + '&toDate=' + toDate);
+    let cacheDataIf = await this.cache.getCacheIf(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate);
 
     if (skipCache) {
       cacheDataIf = false;
@@ -340,7 +348,7 @@ export class KretaService {
       try {
         console.log('[KRETA] Refreshing Lesson...');
 
-        let response = await this.http.get(this.institute.Url + "/mapi/api/v1/Lesson?fromDate=" + fromDate + "&toDate=" + toDate, null, headers);
+        let response = await this.http.get(this.institute.Url + urlPath + "?fromDate=" + fromDate + "&toDate=" + toDate, null, headers);
 
         let responseData = <Lesson[]>JSON.parse(response.data);
 
@@ -351,9 +359,9 @@ export class KretaService {
           this.cache.clearCacheByKey(this.lessonKey);
           this.lessonKey = (a = await this.storage.get('lessonKey')) != null ? a : "";
 
-          this.lessonKey = this.institute.Url + '/mapi/api/v1/Lesson?fromDate=' + fromDate + "&toDate=" + toDate;
+          this.lessonKey = this.institute.Url + urlPath + '?fromDate=' + fromDate + "&toDate=" + toDate;
           await this.storage.set('lessonKey', this.lessonKey);
-          await this.cache.setCache(this.institute.Url + '/mapi/api/v1/Lesson?fromDate=' + fromDate + "&toDate=" + toDate, responseData);
+          await this.cache.setCache(this.institute.Url + urlPath + '?fromDate=' + fromDate + "&toDate=" + toDate, responseData);
         }
 
         return responseData;
@@ -626,6 +634,28 @@ export class KretaService {
       }
     } else {
       return <Institute[]>cacheDataIf;
+    }
+  }
+
+  public async getMobileVersionInfo(): Promise<MobileVersionInfo> {
+    try {
+      let response = await this.http.get('https://kretamobile.blob.core.windows.net/configuration/EllenorzoMobilVersionInfo.json', null, null);
+      return <MobileVersionInfo>JSON.parse(response.data);
+    } catch (error) {
+      this.errorStatus.next(error.status);
+      this.errorHandler();
+    }
+  }
+
+  public async getKretaLink(): Promise<string> {
+    //it returns 4 links (DEV, TEST, UAT, PROD), I'm only catching the PROD one
+
+    try {
+      let response = await this.http.get('https://kretamobile.blob.core.windows.net/configuration/ConfigurationDescriptor.json', null, null);
+      return JSON.parse(response.data).GlobalMobileApiUrlPROD;
+    } catch (error) {
+      this.errorStatus.next(error.status);
+      this.errorHandler();
     }
   }
   //#endregion

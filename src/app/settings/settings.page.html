@@ -70,9 +70,24 @@
       <ion-label>Oldalak elrejtése</ion-label>
     </ion-item>
 
-
-
-
+    <ion-list-header hidden>
+      <ion-label>
+        <h1>Fejlesztői beállítások</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item hidden>
+      <ion-label>Toast-logging</ion-label>
+      <ion-toggle slot="end"></ion-toggle>
+    </ion-item>
+    <ion-item hidden>
+      <ion-label>Custom User Agent</ion-label>
+      <ion-input></ion-input>
+      <ion-buttons slot="end">
+        <ion-button>
+          <ion-icon slot="icon-only" name="save"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
 
     <ion-list-header>
       <ion-label>
