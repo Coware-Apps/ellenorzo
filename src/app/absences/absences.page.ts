@@ -4,6 +4,8 @@ import { Student, Absence } from '../_models/student';
 import { KretaService } from '../_services/kreta.service';
 import { IonSlides, AlertController, IonContent } from '@ionic/angular';
 import { ColorService } from '../_services/color.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from '../_services/prompt.service';
 
 @Component({
   selector: 'app-absences',
@@ -33,6 +35,8 @@ export class AbsencesPage implements OnInit {
     private kretaService: KretaService,
     private alertCtrl: AlertController,
     private color: ColorService,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) {
     this.absences = [];
     this.focused = 0;
@@ -77,6 +81,8 @@ export class AbsencesPage implements OnInit {
     this.unJustifiedExistingDates.reverse();
     this.justifiedExistingDates.reverse();
     this.sans = false;
+
+    this.firebase.setScreenName('absences');
   }
 
   async ionSlideWillChange() { 
@@ -111,18 +117,7 @@ export class AbsencesPage implements OnInit {
   }
 
   getMoreData(absence: Absence) {
-    let cssa = this.color.getPopUpClass();
-    let seen = absence.SeenByTutelaryUTC == null ? "nem" : absence.SeenByTutelaryUTC;
-    this.presentAlert(
-      absence.TypeName + " (" + absence.Subject + ")",
-      absence.Teacher,
-      "<ul>" +
-      "<li>Dátum: " + absence.LessonStartTime.substring(0, 10) + "</li>" +
-      "<li>Állapot: " + absence.JustificationStateName + "</li>" +
-      "<li>Mulasztás módja: " + absence.ModeName + "</li>" +
-      "<li>Szülő látta: " + seen + "</li></ul>",
-      cssa
-    );
+    this.prompt.absenceAlert(absence);
   }
 
   scrollToTop() {

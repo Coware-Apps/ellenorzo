@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { KretaService } from '../_services/kreta.service';
 import { Test } from '../_models/test';
 import { FormattedDateService } from '../_services/formatted-date.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+
 
 @Component({
   selector: 'app-tests',
@@ -14,7 +16,7 @@ export class TestsPage implements OnInit {
 
   constructor(
     public fDate: FormattedDateService,
-
+    private firebase: FirebaseX,
     private kreta: KretaService,
   ) { }
 
@@ -24,6 +26,7 @@ export class TestsPage implements OnInit {
     this.tests = (await this.kreta.getTests(null, null));
     this.tests.sort((a, b) => a.Datum.valueOf() - b.Datum.valueOf())
     this.sans = false;
+    this.firebase.setScreenName('tests');
   }
 
 }

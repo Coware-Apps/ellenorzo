@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { AppService } from 'src/app/_services/app.service';
 import { AppComponent } from 'src/app/app.component';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-hide-page-settings',
@@ -21,6 +22,7 @@ export class HidePageSettingsPage implements OnInit {
   constructor(
     private app: AppService,
     private storage: Storage,
+    private firebase: FirebaseX,
     ) {  
 
     }
@@ -30,6 +32,8 @@ export class HidePageSettingsPage implements OnInit {
     if (this.appPages == null) {
       this.appPages = this.app.appPages;
     }
+    
+    this.firebase.setScreenName('hide-page-settings');
   }
 
   async ionViewWillLeave() {

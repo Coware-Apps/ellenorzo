@@ -8,6 +8,8 @@ import { Storage } from '@ionic/storage';
 import { ThemeService } from './_services/theme.service';
 import { AppService } from './_services/app.service';
 import { KretaService } from './_services/kreta.service';
+import { Student } from './_models/student';
+import { FormattedDateService } from './_services/formatted-date.service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +18,8 @@ import { KretaService } from './_services/kreta.service';
 })
 export class AppComponent {
   public appPages = this.app.appPages;
+  public sans: boolean;
+  public student: Student;
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
@@ -25,7 +29,9 @@ export class AppComponent {
     private theme: ThemeService,
     private app: AppService,
     private kreta: KretaService,
+    private fDate: FormattedDateService,
   ) {
+    this.sans = true;
     this.initializeApp();
   }
 
@@ -71,8 +77,23 @@ export class AppComponent {
           this.router.navigate(['login']);
         }
       }
+
+      this.appPages = await this.app.getAppPages();
+      await this.setToastLogging();
+      this.student = await this.kreta.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
+      this.sans = false;
     });
   }
+
+  public async setToastLogging() {
+    let storedToastLogging = await this.storage.get("toastLogging") == true ? true : false;
+    if (storedToastLogging) {
+      this.app.toastLoggingOn();
+    } else {
+      this.app.toastLoggingOff();
+    }
+  }
+
   async setTheme() {
     let storedTheme = await this.storage.get('theme');
     if (storedTheme == null) {

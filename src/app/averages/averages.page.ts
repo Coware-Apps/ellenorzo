@@ -9,6 +9,7 @@ import { Storage } from '@ionic/storage';
 import { Router } from '@angular/router';
 import { promise } from 'protractor';
 import { DataService } from '../_services/data.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class AveragesPage implements OnInit {
     private storage: Storage,
     private navRouter: Router,
     private data: DataService,
+    private firebase: FirebaseX,
   ) { }
 
   async ngOnInit() {
@@ -39,6 +41,7 @@ export class AveragesPage implements OnInit {
     this.student = await this.kretaService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
     //this.student = await this.dataService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
     this.sans = false;
+    this.firebase.setScreenName('averages');
   }
 
   async ionViewDidEnter() {

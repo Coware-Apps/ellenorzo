@@ -9,6 +9,7 @@ import { stringify } from 'querystring';
 import { evaluation } from '../_models/student';
 import { ColorService } from '../_services/color.service';
 import { FormattedDateService } from '../_services/formatted-date.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-monthly-average',
@@ -28,6 +29,7 @@ export class MonthlyAveragePage implements OnInit {
     private storage: Storage,
     private color: ColorService,
     private fDate: FormattedDateService,
+    private firebase: FirebaseX,
   ) {
     this.route.queryParams.subscribe(params => {
       this.monthlySubjectData = dataService.getData(params.id);
@@ -156,7 +158,7 @@ export class MonthlyAveragePage implements OnInit {
 
 
   ngOnInit() {
-
+    this.firebase.setScreenName('monthly-average');
   }
 
 }

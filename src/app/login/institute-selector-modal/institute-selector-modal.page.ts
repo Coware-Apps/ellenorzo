@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { Institute } from 'src/app/_models/institute';
 import { Storage } from '@ionic/storage';
 import { DataService } from 'src/app/_services/data.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-institute-selector-modal',
@@ -20,11 +21,13 @@ export class InstituteSelectorModalPage implements OnInit {
     private modalController: ModalController,
     private storage: Storage,
     private data: DataService,
+    private firebase: FirebaseX,
   ) { }
 
   async ngOnInit() {
     this.institutes = await this.kreta.getInstituteList();
     this.filteredInstitutes = this.institutes;
+    this.firebase.setScreenName('institute-selector-modal');
   }
   ngOnDestroy(): void { }
 

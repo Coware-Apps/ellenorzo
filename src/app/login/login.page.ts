@@ -7,6 +7,7 @@ import { InstituteSelectorModalPage } from './institute-selector-modal/institute
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-login',
@@ -27,10 +28,11 @@ export class LoginPage implements OnInit {
     private browser: InAppBrowser,
     private kreta: KretaService,
     private data: DataService,
+    private firebase: FirebaseX,
   ) { }
 
   ngOnInit() {
-
+    this.firebase.setScreenName('login');
   }
 
   async login() {

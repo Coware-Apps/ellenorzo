@@ -9,9 +9,11 @@ import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from '../_services/prompt.service';
 
 
-interface grade {
+export interface grade {
   grade: number;
   weight: string;
   extraId: number;
@@ -70,6 +72,8 @@ export class AverageGraphsPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private data: DataService,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) {
     this.grades = [];
     this.ColumnData = [0, 0, 0, 0, 0];
@@ -90,6 +94,8 @@ export class AverageGraphsPage implements OnInit {
 
   ngOnInit() {
     this.fillStartData();
+
+    this.firebase.setScreenName('average-graphs');
   }
 
   fillStartData() {
@@ -555,26 +561,7 @@ export class AverageGraphsPage implements OnInit {
     }
   }
 
-  showAlert(item: grade) {
-    let date = new Date(item.Date);
-    let formattedDate = this.fDate.formatDate(date);
-    let time = date.getHours() + ":" + date.getMinutes();
-    this.presentAlert(item.grade + this.themeIf(item.Theme), item.weight,
-      "<ul>" +
-      "<li>Dátum: " + formattedDate + "</li>" +
-      "<li>Létrehozva: " + time + "</li>" +
-      "<li>Típus: " + item.Mode + "</li>" +
-      "<li>Leírás: " + item.FormName + "</li></ul>", this.color.getPopUpClass())
-  }
-
-  async presentAlert(header: string, subHeader: string, message: string, css: string) {
-    const alert = await this.alertCtrl.create({
-      cssClass: css,
-      header: header,
-      subHeader: subHeader,
-      message: message,
-      buttons: ['OK']
-    });
-    await alert.present();
+  showAlert(grade: grade) {
+    this.prompt.gradeAlert(grade);
   }
 }

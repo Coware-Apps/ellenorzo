@@ -7,6 +7,8 @@ import {IonSlides} from "@ionic/angular";
 import { ColorService } from 'src/app/_services/color.service';
 import { DataService } from 'src/app/_services/data.service';
 import { FormattedDateService } from 'src/app/_services/formatted-date.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from 'src/app/_services/prompt.service';
 @Component({
   selector: 'app-timetable-homeworks',
   templateUrl: './timetable-homeworks.page.html',
@@ -39,6 +41,8 @@ export class TimetableHomeworksPage implements OnInit {
     private data: DataService,
     private fDate: FormattedDateService,
     private toastCtrl: ToastController,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) {
     this.teacherHomeworkId = null;
     this.focused = 0;
@@ -66,32 +70,11 @@ export class TimetableHomeworksPage implements OnInit {
     });
     console.log('this.isTHFE', this.isTHFE);
     this.sans = false;
+    this.firebase.setScreenName('timetable-homeworks');
   }
 
-  showInfo(item: any) {
-    let css = this.color.getPopUpClass();
-    this.presentAlert(
-      item.Rogzito,
-      this.subject,
-      "<ul>" +
-      "<li>Óra száma: " + item.Oraszam + "</li>" +
-      "<li>Tanár rögzítette? " + (item.IsTanarRogzitette == true ? 'igen' : 'nem') + "</li>" +
-      "<li>Feladva: " + item.FeladasDatuma.substring(0, 10) + "</li>" +
-      "<li>Határidő: " + item.Hatarido.substring(0, 10) + "</li>" +
-      "</ul>",
-      css
-    );
-  }
-
-  async presentAlert(header: string, subHeader: string, message: string, css: string) {
-    const alert = await this.alertCtrl.create({
-      cssClass: css,
-      header: header,
-      subHeader: subHeader,
-      message: message,
-      buttons: ['OK']
-    });
-    await alert.present();
+  showInfo(teacherHomework: TeacherHomework) {
+    this.prompt.teacherHomeworkAlert(teacherHomework, this.subject)
   }
 
   getData(day: number) {
@@ -148,7 +131,7 @@ export class TimetableHomeworksPage implements OnInit {
         this.sans = false;
       }
     } else {
-      this.presentAlert('Hibás szöveg!', null, 'Kérlek ellenőrizd, hogy kitöltötted-e a házi feladat szövege mezőt!', this.color.getPopUpClass());
+      this.prompt.missingTextAlert('Kérlek ellenőrizd, hogy kitöltötted-e a házi feladat szövege mezőt!');
     }
   }
   async deleteHomework(id: number) {

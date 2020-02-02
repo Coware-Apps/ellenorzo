@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Személyes adatlap</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="!sans">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title><h1>Személyes adatok</h1></ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <h2 style="font-weight: bold;">Név</h2>
+        <p>{{this.student.Name}}</p>
+        <h2 style="font-weight: bold;">Születési név</h2>
+        <p>{{this.student.NameOfBirth}}</p>
+        <h2 style="font-weight: bold;">Születési idő</h2>
+        <p>{{this.fDate.formatDate(student.DateOfBirthUtc)}}</p>
+        <h2 style="font-weight: bold;">Születési hely</h2>
+        <p>{{this.student.PlaceOfBirth}}</p>
+        <h2 style="font-weight: bold;">Lakcím adatok</h2>
+        <p *ngFor="let address of this.student.AddressDataList">{{address}}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title><h1>Gondviselői adatok</h1></ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngFor="let tutelary of this.student.Tutelaries">
+          <h1>{{tutelary.Name}}</h1>
+          <h2 style="font-weight: bold;">E-mail cím</h2>
+          <p>{{tutelary.Email == '' ? '-' : tutelary.Email}}</p>
+          <h2 style="font-weight: bold;">Telefonszám</h2>
+          <p>{{tutelary.PhoneNumber == '' ? '-' : tutelary.PhoneNumber}}</p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="sans">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="70%"></ion-skeleton-text>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>

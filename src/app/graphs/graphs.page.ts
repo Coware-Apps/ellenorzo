@@ -6,6 +6,7 @@ import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import more from 'highcharts/highcharts-more';
 import { IonSlides } from '@ionic/angular';
 import { ColorService } from '../_services/color.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 more(HighCharts);
 
 export interface subjectWithGrade {
@@ -51,6 +52,7 @@ export class GraphsPage implements OnInit {
 
     private dataService: DataService,
     private color: ColorService,
+    private firebase: FirebaseX,
   ) {
     this.focused = 0;
     this.lineColumnButtons = false;
@@ -108,6 +110,8 @@ export class GraphsPage implements OnInit {
       this.howMany = Array(1).fill(0).map((x, i) => i);
       this.title = "Összátlag: ";
     }
+
+    this.firebase.setScreenName('graphs');
   }
 
   ionViewDidEnter() {

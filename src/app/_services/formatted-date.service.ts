@@ -104,6 +104,14 @@ export class FormattedDateService {
     return (date.getFullYear() + '. ' + (date.getMonth() + 1) + '. ' + dateStringSplitted[2] + '. ' + '0:00:00')
   }
 
+  addZeroToNumber(n: any) {
+    if (n < 10) {
+      return "0" + n;
+    } else {
+      return n;
+    }
+  }
+
 
   constructor() { }
 }

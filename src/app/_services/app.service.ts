@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AppComponent } from '../app.component';
 import { trimTrailingNulls } from '@angular/compiler/src/render3/view/util';
+import { Storage } from '@ionic/storage';
 
 @Injectable({
   providedIn: 'root'
 })
-
 
 export class AppService {
 
@@ -17,8 +17,11 @@ export class AppService {
     src?: string;
     show: boolean,
   }[];
+  public toastLogging: boolean;
 
-  constructor() { 
+  constructor(
+    private storage: Storage,
+  ) { 
     this.appPages = [{
       title: 'Főoldal',
       url: '/home',
@@ -82,7 +85,27 @@ export class AppService {
       icon: 'settings',
       show: true,
     }];
+    this.toastLogging = false;
   }  
+
+  public async getAppPages(): Promise<any> {
+    let storedPages = await this.storage.get("sidemenu")
+    this.appPages = storedPages == null ? this.appPages : storedPages;
+    return this.appPages;
+  }
+
+  public async initializeDelayedConfig() {
+    let storedToastLogging = await this.storage.get("toastLogging");
+    this.toastLogging = storedToastLogging == null ? this.toastLogging : storedToastLogging;
+  }
+
+  toastLoggingOn() {
+    this.toastLogging = true;
+  }
+
+  toastLoggingOff() {
+    this.toastLogging = false;
+  }
 
   hidePage(title: string) {
     this.appPages.forEach(page => {

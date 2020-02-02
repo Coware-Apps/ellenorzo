@@ -9,6 +9,8 @@ import { AlertController, ModalController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from '../_services/prompt.service';
 
 interface selectOption {
   name: string;
@@ -83,6 +85,8 @@ export class EvaluationsPage implements OnInit {
     private alertCtrl: AlertController,
     private data: DataService,
     private navRouter: Router,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) {
     this.dates = [];
     this.subjects = [];
@@ -102,6 +106,8 @@ export class EvaluationsPage implements OnInit {
     });
     this.dates.sort((a, b) => new Date(a).valueOf() - new Date(b).valueOf()).reverse();
     this.sans = false;
+
+    this.firebase.setScreenName('evaluations');
   }
 
   async ionViewDidEnter() {
@@ -117,69 +123,31 @@ export class EvaluationsPage implements OnInit {
     this.noneColor = color.split('&')[5] != "" ? color.split('&')[5] : "#9933FF";
   }
 
-  async presentAlert(header: string, subHeader: string, message: string, css: string) {
-    const alert = await this.alertCtrl.create({
-      cssClass: css,
-      header: header,
-      subHeader: subHeader,
-      message: message,
-      buttons: ['OK']
-    });
-    await alert.present();
-  }
-
   getMoreData(evaluation: evaluation) {
-    if (evaluation.Form == "Mark") {
-      let date = new Date(evaluation.Date);
-      let formattedDate = this.fDate.formatDate(date);
-      let time = date.getHours() + ":" + date.getMinutes();
-      this.presentAlert(evaluation.NumberValue + this.themeIf(evaluation.Theme), evaluation.Weight,
-        "<ul>" +
-        "<li>Dátum: " + formattedDate + "</li>" +
-        "<li>Létrehozva: " + time + "</li>" +
-        "<li>Típus: " + evaluation.Mode + "</li>" +
-        "<li>Leírás: " + evaluation.FormName + "</li></ul>", this.color.getPopUpClass())
-    } else {
-      //Form == 'Percent' || Form == 'Text'
-      this.presentAlert(
-        evaluation.Subject,
-        evaluation.Teacher,
-        "<ul>" +
-        "<li>Típus: " + evaluation.FormName + "</li>" +
-        "<li>Létrehozva: " + evaluation.CreatingTime.substring(0, 10) + "</li>" +
-        "<li>Dátum: " + evaluation.Date.substring(0, 10) + "</li>" +
-        "<li>Értékelés módja: " + evaluation.Mode + "</li>" +
-        "</ul>" +
-        (evaluation.Form == 'Text' ? "Tartalom: " + evaluation.Value : ''),
-        this.color.getPopUpClass());
-    }
+    this.prompt.evaluationAlert(evaluation);
   }
 
   async selectorChanged(event) {
-      this.selectOptions.forEach(option => {
-        if (option.id == event.detail.value) {
-          this.selected = option.id;
-        }
-      });
+    this.selectOptions.forEach(option => {
+      if (option.id == event.detail.value) {
+        this.selected = option.id;
+      }
+    });
   }
 
   getEvaluations(dateOrSubject: string, byDate: boolean = true, HalfYear: boolean = false, EndYear: boolean = false, other: boolean = false, selectOption: number = 0): evaluation[] {
     //returns the evaluations that have dateOrSubject Date (byDate == true) or dateOrSubject Subject (ByDate == false) or by types
     let returnVal: evaluation[] = [];
     this.evaluations.forEach(evaluation => {
-      if (evaluation.Date == dateOrSubject && byDate) {
+      if (evaluation.Date == dateOrSubject && byDate && !other && !EndYear) {
         returnVal.push(evaluation);
-      } else if (evaluation.Subject == dateOrSubject && !byDate) {
+      } else if (evaluation.Subject == dateOrSubject && !byDate && !other && !EndYear) {
         returnVal.push(evaluation);
-      }
-
-      if (HalfYear && evaluation.Type == 'HalfYear') {
-        returnVal.push(evaluation); 
-      }
-      if (EndYear && evaluation.Type == 'EndYear') {
-        returnVal.push(evaluation); 
-      }
-      if (other && evaluation.Type != 'HalfYear' && evaluation.Type != 'EndYear' && evaluation.Type != 'MidYear') {  
+      } else if (HalfYear && evaluation.Type == 'HalfYear' && !other && !EndYear) {
+        returnVal.push(evaluation);
+      } else if (EndYear && evaluation.Type == 'EndYear' && !other) {
+        returnVal.push(evaluation);
+      } else if (other && evaluation.Type != 'HalfYear' && evaluation.Type != 'EndYear' && evaluation.Type != 'MidYear') {
         returnVal.push(evaluation);
       }
     });
@@ -213,7 +181,7 @@ export class EvaluationsPage implements OnInit {
     }
   }
 
-  getShadowColor(numberValue: number, form: string) {
+  getShadowColor(numberValue: number, form: string, Value?: string) {
     if (form == "Mark") {
       switch (numberValue) {
         case 5:
@@ -242,8 +210,18 @@ export class EvaluationsPage implements OnInit {
       } else if (numberValue >= 80) {
         return this.fiveColor;
       }
+    } else if (form == 'Diligence' || form == 'Deportment') {
+      if (Value == 'Példás') {
+        return this.fiveColor;
+      } else if (Value == 'Jó') {
+        return this.fourColor;
+      } else if (Value == 'Változó') {
+        return this.threeColor;
+      } else if (Value == 'Hanyag') {
+        return this.oneColor;
+      }
     } else {
-      return this.noneColor
+      return this.noneColor;
     }
   }
 

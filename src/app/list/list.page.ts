@@ -8,8 +8,15 @@ import { FormattedDateService } from '../_services/formatted-date.service';
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from '../_services/prompt.service';
 
-
+interface day {
+    name: string,
+    shortName: string,
+    index: number,
+    show: boolean,
+}
 @Component({
   selector: 'app-list',
   templateUrl: 'list.page.html',
@@ -24,21 +31,54 @@ export class ListPage implements OnInit {
   public whichDay: string = "today";
   public showingDay: string;
   public sans: boolean = true;
-  public monday: boolean;
-  public tuesday: boolean;
-  public wednesday: boolean;
-  public thursday: boolean;
-  public friday: boolean;
-  public saturday: boolean;
-  public sunday: boolean;
   public focused: number;
-  public days: string[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-  public days2: number[] = [];
   public currentDate: Date;
   public weekToFrom: string;
   public currentWeekIndex;
   public message;
   public unfocusFooterButton: boolean;
+  public days: day[] = [{
+    name: "Hétfő",
+    shortName: "Hé",
+    index: 0,
+    show: false,
+  },
+  {
+    name: "Kedd",
+    shortName: "Ke",
+    index: 1,
+    show: false,
+  },
+  {
+    name: "Szerda",
+    shortName: "Sz",
+    index: 2,
+    show: false,
+  },
+  {
+    name: "Csütörtök",
+    shortName: "Cs",
+    index: 3,
+    show: false,
+  },
+  {
+    name: "Péntek",
+    shortName: "Pé",
+    index: 4,
+    show: false,
+  },
+  {
+    name: "Szombat",
+    shortName: "Szo",
+    index: 5,
+    show: false,
+  },
+  {
+    name: "Vasárnap",
+    shortName: "Va",
+    index: 6,
+    show: false,
+  }];
 
   constructor(
     public storage: Storage,
@@ -49,14 +89,9 @@ export class ListPage implements OnInit {
 
     private theme: ThemeService,
     private fDate: FormattedDateService,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) {
-    this.monday = false;
-    this.tuesday = false;
-    this.wednesday = false;
-    this.thursday = false;
-    this.friday = false;
-    this.saturday = false;
-    this.sunday = false;
     this.focused = 0;
     this.currentWeekIndex = 0;
     this.message = "";
@@ -71,27 +106,7 @@ export class ListPage implements OnInit {
   }
 
   async getMoreData(lesson: Lesson) {
-    let cssa = await this.storage.get('theme') == "custom" ? "timeTableAlert" : "";
-    this.presentAlert(
-      lesson.Subject,
-      lesson.Teacher,
-      "<ul>" +
-      "<li>Időpont: " + this.getTime(lesson.StartTime, lesson.EndTime) + "</li>" +
-      "<li>Csoport: " + lesson.ClassGroup + "</li>" +
-      "<li>Terem: " + lesson.ClassRoom + "</li></ul>",
-      cssa
-    );
-  }
-
-  async presentAlert(header: string, subHeader: string, message: string, css: string) {
-    const alert = await this.alertCtrl.create({
-      cssClass: css,
-      header: header,
-      subHeader: subHeader,
-      message: message,
-      buttons: ['OK']
-    });
-    await alert.present();
+    this.prompt.lessonAlert(lesson);
   }
 
   openHomeworks(TeacherHomeworkId: number, Subject: string, isTHFE: boolean, lessonId: number, CalendarOraType: string, StartTime: Date) {
@@ -177,13 +192,14 @@ export class ListPage implements OnInit {
 
   async ngOnInit() {
     this.sans = true;
-    let now = new Date(); 
+    let now = new Date();
 
+    //getting the first day and last day to show
     let weekFirst;
     let weekLast;
-
     let today = now.getDay();
-    if (today == 6 || today == 7) {
+    console.log("today", today);
+    if (today == 0 || today == 5) {
       weekFirst = this.fDate.getWeekFirst(1);
       weekLast = this.fDate.getWeekLast(1);
       this.focused = 0;
@@ -193,66 +209,38 @@ export class ListPage implements OnInit {
       this.focused = now.getDay() - 1;
     }
 
+    //getting the timetable data from the server
     this.timetable = await this.kreta.getLesson(weekFirst, weekLast);
 
-
-    this.slides.slideTo(this.focused);
     this.dataToScreen(weekFirst, weekLast);
     this.sans = false;
+    this.slides.slideTo(this.focused);
+
+    //firebase
+    this.firebase.setScreenName('timetable');
   }
 
-  addZeroToNumber(n: any) {
-    if (n < 10) {
-      return "0" + n;
-    } else {
-      return n;
-    }
-  }
 
   dataToScreen(weekFirst: string, weekLast: string) {
-    //nulling out the days (note that this function only works with data that is printed on the screen)
-    this.monday = false;
-    this.tuesday = false;
-    this.wednesday = false;
-    this.thursday = false;
-    this.friday = false;
-    this.saturday = false;
-    this.sunday = false;
-    this.days2 = [];
-
-    //getting the date that is shown in brackets
-    this.weekToFrom = this.addZeroToNumber(weekFirst.split('-')[1]) + '.' + this.addZeroToNumber(weekFirst.split('-')[2]) + "-" + this.addZeroToNumber(weekLast.split('-')[1]) + '.' + this.addZeroToNumber(weekLast.split('-')[2]);
+    //getting the date that is shown in brackets in the header
+    this.weekToFrom = this.fDate.addZeroToNumber(weekFirst.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekFirst.split('-')[2]) + "-" + this.fDate.addZeroToNumber(weekLast.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekLast.split('-')[2]);
 
     this.timetable.forEach(x => {
       let i = this.getDayName(x.StartTime.toString())
-      x["DayOfWeek"] = i;
+      x.DayOfWeek = i;
+      this.days[i].show = true;
+    });
+  }
 
-      if (!this.days2.includes(i)) {
-        this.days2.push(i);
-        switch (i) {
-          case 0:
-            this.monday = true;
-            break;
-          case 1:
-            this.tuesday = true;
-            break;
-          case 2:
-            this.wednesday = true;
-            break;
-          case 3:
-            this.thursday = true;
-            break;
-          case 4:
-            this.friday = true;
-            break;
-          case 5:
-            this.saturday = true;
-            break;
-          case 6:
-            this.sunday = true;
-            break;
-        }
+  getShownDays(days: day[]) {
+    let returnDays: day[] = [];
+
+    days.forEach(day => {
+      if (day.show) {
+        returnDays.push(day);
       }
     });
+
+    return returnDays;
   }
 }

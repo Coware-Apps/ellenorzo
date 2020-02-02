@@ -3,12 +3,14 @@ import { ThemeService } from '../_services/theme.service';
 import { Storage } from '@ionic/storage';
 import { AuthenticationService } from '../_services/authentication.service';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import { Platform, AlertController } from '@ionic/angular';
+import { Platform, AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ColorService } from '../_services/color.service';
 import { AppService } from '../_services/app.service';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { KretaService } from '../_services/kreta.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { InAppBrowserOptions, InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.page.html',
@@ -30,12 +32,16 @@ export class SettingsPage implements OnInit {
     show: boolean,
   }[];
   public appV: string;
+  public analyticsCollectionEnabled: boolean;
+  public devSettings: boolean;
+  public toastLogging: boolean;
 
   private width: number;
   private height: number;
+  private devCounter: number;
 
   constructor(
-    
+    private toastController: ToastController,
     private theme: ThemeService,
     private storage: Storage,
     private authService: AuthenticationService,
@@ -47,12 +53,61 @@ export class SettingsPage implements OnInit {
     private app: AppService,  
     private appVersion: AppVersion,
     private kreta: KretaService,
+    private firebase: FirebaseX,
+    private inAppBrowser: InAppBrowser,
   ) {
     this.platform.ready().then((readySource) => {
       this.width = platform.width();
       this.height = platform.height();
     });
     this.appPages = this.app.appPages;
+    this.toastLogging = false;
+  }
+
+  
+  async ngOnInit() {
+    this.appV = await this.appVersion.getVersionNumber();
+
+    //#region themes
+    let storedTheme = await this.storage.get('theme');
+    if (storedTheme == null) {
+      this.storage.set('theme', 'light')
+    }
+
+    switch (await this.storage.get('theme')) {
+      case 'light':
+        this.currentTheme = "light";
+        this.enableLight();
+        break;
+      case 'dark':
+        this.currentTheme = "dark";
+        this.enableDark();
+        break;
+      case 'minimalDark':
+        this.currentTheme = "minimalDark";
+        this.enableMinimalDark();
+        break;
+      case 'custom':
+        this.currentTheme = "custom";
+        this.enableCustom();
+        break;
+    }
+    //#endregion
+
+    let a = await this.storage.get('defaultPage');
+
+    if (a == null) {
+      this.defaultPage = "/list";
+    }
+    else {
+      this.defaultPage = a;
+    }
+
+    this.devCounter = 0;
+    this.analyticsCollectionEnabled = await this.storage.get('analyticsCollectionEnabled') == false ? false : true;
+    this.toastLogging = await this.storage.get('toastLogging') == true ? true : false;
+    this.devSettings = await this.storage.get('devSettings') == true ? true : false;
+    this.firebase.setScreenName('settings');
   }
 
 
@@ -144,42 +199,50 @@ export class SettingsPage implements OnInit {
     await alert.present();
   }
 
-  async ngOnInit() {
-    this.appV = await this.appVersion.getVersionNumber();
+  async analyticsChanged() {
+    await this.storage.set("analyticsCollectionEnabled", this.analyticsCollectionEnabled);
 
-    //#region themes
-    let storedTheme = await this.storage.get('theme');
-    if (storedTheme == null) {
-      this.storage.set('theme', 'light')
+    this.kreta.initializeFirebase(this.kreta.decoded_user["kreta:institute_user_id"]);
+  }
+
+  async toastLoggingChanged() {
+    await this.storage.set("toastLogging", this.toastLogging);
+    if (this.toastLogging) {
+      this.app.toastLoggingOn();
+    } else {
+      this.app.toastLoggingOff();
     }
+  }
 
-    switch (await this.storage.get('theme')) {
-      case 'light':
-        this.currentTheme = "light";
-        this.enableLight();
-        break;
-      case 'dark':
-        this.currentTheme = "dark";
-        this.enableDark();
-        break;
-      case 'minimalDark':
-        this.currentTheme = "minimalDark";
-        this.enableMinimalDark();
-        break;
-      case 'custom':
-        this.currentTheme = "custom";
-        this.enableCustom();
-        break;
+  openUrl(url: string) {
+    const options: InAppBrowserOptions = {
+      zoom: 'no'
     }
-    //#endregion
+    const browser = this.inAppBrowser.create(url, '_self', options);
+  }
 
-    let a = await this.storage.get('defaultPage');
+  async presentToast(message: string) {
+    this.toastController.dismiss();
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 10000,
+      closeButtonText: "OK",
+      cssClass: this.color.getToastClass(),
+      showCloseButton: true,
+      position: "top",
+    });
+    toast.present();
+  }
 
-    if (a == null) {
-      this.defaultPage = "/list";
-    }
-    else {
-      this.defaultPage = a;
+  async versionClicked() {
+    this.devCounter++;
+
+    if (this.devCounter >= 7 && 10 > this.devCounter) {
+      this.presentToast((10 - this.devCounter) + " lépésre vagy a fejlesztői beállítások engedélyezésétől!")
+    } else if (this.devCounter == 10) {
+      await this.storage.set("devSettings", true);
+      this.devSettings = true;
+      this.presentToast("Fejlesztői beállítások sikeresen engedélyezve!");
     }
   }
 }

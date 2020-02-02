@@ -4,6 +4,8 @@ import { FormattedDateService } from '../_services/formatted-date.service';
 import { KretaService } from '../_services/kreta.service';
 import { ColorService } from '../_services/color.service';
 import { AlertController } from '@ionic/angular';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from '../_services/prompt.service';
 
 @Component({
   selector: 'app-notes',
@@ -22,6 +24,8 @@ export class NotesPage implements OnInit {
 
     private color: ColorService,
     private alertCtrl: AlertController,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) { 
     this.notes= [];
   }
@@ -34,33 +38,10 @@ export class NotesPage implements OnInit {
       this.notes.push(this.student.Notes[i]);
     }
     this.sans = false;
+    this.firebase.setScreenName('notes');
   }
 
   async getMoreData(note: Note) {
-
-    let seen = note.SeenByTutelaryUTC == null ? "nem" : note.SeenByTutelaryUTC.substring(0, 10);
-
-    this.presentAlert(
-      note.Title,
-      note.Teacher,
-      "<ul>" +
-      "<li>Típus: " + note.Type + "</li>" + 
-      "<li>Létrehozva: " + note.CreatingTime.substring(0, 10) + "</li>" +
-      "<li>Gondviselő látta: " + seen + "</li></ul>" + 
-      "Tartalom: " + note.Content,
-      this.color.getPopUpClass()
-    );
+    this.prompt.noteAlert(note);
   }
-
-  async presentAlert(header: string, subHeader: string, message: string, css: string) {
-    const alert = await this.alertCtrl.create({
-      cssClass: css,
-      header: header,
-      subHeader: subHeader,
-      message: message,
-      buttons: ['OK']
-    });
-    await alert.present();
-  }
-
 }

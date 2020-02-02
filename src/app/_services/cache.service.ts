@@ -5,6 +5,7 @@ import { Lesson } from '../_models/lesson';
 import { Institute } from '../_models/institute';
 import { Student } from '../_models/student';
 import { Test } from '../_models/test';
+import { PromptService } from './prompt.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class CacheService {
 
   constructor(
     private storage: Storage,
+    private prompt: PromptService,
   ) { 
     this.ramStorage = [];
   }
@@ -74,10 +76,12 @@ export class CacheService {
     //gives back the cache if it exists and if it isn't older than 5 minutes
     if (await this.doWeNeedCache(key, cacheTime)) {
       console.log('[CACHE] Getting data from cache...');
+      this.prompt.butteredToast('[CACHE] Getting data from cache...');
       return this.getCache(key);
     }
     else {
       console.log('[CACHE] Cache outdated or nonexistent');
+      this.prompt.butteredToast('[CACHE] Cache outdated or nonexistent');
       return false;
     };
   }

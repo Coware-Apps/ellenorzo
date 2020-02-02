@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ThemeService } from 'src/app/_services/theme.service';
 import { Storage } from '@ionic/storage';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 
 @Component({
   selector: 'app-bg-settings',
@@ -17,7 +18,8 @@ export class BgSettingsPage implements OnInit {
 
   constructor(
     private theme: ThemeService,
-    private storage: Storage
+    private storage: Storage,
+    private firebase: FirebaseX,
   ) { 
     this.sizeChanger = false;
     this.storedSize = 100;
@@ -41,6 +43,8 @@ export class BgSettingsPage implements OnInit {
     }
     this.x = (temp = await this.storage.get('bgX')) == null ? 0 : temp;
     this.y = (temp = await this.storage.get('bgY')) == null ? 0 : temp;
+    
+    this.firebase.setScreenName('bg-settings');
   }
 
   async sizeChange(event) {

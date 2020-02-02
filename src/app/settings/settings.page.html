@@ -16,29 +16,34 @@
         </ion-label>
       </ion-list-header>
 
-      <ion-item>
+      <ion-item (click)="enableLight()">
         <ion-label>Világos</ion-label>
-        <ion-radio slot="start" (click)="enableLight()" [checked]="currentTheme == 'light'"></ion-radio>
+        <ion-radio hidden slot="start" (click)="enableLight()" [checked]="currentTheme == 'light'"></ion-radio>
+        <ion-icon [color]="currentTheme == 'light' ? 'primary': ''" slot="start" name="sunny"></ion-icon>
       </ion-item>
 
-      <ion-item>
+      <ion-item (click)="enableDark()">
         <ion-label>Sötét</ion-label>
-        <ion-radio slot="start" (click)="enableDark()" [checked]="currentTheme == 'dark'"></ion-radio>
+        <ion-radio hidden slot="start" (click)="enableDark()" [checked]="currentTheme == 'dark'"></ion-radio>
+        <ion-icon [color]="currentTheme == 'dark' ? 'primary': ''" slot="start" name="moon"></ion-icon>
       </ion-item>
 
-      <ion-item>
-        <ion-label>Amoled sötét</ion-label>
-        <ion-radio slot="start" (click)="enableMinimalDark()" [checked]="currentTheme == 'minimalDark'"></ion-radio>
+      <ion-item (click)="enableMinimalDark()">
+        <ion-label>Amoled</ion-label>
+        <ion-radio hidden slot="start" (click)="enableMinimalDark()" [checked]="currentTheme == 'minimalDark'"></ion-radio>
+        <ion-icon [color]="currentTheme == 'minimalDark' ? 'primary': ''" slot="start" name="contrast"></ion-icon>
       </ion-item>
+
       <ion-button class="galleryButton" (click)="openBgSettings()">
         <ion-icon slot="icon-only" name="settings"></ion-icon>
       </ion-button>
       <ion-button class="galleryButton" (click)="getImage()">
         <ion-icon slot="icon-only" name="folder-open"></ion-icon>
       </ion-button>
-      <ion-item class="custom">
+      <ion-item class="custom" (click)="enableCustom()">
         <ion-label>[Exp] Saját háttér</ion-label>
-        <ion-radio slot="start" (click)="enableCustom()" [checked]="currentTheme == 'custom'"></ion-radio>
+        <ion-radio hidden slot="start" (click)="enableCustom()" [checked]="currentTheme == 'custom'"></ion-radio>
+        <ion-icon [color]="currentTheme == 'custom' ? 'primary': ''" slot="start" name="image"></ion-icon>
       </ion-item>
     </ion-radio-group>
 
@@ -70,16 +75,40 @@
       <ion-label>Oldalak elrejtése</ion-label>
     </ion-item>
 
-    <ion-list-header hidden>
+    <ion-list-header>
+      <ion-label>
+        <h1>Fiók</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item button (click)="logout()">
+      Kijelentkezés
+      <ion-icon slot="start" name="log-out"></ion-icon>
+    </ion-item>
+    
+    <ion-list-header>
+      <ion-label><h1>Adatkezelés</h1></ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label>
+        <h2>Névtelen használati statisztikák küldése</h2>
+        <p>Ezzel hozzájárulsz az alkalmazás fejlesztéséhez</p>
+      </ion-label>
+      <ion-toggle [(ngModel)]="this.analyticsCollectionEnabled" (ionChange)="this.analyticsChanged()" slot="end"></ion-toggle>
+    </ion-item>
+    <ion-item button (click)="this.openUrl('https://coware-apps.github.io/ellenorzo/privacy')">
+      <ion-label>Adatvédelmi nyilatkozat</ion-label>
+    </ion-item>
+
+    <ion-list-header [hidden]="!this.devSettings">
       <ion-label>
         <h1>Fejlesztői beállítások</h1>
       </ion-label>
     </ion-list-header>
-    <ion-item hidden>
+    <ion-item [hidden]="!this.devSettings">
       <ion-label>Toast-logging</ion-label>
-      <ion-toggle slot="end"></ion-toggle>
+      <ion-toggle [(ngModel)]="this.toastLogging" (ionChange)="toastLoggingChanged()" slot="end"></ion-toggle>
     </ion-item>
-    <ion-item hidden>
+    <ion-item disabled [hidden]="!this.devSettings">
       <ion-label>Custom User Agent</ion-label>
       <ion-input></ion-input>
       <ion-buttons slot="end">
@@ -91,19 +120,10 @@
 
     <ion-list-header>
       <ion-label>
-        <h1>Fiók</h1>
-      </ion-label>
-    </ion-list-header>
-    <ion-item button (click)="logout()">
-      Kijelentkezés
-      <ion-icon slot="start" name="log-out"></ion-icon>
-    </ion-item>
-    <ion-list-header>
-      <ion-label>
         <h1>Verzió</h1>
       </ion-label>
     </ion-list-header>
-    <ion-item button>
+    <ion-item button (click)="this.versionClicked()">
       <ion-label>{{this.appV}}</ion-label>
     </ion-item>
   </ion-list>

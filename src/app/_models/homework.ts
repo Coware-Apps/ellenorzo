@@ -18,7 +18,7 @@ export class TeacherHomework {
     Id: number;
 
     Hatarido: string;
-    isTanarRogzitette: boolean;
+    IsTanarRogzitette: boolean;
     IsTanuloHazifeldatEnabled: boolean;
     Oraszam: number;
     //literally: "000000", as a string...

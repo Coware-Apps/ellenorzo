@@ -7,6 +7,7 @@ import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
 import { promise } from 'protractor';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 more(HighCharts);
 
 @Component({
@@ -37,10 +38,11 @@ export class ColorPickerPage implements OnInit {
     private storage: Storage,
     private router: Router,
     private Route: ActivatedRoute,
+    private firebase: FirebaseX,
   ) {
     this.color = "#FFFFFF";
     this.focused = 0;
-    this.title = "A hónap jegyei";
+    this.title = "Értékelések";
   }
 
   async ngOnInit() {
@@ -53,6 +55,8 @@ export class ColorPickerPage implements OnInit {
     this.twoColor = color.split('&')[3] != "" ? color.split('&')[3] : "#663300";
     this.oneColor = color.split('&')[4] != "" ? color.split('&')[4] : "#FF0000";
     this.noneColor = color.split('&')[5] != "" ? color.split('&')[5] : "#9933FF";
+
+    this.firebase.setScreenName('color-picker');
   }
 
   async ionViewDidEnter() {

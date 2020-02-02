@@ -5,6 +5,8 @@ import { FormattedDateService } from '../_services/formatted-date.service';
 import { Lesson } from '../_models/lesson';
 import { ColorService } from '../_services/color.service';
 import { AlertController } from '@ionic/angular';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from '../_services/prompt.service';
 
 @Component({
   selector: 'app-homeworks',
@@ -22,6 +24,8 @@ export class HomeworksPage implements OnInit {
     private kreta: KretaService,
     private color: ColorService,
     private alertCtrl: AlertController,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) { }
 
   async ngOnInit() {
@@ -29,31 +33,11 @@ export class HomeworksPage implements OnInit {
     this.teacherHomeworks = await this.kreta.getTeacherHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today")); 
     this.studentHomeworks = await this.kreta.getStudentHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today")); 
     this.sans = false;
+
+    this.firebase.setScreenName('homeworks');
   }
 
-  showInfo(item: any) {
-    let css = this.color.getPopUpClass();
-      this.presentAlert(
-        item.Rogzito,
-        item.Tantargy,
-        "<ul>" +
-        "<li>Óra száma: " + item.Oraszam + "</li>" +
-        "<li>Tanár rögzítette? " + (item.IsTanarRogzitette == true ? 'igen' : 'nem') + "</li>" +
-        "<li>Feladva: " + item.FeladasDatuma.substring(0, 10) + "</li>" +
-        "<li>Határidő: " + item.Hatarido.substring(0, 10) + "</li>" +
-        "</ul>",
-        css
-      );
-  }
-
-  async presentAlert(header: string, subHeader: string, message: string, css: string) {
-    const alert = await this.alertCtrl.create({
-      cssClass: css,
-      header: header,
-      subHeader: subHeader,
-      message: message,
-      buttons: ['OK']
-    });
-    await alert.present();
+  showInfo(teacherHomework: TeacherHomework) {
+    this.prompt.teacherHomeworkAlert(teacherHomework, teacherHomework.Tantargy);
   }
 }

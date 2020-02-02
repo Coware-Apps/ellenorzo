@@ -31,6 +31,8 @@ export interface evaluation {
     Value?: string;
     Theme?: string;
     TypeName?: string;
+    
+    Jelleg?: Jelleg;
 }
 export interface SubjectAverage {
     Subject: string;
@@ -82,12 +84,25 @@ export interface Tutelary {
     Email: string;
     PhoneNumber: string;
 }
+export interface AddressData {
+    Address: string;
+}
+export interface Jelleg {
+    Id: number;
+    Nev: string;
+    Leiras: string;
+}
 
 export class Student {
     //studentID
     public StudentId: number;
     //name
     public Name: string;
+    public NameOfBirth?: string;
+    public PlaceOfBirth?: string;
+    public MothersName?: string;
+    public AddressDataList?: AddressData[];
+    public DateOfBirthUtc?: Date;
     //inst. name
     public InstituteName: string;
     //evaluations

@@ -12,6 +12,7 @@ import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
 import { BehaviorSubject } from 'rxjs';
 import { ColorService } from '../_services/color.service';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 more(HighCharts);
 
 interface ChartData {
@@ -72,6 +73,7 @@ export class StatisticsPage implements OnInit {
     private navRouter: Router,
     private theme: ThemeService,
     private color: ColorService,
+    private firebase: FirebaseX,
   ) {
     this.focused = 0;
     this.title = "Vonal";
@@ -90,6 +92,7 @@ export class StatisticsPage implements OnInit {
     this.selectorChanged(this.mockSelector, false, true);
     this.sans = false;
     this.loader.next("initialized");
+    this.firebase.setScreenName('statistics');
   }
 
   async ionViewDidEnter() {
