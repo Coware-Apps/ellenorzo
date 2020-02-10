@@ -3,7 +3,7 @@ Ez egy **nem hivatalos** ellenőrző alkalmazás, ami kompatibilis a magyarorsz�
 _Az alkalmazást nem az eKréta Informatikai Zrt. fejlesztette, ezért az esetleges problémákkal, kérdésekkel kapcsolatban ne az ő ügyfélszolgálatukat keresd!_
 
 #### Miben különbözik ez az alkalmazás a hivatalostól?
-Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen. Jelenleg nem minden funkció támogatott (pl. nincs tanmenet, szöveges értékelés).
+Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen. Jelenleg nem minden funkció támogatott.
 
 #### Ötletem van, hova küldhetem?
 Minden ötletet szívesen fogadunk a cowareapps@gmail.com címen. Sajnos az alkalmazás továbbfejlesztésének korlátokat szab, hogy hivatalos dokumentáció híján csak azokkal az adatokkal tudunk dolgozni, amivel a hivatalos alkalmazás is dolgozik.
