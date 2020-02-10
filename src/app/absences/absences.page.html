@@ -21,18 +21,18 @@
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
     <ion-slide>
       <ion-list>
-        <ion-item *ngIf="this.justifiedExistingDates.length == 0 && this.sans == false" style="text-align: center;">
+        <ion-item *ngIf="this.collapsableJustifiedAbsences.length == 0 && this.sans == false"
+          style="text-align: center;">
           <ion-label>Nincsenek igazolt mulasztások.</ion-label>
         </ion-item>
-        <div *ngFor="let date of justifiedExistingDates">
-          <ion-list-header>
-            <ion-label>
-              <h1>{{date}}</h1>
-            </ion-label>
-          </ion-list-header>
-          <div *ngFor="let absence of absences">
-            <ion-item button (click)="getMoreData(absence)"
-              *ngIf="absence.JustificationStateName == 'Igazolt mulasztás' && absence.LessonStartTime.substring(0,10) == date">
+        <div *ngFor="let item of collapsableJustifiedAbsences">
+          <ion-item button (click)="item.showAll = item.showAll ? false : true">
+            <ion-label><h1>{{item.header}}</h1></ion-label>
+            <ion-icon *ngIf="!item.showAll" slot="end" name="arrow-dropright"></ion-icon>
+            <ion-icon *ngIf="item.showAll" slot="end" name="arrow-dropdown"></ion-icon>
+          </ion-item>
+          <div *ngFor="let absence of item.data">
+            <ion-item [hidden]="!item.showAll" button (click)="getMoreData(absence)">
               <ion-icon slot="start" name="done-all" class="green" size="large"></ion-icon>
               <ion-label class="ion-text-wrap">
                 {{absence.Subject}}<br>
@@ -49,18 +49,18 @@
     </ion-slide>
     <ion-slide>
       <ion-list>
-        <ion-item *ngIf="this.beJustifiedExistingDates.length == 0 && this.sans == false" style="text-align: center;">
+        <ion-item *ngIf="this.collapsableBeJustifiedAbsences.length == 0 && this.sans == false"
+          style="text-align: center;">
           <ion-label>Nincsenek igazolandó mulasztások.</ion-label>
         </ion-item>
-        <div *ngFor="let date of beJustifiedExistingDates">
-          <ion-list-header>
-            <ion-label>
-              <h1>{{date}}</h1>
-            </ion-label>
-          </ion-list-header>
-          <div *ngFor="let absence of absences">
-            <ion-item button (click)="getMoreData(absence)"
-              *ngIf="absence.JustificationStateName == 'Igazolandó mulasztás' && absence.LessonStartTime.substring(0,10) == date">
+        <div *ngFor="let item of collapsableBeJustifiedAbsences">
+          <ion-item button (click)="item.showAll = item.showAll ? false : true">
+            <ion-label><h1>{{item.header}}</h1></ion-label>
+            <ion-icon *ngIf="!item.showAll" slot="end" name="arrow-dropright"></ion-icon>
+            <ion-icon *ngIf="item.showAll" slot="end" name="arrow-dropdown"></ion-icon>
+          </ion-item>
+          <div *ngFor="let absence of item.data">
+            <ion-item [hidden]='!item.showAll' button (click)="getMoreData(absence)">
               <ion-icon slot="start" name="warning" class="yellow" size="large"></ion-icon>
               <ion-label class="ion-text-wrap">
                 {{absence.Subject}}<br>
@@ -77,18 +77,17 @@
     </ion-slide>
     <ion-slide>
       <ion-list>
-        <ion-item *ngIf="this.unJustifiedExistingDates.length == 0 && this.sans == false" style="text-align: center;">
+        <ion-item *ngIf="this.collapsableUnJustifiedAbsences.length == 0 && this.sans == false" style="text-align: center;">
           <ion-label>Nincsenek igazolatlan mulasztások.</ion-label>
         </ion-item>
-        <div *ngFor="let date of unJustifiedExistingDates">
-          <ion-list-header>
-            <ion-label>
-              <h1>{{date}}</h1>
-            </ion-label>
-          </ion-list-header>
-          <div *ngFor="let absence of absences">
-            <ion-item button (click)="getMoreData(absence)"
-              *ngIf="absence.JustificationStateName == 'Igazolatlan mulasztás' && absence.LessonStartTime.substring(0,10) == date">
+        <div *ngFor="let item of this.collapsableUnJustifiedAbsences">
+          <ion-item button (click)="item.showAll = item.showAll ? false : true">
+            <ion-label><h1>{{item.header}}</h1></ion-label>
+            <ion-icon *ngIf="!item.showAll" slot="end" name="arrow-dropright"></ion-icon>
+            <ion-icon *ngIf="item.showAll" slot="end" name="arrow-dropdown"></ion-icon>
+          </ion-item>
+          <div *ngFor="let absence of item.data">
+            <ion-item [hidden]='!item.showAll' button (click)="getMoreData(absence)">
               <ion-icon slot="start" name="close" class="red" size="large"></ion-icon>
               <ion-label class="ion-text-wrap">
                 {{absence.Subject}}<br>

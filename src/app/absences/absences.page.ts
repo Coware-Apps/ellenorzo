@@ -6,6 +6,7 @@ import { IonSlides, AlertController, IonContent } from '@ionic/angular';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
+import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
 
 @Component({
   selector: 'app-absences',
@@ -18,14 +19,15 @@ export class AbsencesPage implements OnInit {
 
   public absences: Absence[];
   public focused: number;
-  public justifiedExistingDates: string[];
-  public beJustifiedExistingDates: string[];
-  public unJustifiedExistingDates: string[];
   public title: string;
   public sans;
   public scroll: boolean;
   public a: boolean;
   public totalAbsences: number;
+  public collapsableJustifiedAbsences: UniversalSortedData[];
+  public collapsableUnJustifiedAbsences: UniversalSortedData[];
+  public collapsableBeJustifiedAbsences: UniversalSortedData[];
+
 
   private student: Student;
 
@@ -37,12 +39,13 @@ export class AbsencesPage implements OnInit {
     private color: ColorService,
     private firebase: FirebaseX,
     private prompt: PromptService,
+    private collapsifyService: CollapsifyService,
   ) {
     this.absences = [];
     this.focused = 0;
-    this.justifiedExistingDates = [];
-    this.beJustifiedExistingDates = [];
-    this.unJustifiedExistingDates = [];
+    this.collapsableJustifiedAbsences = [];
+    this.collapsableUnJustifiedAbsences = [];
+    this.collapsableBeJustifiedAbsences = [];
     this.title = "Igazolt";
     this.a = false;
     this.totalAbsences = 0;
@@ -51,6 +54,11 @@ export class AbsencesPage implements OnInit {
   async ngOnInit() {
     this.sans = true;
     this.student = await this.kretaService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
+
+    let justifiedAbsences: Absence[] = [];
+    let unJustifiedAbsences: Absence[] = [];
+    let beJustifiedAbsences: Absence[] = [];
+
     this.focused = 0;
     for (let i = 0; i < this.student.Absences.length; i++) {
       this.absences.push(this.student.Absences[i]);
@@ -59,27 +67,26 @@ export class AbsencesPage implements OnInit {
 
       switch (this.student.Absences[i].JustificationStateName) {
         case "Igazolt mulasztás":
-          if (!this.justifiedExistingDates.includes(this.student.Absences[i].LessonStartTime.substring(0, 10))) {
-            this.justifiedExistingDates.push(this.student.Absences[i].LessonStartTime.substring(0, 10));
-          }
+          justifiedAbsences.push(this.student.Absences[i]);
           break;
 
         case "Igazolandó mulasztás":
-          if (!this.beJustifiedExistingDates.includes(this.student.Absences[i].LessonStartTime.substring(0, 10))) {
-            this.beJustifiedExistingDates.push(this.student.Absences[i].LessonStartTime.substring(0, 10));
-          }
+          beJustifiedAbsences.push(this.student.Absences[i]);
           break;
 
         default:
-          if (!this.unJustifiedExistingDates.includes(this.student.Absences[i].LessonStartTime.substring(0, 10))) {
-            this.unJustifiedExistingDates.push(this.student.Absences[i].LessonStartTime.substring(0, 10));
-          }
+          unJustifiedAbsences.push(this.student.Absences[i]);
           break;
       }
     }
-    this.beJustifiedExistingDates.reverse();
-    this.unJustifiedExistingDates.reverse();
-    this.justifiedExistingDates.reverse();
+
+    this.collapsableJustifiedAbsences = this.collapsifyService.collapsifyByDates(justifiedAbsences, 'LessonStartTime', 'LessonStartTime');
+    this.collapsableBeJustifiedAbsences = this.collapsifyService.collapsifyByDates(beJustifiedAbsences, 'LessonStartTime', 'LessonStartTime');
+    this.collapsableUnJustifiedAbsences = this.collapsifyService.collapsifyByDates(unJustifiedAbsences, 'LessonStartTime', 'LessonStartTime');
+
+    console.log('cJustified', this.collapsableJustifiedAbsences);
+    console.log('cBeJustified', this.collapsableBeJustifiedAbsences);
+    console.log('cUnJustified', this.collapsableUnJustifiedAbsences);
     this.sans = false;
 
     this.firebase.setScreenName('absences');

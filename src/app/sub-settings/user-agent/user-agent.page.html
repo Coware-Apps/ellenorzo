@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="resetUA()">
+        <ion-icon slot="icon-only" name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>User-Agent LAB (beta)</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card [hidden]="!hasItLoaded">
+    <ion-card-header>
+      <div id="line" class="chart"></div>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-card-title>Jelenleg használt User-Agent</ion-card-title>
+      <ion-list>
+        <ion-item>
+          <ion-textarea [(ngModel)]="this.currentUA"></ion-textarea>
+        </ion-item>
+        <ion-buttons>
+          <ion-button slot="end" (click)="testUA()">
+            Teszt
+            <ion-icon slot="start" name="flask"></ion-icon>
+          </ion-button>
+          <ion-button slot="end" (click)="saveUA()">
+            Mentés
+            <ion-icon slot="start" name="save"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+  <ion-card>
+    <ion-card-content>
+      <ion-card-title>Információ</ion-card-title>
+      A rendszer a Teszt gomb megnyomása után 5 db órarend (Lesson) lekérést fog végezni 2 másodperces szünetekkel, majd
+      a mért adatokból készít grafikont. A KRÉTA szerverek túlterhelésének elkerülése érdekében óránként 5db ilyen
+      tesztelés engedélyezett. A
+      funkció még fejlesztés alatt áll, bővítés várható.
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -6,6 +6,7 @@ import { ColorService } from '../_services/color.service';
 import { AlertController } from '@ionic/angular';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
+import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
 
 @Component({
   selector: 'app-notes',
@@ -14,8 +15,8 @@ import { PromptService } from '../_services/prompt.service';
 })
 export class NotesPage implements OnInit {
 
-  public notes: Note[];
   public sans: boolean;
+  public collapsifiedData: UniversalSortedData[];
 
   private student: Student;
   constructor(
@@ -26,17 +27,19 @@ export class NotesPage implements OnInit {
     private alertCtrl: AlertController,
     private firebase: FirebaseX,
     private prompt: PromptService,
+    private collapsifyService: CollapsifyService,
   ) { 
-    this.notes= [];
+    
   }
 
   async ngOnInit() {
     this.sans = true;
     this.student = await this.kretaService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
 
-    for (let i = 0; i < this.student.Notes.length; i++) {
-      this.notes.push(this.student.Notes[i]);
-    }
+    this.collapsifiedData = this.collapsifyService.collapsifyByMonths(this.student.Notes, "CreatingTime");
+
+    console.log('collapsifiedData: ', this.collapsifiedData);
+
     this.sans = false;
     this.firebase.setScreenName('notes');
   }

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthenticationService } from '../_services/authentication.service';
 import { Storage } from '@ionic/storage';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, MenuController } from '@ionic/angular';
 import { InAppBrowser, InAppBrowserOptions } from '@ionic-native/in-app-browser/ngx';
 import { InstituteSelectorModalPage } from './institute-selector-modal/institute-selector-modal.page';
 import { KretaService } from '../_services/kreta.service';
@@ -14,7 +14,7 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
 
   public user: string = null;
   public pass: string = null;
@@ -29,21 +29,28 @@ export class LoginPage implements OnInit {
     private kreta: KretaService,
     private data: DataService,
     private firebase: FirebaseX,
+    private menuCtrl: MenuController,
   ) { }
 
   ngOnInit() {
     this.firebase.setScreenName('login');
+    this.menuCtrl.enable(false);
+  }
+
+  ngOnDestroy(): void {
+
   }
 
   async login() {
-    if(this.user == null || this.pass == null || this.instituteName == null) {
+    if (this.user == null || this.pass == null || this.instituteName == null) {
       this.presentAlert('Hibás adatok', 'Kérlek töltsd ki az összes mezőt!');
     }
-    else{
+    else {
       await this.storage.set('username', this.user);
       await this.storage.set('institute', this.data.getData('institute'));
       this.kreta.password = this.pass;
       await this.kreta.loginIfNotYetLoggedIn(true);
+
     }
   }
 
@@ -56,7 +63,7 @@ export class LoginPage implements OnInit {
     if (data && data.selectedInstitute)
       this.instituteName = data.selectedInstitute.Name;
   }
-  
+
   async presentAlert(header: string, message: string) {
     const alert = await this.alertCtrl.create({
       header: header,

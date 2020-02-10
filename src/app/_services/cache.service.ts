@@ -17,7 +17,7 @@ export class CacheService {
   constructor(
     private storage: Storage,
     private prompt: PromptService,
-  ) { 
+  ) {
     this.ramStorage = [];
   }
 
@@ -27,20 +27,20 @@ export class CacheService {
 
     this.storage.set(key + '§§§§date', date);
   }
-  
+
   async getCache(key: string) {
-    return(await this.storage.get(key));
+    return (await this.storage.get(key));
   }
 
-  async doWeNeedCache(key: string, cacheTime: number){
+  async doWeNeedCache(key: string, cacheTime: number) {
     var date = new Date();
     let storedDate = new Date(await this.storage.get(key + '§§§§date')).valueOf();
     // console.log('[CACHE] key: ', key);
     // console.log('[CACHE] data corresponding to key: ', await this.storage.get(key));
     //console.log('[CACHE] cacheTime: ', cacheTime);
     //console.log('[CACHE] timeDiff', date.valueOf() - storedDate.valueOf());
-    
-    if(storedDate != 0 && storedDate + cacheTime > date.valueOf() && await this.storage.get(key) != null) {
+
+    if (storedDate != 0 && storedDate + cacheTime > date.valueOf() && await this.storage.get(key) != null) {
       return true;
     }
     else {
@@ -57,6 +57,7 @@ export class CacheService {
       this.ramStorage.push(await this.storage.get("cardColor"));
       this.ramStorage.push(await this.storage.get("defaultPage"));
       this.ramStorage.push(await this.storage.get("theme"));
+      this.ramStorage.push(await this.storage.get("antiSpamUA"));
 
       await this.storage.clear();
 
@@ -67,6 +68,7 @@ export class CacheService {
       this.storage.set("cardColor", this.ramStorage[4]);
       this.storage.set("defaultPage", this.ramStorage[5]);
       this.storage.set("theme", this.ramStorage[6]);
+      this.storage.set("antiSpamUA", this.ramStorage[7]);
     } else {
       this.storage.clear();
     }
@@ -85,7 +87,7 @@ export class CacheService {
       return false;
     };
   }
- 
+
   async clearCacheByKey(key: string) {
     this.storage.remove(key)
   }

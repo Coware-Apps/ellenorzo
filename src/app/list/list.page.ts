@@ -12,10 +12,10 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 
 interface day {
-    name: string,
-    shortName: string,
-    index: number,
-    show: boolean,
+  name: string,
+  shortName: string,
+  index: number,
+  show: boolean,
 }
 @Component({
   selector: 'app-list',
@@ -199,7 +199,7 @@ export class ListPage implements OnInit {
     let weekLast;
     let today = now.getDay();
     console.log("today", today);
-    if (today == 0 || today == 5) {
+    if (today == 0 || today == 6) {
       weekFirst = this.fDate.getWeekFirst(1);
       weekLast = this.fDate.getWeekLast(1);
       this.focused = 0;

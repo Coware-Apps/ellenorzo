@@ -151,7 +151,11 @@
   </div>
 
 
-  <div display="block" style="height: 50px; width: 100%" [ngStyle]="{'background-color': this.color}"></div>
+<ion-item style="text-align: center;">
+  <div [ngStyle]="{'background-color': this.color}">
+    <p>Koppints egy értékre, hogy az általad választott színt beállítsd!</p>
+  </div>
+</ion-item>
     <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">
       <ion-slide class="wide">
         <ion-card class="home" *ngFor="let number of [5, 4, 3, 2, 1, 0]" (click)="changeColor(number)" [style.box-shadow]="'0px 0px 7px 3px ' + returnColor(number)">

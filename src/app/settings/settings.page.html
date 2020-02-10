@@ -30,7 +30,8 @@
 
       <ion-item (click)="enableMinimalDark()">
         <ion-label>Amoled</ion-label>
-        <ion-radio hidden slot="start" (click)="enableMinimalDark()" [checked]="currentTheme == 'minimalDark'"></ion-radio>
+        <ion-radio hidden slot="start" (click)="enableMinimalDark()" [checked]="currentTheme == 'minimalDark'">
+        </ion-radio>
         <ion-icon [color]="currentTheme == 'minimalDark' ? 'primary': ''" slot="start" name="contrast"></ion-icon>
       </ion-item>
 
@@ -59,6 +60,7 @@
       </ion-label>
     </ion-list-header>
     <ion-item>
+      <ion-icon slot="start" name="home"></ion-icon>
       <ion-label>Kezdőlap</ion-label>
       <ion-select [(ngModel)]="defaultPage" (ionChange)="selectorChanged($event)"
         [interfaceOptions]="customAlertOptions" interface="alert" slot="end" placeholder="Órarend">
@@ -72,7 +74,64 @@
       <ion-icon name="information-circle-outline"></ion-icon>
     </ion-button>
     <ion-item button class="width80" (click)="hidePages()">
+      <ion-icon slot="start" name="eye"></ion-icon>
       <ion-label>Oldalak elrejtése</ion-label>
+    </ion-item>
+
+    <ion-list-header>
+      <ion-label>
+        <h1>Értesítések</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-icon *ngIf="this.app.localNotificationsEnabled" slot="start" name="notifications"></ion-icon>
+      <ion-icon *ngIf="!this.app.localNotificationsEnabled" slot="start" name="notifications-off"></ion-icon>
+      <ion-label>
+        Órarend értesítések
+        <p>10 perccel minden óra kezdete előtt</p>
+      </ion-label>
+      <ion-toggle [checked]="this.app.localNotificationsEnabled" (ionChange)="this.localNotificationsChanged($event)"
+        slot="end">
+      </ion-toggle>
+    </ion-item>
+
+    <ion-list-header>
+      <ion-label>
+        <h1>Adatkezelés</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-icon slot="start" name="analytics"></ion-icon>
+      <ion-label>
+        <h2>Névtelen használati statisztikák</h2>
+        <ion-note>Ezzel hozzájárulsz az alkalmazás fejlesztéséhez</ion-note>
+      </ion-label>
+      <ion-toggle [checked]="this.app.analyticsCollectionEnabled" (ionChange)="this.analyticsChanged($event)"
+        slot="end">
+      </ion-toggle>
+    </ion-item>
+    <ion-item button (click)="this.openUrl('https://coware-apps.github.io/ellenorzo/privacy')">
+      <ion-icon slot="start" name="information-circle"></ion-icon>
+      <ion-label>Adatvédelmi nyilatkozat</ion-label>
+    </ion-item>
+
+    <ion-list-header [hidden]="!this.app.devSettingsEnabled">
+      <ion-label>
+        <h1>Fejlesztői beállítások</h1>
+      </ion-label>
+    </ion-list-header>
+    <ion-item [hidden]="!this.app.devSettingsEnabled">
+      <ion-icon slot="start" name="code"></ion-icon>
+      <ion-label>Toast-logging</ion-label>
+      <ion-toggle [checked]="this.app.toastLoggingEnabled" (ionChange)="toastLoggingChanged($event)" slot="end">
+      </ion-toggle>
+    </ion-item>
+    <ion-item [hidden]="!this.app.devSettingsEnabled" button (click)="customUAClicked()">
+      <ion-icon slot="start" name="flask"></ion-icon>
+      <ion-label>
+        <h2>User-Agent LAB (beta)</h2>
+        <ion-note>Ha nem tudod pontosan mi ez, ne használd!</ion-note>
+      </ion-label>
     </ion-item>
 
     <ion-list-header>
@@ -84,39 +143,6 @@
       Kijelentkezés
       <ion-icon slot="start" name="log-out"></ion-icon>
     </ion-item>
-    
-    <ion-list-header>
-      <ion-label><h1>Adatkezelés</h1></ion-label>
-    </ion-list-header>
-    <ion-item>
-      <ion-label>
-        <h2>Névtelen használati statisztikák küldése</h2>
-        <p>Ezzel hozzájárulsz az alkalmazás fejlesztéséhez</p>
-      </ion-label>
-      <ion-toggle [(ngModel)]="this.analyticsCollectionEnabled" (ionChange)="this.analyticsChanged()" slot="end"></ion-toggle>
-    </ion-item>
-    <ion-item button (click)="this.openUrl('https://coware-apps.github.io/ellenorzo/privacy')">
-      <ion-label>Adatvédelmi nyilatkozat</ion-label>
-    </ion-item>
-
-    <ion-list-header [hidden]="!this.devSettings">
-      <ion-label>
-        <h1>Fejlesztői beállítások</h1>
-      </ion-label>
-    </ion-list-header>
-    <ion-item [hidden]="!this.devSettings">
-      <ion-label>Toast-logging</ion-label>
-      <ion-toggle [(ngModel)]="this.toastLogging" (ionChange)="toastLoggingChanged()" slot="end"></ion-toggle>
-    </ion-item>
-    <ion-item disabled [hidden]="!this.devSettings">
-      <ion-label>Custom User Agent</ion-label>
-      <ion-input></ion-input>
-      <ion-buttons slot="end">
-        <ion-button>
-          <ion-icon slot="icon-only" name="save"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-item>
 
     <ion-list-header>
       <ion-label>
@@ -124,7 +150,7 @@
       </ion-label>
     </ion-list-header>
     <ion-item button (click)="this.versionClicked()">
-      <ion-label>{{this.appV}}</ion-label>
+      <ion-label>{{this.app.appV}}</ion-label>
     </ion-item>
   </ion-list>
 </ion-content>

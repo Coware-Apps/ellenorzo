@@ -8,14 +8,6 @@
       </ion-header>
       <ion-content>
         <ion-list>
-          <ion-menu-toggle auto-hide="false">
-            <ion-item [routerDirection]="'root'" [routerLink]="['user']">
-              <ion-icon slot="start" name="contact"></ion-icon>
-              <ion-label *ngIf="!this.sans">{{student.Name}}</ion-label>
-              <ion-skeleton-text *ngIf="this.sans" animated width="80%"></ion-skeleton-text>
-            </ion-item>
-          </ion-menu-toggle>
-          
           <ion-menu-toggle (ionWillOpen)="checkConfig()" auto-hide="false" *ngFor="let p of appPages">
             <ion-item [hidden]="!p.show" [routerDirection]="'root'" [routerLink]="[p.url]">
               <ion-icon slot="start" [name]="p.icon" [src]="p.src"></ion-icon>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Lesson } from '../_models/lesson';
 import { Student } from '../_models/student';
 import { Token, DecodedUser } from '../_models/token';
@@ -8,8 +8,6 @@ import { CacheService } from './cache.service';
 import { AntiSpamService } from './anti-spam.service';
 import { HTTP } from '@ionic-native/http/ngx';
 import { BehaviorSubject, from } from 'rxjs';
-import { ToastController } from '@ionic/angular';
-import { ColorService } from './color.service';
 import { StudentHomework, TeacherHomework, HomeworkResponse } from '../_models/homework';
 import { Institute } from '../_models/institute';
 import { AuthenticationService } from './authentication.service';
@@ -21,6 +19,8 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { JwtDecodeHelper } from '../_helpers/jwt-decode-helper';
 import { IsDebug } from '@ionic-native/is-debug/ngx';
 import { PromptService } from './prompt.service';
+import { AppService } from './app.service';
+import { MenuController } from '@ionic/angular';
 
 
 @Injectable({
@@ -33,6 +33,7 @@ export class KretaService {
   public institute: Institute;
   public password: string;
   public decoded_user: DecodedUser;
+  public registrationId: string;
 
   private thisError: HttpErrorResponse;
   private errorType: string;
@@ -51,8 +52,6 @@ export class KretaService {
     private storage: Storage,
     private cache: CacheService,
     private antiSpam: AntiSpamService,
-    private toastController: ToastController,
-    private color: ColorService,
     private authService: AuthenticationService,
     private router: Router,
     private fDate: FormattedDateService,
@@ -60,6 +59,8 @@ export class KretaService {
     private jwtDecoder: JwtDecodeHelper,
     private isDebug: IsDebug,
     private prompt: PromptService,
+    private app: AppService,
+    private menuCtrl: MenuController,
   ) {
     this.lessonKey = "";
     this.studentKey = "";
@@ -84,7 +85,7 @@ export class KretaService {
   }
 
   public async initializeFirebase(userId) {
-    if (await this.isDebug.getIsDebug || await this.storage.get('analyticsCollectionEnabled') == false) {
+    if (await this.isDebug.getIsDebug() || await this.storage.get('analyticsCollectionEnabled') == false) {
       this.firebase.setAnalyticsCollectionEnabled(false);
       console.log("[FIREBASE] Anonymus statistics are off");
       this.prompt.butteredToast("[FIREBASE] Anonymus statistics are off");
@@ -92,9 +93,6 @@ export class KretaService {
       //using the userId only for anonymus data collection purposes, but it is required for cross-device syncing
       this.firebase.setAnalyticsCollectionEnabled(true);
       this.firebase.setUserId(userId);
-      this.firebase.setUserProperty("kreta_institute_code", this.institute.InstituteCode);
-      this.firebase.setUserProperty("kreta_institute_name", this.institute.Name);
-      this.firebase.setUserProperty("kreta_institute_city", this.institute.City);
       this.firebase.setCrashlyticsUserId(userId);
       console.log("[FIREBASE] Anonymus statistics are on");
       this.prompt.butteredToast("[FIREBASE] Anonymus statistics are on");
@@ -139,6 +137,7 @@ export class KretaService {
               if (error == 0) {
                 this.storage.set('refresh_token', currentTokens.refresh_token);
                 this.access_token = currentTokens.access_token;
+                this.menuCtrl.enable(true);
                 return true;
               } else if (this.errorType == "invalid_grant") {
                 //invalid user/pass
@@ -146,6 +145,7 @@ export class KretaService {
                 this.storage.remove("username");
                 this.storage.remove("password");
                 this.authService.logout();
+                this.menuCtrl.enable(false);
                 return false;
               }
             });
@@ -163,11 +163,13 @@ export class KretaService {
                 this.access_token = currentTokens.access_token;
                 this.authService.login();
                 this.router.navigate(['']);
+                this.menuCtrl.enable(true);
                 return true;
               } else if (this.errorType == "invalid_grant") {
                 //invalid user/pass
                 this.prompt.errorToast("Hibás felhasználónév vagy jelszó");
                 this.logout();
+                this.menuCtrl.enable(false);
                 return false;
               } else {
                 return false;
@@ -232,7 +234,7 @@ export class KretaService {
           if (error >= 500 && 600 > error) {
             this.prompt.errorToast("A KRÉTA szerver nem válaszol!");
           } else {
-            this.prompt.errorToast("Ismeretlen hiba történt! Próbáld meg újraindítani az appot! (" + error + ")");
+            this.prompt.errorToast("Ismeretlen hiba történt! (" + error + ")");
           }
           break;
       }
@@ -331,6 +333,7 @@ export class KretaService {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
         'Authorization': 'Bearer ' + this.access_token,
+        'User-Agent': this.app.userAgent,
       }
       try {
         let response = await this.http.get(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, null, headers);
@@ -376,8 +379,10 @@ export class KretaService {
 
       const headers = {
         'Authorization': 'Bearer ' + this.access_token,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': this.app.userAgent,
       }
+      console.log('User-Agent', this.app.userAgent);
       fromDate = fromDate || "";
       toDate = toDate || "";
 
@@ -385,8 +390,10 @@ export class KretaService {
         console.log('[KRETA] Refreshing Lesson...');
         this.prompt.butteredToast('[KRETA] Refreshing Lesson...');
 
+        let traceStart = new Date().valueOf();
         let response = await this.http.get(this.institute.Url + urlPath + "?fromDate=" + fromDate + "&toDate=" + toDate, null, headers);
-
+        let traceEnd = new Date().valueOf();
+        console.log('Request time: ', traceEnd - traceStart)
         let responseData = <Lesson[]>JSON.parse(response.data);
 
         if (!skipCache) {
@@ -445,7 +452,8 @@ export class KretaService {
 
       if (c == false) {
         const headers = {
-          'Authorization': 'Bearer ' + this.access_token
+          'Authorization': 'Bearer ' + this.access_token,
+          'User-Agent': this.app.userAgent,
         }
 
         try {
@@ -487,7 +495,8 @@ export class KretaService {
       let homeworks: StudentHomework[];
       //getting student homeworks by id (caching unnecessary)
       const headers = {
-        'Authorization': 'Bearer ' + this.access_token
+        'Authorization': 'Bearer ' + this.access_token,
+        'User-Agent': this.app.userAgent,
       }
 
       try {
@@ -532,7 +541,8 @@ export class KretaService {
 
       if (c == false) {
         const headers = {
-          'Authorization': 'Bearer ' + this.access_token
+          'Authorization': 'Bearer ' + this.access_token,
+          'User-Agent': this.app.userAgent,
         }
 
         try {
@@ -570,7 +580,8 @@ export class KretaService {
       let homeworks: TeacherHomework[] = [];
       //getting teacher homeworks by id (caching unnecessary)
       const headers = {
-        'Authorization': 'Bearer ' + this.access_token
+        'Authorization': 'Bearer ' + this.access_token,
+        'User-Agent': this.app.userAgent,
       }
 
       try {
@@ -607,7 +618,8 @@ export class KretaService {
 
       const headers = {
         'Authorization': 'Bearer ' + this.access_token,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': this.app.userAgent,
       }
       fromDate = fromDate || "";
       toDate = toDate || "";
@@ -650,7 +662,7 @@ export class KretaService {
         console.log("[KRETA] Refreshing institute list");
         this.prompt.butteredToast('[KRETA] Refreshing institute list');
         const headers = {
-          'apiKey': '7856d350-1fda-45f5-822d-e1a2f3f1acf0'
+          'apiKey': '7856d350-1fda-45f5-822d-e1a2f3f1acf0',
         }
 
         let response = await this.http.get("https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute", null, headers);
@@ -715,7 +727,8 @@ export class KretaService {
     //getting teacher homeworks by id (caching unnecessary)
     const headers = {
       'Authorization': 'Bearer ' + this.access_token,
-      'Content-Type': 'application/json; charset=utf-8'
+      'Content-Type': 'application/json; charset=utf-8',
+      'User-Agent': this.app.userAgent,
     }
     const params = {
       'OraId': OraId,
@@ -750,7 +763,8 @@ export class KretaService {
       const headers = {
         'Accept': 'application/json',
         'Authorization': 'Bearer ' + this.access_token,
-        'Content-Type': 'application/json; charset=utf-8'
+        'Content-Type': 'application/json; charset=utf-8',
+        'User-Agent': this.app.userAgent,
       }
 
       let response = await this.http.delete(this.institute.Url + '/mapi/api/v1/HaziFeladat/DeleteTanuloHaziFeladat/' + id, null, headers);
@@ -762,5 +776,99 @@ export class KretaService {
       return false;
     }
   }
+  //#endregion
+
+  //#region Push-notifications (deprecated)
+  public async getFcmToken(): Promise<string> {
+    let currentToken = await this.firebase.getToken();
+    console.log('FMC TOKEN', currentToken);
+    return currentToken;
+  }
+
+  public async subscribeToNotifications(): Promise<string> {
+    await this.loginIfNotYetLoggedIn();
+    try {
+      const headers = {
+        'Accept': 'application/json',
+        'apiKey': '7856d350-1fda-45f5-822d-e1a2f3f1acf0',
+        'Authorization': 'bearer ' + this.access_token,
+        'Accept-Encoding': 'gzip'
+      }
+      let params = {
+        'InstituteCode': this.institute.InstituteCode,
+        'InstituteUserId': this.decoded_user["kreta:institute_user_id"],
+        'TutelaryId': '',
+        'Platform': 'Gcm',
+        'NotificationType': 'All',
+        'NotificationRole': 'Student',
+        'NotificationSource': 'Kreta',
+        'NotificationEnvironment': 'Ellenorzo_Xamarin',
+        'SchoolYearId': (await this.getStudent(this.fDate.getDate('thisYearBegin'), this.fDate.getDate('thisYearEnd'))).SchoolYearId,
+        'Handle': await this.getFcmToken(),
+      }
+
+      console.log('Student refreshed, waiting for push response');
+
+      let httpResponse = await this.http.post('https://kretaglobalmobileapi2.ekreta.hu/api/v2/Registration', params, headers);
+
+      this.registrationId = <string>JSON.parse(httpResponse.data).registrationId;
+      console.log('Registered, id: ', this.registrationId);
+      return this.registrationId;
+    } catch (error) {
+      console.error('Hiba történt a feliratkozás közben', error);
+    }
+  }
+
+  public async unsubscribeFromNotifications() {
+    try {
+      const headers = {
+        'Accept': 'application/json',
+        'apiKey': '7856d350-1fda-45f5-822d-e1a2f3f1acf0',
+        'Authorization': 'bearer ' + this.access_token,
+        'Accept-Encoding': 'gzip'
+      }
+      let params = {
+        'registrationId': this.registrationId,
+        'NotificationSource': 'Kreta',
+        'NotificationEnvironment': 'Ellenorzo_Xamarin',
+        'SchoolYearId': (await this.getStudent(this.fDate.getDate('thisYearBegin'), this.fDate.getDate('thisYearEnd'))).SchoolYearId,
+      }
+
+      let httpResponse = await this.http.delete('https://kretaglobalmobileapi2.ekreta.hu/api/v2/Registration', params, headers);
+    } catch (error) {
+      console.error('Hiba történt a feliratkozás közben', error);
+    }
+  }
+  //#endregion
+
+  //#region KRÉTA->UA Lab
+  public async getLessonLAB(fromDate: string, toDate: string, userAgent: string): Promise<number> {
+    let urlPath = '/mapi/api/v1/LessonAmi';
+    this.institute = await this.getInstituteFromStorage();
+    await this.loginIfNotYetLoggedIn();
+
+    const headers = {
+      'Authorization': 'Bearer ' + this.access_token,
+      'Accept': 'application/json',
+      'User-Agent': userAgent,
+    }
+
+    try {
+      console.log('[KRETA] Refreshing Lesson...');
+      this.prompt.butteredToast('[KRETA] Refreshing Lesson...');
+
+      let traceStart = new Date().valueOf();
+      await this.http.get(this.institute.Url + urlPath + "?fromDate=" + fromDate + "&toDate=" + toDate, null, headers);
+      let traceEnd = new Date().valueOf();
+
+      return (traceEnd - traceStart);
+    } catch (error) {
+      console.error("Hiba történt a 'Lesson' lekérése közben: ", error);
+      this.errorStatus.next(await error.status);
+      this.errorHandler();
+      return 0;
+    }
+  }
+
   //#endregion
 }

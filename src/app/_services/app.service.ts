@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { AppComponent } from '../app.component';
-import { trimTrailingNulls } from '@angular/compiler/src/render3/view/util';
+import { BehaviorSubject, config } from 'rxjs';
 import { Storage } from '@ionic/storage';
 
 @Injectable({
@@ -17,11 +15,16 @@ export class AppService {
     src?: string;
     show: boolean,
   }[];
-  public toastLogging: boolean;
+  public toastLoggingEnabled: boolean;
+  public appV: string;
+  public analyticsCollectionEnabled: boolean;
+  public devSettingsEnabled: boolean;
+  public localNotificationsEnabled: boolean;
+  public userAgent: string;
 
   constructor(
     private storage: Storage,
-  ) { 
+  ) {
     this.appPages = [{
       title: 'Főoldal',
       url: '/home',
@@ -80,52 +83,55 @@ export class AppService {
       src: "/assets/extraicons/test.svg",
     },
     {
+      title: 'Tanuló adatai',
+      url: '/user',
+      icon: 'contact',
+      show: true,
+    },
+    {
       title: 'Beállítások',
       url: '/settings',
       icon: 'settings',
       show: true,
     }];
-    this.toastLogging = false;
-  }  
-
-  public async getAppPages(): Promise<any> {
-    let storedPages = await this.storage.get("sidemenu")
-    this.appPages = storedPages == null ? this.appPages : storedPages;
-    return this.appPages;
+    this.toastLoggingEnabled = false;
+    this.getStockUserAgent()
   }
 
-  public async initializeDelayedConfig() {
-    let storedToastLogging = await this.storage.get("toastLogging");
-    this.toastLogging = storedToastLogging == null ? this.toastLogging : storedToastLogging;
+  public async changeConfig(configKey: string, value: any) {
+    this[configKey] = value;
+    await this.storage.set(configKey, value);
   }
 
-  toastLoggingOn() {
-    this.toastLogging = true;
+  public getStockUserAgent() {
+    //this.userAgent = 'Kreta.Ellenorzo/2.9.8.2020012301 (Android; SM-G950F 0.0)'
+    //this.userAgent = 'x.x/0 (Android)'
+    //response time about 2000-10000ms per request
+    //this.userAgent = 'Dalvik/2.1.0 (Linux; U; Android 9; AM-GADDF Build/PPR1.180610.011)';
+    this.userAgent = 'Arisztokreta.Ellenorzo/0.8.3.2020012301 (Android)';
+    return 'Arisztokreta.Ellenorzo/0.8.3.2020012301 (Android)';
   }
 
-  toastLoggingOff() {
-    this.toastLogging = false;
-  }
-
+  //sidemenu
   hidePage(title: string) {
     this.appPages.forEach(page => {
       if (page.title == title) {
         page.show = false;
-      console.log("hid", page.title);
-    }
+        console.log("hid", page.title);
+      }
     });
   }
 
   showPage(title: string) {
     this.appPages.forEach(page => {
       if (page.title == title) {
-      page.show = true;
-      console.log("shown", page.title);
+        page.show = true;
+        console.log("shown", page.title);
       }
     });
   }
 
-  //when something is updated
+  //when something is updated (sidemenu)
   updated = new BehaviorSubject("init");
 
   public updateConfig() {

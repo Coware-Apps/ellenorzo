@@ -58,6 +58,9 @@ export interface Absence {
     JustificationStateName: string;
     //when have the parents seen it? if they haven't, it's null
     SeenByTutelaryUTC: string;
+
+    JustificationType?: string;
+    JustificationTypeName?: string;
 }
 export interface Note {
     NoteId: number;
@@ -113,4 +116,6 @@ export class Student {
     public Notes: Note[]; 
     public FormTeacher: FormTeacherTemplate;
     public Tutelaries: Tutelary[];
+
+    public SchoolYearId?: number;
 }

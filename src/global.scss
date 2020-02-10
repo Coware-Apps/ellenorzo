@@ -16,7 +16,7 @@
 @import "~@ionic/angular/css/normalize.css";
 @import "~@ionic/angular/css/structure.css";
 @import "~@ionic/angular/css/typography.css";
-@import '~@ionic/angular/css/display.css';
+@import "~@ionic/angular/css/display.css";
 
 /* Optional CSS utils that can be commented out */
 @import "~@ionic/angular/css/padding.css";
@@ -26,125 +26,143 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 :root {
-    .dark-theme{ 
-        .darkToast {
-            --ion-item-background: transparent;
-            --background: black;
-            --color: white;
-        }
-        --ion-background-color: #121212;
-        --ion-background-color-rgb: 18,18,18;
-      
-        --ion-text-color: #ffffff;
-        --ion-text-color-rgb: 255,255,255;
-      
-        --ion-border-color: #222222;
-      
-        --ion-color-step-50: #1e1e1e;
-        --ion-color-step-100: #2a2a2a;
-        --ion-color-step-150: #363636;
-        --ion-color-step-200: #414141;
-        --ion-color-step-250: #4d4d4d;
-        --ion-color-step-300: #595959;
-        --ion-color-step-350: #656565;
-        --ion-color-step-400: #717171;
-        --ion-color-step-450: #7d7d7d;
-        --ion-color-step-500: #898989;
-        //ion-card-header
-        --ion-color-step-550: #949494;
-        --ion-color-step-600: #a0a0a0;
-        --ion-color-step-650: #acacac;
-        --ion-color-step-700: #b8b8b8;
-        --ion-color-step-750: #c4c4c4;
-        --ion-color-step-800: #d0d0d0;
-        --ion-color-step-850: #dbdbdb;
-        --ion-color-step-900: #e7e7e7;
-        --ion-color-step-950: #f3f3f3;
-      
-        --ion-item-background: #1A1B1E;
+  .dark-theme {
+    .darkToast {
+      --ion-item-background: transparent;
+      --background: black;
+      --color: white;
     }
-    .dark-minimal-theme{ 
-        .darkToast {
-            --ion-item-background: transparent;
-            --background: black;
-            --color: white;
-        }
-        --ion-background-color: black;
-        --ion-background-color-rgb: 0,0,0;
-        --ion-item-background: black;  
-      
-        --ion-text-color: #ffffff;
-        --ion-text-color-rgb: 255,255,255;
-      
-        --ion-border-color: #222222;
-      
-        --ion-color-step-50: #1e1e1e;
-        --ion-color-step-100: #2a2a2a;
-        --ion-color-step-150: #363636;
-        --ion-color-step-200: #414141;
-        --ion-color-step-250: #4d4d4d;
-        --ion-color-step-300: #595959;
-        --ion-color-step-350: #656565;
-        --ion-color-step-400: #717171;
-        --ion-color-step-450: #7d7d7d;
-        --ion-color-step-500: #898989;
-        --ion-color-step-550: #949494;
-        --ion-color-step-600: #a0a0a0;
-        --ion-color-step-650: #acacac;
-        --ion-color-step-700: #b8b8b8;
-        --ion-color-step-750: #c4c4c4;
-        --ion-color-step-800: #d0d0d0;
-        --ion-color-step-850: #dbdbdb;
-        --ion-color-step-900: #e7e7e7;
-        --ion-color-step-950: #f3f3f3; 
-    }   
-    .custom-theme {
-        .timeTableAlert{
-        --ion-item-background: transparent;
-        --ion-background-color: black;
-        }
+    --ion-background-color: #121212;
+    --ion-background-color-rgb: 18, 18, 18;
 
-        .darkToast {
-            --ion-item-background: transparent;
-            --background: black;
-            --color: white;
-        }
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255, 255, 255;
 
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: cover;
-        background-position-x: center;
-        background-position-y: center;
-        
-        color: white;
+    --ion-border-color: #222222;
 
-        --ion-text-color: #ffffff;
-        --ion-text-color-rgb: 255,255,255;
+    --ion-color-step-50: #1e1e1e;
+    --ion-color-step-100: #2a2a2a;
+    --ion-color-step-150: #363636;
+    --ion-color-step-200: #414141;
+    --ion-color-step-250: #4d4d4d;
+    --ion-color-step-300: #595959;
+    --ion-color-step-350: #656565;
+    --ion-color-step-400: #717171;
+    --ion-color-step-450: #7d7d7d;
+    --ion-color-step-500: #898989;
+    //ion-card-header
+    --ion-color-step-550: #949494;
+    --ion-color-step-600: #a0a0a0;
+    --ion-color-step-650: #acacac;
+    --ion-color-step-700: #b8b8b8;
+    --ion-color-step-750: #c4c4c4;
+    --ion-color-step-800: #d0d0d0;
+    --ion-color-step-850: #dbdbdb;
+    --ion-color-step-900: #e7e7e7;
+    --ion-color-step-950: #f3f3f3;
 
-        --ion-item-background: transparent;
-        --ion-background-color: rgba(0, 0, 0, 0.432);
-
-        --ion-color-step-50: #1e1e1e;
-        --ion-color-step-100: #2a2a2a;
-        --ion-color-step-150: #363636;
-        --ion-color-step-200: #414141;
-        --ion-color-step-250: #4d4d4d;
-        --ion-color-step-300: #595959;
-        --ion-color-step-350: #656565;
-        --ion-color-step-400: #717171;
-        --ion-color-step-450: #7d7d7d;
-        --ion-color-step-500: #898989;
-        --ion-color-step-550: #949494;
-        --ion-color-step-600: #a0a0a0;
-        --ion-color-step-650: #acacac;
-        --ion-color-step-700: #b8b8b8;
-        --ion-color-step-750: #c4c4c4;
-        --ion-color-step-800: #d0d0d0;
-        --ion-color-step-850: #dbdbdb;
-        --ion-color-step-900: #e7e7e7;
-        --ion-color-step-950: #f3f3f3;
+    --ion-item-background: #1a1b1e;
+  }
+  .dark-minimal-theme {
+    .darkToast {
+      --ion-item-background: transparent;
+      --background: black;
+      --color: white;
     }
+    --ion-background-color: black;
+    --ion-background-color-rgb: 0, 0, 0;
+    --ion-item-background: black;
+
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255, 255, 255;
+
+    --ion-border-color: #222222;
+
+    --ion-color-step-50: #1e1e1e;
+    --ion-color-step-100: #2a2a2a;
+    --ion-color-step-150: #363636;
+    --ion-color-step-200: #414141;
+    --ion-color-step-250: #4d4d4d;
+    --ion-color-step-300: #595959;
+    --ion-color-step-350: #656565;
+    --ion-color-step-400: #717171;
+    --ion-color-step-450: #7d7d7d;
+    --ion-color-step-500: #898989;
+    --ion-color-step-550: #949494;
+    --ion-color-step-600: #a0a0a0;
+    --ion-color-step-650: #acacac;
+    --ion-color-step-700: #b8b8b8;
+    --ion-color-step-750: #c4c4c4;
+    --ion-color-step-800: #d0d0d0;
+    --ion-color-step-850: #dbdbdb;
+    --ion-color-step-900: #e7e7e7;
+    --ion-color-step-950: #f3f3f3;
+  }
+  .custom-theme {
+    .timeTableAlert {
+      --ion-item-background: transparent;
+      --ion-background-color: black;
+    }
+
+    .darkToast {
+      --ion-item-background: transparent;
+      --background: black;
+      --color: white;
+    }
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-position-x: center;
+    background-position-y: center;
+
+    color: white;
+
+    --ion-text-color: #ffffff;
+    --ion-text-color-rgb: 255, 255, 255;
+
+    --ion-item-background: transparent;
+    --ion-background-color: rgba(0, 0, 0, 0.432);
+
+    --ion-color-step-50: #1e1e1e;
+    --ion-color-step-100: #2a2a2a;
+    --ion-color-step-150: #363636;
+    --ion-color-step-200: #414141;
+    --ion-color-step-250: #4d4d4d;
+    --ion-color-step-300: #595959;
+    --ion-color-step-350: #656565;
+    --ion-color-step-400: #717171;
+    --ion-color-step-450: #7d7d7d;
+    --ion-color-step-500: #898989;
+    --ion-color-step-550: #949494;
+    --ion-color-step-600: #a0a0a0;
+    --ion-color-step-650: #acacac;
+    --ion-color-step-700: #b8b8b8;
+    --ion-color-step-750: #c4c4c4;
+    --ion-color-step-800: #d0d0d0;
+    --ion-color-step-850: #dbdbdb;
+    --ion-color-step-900: #e7e7e7;
+    --ion-color-step-950: #f3f3f3;
+  }
 }
+//mostly for the popup messages
 ul {
-    list-style-type: square;
+  list-style-type: square;
+}
+//for the collapsible item groups
+.collapsed {
+  animation-name: collapse;
+  animation-duration: 0.2s;
+  animation-fill-mode: forwards;
+}
+
+//using max-height because percentages don't work
+@keyframes collapse {
+  from {
+    max-height: 150px;
+  }
+
+  to {
+    max-height: 0px;
+  }
 }

@@ -171,13 +171,13 @@ export class ColorPickerPage implements OnInit {
     this.slides.slideTo(day);
     switch (day) {
       case 0:
-        this.title = "Főoldal";
+        this.title = "Értékelések";
         break;
       case 1:
         this.title = "Átlagok";
         break;
       case 2:
-        this.title = "Értékelések";
+        this.title = "Statisztikák";
         this.ionViewDidEnter();
         break;
     }

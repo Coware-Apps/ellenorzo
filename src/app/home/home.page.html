@@ -40,15 +40,15 @@
         </ion-item>
         <div *ngFor="let item of monthlyGrades.data">
           <!-- Evaluation -->
-          <ion-card button [hidden]="!monthlyGrades.showEvaluations || !monthlyGrades.showAll" *ngIf="item.EvaluationId != null && item.Type == 'MidYear'"
+          <ion-card class="evaluationCard" button [hidden]="!monthlyGrades.showEvaluations || !monthlyGrades.showAll" *ngIf="item.EvaluationId != null && item.Type == 'MidYear'"
             (click)="getMoreData(item)"
             [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.NumberValue, item.Form)">
             <ion-card-content>
               <div *ngIf="item.NumberValue == 0 then thenblock else elseblock"></div>
               <!-- NumberValue == 0 -->
               <ng-template #thenblock>
-                <div style="float: right">
-                  <h1 *ngIf="item.Form == 'Mark'">-</h1>
+                <div class="evaluationH1" style="float: right">
+                  <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'">-</h1>
                   <ion-buttons *ngIf="item.Form == 'Text'" slot="end">
                     <ion-button>
                       <ion-icon slot="icon-only" name="text"></ion-icon>
@@ -58,9 +58,9 @@
               </ng-template>
               <!-- NumberValue != 0 -->
               <ng-template #elseblock>
-                <div style="float: right;">
-                  <h1 *ngIf="item.Form == 'Mark'" slot="start">{{item.NumberValue}}</h1>
-                  <h1 *ngIf="item.Form == 'Percent'" slot="start">{{item.NumberValue}}%</h1>
+                <div class="evaluationDiv" style="float: right;">
+                  <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'" slot="start">{{item.NumberValue}}</h1>
+                  <h1 class="evaluationH1" *ngIf="item.Form == 'Percent'" slot="start">{{item.NumberValue}}%</h1>
                 </div>
               </ng-template>
               <ion-label>
@@ -90,10 +90,15 @@
             </ion-label>
           </ion-item>
           <!-- Note -->
-          <ion-item button [hidden]="!monthlyGrades.showNotes || !monthlyGrades.showAll" *ngIf="item.NoteId != null" (click)="getMoreData(item)">
-            <ion-label>{{item.Title}}</ion-label>
-            <ion-label>{{item.CreatingTime.substring(0, 10)}}</ion-label>
-          </ion-item>
+          <ion-card button [hidden]="!monthlyGrades.showNotes || !monthlyGrades.showAll" *ngIf="item.NoteId != null" (click)="getMoreData(item)">
+            <ion-card-header>
+              <ion-card-subtitle>{{item.Teacher}} - {{item.CreatingTime.substring(0, 10)}}</ion-card-subtitle>
+                <ion-card-title>{{item.Title}}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                {{item.Content}}
+              </ion-card-content>
+          </ion-card>
         </div>
       </div>
     </ion-list>

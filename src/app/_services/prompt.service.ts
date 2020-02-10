@@ -21,10 +21,12 @@ export class PromptService {
   ) { }
 
   //#region alerts
+  public presentUniversalAlert(header: string, subHeader: string, message: string) {
+    this.presentAlert(header, subHeader, message, this.color.getPopUpClass());
+  }
   public missingTextAlert(text: string) {
     this.presentAlert('Hibás szöveg!', null, text, this.color.getPopUpClass());
   }
-
   public evaluationAlert(evaluation: evaluation) {
     if (evaluation.Form == "Mark") {
       let date = new Date(evaluation.Date);
@@ -53,6 +55,7 @@ export class PromptService {
   }
   public absenceAlert(absence: Absence) {
     let seen = absence.SeenByTutelaryUTC == null ? "nem" : absence.SeenByTutelaryUTC;
+    let justificationTypeName = absence.JustificationType != 'UnJustified' ? ('<li>Igazolás típusa: ' + absence.JustificationTypeName + '</li>') : '';
     this.presentAlert(
       absence.TypeName + " (" + absence.Subject + ")",
       absence.Teacher,
@@ -60,6 +63,7 @@ export class PromptService {
       "<li>Dátum: " + absence.LessonStartTime.substring(0, 10) + "</li>" +
       "<li>Állapot: " + absence.JustificationStateName + "</li>" +
       "<li>Mulasztás módja: " + absence.ModeName + "</li>" +
+      justificationTypeName +
       "<li>Szülő látta: " + seen + "</li></ul>",
       this.color.getPopUpClass(),
     );
@@ -113,6 +117,9 @@ export class PromptService {
       "<li>Típus: " + grade.Mode + "</li>" +
       "<li>Leírás: " + grade.FormName + "</li></ul>", this.color.getPopUpClass())
   }
+  public notificationAlert(title: string, content: string) {
+    this.presentAlert(title, null, content, this.color.getPopUpClass());
+  }
   //#endregion
 
   //#region toasts
@@ -121,13 +128,19 @@ export class PromptService {
   }
   public butteredToast(butter: string) {
     //sorry, couldn't resist (only shows a toast message if the app.service->toastLogging is set to true)
-    if (this.app.toastLogging) {
+    if (this.app.toastLoggingEnabled) {
       this.presentToast(butter, false);
     }
   }
+  public notificationToast(title: string, body: string, autoHide: boolean) {
+    this.presentToast(title + ': ' + body, autoHide);
+  }
+  public toast(message: string, autoDismiss: boolean) {
+    this.presentToast(message, autoDismiss);
+  }
   //#endregion
 
-  //helpers
+  //#region helpers
   private async presentAlert(header: string, subHeader: string, message: string, css: string) {
     const alert = await this.alertCtrl.create({
       cssClass: css,
@@ -138,8 +151,11 @@ export class PromptService {
     });
     await alert.present();
   }
-
   private async presentToast(message: string, autoDismiss: boolean) {
+    let topToast = await this.toastCtrl.getTop();
+    if (topToast != null) {
+      this.toastCtrl.dismiss();
+    }
     const toast = await this.toastCtrl.create({
       message: message,
       duration: autoDismiss ? 10000 : 0,
@@ -149,7 +165,6 @@ export class PromptService {
     });
     toast.present();
   }
-
   private themeIf(theme: string) {
     if (theme == null || theme == "") {
       return "";
@@ -157,10 +172,10 @@ export class PromptService {
       return " - " + theme;
     }
   }
-
   private getTime(StartTime: Date, EndTime: Date) {
     let start = new Date(StartTime);
     let end = new Date(EndTime);
     return start.getHours() + ":" + (start.getMinutes() >= 10 ? start.getMinutes() : "0" + start.getMinutes()) + "-" + end.getHours() + ":" + (end.getMinutes() >= 10 ? end.getMinutes() : "0" + end.getMinutes());
   }
+  //#endregion
 }

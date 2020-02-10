@@ -93,6 +93,10 @@ const routes: Routes = [
   {
     path: 'user',
     loadChildren: () => import('./user/user.module').then( m => m.UserPageModule)
+  },
+  {
+    path: 'user-agent',
+    loadChildren: () => import('./sub-settings/user-agent/user-agent.module').then( m => m.UserAgentPageModule)
   }
 
 

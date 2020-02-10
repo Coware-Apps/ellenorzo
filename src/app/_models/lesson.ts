@@ -23,11 +23,12 @@ export class Lesson {
     public LessonId?: number;
 
     //for timetable
-    DayOfWeek?: number; 
+    DayOfWeek?: number;
 
     //homeworks
     IsTanuloHaziFeladatEnabled?: boolean;
     TeacherHomeworkId?: string;
     Homework?: string;
     CalendarOraType?: string;
+    Theme?: string;
 }

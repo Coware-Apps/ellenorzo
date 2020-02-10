@@ -17,6 +17,7 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { IsDebug } from '@ionic-native/is-debug/ngx';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -37,8 +38,9 @@ import { IsDebug } from '@ionic-native/is-debug/ngx';
     InAppBrowser,
     FirebaseX,
     IsDebug,
+    LocalNotifications,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule { }
