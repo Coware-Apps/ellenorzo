@@ -21,15 +21,18 @@
         <div *ngIf="!sans">
           <div *ngFor="let item of this.timetable">
             <ion-item button *ngIf="item.DayOfWeek == day.index" [ngClass]="getStateClass(item)" slot="start">
-              <ion-buttons *ngIf="item.IsTanuloHaziFeladatEnabled || item.TeacherHomeworkId != null" class="homeworksBtn" slot="end">
-                  <ion-button (click)="openHomeworks(item.TeacherHomeworkId, item.Subject, item.IsTanuloHaziFeladatEnabled, item.LessonId, item.CalendarOraType, item.StartTime)">
-                    <ion-icon *ngIf="item.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
-                    <ion-icon *ngIf="item.TeacherHomeworkId != null" color="warning" slot="icon-only" src="/assets/extraicons/homewarning.svg"></ion-icon>
-                  </ion-button>
+              <ion-buttons *ngIf="item.IsTanuloHaziFeladatEnabled || item.TeacherHomeworkId != null"
+                class="homeworksBtn" slot="end">
+                <ion-button
+                  (click)="openHomeworks(item.TeacherHomeworkId, item.Subject, item.IsTanuloHaziFeladatEnabled, item.LessonId, item.CalendarOraType, item.StartTime)">
+                  <ion-icon *ngIf="item.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
+                  <ion-icon *ngIf="item.TeacherHomeworkId != null" color="warning" slot="icon-only"
+                    src="/assets/extraicons/homewarning.svg"></ion-icon>
+                </ion-button>
               </ion-buttons>
 
               <ion-label (click)="getMoreData(item)" class="ion-text-wrap">
-                <h2 slot="start">{{item.Count}}. {{item.Subject}}</h2>
+                <h2 slot="start">{{item.Count == -1 ? '+' : item.Count}}. {{item.Subject}}</h2>
               </ion-label>
 
               <ion-label class="middleLabel" (click)="getMoreData(item)">

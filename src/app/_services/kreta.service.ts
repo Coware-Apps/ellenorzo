@@ -21,6 +21,7 @@ import { IsDebug } from '@ionic-native/is-debug/ngx';
 import { PromptService } from './prompt.service';
 import { AppService } from './app.service';
 import { MenuController } from '@ionic/angular';
+import { NotificationService } from './notification.service';
 
 
 @Injectable({
@@ -61,6 +62,7 @@ export class KretaService {
     private prompt: PromptService,
     private app: AppService,
     private menuCtrl: MenuController,
+    private notificationService: NotificationService,
   ) {
     this.lessonKey = "";
     this.studentKey = "";
@@ -108,84 +110,77 @@ export class KretaService {
 
   //#region Authentication logic
   public async loginIfNotYetLoggedIn(forceLogin: boolean = false): Promise<any> {
-    if (this.loginStatus.value == "inProgress") {
-      return "wait";
-    } else {
-      if (this.authService.isLoginNeeded(this.authenticatedFor) || forceLogin) {
-        this.loginStatus.next("inProgress");
-        //access_token expired
+    if (this.authService.isLoginNeeded(this.authenticatedFor) || forceLogin) {
+      this.loginStatus.next("inProgress");
+      //access_token expired
+      this.errorType = "";
+
+      let currentTokens: Token;
+      let storedUsername = await this.storage.get('username');
+      let password = this.password;
+
+      let refreshToken = await this.storage.get('refresh_token');
+      if (refreshToken != null) {
+        //renewing tokens
         this.errorType = "";
 
-        let currentTokens: Token;
-        let storedUsername = await this.storage.get('username');
-        let password = this.password;
+        console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken... (" + refreshToken + ")");
+        this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken...');
 
-        if (this.access_token == null) {
+        this.authService.login()
+        currentTokens = await this.renewToken(refreshToken);
 
-          let refreshToken = await this.storage.get('refresh_token');
-          if (refreshToken != null) {
-            //renewing tokens
-            this.errorType = "";
-
-            console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken... (" + refreshToken + ")");
-            this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken...');
-
-            this.authService.login()
-            currentTokens = await this.renewToken(refreshToken);
-
-            this.errorStatus.subscribe(async error => {
-              if (error == 0) {
-                this.storage.set('refresh_token', currentTokens.refresh_token);
-                this.access_token = currentTokens.access_token;
-                this.menuCtrl.enable(true);
-                return true;
-              } else if (this.errorType == "invalid_grant") {
-                //invalid user/pass
-                this.prompt.errorToast("Hibás felhasználónév vagy jelszó");
-                this.storage.remove("username");
-                this.storage.remove("password");
-                this.authService.logout();
-                this.menuCtrl.enable(false);
-                return false;
-              }
-            });
+        this.errorStatus.subscribe(async error => {
+          if (error == 0) {
+            this.storage.set('refresh_token', currentTokens.refresh_token);
+            this.access_token = currentTokens.access_token;
+            this.menuCtrl.enable(true);
+            return true;
+          } else if (this.errorType == "invalid_grant") {
+            //invalid user/pass
+            this.prompt.errorToast("Hibás felhasználónév vagy jelszó");
+            this.storage.remove("username");
+            this.storage.remove("password");
+            this.authService.logout();
+            this.menuCtrl.enable(false);
+            return false;
           }
-          else {
-            //login
-            console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Getting tokens using credentials");
-            this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Getting tokens using credentials');
-            currentTokens = await this.getToken(storedUsername, password);
+        });
+      }
+      else {
+        //login
+        console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Getting tokens using credentials");
+        this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Getting tokens using credentials');
+        currentTokens = await this.getToken(storedUsername, password);
 
-            this.errorStatus.subscribe(error => {
-              if (error == 0) {
-                //successful login
-                this.storage.set('refresh_token', currentTokens.refresh_token);
-                this.access_token = currentTokens.access_token;
-                this.authService.login();
-                this.router.navigate(['']);
-                this.menuCtrl.enable(true);
-                return true;
-              } else if (this.errorType == "invalid_grant") {
-                //invalid user/pass
-                this.prompt.errorToast("Hibás felhasználónév vagy jelszó");
-                this.logout();
-                this.menuCtrl.enable(false);
-                return false;
-              } else {
-                return false;
-              }
-            });
+        this.errorStatus.subscribe(error => {
+          if (error == 0) {
+            //successful login
+            this.storage.set('refresh_token', currentTokens.refresh_token);
+            this.access_token = currentTokens.access_token;
+            this.authService.login();
+            this.router.navigate(['']);
+            this.menuCtrl.enable(true);
+            return true;
+          } else if (this.errorType == "invalid_grant") {
+            //invalid user/pass
+            this.prompt.errorToast("Hibás felhasználónév vagy jelszó");
+            this.logout();
+            this.menuCtrl.enable(false);
+            return false;
+          } else {
+            return false;
           }
-        }
-        this.loginStatus.next("done");
-      } else {
-        //already logged in, no need to refresh access_token yet
-        console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Already logged in, access_token:", this.access_token);
-        this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Already logged in');
-        return true;
+        });
       }
       this.loginStatus.next("done");
+    } else {
+      //already logged in, no need to refresh access_token yet
+      console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Already logged in, access_token:", this.access_token);
+      this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Already logged in');
+      return true;
     }
+    this.loginStatus.next("done");
   }
 
   public async logout() {
@@ -393,7 +388,17 @@ export class KretaService {
         let traceStart = new Date().valueOf();
         let response = await this.http.get(this.institute.Url + urlPath + "?fromDate=" + fromDate + "&toDate=" + toDate, null, headers);
         let traceEnd = new Date().valueOf();
-        console.log('Request time: ', traceEnd - traceStart)
+        let requestTime = traceEnd - traceStart;
+        console.log('Request time: ', requestTime);
+        let storedTimetableTrace: number[] = await this.storage.get('timetableTrace');
+        storedTimetableTrace = storedTimetableTrace == null ? [] : storedTimetableTrace;
+        console.log('storedTimetableTrace', storedTimetableTrace);
+        storedTimetableTrace.reverse();
+        storedTimetableTrace.push(requestTime);
+        storedTimetableTrace.reverse();
+        await this.storage.set('timetableTrace', storedTimetableTrace.slice(0, 20));
+
+
         let responseData = <Lesson[]>JSON.parse(response.data);
 
         if (!skipCache) {
@@ -408,6 +413,9 @@ export class KretaService {
           await this.cache.setCache(this.institute.Url + urlPath + '?fromDate=' + fromDate + "&toDate=" + toDate, responseData);
         }
 
+        if (this.app.localNotificationsEnabled) {
+          this.notificationService.initializeLocalNotifications(responseData);
+        }
         return responseData;
       } catch (error) {
         console.error("Hiba történt a 'Lesson' lekérése közben: ", error);

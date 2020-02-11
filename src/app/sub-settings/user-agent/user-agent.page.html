@@ -41,6 +41,7 @@
       </ion-list>
     </ion-card-content>
   </ion-card>
+
   <ion-card>
     <ion-card-content>
       <ion-card-title>Információ</ion-card-title>
@@ -49,5 +50,11 @@
       tesztelés engedélyezett. A
       funkció még fejlesztés alatt áll, bővítés várható.
     </ion-card-content>
+  </ion-card>
+
+  <ion-card [hidden]='!this.showPreviousData'>
+    <ion-card-header>
+      <div id="previousData" class="chart"></div>
+    </ion-card-header>
   </ion-card>
 </ion-content>

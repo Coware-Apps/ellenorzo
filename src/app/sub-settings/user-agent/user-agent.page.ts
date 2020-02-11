@@ -23,6 +23,7 @@ export class UserAgentPage implements OnInit {
   public testData: TestData[];
   public currentUA: string;
   public hasItLoaded: boolean;
+  public showPreviousData: boolean;
   constructor(
     public kreta: KretaService,
     private fDate: FormattedDateService,
@@ -36,10 +37,25 @@ export class UserAgentPage implements OnInit {
     this.currentUA = this.app.userAgent;
     this.testData = [];
     this.hasItLoaded = false;
+    this.showPreviousData = false;
   }
 
-  ngOnInit() {
-
+  async ngOnInit() {
+    let previousData: number[] = await this.storage.get('timetableTrace');
+    if (previousData != null && previousData.length >= 5) {
+      this.showPreviousData = true;
+      let sum = 0;
+      previousData.reverse();
+      previousData.forEach(d => {
+        sum += d;
+      });
+      let average = sum / previousData.length;
+      this.showLine([{
+        UA: 'Válaszidő',
+        data: previousData,
+        average: average,
+      }], 'previousData', "Alkalmazás előző " + previousData.length + " órarend lekérése alapján mért KRÉTA válaszidő");
+    }
   }
 
   async saveUA() {
@@ -125,16 +141,16 @@ export class UserAgentPage implements OnInit {
     }
   }
 
-  showLine(lineData: TestData[]) {
+  showLine(lineData: TestData[], id: string = 'line', title: string = "KRÉTA válaszidő User-Agent alapján", ) {
     let myChart: HighCharts.Chart;
     let averageSum = 0;
     lineData.forEach(d => {
       averageSum = averageSum + d.average;
     });
-    let n = averageSum / this.testData.length;
+    let n = averageSum / lineData.length;
+    console.log('n', n);
 
     for (let i = 0; i < lineData.length; i++) {
-      let id = "line";
       if (i == 0) {
         myChart = HighCharts.chart(id, {
           chart: {
@@ -146,7 +162,7 @@ export class UserAgentPage implements OnInit {
             enabled: false
           },
           title: {
-            text: "KRÉTA válaszidő User-Agent alapján",
+            text: title,
             //color
             style: {
               color: this.color.getChartTextColor(),
@@ -174,7 +190,7 @@ export class UserAgentPage implements OnInit {
                 zIndex: 2,
                 dashStyle: "Dash",
                 label: {
-                  text: 'Átlag lekérési idő',
+                  text: 'Átlag lekérési idő (' + Math.round(n) + 'ms)',
                   //color
                   style: {
                     color: this.color.getChartTextColor(),

@@ -146,11 +146,6 @@ export class HomePage {
 
     this.allDataByMonths.sort((a, b) => b.firstEntryCreatingTime - a.firstEntryCreatingTime);
 
-    console.log('months', months);
-    console.log('allDataByMonths', this.allDataByMonths);
-    //sort the data
-
-
     this.sans = false;
     this.hasItLoaded = true;
 
@@ -178,7 +173,7 @@ export class HomePage {
       this.prompt.absenceAlert(item);
     } else if (item.NoteId != null) {
       this.prompt.noteAlert(item);
-    } else if(item.EvaluationId != null) {
+    } else if (item.EvaluationId != null) {
       this.prompt.evaluationAlert(item);
     }
   }

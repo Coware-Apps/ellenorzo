@@ -19,7 +19,8 @@
         <ion-card [hidden]='!monthlyData.showAll' *ngFor="let test of monthlyData.data">
           <ion-card-header>
             <ion-card-title>{{test.SzamonkeresMegnevezese == '' ? '-' : test.SzamonkeresMegnevezese}}</ion-card-title>
-            <ion-card-subtitle>{{test.Tanar}} - {{this.fDate.formatDate(test.Datum)}} ({{test.HetNapja}})
+            <ion-card-subtitle>{{test.Tanar}} - {{this.fDate.formatDateWithZerosAndDots(test.Datum)}}
+              ({{test.HetNapja}})
             </ion-card-subtitle>
             <ion-card-subtitle>{{test.SzamonkeresModja}}</ion-card-subtitle>
           </ion-card-header>

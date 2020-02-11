@@ -105,6 +105,36 @@ export class ListPage implements OnInit {
     });
   }
 
+  async ngOnInit() {
+    this.sans = true;
+    let now = new Date();
+
+    //getting the first day and last day to show
+    let weekFirst;
+    let weekLast;
+    let today = now.getDay();
+    console.log("today", today);
+    if (today == 0 || today == 6) {
+      weekFirst = this.fDate.getWeekFirst(1);
+      weekLast = this.fDate.getWeekLast(1);
+      this.focused = 0;
+    } else {
+      weekFirst = this.fDate.getWeekFirst();
+      weekLast = this.fDate.getWeekLast();
+      this.focused = now.getDay() - 1;
+    }
+
+    //getting the timetable data from the server
+    this.timetable = await this.kreta.getLesson(weekFirst, weekLast);
+
+    this.dataToScreen(weekFirst, weekLast);
+    this.sans = false;
+    this.slides.slideTo(this.focused);
+
+    //firebase
+    this.firebase.setScreenName('timetable');
+  }
+
   async getMoreData(lesson: Lesson) {
     this.prompt.lessonAlert(lesson);
   }
@@ -190,37 +220,6 @@ export class ListPage implements OnInit {
     this.sans = false;
   }
 
-  async ngOnInit() {
-    this.sans = true;
-    let now = new Date();
-
-    //getting the first day and last day to show
-    let weekFirst;
-    let weekLast;
-    let today = now.getDay();
-    console.log("today", today);
-    if (today == 0 || today == 6) {
-      weekFirst = this.fDate.getWeekFirst(1);
-      weekLast = this.fDate.getWeekLast(1);
-      this.focused = 0;
-    } else {
-      weekFirst = this.fDate.getWeekFirst();
-      weekLast = this.fDate.getWeekLast();
-      this.focused = now.getDay() - 1;
-    }
-
-    //getting the timetable data from the server
-    this.timetable = await this.kreta.getLesson(weekFirst, weekLast);
-
-    this.dataToScreen(weekFirst, weekLast);
-    this.sans = false;
-    this.slides.slideTo(this.focused);
-
-    //firebase
-    this.firebase.setScreenName('timetable');
-  }
-
-
   dataToScreen(weekFirst: string, weekLast: string) {
     //getting the date that is shown in brackets in the header
     this.weekToFrom = this.fDate.addZeroToNumber(weekFirst.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekFirst.split('-')[2]) + "-" + this.fDate.addZeroToNumber(weekLast.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekLast.split('-')[2]);
@@ -230,6 +229,8 @@ export class ListPage implements OnInit {
       x.DayOfWeek = i;
       this.days[i].show = true;
     });
+
+    this.timetable.sort((a, b) => a.StartTime.valueOf() - b.StartTime.valueOf());
   }
 
   getShownDays(days: day[]) {

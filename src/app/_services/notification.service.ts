@@ -5,6 +5,7 @@ import { LocalNotifications, ILocalNotification } from '@ionic-native/local-noti
 import { Router } from '@angular/router';
 import { AppService } from './app.service';
 import { Lesson } from '../_models/lesson';
+import { PromptService } from './prompt.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,30 +18,33 @@ export class NotificationService {
     private localNotifications: LocalNotifications,
     private router: Router,
     private app: AppService,
+    private prompt: PromptService,
   ) { }
 
   public async initializeLocalNotifications(timetable: Lesson[]) {
-    let weekCriteria = (await this.storage.get("lastNotificationWeek")) != this.fDate.getWeek(new Date());
+    this.localNotifications.cancelAll();
+    console.log('[NOTIFICATIONS] (re)initializing local notifications');
+    this.prompt.butteredToast('[NOTIFICATIONS] (re)initializing local notifications');
+    timetable.forEach(lesson => {
+      //10 minutes before the lesson
+      let triggerTime: Date = new Date(new Date(lesson.StartTime).getTime() - 600000);
+      let stateNameIf = lesson.StateName == 'Elmaradt Tanóra' ? '(Elmarad)' : lesson.DeputyTeacher != '' ? '(Helyettesítés)' : '';
 
-    if (weekCriteria) {
-      //the current week's notifications have not been set yet and notifications are enabled
-      timetable.forEach(lesson => {
-        //10 minutes before the lesson
-        console.log('lesson', lesson);
-        let triggerTime = new Date(new Date(lesson.StartTime).getTime() - 600000);
-
-        let notificationOpts: ILocalNotification = {
-          id: lesson.LessonId,
-          title: "Következő óra: " + lesson.Subject,
-          text: "Időpont: " + this.fDate.getTimetableTime(lesson.StartTime, lesson.EndTime) + " - " + lesson.ClassRoom,
-          foreground: true,
-          trigger: { at: triggerTime }
-        };
-        console.log("notificationOptions", notificationOpts);
-        this.localNotifications.schedule(notificationOpts);
-      });
-      this.storage.set("lastNotificationWeek", this.fDate.getWeek(new Date()));
-    }
+      let notificationOpts: ILocalNotification = {
+        id: lesson.LessonId,
+        title: "Következő óra: " + lesson.Subject + ' ' + stateNameIf,
+        text: "Időpont: " + this.fDate.getTimetableTime(lesson.StartTime, lesson.EndTime) + " - " + lesson.ClassRoom,
+        foreground: true,
+        group: 'timetable',
+        data: {
+          'navigateToUrl': 'list',
+        },
+        trigger: {
+          at: triggerTime,
+        }
+      };
+      this.localNotifications.schedule(notificationOpts);
+    });
   }
 
   public subscribeToLocalNotifications() {

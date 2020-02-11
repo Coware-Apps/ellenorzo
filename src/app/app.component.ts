@@ -46,19 +46,24 @@ export class AppComponent {
     this.platform.ready().then(async () => {
       this.splashScreen.hide();
       await this.initializeConfig();
-      this.initializeDelayedConfig();
       await this.navigate();
+      this.initializeDelayedConfig();
     });
   }
 
   public async initializeDelayedConfig() {
-    //runs AFTER the other config, we can use those values here DISABLED
-    if (this.app.localNotificationsEnabled && false) {
-      let timetable = await this.kreta.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(0));
+    //runs AFTER the other config, we can use those values here
+    //We will initialize 2 weeks worth of notifications on the beginning of every week. These might (most likely will) get overwritten by
+    //fresher notifications, that will happen every time the user refreshes the timetable for any reason. (other than LAB requests)
+    let lastStoredWeek = await this.storage.get('timetableNotificationsLastSaved');
 
-      this.notificationService.initializeLocalNotifications(timetable);
+    if (this.app.localNotificationsEnabled && (lastStoredWeek == null || this.fDate.getWeek(lastStoredWeek) != this.fDate.getWeek(new Date()))) {
+      //this automatically reinitializes the notfications
+      await this.kreta.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(1), true);
       this.notificationService.subscribeToLocalNotifications();
+      await this.storage.set('timetableNotificationsLastSaved', new Date());
     }
+
     //from the firebase console (by the devs or whoever has access to it)
     this.firebaseX.onMessageReceived().subscribe(m => {
       if (m.tap == null) {

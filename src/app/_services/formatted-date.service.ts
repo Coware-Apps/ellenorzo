@@ -66,6 +66,19 @@ export class FormattedDateService {
     return (date.getFullYear() + "-" + month + "-" + dateStringSplitted[2]);
   }
 
+  formatDateWithZerosAndDots(d: any) {
+    let date = new Date(d);
+    let month: number = 0;
+
+    //Because .Day() gives back monday, tuesday etc
+    let dateStringSplitted: string[] = date.toString().split(" ");
+
+    //Because this shit gives back a value from 0-11
+    month = date.getMonth() + 1;
+
+    return (this.addZeroToNumberByLength(date.getFullYear()) + "." + this.addZeroToNumberByLength(month) + "." + this.addZeroToNumberByLength(dateStringSplitted[2]));
+  }
+
   getWeekFirst(extraWeeks: number = 0) {
     let date = new Date();
     date.setDate(date.getDate() + extraWeeks * 7);
@@ -106,6 +119,14 @@ export class FormattedDateService {
 
   addZeroToNumber(n: any) {
     if (n < 10) {
+      return "0" + n;
+    } else {
+      return n;
+    }
+  }
+
+  private addZeroToNumberByLength(n: number | string) {
+    if (n.toString().length < 2) {
       return "0" + n;
     } else {
       return n;

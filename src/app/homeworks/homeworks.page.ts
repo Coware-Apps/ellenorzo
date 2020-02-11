@@ -22,16 +22,14 @@ export class HomeworksPage implements OnInit {
     public fDate: FormattedDateService,
 
     private kreta: KretaService,
-    private color: ColorService,
-    private alertCtrl: AlertController,
     private firebase: FirebaseX,
     private prompt: PromptService,
   ) { }
 
   async ngOnInit() {
     this.sans = true;
-    this.teacherHomeworks = await this.kreta.getTeacherHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today")); 
-    this.studentHomeworks = await this.kreta.getStudentHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today")); 
+    this.teacherHomeworks = await this.kreta.getTeacherHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today"));
+    this.studentHomeworks = await this.kreta.getStudentHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today"));
     this.sans = false;
 
     this.firebase.setScreenName('homeworks');
