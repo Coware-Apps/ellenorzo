@@ -27,3 +27,6 @@ A szoftver [nyílt forráskódú](https://github.com/Coware-Apps/naplo/), a [GPL
 A program személyes adatokat nem gyűjt és nem továbbít a fejlesztők felé. Az adatkezelési tájékoztatót [ezen az oldalon](https://coware-apps.github.io/ellenorzo/privacy) olvashatod.
 
 Mivel a személyes adatokat az eKRÉTA Informatikai Zrt. tárolja és kezeli, olvasd el az [ő tájékoztatójukat is](https://tudasbazis.ekreta.hu/pages/viewpage.action?pageId=4064926).
+
+### API Dokumentáció
+A KRÉTA API új nem hivatalos, kiegészített dokumentációja [itt](https://documenter.getpostman.com/view/10379752/SzKPULz6) található.
