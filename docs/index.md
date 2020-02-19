@@ -24,7 +24,6 @@ A szoftver [nyílt forráskódú](https://github.com/Coware-Apps/naplo/), a [GPL
 ### Felhasznált projektek
 - A program az Ionic Framework használatával készült (MIT)
 - A program grafikonjait a [Highcharts](https://www.highcharts.com/) motor teszi lehetővé
-- A KRÉTA API dokumentációt [boapps](https://github.com/boapps) készítette, [itt](https://github.com/boapps/e-kreta-api-docs) található
 - A logót [Raedrim](https://github.com/Raerdrim) készítette, [iconsider](https://www.iconfinder.com/iconsider) ikonja alapján
 
 ### Adatkezelés
