@@ -139,6 +139,11 @@ export class FormattedDateService {
     return start.getHours() + ":" + (start.getMinutes() >= 10 ? start.getMinutes() : "0" + start.getMinutes()) + "-" + end.getHours() + ":" + (end.getMinutes() >= 10 ? end.getMinutes() : "0" + end.getMinutes());
   }
 
+  getTime(d: Date) {
+    let date = new Date(d);
+    return date.getHours() + ":" + (date.getMinutes() >= 10 ? date.getMinutes() : "0" + date.getMinutes());
+  }
+
   getWeek(d: Date) {
     //returns the 1-based week of the year
     let onejan = new Date(d.getFullYear(), 0, 1);

@@ -22,6 +22,7 @@ import { PromptService } from './prompt.service';
 import { AppService } from './app.service';
 import { MenuController } from '@ionic/angular';
 import { NotificationService } from './notification.service';
+import { Message } from '../_models/message';
 
 
 @Injectable({
@@ -224,6 +225,10 @@ export class KretaService {
         case 403:
           this.prompt.errorToast("Hozzáférés megtagadva!");
           break;
+        case 69420:
+          //known KRÉTA errors
+          this.prompt.errorToast("Hiba a KRÉTA szerverrel!")
+          break;
 
         default:
           if (error >= 500 && 600 > error) {
@@ -314,11 +319,14 @@ export class KretaService {
   //#endregion
 
   //#region KRÉTA->GET
-  public async getStudent(fromDate: string, toDate: string): Promise<Student> {
+  public async getStudent(fromDate: string, toDate: string, forceRefresh: boolean = false): Promise<Student> {
     this.institute = await this.getInstituteFromStorage();
     let urlPath = '/mapi/api/v1/Student';
-
-    let cacheDataIf = await this.cache.getCacheIf(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate);
+    let cacheKey = '_studentData';
+    let cacheDataIf: any = false;
+    if (!forceRefresh) {
+      cacheDataIf = await this.cache.getCacheIf(cacheKey);
+    }
 
     if (cacheDataIf == false) {
       await this.loginIfNotYetLoggedIn();
@@ -332,19 +340,14 @@ export class KretaService {
       }
       try {
         let response = await this.http.get(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, null, headers);
-        let x = <Student>JSON.parse(response.data);
+        let parsedResponse = <Student>JSON.parse(response.data);
 
         //cache
         //removing old cached data
-        let a;
-        this.studentKey = (a = await this.storage.get('studentKey')) != null ? a : "";
-        this.cache.clearCacheByKey(this.studentKey);
+        this.cache.clearCacheByKey(cacheKey);
+        await this.cache.setCache(cacheKey, parsedResponse);
 
-        this.studentKey = this.institute.Url + urlPath + '?fromDate=' + fromDate + "&toDate=" + toDate;
-        await this.storage.set('studentKey', this.studentKey);
-        await this.cache.setCache(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, x);
-
-        return x;
+        return parsedResponse;
       }
       catch (error) {
         console.error("Hiba a tanuló lekérdezése közben", error);
@@ -359,8 +362,9 @@ export class KretaService {
   public async getLesson(fromDate: string, toDate: string, skipCache: boolean = false): Promise<Lesson[]> {
     this.institute = await this.getInstituteFromStorage();
     let urlPath = '/mapi/api/v1/LessonAmi';
+    let cacheKey = '_lessonData'
 
-    let cacheDataIf = await this.cache.getCacheIf(this.institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate);
+    let cacheDataIf = await this.cache.getCacheIf(cacheKey);
 
     if (skipCache) {
       cacheDataIf = false;
@@ -378,8 +382,6 @@ export class KretaService {
         'User-Agent': this.app.userAgent,
       }
       console.log('User-Agent', this.app.userAgent);
-      fromDate = fromDate || "";
-      toDate = toDate || "";
 
       try {
         console.log('[KRETA] Refreshing Lesson...');
@@ -403,14 +405,8 @@ export class KretaService {
 
         if (!skipCache) {
           //cache
-          //removing old cached data
-          let a;
-          this.cache.clearCacheByKey(this.lessonKey);
-          this.lessonKey = (a = await this.storage.get('lessonKey')) != null ? a : "";
-
-          this.lessonKey = this.institute.Url + urlPath + '?fromDate=' + fromDate + "&toDate=" + toDate;
-          await this.storage.set('lessonKey', this.lessonKey);
-          await this.cache.setCache(this.institute.Url + urlPath + '?fromDate=' + fromDate + "&toDate=" + toDate, responseData);
+          this.cache.clearCacheByKey(cacheKey);
+          await this.cache.setCache(cacheKey, responseData);
         }
 
         if (this.app.localNotificationsEnabled) {
@@ -422,7 +418,6 @@ export class KretaService {
         this.errorStatus.next(await error.status);
         this.errorHandler();
       }
-      this.antiSpam.click("lesson");
     } else {
       return <Lesson[]>cacheDataIf;
     }
@@ -431,6 +426,7 @@ export class KretaService {
   public async getStudentHomeworks(fromDate: string = null, toDate: string = null, homeworkId: number = null): Promise<StudentHomework[]> {
     //gets the student homeworks from fromDate to toDate (if homeworkId is null), or gets the student homework(s) using the homeworkId
     this.institute = await this.getInstituteFromStorage();
+    let cacheKey = '_studentHomeworkData';
 
     if (homeworkId == null) {
       //getting student homeworks from fromDate to toDate
@@ -446,10 +442,9 @@ export class KretaService {
       let lessons: Lesson[] = await this.getLesson(fromDate, toDate, true);
 
       //cache
-      let c: any = false;
+      let cacheDataIf: any = false;
 
-      c = await this.cache.getCacheIf(this.institute.Url + "/mapi/api/v1/HaziFeladat/TanuloHaziFeladatLista/?fromDate=" + fromDate + "&toDate=" + toDate);
-
+      cacheDataIf = await this.cache.getCacheIf(cacheKey);
 
       //getting HAZIFELADATIDs from lessons (https://github.com/boapps/e-kreta-api-docs#user-content-tanul%C3%B3i-h%C3%A1zi-feladat-lek%C3%A9r%C3%A9se)
       lessons.forEach(lesson => {
@@ -458,7 +453,7 @@ export class KretaService {
         }
       });
 
-      if (c == false) {
+      if (cacheDataIf == false) {
         const headers = {
           'Authorization': 'Bearer ' + this.access_token,
           'User-Agent': this.app.userAgent,
@@ -480,14 +475,9 @@ export class KretaService {
 
 
           //cache
-          //removing old cached data
           let a;
-          this.cache.clearCacheByKey(this.studentHomeworkKey);
-          this.studentHomeworkKey = (a = await this.storage.get('studentHomeworkKey')) != null ? a : "";
-
-          this.studentHomeworkKey = this.institute.Url + '/mapi/api/v1/HaziFeladat/TanuloHaziFeladatLista/?fromDate=' + fromDate + "&toDate=" + toDate;
-          await this.storage.set('teacherHomeworkKey', this.studentHomeworkKey);
-          await this.cache.setCache(this.institute.Url + '/mapi/api/v1/HaziFeladat/TanuloHaziFeladatLista/?fromDate=' + fromDate + "&toDate=" + toDate, homeworks);
+          this.cache.clearCacheByKey(cacheKey);
+          await this.cache.setCache(cacheKey, homeworks);
 
           return homeworks;
         } catch (error) {
@@ -496,7 +486,7 @@ export class KretaService {
           this.errorHandler();
         }
       } else {
-        return c;
+        return cacheDataIf;
       }
     } else {
       await this.loginIfNotYetLoggedIn();
@@ -526,6 +516,7 @@ export class KretaService {
   public async getTeacherHomeworks(fromDate: string, toDate: string, homeworkId: number = null): Promise<TeacherHomework[]> {
     //gets the teacher homeworks from fromDate to toDate (if homeworkId is null), or gets the teacher homework(s) using the homeworkId
     this.institute = await this.getInstituteFromStorage();
+    let cacheKey = '_teacherHomeworkKey';
 
     if (homeworkId == null) {
       let homeworkIds: string[] = [];
@@ -535,10 +526,9 @@ export class KretaService {
       let lessons: Lesson[] = await this.getLesson(fromDate, toDate, true);
 
       //cache
-      let c: any = false;
+      let cacheDataIf: any = false;
 
-      c = await this.cache.getCacheIf(this.institute.Url + "/mapi/api/v1/HaziFeladat/TanarHaziFeladat/?fromDate=" + fromDate + "&toDate=" + toDate);
-
+      cacheDataIf = await this.cache.getCacheIf(cacheKey);
 
       //getting HAZIFELADATIDs from lessons (https://github.com/boapps/e-kreta-api-docs#user-content-tanul%C3%B3i-h%C3%A1zi-feladat-lek%C3%A9r%C3%A9se)
       lessons.forEach(lesson => {
@@ -547,7 +537,7 @@ export class KretaService {
         }
       });
 
-      if (c == false) {
+      if (cacheDataIf == false) {
         const headers = {
           'Authorization': 'Bearer ' + this.access_token,
           'User-Agent': this.app.userAgent,
@@ -567,12 +557,8 @@ export class KretaService {
           //cache
           //removing old cached data
           let a;
-          this.cache.clearCacheByKey(this.teacherHomeworkKey);
-          this.teacherHomeworkKey = (a = await this.storage.get('teacherHomeworkKey')) != null ? a : "";
-
-          this.teacherHomeworkKey = this.institute.Url + '/mapi/api/v1/HaziFeladat/TanarHaziFeladat/?fromDate=' + fromDate + "&toDate=" + toDate;
-          await this.storage.set('teacherHomeworkKey', this.teacherHomeworkKey);
-          await this.cache.setCache(this.institute.Url + '/mapi/api/v1/HaziFeladat/TanarHaziFeladat/?fromDate=' + fromDate + "&toDate=" + toDate, homeworks);
+          this.cache.clearCacheByKey(cacheKey);
+          await this.cache.setCache(cacheKey, homeworks);
 
           return homeworks;
         } catch (error) {
@@ -581,7 +567,7 @@ export class KretaService {
           this.errorHandler();
         }
       } else {
-        return c;
+        return cacheDataIf;
       }
     } else {
       await this.loginIfNotYetLoggedIn();
@@ -617,8 +603,9 @@ export class KretaService {
   public async getTests(fromDate: string, toDate: string): Promise<Test[]> {
     await this.loginIfNotYetLoggedIn();
     this.institute = await this.getInstituteFromStorage();
+    let cacheKey = '_testData';
 
-    let cacheDataIf = await this.cache.getCacheIf(this.institute.Url + '/mapi/api/v1/BejelentettSzamonkeresAmi?fromDate=' + fromDate + '&toDate=' + toDate);
+    let cacheDataIf = await this.cache.getCacheIf(cacheKey);
 
     if (cacheDataIf == false) {
 
@@ -642,13 +629,8 @@ export class KretaService {
 
         //cache
         //removing old cached data
-        let a;
-        this.testKey = (a = await this.storage.get('testKey')) != null ? a : "";
-        this.cache.clearCacheByKey(this.lessonKey);
-
-        this.testKey = this.institute.Url + '/mapi/api/v1/BejelentettSzamonkeresAmi?fromDate=' + fromDate + "&toDate=" + toDate;
-        await this.storage.set('', this.testKey);
-        await this.cache.setCache(this.institute.Url + '/mapi/api/v1/BejelentettSzamonkeresAmi?fromDate=' + fromDate + "&toDate=" + toDate, responseData);
+        this.cache.clearCacheByKey(cacheKey);
+        await this.cache.setCache(cacheKey, responseData);
 
         return responseData;
       } catch (error) {
@@ -656,14 +638,14 @@ export class KretaService {
         this.errorStatus.next(await error.status);
         this.errorHandler();
       }
-      this.antiSpam.click("lesson");
     } else {
       return <Test[]>cacheDataIf;
     }
   }
 
   public async getInstituteList(): Promise<Institute[]> {
-    let cacheDataIf = await this.cache.getCacheIf("https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute");
+    let cacheKey = '_instituteData'
+    let cacheDataIf = await this.cache.getCacheIf(cacheKey);
 
     if (cacheDataIf == false) {
       try {
@@ -682,12 +664,8 @@ export class KretaService {
         //cache
         //removing old cached data
         let a;
-        this.cache.clearCacheByKey(this.instituteKey);
-        this.instituteKey = (a = await this.storage.get('instituteKey')) != null ? a : "";
-
-        this.instituteKey = 'https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute';
-        await this.storage.set('instituteKey', this.instituteKey);
-        await this.cache.setCache('https://kretaglobalmobileapi.ekreta.hu/api/v1/Institute', responseData);
+        this.cache.clearCacheByKey(cacheKey);
+        await this.cache.setCache(cacheKey, responseData);
 
         return responseData;
       }
@@ -697,6 +675,92 @@ export class KretaService {
       }
     } else {
       return <Institute[]>cacheDataIf;
+    }
+  }
+
+  public async getMessageList(skipCache: boolean = false): Promise<Message[]> {
+    await this.loginIfNotYetLoggedIn();
+    let cacheKey = '_messageListData';
+    let cacheDataIf = await this.cache.getCacheIf(cacheKey);
+    if (cacheDataIf == false || skipCache) {
+      try {
+        const headers = {
+          "Accept": "application/json",
+          "User-Agent": this.app.userAgent,
+          "Authorization": "Bearer " + this.access_token,
+        }
+
+        let response = await this.http.get("https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/postaladaelemek/sajat", null, headers);
+        console.log('msgListResponse', response);
+        let msgList = <Message[]>JSON.parse(response.data)
+        console.log('msgList', msgList);
+
+        if (!skipCache) {
+          this.cache.setCache(cacheKey, msgList);
+        }
+        return msgList;
+      } catch (error) {
+        console.error(error);
+        this.errorStatus.next(error.status);
+        this.errorHandler();
+      }
+    } else {
+      return <Message[]>cacheDataIf;
+    }
+  }
+
+  public async getMessage(messageId: number): Promise<Message> {
+    await this.loginIfNotYetLoggedIn();
+    try {
+      const headers = {
+        "Accept": "application/json",
+        "User-Agent": this.app.userAgent,
+        "Authorization": "Bearer " + this.access_token,
+      }
+
+      let response = await this.http.get(`https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/postaladaelemek/${messageId}`, null, headers);
+      let msg = <Message>JSON.parse(response.data)
+      console.log('message', msg);
+      return msg;
+    } catch (error) {
+      console.error(error);
+      this.errorStatus.next(error.status);
+      this.errorHandler();
+    }
+  }
+
+  public async setMessageAsRead(messageId: number): Promise<void> {
+    let consoleText = '[KRETA -> setMessageAsRead]';
+    await this.loginIfNotYetLoggedIn();
+    try {
+      const headers = {
+        "Accept": "application/json",
+        "User-Agent": this.app.userAgent,
+        "Authorization": "Bearer " + this.access_token,
+        "Accept-Encoding": "gzip",
+        "Content-type": "application/json; charset=utf-8"
+      }
+
+      let params = {
+        'isOlvasott': true,
+        'uzenetAzonositoLista': [messageId],
+      }
+
+      this.http.setDataSerializer("json");
+
+      console.log(consoleText + " params: ", params);
+      console.log(consoleText + " headers: ", headers);
+
+
+      let response = await this.http.post("https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/uzenetek/olvasott", params, headers);
+      this.http.setDataSerializer("urlencoded");
+
+      let res = response;
+      console.log('res', res);
+    } catch (error) {
+      console.error(consoleText, error);
+      this.errorStatus.next(error.status);
+      this.errorHandler();
     }
   }
 

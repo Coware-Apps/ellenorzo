@@ -28,44 +28,43 @@ export class AppService {
     this.appPages = [{
       title: 'Főoldal',
       url: '/home',
-      icon: 'home',
+      icon: 'home-outline',
       show: true,
     },
     {
       title: 'Értékelések',
       url: '/evaluations',
-      icon: '',
-      src: "/assets/extraicons/evaluation.svg",
+      icon: 'school-outline',
       show: true,
     },
     {
       title: 'Órarend',
       url: '/list',
-      icon: 'list',
+      icon: 'list-outline',
       show: true,
     },
     {
       title: 'Statisztikák',
       url: '/statistics',
-      icon: 'analytics',
+      icon: 'analytics-outline',
       show: true,
     },
     {
       title: 'Átlagok',
       url: '/averages',
-      icon: 'trending-up',
+      icon: 'bar-chart-outline',
       show: true,
     },
     {
       title: 'Mulasztások',
       url: '/absences',
-      icon: 'calendar',
+      icon: 'calendar-outline',
       show: true,
     },
     {
       title: 'Feljegyzések',
       url: '/notes',
-      icon: 'clipboard',
+      icon: 'document-text-outline',
       show: true,
     },
     {
@@ -83,15 +82,21 @@ export class AppService {
       src: "/assets/extraicons/test.svg",
     },
     {
-      title: 'Tanuló adatai',
+      title: 'E-üzenetek',
+      url: '/messages',
+      icon: 'chatbox-outline',
+      show: true,
+    },
+    {
+      title: 'Felhasználó adatai',
       url: '/user',
-      icon: 'contact',
+      icon: 'person-circle-outline',
       show: true,
     },
     {
       title: 'Beállítások',
       url: '/settings',
-      icon: 'settings',
+      icon: 'settings-outline',
       show: true,
     }];
     this.toastLoggingEnabled = false;

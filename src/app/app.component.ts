@@ -44,8 +44,8 @@ export class AppComponent {
 
   async initializeApp() {
     this.platform.ready().then(async () => {
-      this.splashScreen.hide();
       await this.initializeConfig();
+      this.splashScreen.hide();
       await this.navigate();
       this.initializeDelayedConfig();
     });
@@ -57,7 +57,7 @@ export class AppComponent {
     //fresher notifications, that will happen every time the user refreshes the timetable for any reason. (other than LAB requests)
     let lastStoredWeek = await this.storage.get('timetableNotificationsLastSaved');
 
-    if (this.app.localNotificationsEnabled && (lastStoredWeek == null || this.fDate.getWeek(lastStoredWeek) != this.fDate.getWeek(new Date()))) {
+    if (this.authService.authenticationState.value && this.app.localNotificationsEnabled && (lastStoredWeek == null || this.fDate.getWeek(lastStoredWeek) != this.fDate.getWeek(new Date()))) {
       //this automatically reinitializes the notfications
       await this.kreta.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(1), true);
       this.notificationService.subscribeToLocalNotifications();
@@ -171,9 +171,13 @@ export class AppComponent {
     const toast = await this.toastCtrl.create({
       message: message,
       duration: autoDismiss ? 10000 : 0,
-      closeButtonText: "OK",
       cssClass: this.color.getToastClass(),
-      showCloseButton: true,
+      buttons: [
+        {
+          text: 'OK',
+          role: 'cancel',
+        }
+      ]
     });
     toast.present();
   }

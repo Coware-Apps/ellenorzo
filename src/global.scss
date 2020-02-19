@@ -104,6 +104,16 @@
       --ion-background-color: black;
     }
 
+    //<ion-select> background color
+    .alert-wrapper {
+      --background: black;
+    }
+
+    //<ion-item-divider> background color
+    ion-item-divider {
+      --background: transparent;
+    }
+
     .darkToast {
       --ion-item-background: transparent;
       --background: black;

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Note, Absence } from '../_models/student';
+import { Note, Absence, evaluation } from '../_models/student';
 
 export interface UniversalSortedData {
   index: number;
   header: string;
-  data: any[] | Note[] | Absence[];
+  data: any[] | Note[] | Absence[] | evaluation[];
   firstEntryCreatingTime: number;
   showAll: boolean;
 }
@@ -44,7 +44,7 @@ export class CollapsifyService {
       });
 
       monthlyData.sort((a, b) => new Date(b[sortBy]).valueOf() - new Date(a[sortBy]).valueOf());
-      
+
       sortedData.push({
         index: i,
         header: this.monthsName[month],
@@ -93,6 +93,45 @@ export class CollapsifyService {
         header: date,
         data: dataOnCurrentDate,
         firstEntryCreatingTime: new Date(dataOnCurrentDate[dataOnCurrentDate.length - 1][sortBy]).valueOf(),
+        showAll: true,
+      });
+      i++;
+    });
+
+    sortedData.sort((a, b) => b.firstEntryCreatingTime - a.firstEntryCreatingTime);
+
+    return sortedData;
+  }
+
+  collapsifyByNames(data: any[], groupBy: string, sortBy: string = groupBy): UniversalSortedData[] {
+    //sortBy, groupBy must reference a date / datestring field!
+    let names: string[] = [];
+    let sortedData: UniversalSortedData[] = [];
+
+    data.forEach(element => {
+      let groupByName = element[groupBy];
+      if (!names.includes(groupByName)) {
+        names.push(groupByName);
+      }
+    });
+
+    let i = 0;
+    names.forEach(name => {
+      let dataWithCurrentName: any[] = [];
+      data.forEach(item => {
+        if (item[groupBy] == name) {
+          dataWithCurrentName.push(item);
+        }
+      });
+
+      dataWithCurrentName.sort((a, b) => new Date(b[sortBy]).valueOf() - new Date(a[sortBy]).valueOf());
+
+
+      sortedData.push({
+        index: i,
+        header: name,
+        data: dataWithCurrentName,
+        firstEntryCreatingTime: new Date(dataWithCurrentName[dataWithCurrentName.length - 1][sortBy]).valueOf(),
         showAll: true,
       });
       i++;

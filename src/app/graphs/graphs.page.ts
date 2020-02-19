@@ -177,19 +177,22 @@ export class GraphsPage implements OnInit {
     }
   }
 
-  getData(day: number) {
-    this.focused = day;
-    this.slides.slideTo(day);
-    switch (day) {
-      case 0:
-        this.title = "Vonal";
-        break;
-      case 1:
-        this.title = "Oszlop";
-        break;
-      case 2:
-        this.title = "Kör";
-        break;
+  async getData(day: number) {
+    if (await this.slides.getActiveIndex() == this.focused) {
+      //the segment's ionChange event wasn't fired by a slide moving
+      this.focused = day;
+      this.slides.slideTo(day);
+      switch (day) {
+        case 0:
+          this.title = "Vonal";
+          break;
+        case 1:
+          this.title = "Oszlop";
+          break;
+        case 2:
+          this.title = "Kör";
+          break;
+      }
     }
   }
 

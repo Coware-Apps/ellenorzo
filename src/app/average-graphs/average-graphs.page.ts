@@ -173,7 +173,7 @@ export class AverageGraphsPage implements OnInit {
     }
   }
 
-  addGrade() {
+  async addGrade() {
     if (this.newGrade < 6 && this.newGrade > 0 && this.newPercent > 0 && this.newPercent < 350) {
       this.unfilled = false;
       //for the list
@@ -215,7 +215,9 @@ export class AverageGraphsPage implements OnInit {
 
       this.drawGraphTypes('all');
       this.id++;
+      await this.prompt.dismissTopToast();
     } else {
+      this.prompt.topToast("Hibás adatok!", true);
       this.unfilled = true;
     }
   }

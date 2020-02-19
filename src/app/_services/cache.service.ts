@@ -6,7 +6,12 @@ import { Institute } from '../_models/institute';
 import { Student } from '../_models/student';
 import { Test } from '../_models/test';
 import { PromptService } from './prompt.service';
+import { Message } from '../_models/message';
 
+interface storedData {
+  data: any;
+  storedDate: Date;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -22,25 +27,30 @@ export class CacheService {
   }
 
   async setCache(key: string, data: any) {
-    var date = new Date();
-    this.storage.set(key, data);
-
-    this.storage.set(key + '§§§§date', date);
+    let date = new Date();
+    let currentData: storedData = {
+      data: data,
+      storedDate: date
+    };
+    this.storage.set(key, currentData);
   }
 
   async getCache(key: string) {
-    return (await this.storage.get(key));
+    return (await this.storage.get(key)).data;
   }
 
   async doWeNeedCache(key: string, cacheTime: number) {
     var date = new Date();
-    let storedDate = new Date(await this.storage.get(key + '§§§§date')).valueOf();
+    let stored = await this.storage.get(key);
+    if (stored == null) {
+      return false;
+    }
+    let storedDate = new Date(stored.storedDate).valueOf();
     // console.log('[CACHE] key: ', key);
     // console.log('[CACHE] data corresponding to key: ', await this.storage.get(key));
     //console.log('[CACHE] cacheTime: ', cacheTime);
     //console.log('[CACHE] timeDiff', date.valueOf() - storedDate.valueOf());
-
-    if (storedDate != 0 && storedDate + cacheTime > date.valueOf() && await this.storage.get(key) != null) {
+    if (storedDate != 0 && storedDate + cacheTime > date.valueOf()) {
       return true;
     }
     else {
@@ -74,12 +84,13 @@ export class CacheService {
     }
   }
 
-  async getCacheIf(key: string, cacheTime: number = 1200000): Promise<boolean | Lesson[] | Institute[] | Student | Test[]> { //300000ms = 5min
-    //gives back the cache if it exists and if it isn't older than 5 minutes
+  //cacheTime 1200000
+  async getCacheIf(key: string, cacheTime: number = 1200000): Promise<boolean | Lesson[] | Institute[] | Student | Test[] | Message[] | Message> { //300000ms = 5min
+    //gives back the cache if it exists and if it isn't older than cacheTime
     if (await this.doWeNeedCache(key, cacheTime)) {
       console.log('[CACHE] Getting data from cache...');
       this.prompt.butteredToast('[CACHE] Getting data from cache...');
-      return this.getCache(key);
+      return await this.getCache(key);
     }
     else {
       console.log('[CACHE] Cache outdated or nonexistent');

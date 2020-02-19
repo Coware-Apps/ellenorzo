@@ -4,18 +4,17 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { NotesPageRoutingModule } from './notes-routing.module';
+import { ReadMessagePageRoutingModule } from './read-message-routing.module';
 
-import { NotesPage } from './notes.page';
-import { ComponentsModule } from '../_components/component.module';
+import { ReadMessagePage } from './read-message.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    NotesPageRoutingModule,
+    ReadMessagePageRoutingModule
   ],
-  declarations: [NotesPage]
+  declarations: [ReadMessagePage]
 })
-export class NotesPageModule { }
+export class ReadMessagePageModule {}

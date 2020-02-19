@@ -7,7 +7,15 @@ import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
+import { DataLoaderService } from '../_services/data-loader.service';
+import { Observable, Subscription } from 'rxjs';
 
+interface AbsenceGroup {
+  data: UniversalSortedData[];
+  empty: boolean;
+  name: string;
+  fullName: string;
+}
 @Component({
   selector: 'app-absences',
   templateUrl: './absences.page.html',
@@ -17,86 +25,119 @@ export class AbsencesPage implements OnInit {
   @ViewChild('slides', { static: true }) slides: IonSlides;
   @ViewChild('scroll', { static: true }) content: IonContent;
 
-  public absences: Absence[];
   public focused: number;
   public title: string;
   public sans;
   public scroll: boolean;
   public a: boolean;
   public totalAbsences: number;
-  public collapsableJustifiedAbsences: UniversalSortedData[];
-  public collapsableUnJustifiedAbsences: UniversalSortedData[];
-  public collapsableBeJustifiedAbsences: UniversalSortedData[];
-
+  public allAbsences: Observable<AbsenceGroup[]>;
+  public showProgressBar: boolean;
 
   private student: Student;
+  private studentSubscription: Subscription;
 
   constructor(
     public fDate: FormattedDateService,
 
-    private kretaService: KretaService,
     private alertCtrl: AlertController,
     private color: ColorService,
     private firebase: FirebaseX,
     private prompt: PromptService,
     private collapsifyService: CollapsifyService,
+    private dataLoader: DataLoaderService,
   ) {
-    this.absences = [];
     this.focused = 0;
-    this.collapsableJustifiedAbsences = [];
-    this.collapsableUnJustifiedAbsences = [];
-    this.collapsableBeJustifiedAbsences = [];
     this.title = "Igazolt";
     this.a = false;
     this.totalAbsences = 0;
+    this.showProgressBar = true;
+    this.sans = true;
   }
 
   async ngOnInit() {
-    this.sans = true;
-    this.student = await this.kretaService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
+    this.allAbsences = new Observable<AbsenceGroup[]>((observer) => {
+      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+        if (subscriptionData.type == "skeleton") {
+          //there is no data in the storage, showing skeleton text until the server responds
+        } else if (subscriptionData.type == "placeholder") {
+          //there is data in the storage, showing that data (placeholder) until the server responds, disabling skeleton text
+          observer.next(this.formatStudent(subscriptionData.data));
+          this.sans = false;
+        } else {
+          //the server has now responded, disabling progress bar and skeleton text if it's still there
+          observer.next(this.formatStudent(subscriptionData.data));
+          this.showProgressBar = false;
+          this.sans = false;
+        }
+      });
+      this.dataLoader.initializeStudent();
+    });
+    this.firebase.setScreenName('absences');
+  }
 
+  ionViewWillLeave() {
+    this.studentSubscription.unsubscribe();
+  }
+
+  private formatStudent(student: Student): AbsenceGroup[] {
+    let allAbsences: AbsenceGroup[] = [];
+    let justifiedEmpty = true;
+    let unJustifiedEmpty = true;
+    let beJustifiedEmpty = true;
     let justifiedAbsences: Absence[] = [];
     let unJustifiedAbsences: Absence[] = [];
     let beJustifiedAbsences: Absence[] = [];
 
     this.focused = 0;
-    for (let i = 0; i < this.student.Absences.length; i++) {
-      this.absences.push(this.student.Absences[i]);
+    for (let i = 0; i < student.Absences.length; i++) {
 
-      this.totalAbsences += this.student.Absences[i].Type == 'Delay' ? this.student.Absences[i].DelayTimeMinutes : 45;
+      this.totalAbsences += student.Absences[i].Type == 'Delay' ? student.Absences[i].DelayTimeMinutes : 45;
 
-      switch (this.student.Absences[i].JustificationStateName) {
+      switch (student.Absences[i].JustificationStateName) {
         case "Igazolt mulasztás":
-          justifiedAbsences.push(this.student.Absences[i]);
+          justifiedAbsences.push(student.Absences[i]);
+          justifiedEmpty = false;
           break;
 
         case "Igazolandó mulasztás":
-          beJustifiedAbsences.push(this.student.Absences[i]);
+          beJustifiedAbsences.push(student.Absences[i]);
+          beJustifiedEmpty = false;
           break;
 
         default:
-          unJustifiedAbsences.push(this.student.Absences[i]);
+          unJustifiedAbsences.push(student.Absences[i]);
+          unJustifiedEmpty = false;
           break;
       }
     }
 
-    this.collapsableJustifiedAbsences = this.collapsifyService.collapsifyByDates(justifiedAbsences, 'LessonStartTime', 'LessonStartTime');
-    this.collapsableBeJustifiedAbsences = this.collapsifyService.collapsifyByDates(beJustifiedAbsences, 'LessonStartTime', 'LessonStartTime');
-    this.collapsableUnJustifiedAbsences = this.collapsifyService.collapsifyByDates(unJustifiedAbsences, 'LessonStartTime', 'LessonStartTime');
-
-    console.log('cJustified', this.collapsableJustifiedAbsences);
-    console.log('cBeJustified', this.collapsableBeJustifiedAbsences);
-    console.log('cUnJustified', this.collapsableUnJustifiedAbsences);
-    this.sans = false;
-
-    this.firebase.setScreenName('absences');
+    allAbsences[0] = {
+      data: this.collapsifyService.collapsifyByDates(justifiedAbsences, 'LessonStartTime', 'LessonStartTime'),
+      empty: justifiedEmpty,
+      name: 'justified',
+      fullName: 'igazolt',
+    };
+    allAbsences[1] = {
+      data: this.collapsifyService.collapsifyByDates(beJustifiedAbsences, 'LessonStartTime', 'LessonStartTime'),
+      empty: beJustifiedEmpty,
+      name: 'beJustified',
+      fullName: 'igazolandó',
+    }
+    allAbsences[2] = {
+      data: this.collapsifyService.collapsifyByDates(unJustifiedAbsences, 'LessonStartTime', 'LessonStartTime'),
+      empty: unJustifiedEmpty,
+      name: 'unJustified',
+      fullName: 'igazolatlan',
+    }
+    return allAbsences;
   }
 
-  async ionSlideWillChange() { 
+  async ionSlideWillChange() {
     this.focused = await this.slides.getActiveIndex();
     switch (this.focused) {
       case 0:
-      this.title = "Igazolt";
+        this.title = "Igazolt";
         break;
       case 1:
         this.title = "Igazolandó";
@@ -107,24 +148,35 @@ export class AbsencesPage implements OnInit {
     }
   }
 
-  getData(day: number) {
-    this.focused = day;
-    this.slides.slideTo(day);
-    switch (day) {
-      case 0:
-      this.title = "Igazolt";
-        break;
-      case 1:
-        this.title = "Igazolandó";
-        break;
-      case 2:
-        this.title = "Igazolatlan";
-        break;
+  async getData(event: any) {
+    if (await this.slides.getActiveIndex() == this.focused) {
+      //the segment's ionChange event wasn't fired by a slide moving
+      let day = event.detail.value;
+      this.focused = day;
+      this.slides.slideTo(day);
+      switch (day) {
+        case 0:
+          this.title = "Igazolt";
+          break;
+        case 1:
+          this.title = "Igazolandó";
+          break;
+        case 2:
+          this.title = "Igazolatlan";
+          break;
+      }
     }
   }
 
   getMoreData(absence: Absence) {
     this.prompt.absenceAlert(absence);
+  }
+
+  async doRefresh(event: any) {
+    console.log("begin operation");
+    this.showProgressBar = true;
+    await this.dataLoader.updateStudent();
+    event.target.complete();
   }
 
   scrollToTop() {

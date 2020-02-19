@@ -199,15 +199,15 @@
 
 <ion-footer>
   <ion-toolbar>
-    <ion-segment>
-      <ion-segment-button value="a1" [checked]="this.focused == 0" (click)="getData(0)">
-        <ion-icon name="home"></ion-icon>
+    <ion-segment (ionChange)="getData($event.detail.value)" [value]="this.focused">
+      <ion-segment-button value="0">
+        <ion-icon name="home-outline"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button  value="a2" [checked]="this.focused == 1" (click)="getData(1)">
+      <ion-segment-button  value="1">
         <ion-icon name="trending-up"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button value="a3" [checked]="this.focused == 2" (click)="getData(2)">
-        <ion-icon name="pie"></ion-icon>
+      <ion-segment-button value="2">
+        <ion-icon name="pie-chart"></ion-icon>
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>

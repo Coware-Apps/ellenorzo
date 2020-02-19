@@ -97,6 +97,10 @@ const routes: Routes = [
   {
     path: 'user-agent',
     loadChildren: () => import('./sub-settings/user-agent/user-agent.module').then( m => m.UserAgentPageModule)
+  },
+  {
+    path: 'messages',
+    loadChildren: () => import('./messages/messages.module').then( m => m.MessagesPageModule)
   }
 
 

@@ -4,18 +4,24 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Statisztika</ion-title>
-    <ion-spinner *ngIf="sans" slot="end" name="lines"></ion-spinner>
-    <ion-select [(ngModel)]="selected" (ionChange)="selectorChanged($event, true, true)" [interfaceOptions]="customPopoverOptions"
-      interface="popover" slot="end" placeholder="Adatok">
+    <ion-select [(ngModel)]="selected" [disabled]="this.showProgressBar"
+      (ionChange)="selectorChanged($event, true, true)" [interfaceOptions]="customPopoverOptions" interface="popover"
+      slot="end" placeholder="Adatok">
       <ion-select-option value="yBySubject">Egész év - tantárgyanként</ion-select-option>
       <ion-select-option value="yearly">Egész év - összesítve</ion-select-option>
       <ion-select-option value="mBySubject">Ez a hónap - tantárgyanként</ion-select-option>
       <ion-select-option value="monthly">Ez a hónap - összesítve</ion-select-option>
     </ion-select>
+    <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
+      refreshingText="Adatok frissítése...">
+    </ion-refresher-content>
+  </ion-refresher>
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">
     <ion-slide class="wide">
       <!-- LINE -->
@@ -57,34 +63,34 @@
 
   <div hidden="true" id="placeholder" *ngIf="!showGraphs" style="display: block;">
 
-  <ion-card *ngIf="sans">
-    <ion-card-header>
-      <ion-skeleton-text width="80%"></ion-skeleton-text>
-      <ion-skeleton-text width="80%"></ion-skeleton-text>
-      <ion-skeleton-text width="80%"></ion-skeleton-text>
-      <ion-skeleton-text width="80%"></ion-skeleton-text>
-      <ion-skeleton-text width="80%"></ion-skeleton-text>
-      <ion-skeleton-text width="80%"></ion-skeleton-text>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-skeleton-text width="80%"></ion-skeleton-text>
-    </ion-card-content>
-  </ion-card>
+    <ion-card *ngIf="sans">
+      <ion-card-header>
+        <ion-skeleton-text width="80%"></ion-skeleton-text>
+        <ion-skeleton-text width="80%"></ion-skeleton-text>
+        <ion-skeleton-text width="80%"></ion-skeleton-text>
+        <ion-skeleton-text width="80%"></ion-skeleton-text>
+        <ion-skeleton-text width="80%"></ion-skeleton-text>
+        <ion-skeleton-text width="80%"></ion-skeleton-text>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-skeleton-text width="80%"></ion-skeleton-text>
+      </ion-card-content>
+    </ion-card>
 
   </div>
 </ion-content>
 
 <ion-footer>
   <ion-toolbar>
-    <ion-segment>
-      <ion-segment-button [disabled]="sans" value="a1" [checked]="this.focused == 0" (click)="getData(0)">
+    <ion-segment (ionChange)="getData($event)" [value]="this.focused">
+      <ion-segment-button [disabled]="sans" value="0">
         <ion-icon name="analytics"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="a2" [checked]="this.focused == 1" (click)="getData(1)">
-        <ion-icon name="stats"></ion-icon>
+      <ion-segment-button [disabled]="sans" value="1">
+        <ion-icon name="stats-chart"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="a3" [checked]="this.focused == 2" (click)="getData(2)">
-        <ion-icon name="pie"></ion-icon>
+      <ion-segment-button [disabled]="sans" value="2">
+        <ion-icon name="pie-chart"></ion-icon>
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>

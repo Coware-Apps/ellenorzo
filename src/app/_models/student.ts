@@ -1,3 +1,15 @@
+
+export interface CollapsibleStudent {
+    index: number;
+    header: string;
+    data: any[];
+    firstEntryCreatingTime: number;
+    showEvaluations: boolean;
+    showAbsences: boolean;
+    showNotes: boolean;
+    showAll: boolean;
+}
+
 export interface evaluation {
     //don't use this for id bc: https://github.com/boapps/e-kreta-api-docs
     EvaluationId: number;
@@ -31,7 +43,7 @@ export interface evaluation {
     Value?: string;
     Theme?: string;
     TypeName?: string;
-    
+
     Jelleg?: Jelleg;
 }
 export interface SubjectAverage {
@@ -113,7 +125,7 @@ export class Student {
     //averages by subject
     public SubjectAverages: SubjectAverage[];
     public Absences: Absence[];
-    public Notes: Note[]; 
+    public Notes: Note[];
     public FormTeacher: FormTeacherTemplate;
     public Tutelaries: Tutelary[];
 

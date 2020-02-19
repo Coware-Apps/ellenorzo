@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Student } from '../_models/student';
+import { Student, SubjectAverage } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { ModalController } from '@ionic/angular';
 import { AverageGraphsPage } from '../average-graphs/average-graphs.page';
@@ -10,6 +10,9 @@ import { Router } from '@angular/router';
 import { promise } from 'protractor';
 import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { Observable, Subscription } from 'rxjs';
+import { DataLoaderService } from '../_services/data-loader.service';
+import { PromptService } from '../_services/prompt.service';
 
 
 @Component({
@@ -20,28 +23,53 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 export class AveragesPage implements OnInit {
 
   public student: Student;
+  public subjectAverages: Observable<SubjectAverage[]>;
   public sans: boolean;
+  public showProgressBar: boolean;
+
   private shadowcolor: string;
+  private studentSubscription: Subscription;
 
   constructor(
     public color: ColorService,
 
-    private fDate: FormattedDateService,
-    private kretaService: KretaService,
-    private modalCtrl: ModalController,
     private storage: Storage,
     private navRouter: Router,
     private data: DataService,
     private firebase: FirebaseX,
-  ) { }
+    private dataLoader: DataLoaderService,
+    private prompt: PromptService,
+  ) {
+    this.sans = true;
+    this.showProgressBar = true;
+  }
 
   async ngOnInit() {
-    this.sans = true;
-    //using the same cache as statistics (there is a minor difference in response time for more data but this way we can cache both together)
-    this.student = await this.kretaService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
-    //this.student = await this.dataService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
-    this.sans = false;
+    this.subjectAverages = new Observable<SubjectAverage[]>((observer) => {
+      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+        if (subscriptionData.type == "skeleton") {
+          //there is no data in the storage, showing skeleton text until the server responds
+        } else if (subscriptionData.type == "placeholder") {
+          //there is data in the storage, showing that data until the server responds, disabling skeleton text
+          observer.next(subscriptionData.data.SubjectAverages);
+          this.sans = false;
+        } else {
+          //the server has now responded, disabling progress bar and skeleton text if it's still there
+          observer.next(subscriptionData.data.SubjectAverages);
+          //only storing the entire student when the site has completely loaded, because we only need it for when the user clicks the average-graphs button
+          this.student = subscriptionData.data;
+          this.showProgressBar = false;
+          this.sans = false;
+          this.prompt.dismissTopToast();
+        }
+      });
+      this.dataLoader.initializeStudent();
+    });
     this.firebase.setScreenName('averages');
+  }
+
+  ionViewWillLeave() {
+    this.studentSubscription.unsubscribe();
   }
 
   async ionViewDidEnter() {
@@ -49,11 +77,22 @@ export class AveragesPage implements OnInit {
     this.shadowcolor = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
   }
 
-  async showModal(subject: string, classValue: number) {
-    this.data.setData("subject", subject);
-    this.data.setData("student", this.student);
-    this.data.setData("classValue", classValue);
-    this.navRouter.navigateByUrl("/average-graphs?fromRoute=averages");
+  async showModal(subject: string, classValue: number, student: Student) {
+    if (!this.showProgressBar) {
+      this.data.setData("subject", subject);
+      this.data.setData("student", this.student);
+      this.data.setData("classValue", classValue);
+      this.navRouter.navigateByUrl("/average-graphs?fromRoute=averages");
+    } else {
+      this.prompt.toast("Adatok betöltése folyamatban!", true);
+    }
+  }
+
+  async doRefresh(event: any) {
+    console.log("begin operation");
+    this.showProgressBar = true;
+    await this.dataLoader.updateStudent();
+    event.target.complete();
   }
 
   getShadowColor(average: number) {

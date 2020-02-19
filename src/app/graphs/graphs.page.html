@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="analytics"></ion-icon>
       </ion-button>
       <ion-button [fill]="active == 'column' ? 'solid' : 'clear'" (click)="chartSwitch('column')">
-        <ion-icon slot="icon-only" name="stats"></ion-icon>
+        <ion-icon slot="icon-only" name="stats-chart"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="start">
@@ -42,7 +42,7 @@
   </ion-toolbar>
 
 
-  
+
   <ion-slides *ngIf="this.linecolumn" (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">
     <ion-slide class="wide">
       <ion-card class="wide" *ngFor="let subjectKey of helper">
@@ -55,7 +55,7 @@
     </ion-slide>
     <ion-slide class="wide">
       <ion-card class="wide" *ngFor="let subjectKey of helper">
-      <div class="chart" [attr.id]="'column_' + subjectKey" style="display: block;"></div>
+        <div class="chart" [attr.id]="'column_' + subjectKey" style="display: block;"></div>
         <ion-card-header>
           <ion-card-subtitle>Összes jegy: {{getNumVals(subjectKey).length}}</ion-card-subtitle>
           <ion-card-subtitle>Átlag: {{getAvg(subjectKey)}}</ion-card-subtitle>
@@ -68,11 +68,11 @@
 
 
 <ion-footer *ngIf="this.linecolumn">
-  <ion-segment>
-    <ion-segment-button value="a1" [checked]="this.focused == 0" (click)="getData(0)">
+  <ion-segment (ionChange)="getData($event.detail.value)">
+    <ion-segment-button value="0">
       <ion-icon name="analytics"></ion-icon>
     </ion-segment-button>
-    <ion-segment-button value="a2" [checked]="this.focused == 1" (click)="getData(1)">
+    <ion-segment-button value="1">
       <ion-icon name="stats"></ion-icon>
     </ion-segment-button>
   </ion-segment>

@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Üzenetek</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="!this.sans">
+    <div *ngFor="let message of this.messages">
+      <ion-card button [ngClass]="{'unread': !message.isElolvasva}" (click)="openMessage(message)">
+        <ion-card-header>
+          <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(message.uzenet.kuldesDatum)}} -
+            {{this.fDate.getTime(message.uzenet.kuldesDatum)}}</ion-card-subtitle>
+          <ion-card-title>{{message.uzenet.feladoNev}}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          {{message.uzenet.targy}}
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+  <div *ngIf="this.sans">
+    <ion-card *ngFor="let i of [0, 1, 2, 3]">
+      <ion-card-header>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
+      </ion-card-header>
+    </ion-card>
+  </div>
+</ion-content>

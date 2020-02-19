@@ -7,6 +7,8 @@ import { AlertController } from '@ionic/angular';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
+import { Observable, Subscription } from 'rxjs';
+import { DataLoaderService } from '../_services/data-loader.service';
 
 @Component({
   selector: 'app-notes',
@@ -16,35 +18,55 @@ import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.
 export class NotesPage implements OnInit {
 
   public sans: boolean;
-  public collapsifiedData: UniversalSortedData[];
-
-  private student: Student;
+  public collapsifiedData: Observable<UniversalSortedData[]>;
+  public showProgressBar: boolean;
+  private studentSubscription: Subscription;
   constructor(
     public kretaService: KretaService,
     public fDate: FormattedDateService,
 
-    private color: ColorService,
-    private alertCtrl: AlertController,
+    private dataLoader: DataLoaderService,
     private firebase: FirebaseX,
     private prompt: PromptService,
     private collapsifyService: CollapsifyService,
-  ) { 
-    
+  ) {
+    this.sans = true;
+    this.showProgressBar = true;
   }
 
   async ngOnInit() {
-    this.sans = true;
-    this.student = await this.kretaService.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"));
+    this.collapsifiedData = new Observable<UniversalSortedData[]>((observer) => {
+      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+        if (subscriptionData.type == "skeleton") {
+          //there is no data in the storage, showing skeleton text until the server responds
+        } else if (subscriptionData.type == "placeholder") {
+          //there is data in the storage, showing that data until the server responds, disabling skeleton text
+          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data.Notes, "CreatingTime"));
+          this.sans = false;
+        } else {
+          //the server has now responded, disabling progress bar and skeleton text if it's still there
+          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data.Notes, "CreatingTime"));
+          this.showProgressBar = false;
+          this.sans = false;
+        }
+      });
+      this.dataLoader.initializeStudent();
+    });
 
-    this.collapsifiedData = this.collapsifyService.collapsifyByMonths(this.student.Notes, "CreatingTime");
-
-    console.log('collapsifiedData: ', this.collapsifiedData);
-
-    this.sans = false;
     this.firebase.setScreenName('notes');
+  }
+
+  ionViewWillLeave() {
+    this.studentSubscription.unsubscribe();
   }
 
   async getMoreData(note: Note) {
     this.prompt.noteAlert(note);
+  }
+  async doRefresh(event: any) {
+    console.log("begin operation");
+    this.showProgressBar = true;
+    await this.dataLoader.updateStudent();
+    event.target.complete();
   }
 }

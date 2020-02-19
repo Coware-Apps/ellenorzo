@@ -77,9 +77,13 @@ export class TimetableHomeworksPage implements OnInit {
     this.prompt.teacherHomeworkAlert(teacherHomework, this.subject)
   }
 
-  getData(day: number) {
-    this.focused = day;
-    this.slides.slideTo(day);
+  async getData(event: any) {
+    if (await this.slides.getActiveIndex() == this.focused) {
+      //the segment's ionChange event wasn't fired by a slide moving
+      let day = event.detail.value;
+      this.focused = day;
+      this.slides.slideTo(day);
+    }
   }
 
   async ionSlideWillChange() {
@@ -88,17 +92,6 @@ export class TimetableHomeworksPage implements OnInit {
 
   goBack() {
     this.router.navigateByUrl(this.fromRoute);
-  }
-
-  async presentToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message: message,
-      duration: 10000,
-      closeButtonText: "OK",
-      cssClass: this.color.getToastClass(),
-      showCloseButton: true,
-    });
-    toast.present();
   }
 
   async addHomework() {
@@ -121,7 +114,7 @@ export class TimetableHomeworksPage implements OnInit {
 
       let homeworkResponse: HomeworkResponse;
       if ((homeworkResponse = await this.kreta.addStudentHomework(lesson, this.homeworkText)).HozzaadottTanuloHaziFeladatId != null) {
-        this.presentToast('A házi feladatot sikeresen hozzáadtuk!')
+        this.prompt.toast('A házi feladatot sikeresen hozzáadtuk!', true);
         this.homeworkText = null;
         this.sans = true;
         this.teacherHomeworkId = homeworkResponse.TanarHaziFeladatId;
@@ -136,7 +129,7 @@ export class TimetableHomeworksPage implements OnInit {
   }
   async deleteHomework(id: number) {
     if(await this.kreta.deleteStudentHomework(id)) {
-      this.presentToast('Házi feladat sikeresen törölve!');
+      this.prompt.toast('Házi feladat sikeresen törölve!', true);
       this.sans = true;
       this.studentHomeworks = await this.kreta.getStudentHomeworks(null, null, this.teacherHomeworkId);
       this.sans = false;

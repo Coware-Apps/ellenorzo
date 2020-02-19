@@ -9,42 +9,39 @@
 
 <ion-content>
   <ion-list>
+    <ion-item-divider>
+      <ion-label>
+        <h1>Téma</h1>
+      </ion-label>
+    </ion-item-divider>
     <ion-radio-group>
-      <ion-list-header>
-        <ion-label>
-          <h1>Téma</h1>
-        </ion-label>
-      </ion-list-header>
 
-      <ion-item (click)="enableLight()">
+      <ion-item button (click)="enableLight()">
         <ion-label>Világos</ion-label>
-        <ion-radio hidden slot="start" (click)="enableLight()" [checked]="currentTheme == 'light'"></ion-radio>
         <ion-icon [color]="currentTheme == 'light' ? 'primary': ''" slot="start" name="sunny"></ion-icon>
       </ion-item>
 
-      <ion-item (click)="enableDark()">
+      <ion-item button (click)="enableDark()">
         <ion-label>Sötét</ion-label>
-        <ion-radio hidden slot="start" (click)="enableDark()" [checked]="currentTheme == 'dark'"></ion-radio>
         <ion-icon [color]="currentTheme == 'dark' ? 'primary': ''" slot="start" name="moon"></ion-icon>
       </ion-item>
 
-      <ion-item (click)="enableMinimalDark()">
+      <ion-item button (click)="enableMinimalDark()">
         <ion-label>Amoled</ion-label>
-        <ion-radio hidden slot="start" (click)="enableMinimalDark()" [checked]="currentTheme == 'minimalDark'">
-        </ion-radio>
         <ion-icon [color]="currentTheme == 'minimalDark' ? 'primary': ''" slot="start" name="contrast"></ion-icon>
       </ion-item>
 
-      <ion-button class="galleryButton" (click)="openBgSettings()">
-        <ion-icon slot="icon-only" name="settings"></ion-icon>
-      </ion-button>
-      <ion-button class="galleryButton" (click)="getImage()">
-        <ion-icon slot="icon-only" name="folder-open"></ion-icon>
-      </ion-button>
-      <ion-item class="custom" (click)="enableCustom()">
+      <ion-item button (click)="enableCustom()">
         <ion-label>[Exp] Saját háttér</ion-label>
-        <ion-radio hidden slot="start" (click)="enableCustom()" [checked]="currentTheme == 'custom'"></ion-radio>
         <ion-icon [color]="currentTheme == 'custom' ? 'primary': ''" slot="start" name="image"></ion-icon>
+        <ion-buttons slot="end">
+          <ion-button (click)="openBgSettings()">
+            <ion-icon slot="icon-only" name="settings"></ion-icon>
+          </ion-button>
+          <ion-button (click)="getImage()">
+            <ion-icon slot="icon-only" name="folder-open"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-item>
     </ion-radio-group>
 
@@ -54,11 +51,11 @@
       <ion-icon slot="start" name="color-palette"></ion-icon>
     </ion-item>
 
-    <ion-list-header>
+    <ion-item-divider>
       <ion-label>
         <h1>Oldalak</h1>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <ion-item>
       <ion-icon slot="start" name="home"></ion-icon>
       <ion-label>Kezdőlap</ion-label>
@@ -78,11 +75,11 @@
       <ion-label>Oldalak elrejtése</ion-label>
     </ion-item>
 
-    <ion-list-header>
+    <ion-item-divider>
       <ion-label>
         <h1>Értesítések</h1>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <ion-item>
       <ion-icon *ngIf="this.app.localNotificationsEnabled" slot="start" name="notifications"></ion-icon>
       <ion-icon *ngIf="!this.app.localNotificationsEnabled" slot="start" name="notifications-off"></ion-icon>
@@ -95,11 +92,11 @@
       </ion-toggle>
     </ion-item>
 
-    <ion-list-header>
+    <ion-item-divider>
       <ion-label>
         <h1>Adatkezelés</h1>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <ion-item>
       <ion-icon slot="start" name="analytics"></ion-icon>
       <ion-label>
@@ -115,11 +112,11 @@
       <ion-label>Adatvédelmi nyilatkozat</ion-label>
     </ion-item>
 
-    <ion-list-header [hidden]="!this.app.devSettingsEnabled">
+    <ion-item-divider [hidden]="!this.app.devSettingsEnabled">
       <ion-label>
         <h1>Fejlesztői beállítások</h1>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <ion-item [hidden]="!this.app.devSettingsEnabled">
       <ion-icon slot="start" name="code"></ion-icon>
       <ion-label>Toast-logging</ion-label>
@@ -134,23 +131,26 @@
       </ion-label>
     </ion-item>
 
-    <ion-list-header>
+    <ion-item-divider>
       <ion-label>
         <h1>Fiók</h1>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <ion-item button (click)="logout()">
       Kijelentkezés
       <ion-icon slot="start" name="log-out"></ion-icon>
     </ion-item>
 
-    <ion-list-header>
+    <ion-item-divider>
       <ion-label>
-        <h1>Verzió</h1>
+        <h1>Verzió és egyéb adatok</h1>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <ion-item button (click)="this.versionClicked()">
       <ion-label>{{this.app.appV}}</ion-label>
+    </ion-item>
+    <ion-item button (click)="openUrl('https://documenter.getpostman.com/view/10379752/SzKPULz6')">
+      <ion-label>KRÉTA API dokumentáció</ion-label>
     </ion-item>
   </ion-list>
 </ion-content>

@@ -4,16 +4,22 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Feljegyzések</ion-title>
+    <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list *ngIf="!sans">
-    <div *ngFor="let item of this.collapsifiedData">
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
+      refreshingText="Adatok frissítése...">
+    </ion-refresher-content>
+  </ion-refresher>
+  <ion-list>
+    <div *ngFor="let item of this.collapsifiedData | async">
       <ion-item button (click)="item.showAll = item.showAll ? false : true">
         <ion-label>{{item.header}}</ion-label>
-        <ion-icon *ngIf="!item.showAll" slot="end" name="arrow-dropright"></ion-icon>
-        <ion-icon *ngIf="item.showAll" slot="end" name="arrow-dropdown"></ion-icon>
+        <ion-icon *ngIf="!item.showAll" slot="end" name="chevron-forward"></ion-icon>
+        <ion-icon *ngIf="item.showAll" slot="end" name="chevron-down"></ion-icon>
       </ion-item>
       <ion-card [hidden]='!item.showAll' button (click)="getMoreData(note)" *ngFor="let note of item.data">
         <ion-card-header>
@@ -30,10 +36,10 @@
   <ion-list *ngIf="sans">
     <ion-item (click)="getMoreData(note)" *ngFor="let note of [0, 1, 2, 3, 4, 5, 6]">
       <ion-label>
-        <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
       </ion-label>
       <ion-label>
-        <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
       </ion-label>
     </ion-item>
   </ion-list>

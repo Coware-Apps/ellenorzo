@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { Student, evaluation } from '../_models/student';
+import { Student, evaluation, CollapsibleStudent } from '../_models/student';
 import { Storage } from '@ionic/storage';
 import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
@@ -10,9 +10,10 @@ import { IonSlides } from '@ionic/angular';
 import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { DataLoaderService } from '../_services/data-loader.service';
 more(HighCharts);
 
 interface ChartData {
@@ -56,24 +57,23 @@ export class StatisticsPage implements OnInit {
   public filled = false;
   //we literate through this when printing data
   public dataArray: number[];
-  loader = new BehaviorSubject("init");
   public selected: string;
+  public showProgressBar: boolean;
 
   private evaluations: evaluation[];
+  private studentSubscription: Subscription;
   private mockSelector: selectorEvent;
 
   constructor(
     public student: Student,
     public wAC: WeighedAvgCalcService,
 
-    private kretaService: KretaService,
-    private dateService: FormattedDateService,
     private storage: Storage,
     private dataService: DataService,
     private navRouter: Router,
-    private theme: ThemeService,
     private color: ColorService,
     private firebase: FirebaseX,
+    private dataLoader: DataLoaderService,
   ) {
     this.focused = 0;
     this.title = "Vonal";
@@ -82,26 +82,40 @@ export class StatisticsPage implements OnInit {
     this.dataArray = [0];
     this.showGraphs = false;
     this.selected = "yearly";
+    this.showProgressBar = true;
   }
 
   async ngOnInit() {
-    this.loader.next("ngOnInit");
-    this.sans = true;
-    this.student = await this.kretaService.getStudent(this.dateService.getDate("thisYearBegin"), this.dateService.getDate("today"));
-    this.evaluations = this.student.Evaluations;
-    this.selectorChanged(this.mockSelector, false, true);
-    this.sans = false;
-    this.loader.next("initialized");
     this.firebase.setScreenName('statistics');
   }
 
   async ionViewDidEnter() {
-    this.loader.subscribe(val => {
-      if (val == "initialized") {
-        this.selectorChanged(this.mockSelector, true, false);
-        this.loader.next("drawn");
+    this.sans = true;
+    this.showProgressBar = true;
+    this.selected = "yearly";
+    this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+      if (subscriptionData.type == "skeleton") {
+        //there is no data in the storage, showing skeleton text until the server responds
+      } else if (subscriptionData.type == "placeholder") {
+        //there is data in the storage, showing that data until the server responds, disabling skeleton text
+        this.evaluations = subscriptionData.data.Evaluations;
+        this.selectorChanged(this.mockSelector, true, true);
+        this.sans = false;
+      } else {
+        //the server has now responded, disabling progress bar and skeleton text if it's still there
+        this.evaluations = subscriptionData.data.Evaluations;
+        this.selectorChanged(this.mockSelector, true, true);
+        this.showProgressBar = false;
+        this.sans = false;
       }
     });
+    this.dataLoader.initializeStudent();
+
+    this.sans = false;
+  }
+
+  ionViewWillLeave() {
+    this.studentSubscription.unsubscribe();
   }
 
   async ionSlideWillChange() {
@@ -119,20 +133,32 @@ export class StatisticsPage implements OnInit {
     }
   }
 
-  getData(day: number) {
-    this.focused = day;
-    this.slides.slideTo(day);
-    switch (day) {
-      case 0:
-        this.title = "Vonal";
-        break;
-      case 1:
-        this.title = "Oszlop";
-        break;
-      case 2:
-        this.title = "Kör";
-        break;
+  async getData(event: any) {
+    if (await this.slides.getActiveIndex() == this.focused) {
+      //the segment's ionChange event wasn't fired by a slide moving
+      let day = event.detail.value;
+      this.focused = day;
+      this.slides.slideTo(day);
+      switch (day) {
+        case 0:
+          this.title = "Vonal";
+          break;
+        case 1:
+          this.title = "Oszlop";
+          break;
+        case 2:
+          this.title = "Kör";
+          break;
+      }
     }
+
+  }
+
+  async doRefresh(event: any) {
+    console.log("begin operation");
+    this.showProgressBar = true;
+    await this.dataLoader.updateStudent();
+    event.target.complete();
   }
 
   //help for migration
@@ -142,7 +168,7 @@ export class StatisticsPage implements OnInit {
       var date = new Date();
       switch (event.detail.value) {
         case "yBySubject":
-          this.dataService.setData("statisticsData", this.student.Evaluations);
+          this.dataService.setData("statisticsData", this.evaluations);
           this.dataService.setData("statisticsType", "line-column-buttons");
           this.dataService.setData("statisticsGrouping", true);
           this.dataService.setData("graphTitle", date.getFullYear());
@@ -196,7 +222,7 @@ export class StatisticsPage implements OnInit {
     else {
       let lineData: number[] = [];
       let pieAndColumnData: number[] = [0, 0, 0, 0, 0]
-      let average: number = this.wAC.average(this.evaluations);
+      let average: number = this.wAC.average(evaluations);
       let numOfGrades: number = 0;
 
       for (let i = 0; i < evaluations.length; i++) {

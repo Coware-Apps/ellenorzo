@@ -9,86 +9,43 @@
       </ion-button>
     </ion-buttons>
     <ion-title>Mulasztások - {{title}}</ion-title>
+    <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content (ionScroll)="ionScroll($event)" scrollEvents="true" #scroll>
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
+      refreshingText="Adatok frissítése...">
+    </ion-refresher-content>
+  </ion-refresher>
   <ion-fab [hidden]="!a" vertical="top" horizontal="center" slot="fixed">
     <ion-fab-button (click)="scrollToTop()" translucent="true">
       <ion-icon name="arrow-up"></ion-icon>
     </ion-fab-button>
   </ion-fab>
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
-    <ion-slide>
+    <ion-slide *ngFor="let absenceGroup of this.allAbsences | async">
       <ion-list>
-        <ion-item *ngIf="this.collapsableJustifiedAbsences.length == 0 && this.sans == false"
-          style="text-align: center;">
-          <ion-label>Nincsenek igazolt mulasztások.</ion-label>
+        <ion-item *ngIf="absenceGroup.empty && this.sans == false" style="text-align: center;">
+          <ion-label>Nincsenek {{absenceGroup.fullName}} mulasztások.</ion-label>
         </ion-item>
-        <div *ngFor="let item of collapsableJustifiedAbsences">
+        <div *ngFor="let item of absenceGroup.data">
           <ion-item button (click)="item.showAll = item.showAll ? false : true">
-            <ion-label><h1>{{item.header}}</h1></ion-label>
-            <ion-icon *ngIf="!item.showAll" slot="end" name="arrow-dropright"></ion-icon>
-            <ion-icon *ngIf="item.showAll" slot="end" name="arrow-dropdown"></ion-icon>
+            <ion-label>
+              <h1>{{item.header}}</h1>
+            </ion-label>
+            <ion-icon *ngIf="!item.showAll" slot="end" name="chevron-forward"></ion-icon>
+            <ion-icon *ngIf="item.showAll" slot="end" name="chevron-down"></ion-icon>
           </ion-item>
           <div *ngFor="let absence of item.data">
             <ion-item [hidden]="!item.showAll" button (click)="getMoreData(absence)">
-              <ion-icon slot="start" name="done-all" class="green" size="large"></ion-icon>
-              <ion-label class="ion-text-wrap">
-                {{absence.Subject}}<br>
-                {{absence.TypeName}}
-                <p *ngIf="absence.Type == 'Delay'">({{absence.DelayTimeMinutes}}p.)</p>
-              </ion-label>
-              <ion-label class="ion-text-wrap">
-                {{absence.Teacher}}
-              </ion-label>
-            </ion-item>
-          </div>
-        </div>
-      </ion-list>
-    </ion-slide>
-    <ion-slide>
-      <ion-list>
-        <ion-item *ngIf="this.collapsableBeJustifiedAbsences.length == 0 && this.sans == false"
-          style="text-align: center;">
-          <ion-label>Nincsenek igazolandó mulasztások.</ion-label>
-        </ion-item>
-        <div *ngFor="let item of collapsableBeJustifiedAbsences">
-          <ion-item button (click)="item.showAll = item.showAll ? false : true">
-            <ion-label><h1>{{item.header}}</h1></ion-label>
-            <ion-icon *ngIf="!item.showAll" slot="end" name="arrow-dropright"></ion-icon>
-            <ion-icon *ngIf="item.showAll" slot="end" name="arrow-dropdown"></ion-icon>
-          </ion-item>
-          <div *ngFor="let absence of item.data">
-            <ion-item [hidden]='!item.showAll' button (click)="getMoreData(absence)">
-              <ion-icon slot="start" name="warning" class="yellow" size="large"></ion-icon>
-              <ion-label class="ion-text-wrap">
-                {{absence.Subject}}<br>
-                {{absence.TypeName}}
-                <p *ngIf="absence.Type == 'Delay'">({{absence.DelayTimeMinutes}}p.)</p>
-              </ion-label>
-              <ion-label class="ion-text-wrap">
-                {{absence.Teacher}}
-              </ion-label>
-            </ion-item>
-          </div>
-        </div>
-      </ion-list>
-    </ion-slide>
-    <ion-slide>
-      <ion-list>
-        <ion-item *ngIf="this.collapsableUnJustifiedAbsences.length == 0 && this.sans == false" style="text-align: center;">
-          <ion-label>Nincsenek igazolatlan mulasztások.</ion-label>
-        </ion-item>
-        <div *ngFor="let item of this.collapsableUnJustifiedAbsences">
-          <ion-item button (click)="item.showAll = item.showAll ? false : true">
-            <ion-label><h1>{{item.header}}</h1></ion-label>
-            <ion-icon *ngIf="!item.showAll" slot="end" name="arrow-dropright"></ion-icon>
-            <ion-icon *ngIf="item.showAll" slot="end" name="arrow-dropdown"></ion-icon>
-          </ion-item>
-          <div *ngFor="let absence of item.data">
-            <ion-item [hidden]='!item.showAll' button (click)="getMoreData(absence)">
-              <ion-icon slot="start" name="close" class="red" size="large"></ion-icon>
+              <ion-icon *ngIf="absenceGroup.name == 'justified'" slot="start" name="checkmark-done" class="green"
+                size="large"></ion-icon>
+              <ion-icon *ngIf="absenceGroup.name == 'beJustified'" slot="start" name="warning" class="yellow"
+                size="large"></ion-icon>
+              <ion-icon *ngIf="absenceGroup.name == 'unJustified'" slot="start" name="close" class="red" size="large">
+              </ion-icon>
               <ion-label class="ion-text-wrap">
                 {{absence.Subject}}<br>
                 {{absence.TypeName}}
@@ -105,16 +62,16 @@
   </ion-slides>
 
   <ion-list *ngIf="sans">
-    <ion-list-header>
-      <ion-skeleton-text width="30%" animated></ion-skeleton-text>
-    </ion-list-header>
+    <ion-item-divider>
+      <ion-skeleton-text style="width: 30%" animated></ion-skeleton-text>
+    </ion-item-divider>
     <ion-item *ngFor="let number of [0, 1, 2, 3, 4, 5, 6]">
       <ion-avatar slot="start">
         <ion-skeleton-text animated></ion-skeleton-text>
       </ion-avatar>
       <ion-label class="ion-text-wrap">
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+        <ion-skeleton-text style="width: 80%" animated></ion-skeleton-text>
+        <ion-skeleton-text style="width: 80%" animated></ion-skeleton-text>
       </ion-label>
       <ion-label>
         <ion-skeleton-text animated></ion-skeleton-text>
@@ -124,14 +81,14 @@
 </ion-content>
 <ion-footer>
   <ion-toolbar>
-    <ion-segment>
-      <ion-segment-button [disabled]="sans" value="a1" [checked]="this.focused == 0" (click)="getData(0)">
-        <ion-icon name="done-all"></ion-icon>
+    <ion-segment [value]="this.focused" (ionChange)="getData($event)">
+      <ion-segment-button [disabled]="sans" value="0">
+        <ion-icon name="checkmark-done"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="a2" [checked]="this.focused == 1" (click)="getData(1)">
+      <ion-segment-button [disabled]="sans" value="1">
         <ion-icon name="warning"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="a3" [checked]="this.focused == 2" (click)="getData(2)">
+      <ion-segment-button [disabled]="sans" value="2">
         <ion-icon name="close"></ion-icon>
       </ion-segment-button>
     </ion-segment>

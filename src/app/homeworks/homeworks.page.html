@@ -9,12 +9,12 @@
 
 <ion-content>
   <ion-list>
-    <ion-list-header>
+    <ion-item-divider>
       <ion-label>
         <h1>Tanár által feladott</h1>
         <p *ngIf="!this.sans && teacherHomeworks.length == 0">(üres)</p>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <div *ngIf="!sans">
       <ion-card class="wide" *ngFor="let homework of teacherHomeworks">
         <ion-card-header>
@@ -41,29 +41,29 @@
             </ion-button>
           </ion-buttons>
           <ion-card-title>
-            <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
           </ion-card-title>
           <ion-card-subtitle>
-            <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
           </ion-card-subtitle>
           <ion-card-subtitle class="deadlineText">
-            <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
           </ion-card-subtitle>
           <ion-card-title>
             <div>
-              <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
             </div>
           </ion-card-title>
         </ion-card-header>
       </ion-card>
     </div>
 
-    <ion-list-header>
+    <ion-item-divider>
       <ion-label>
         <h1>Tanuló által feladott</h1>
         <p *ngIf="!this.sans && studentHomeworks.length == 0">(üres)</p>
       </ion-label>
-    </ion-list-header>
+    </ion-item-divider>
     <div>
       <ion-card *ngFor="let homework of studentHomeworks">
         <ion-card-header>
@@ -84,17 +84,17 @@
             </ion-button>
           </ion-buttons>
           <ion-card-title>
-            <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
           </ion-card-title>
           <ion-card-subtitle>
-            <ion-skeleton-text animated width="40%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
           </ion-card-subtitle>
           <ion-card-subtitle class="deadlineText">
-            <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
           </ion-card-subtitle>
           <ion-card-title>
             <div>
-              <ion-skeleton-text animated width="80%"></ion-skeleton-text>
+              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
             </div>
           </ion-card-title>
         </ion-card-header>

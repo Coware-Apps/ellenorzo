@@ -4,35 +4,45 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Személyes adatlap</ion-title>
+    <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngIf="!sans">
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
+      refreshingText="Adatok frissítése...">
+    </ion-refresher-content>
+  </ion-refresher>
+  <div *ngFor="let s of this.student | async">
     <ion-card>
       <ion-card-header>
-        <ion-card-title><h1>Személyes adatok</h1></ion-card-title>
+        <ion-card-title>
+          <h1>Személyes adatok</h1>
+        </ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <h2 style="font-weight: bold;">Név</h2>
-        <p>{{this.student.Name}}</p>
+        <p>{{s.Name}}</p>
         <h2 style="font-weight: bold;">Születési név</h2>
-        <p>{{this.student.NameOfBirth}}</p>
+        <p>{{s.NameOfBirth}}</p>
         <h2 style="font-weight: bold;">Születési idő</h2>
-        <p>{{this.fDate.formatDate(student.DateOfBirthUtc)}}</p>
+        <p>{{this.fDate.formatDate(s.DateOfBirthUtc)}}</p>
         <h2 style="font-weight: bold;">Születési hely</h2>
-        <p>{{this.student.PlaceOfBirth}}</p>
+        <p>{{s.PlaceOfBirth}}</p>
         <h2 style="font-weight: bold;">Lakcím adatok</h2>
-        <p *ngFor="let address of this.student.AddressDataList">{{address}}</p>
+        <p *ngFor="let address of s.AddressDataList">{{address}}</p>
       </ion-card-content>
     </ion-card>
 
     <ion-card>
       <ion-card-header>
-        <ion-card-title><h1>Gondviselői adatok</h1></ion-card-title>
+        <ion-card-title>
+          <h1>Gondviselői adatok</h1>
+        </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <div *ngFor="let tutelary of this.student.Tutelaries">
+        <div *ngFor="let tutelary of s.Tutelaries">
           <h1>{{tutelary.Name}}</h1>
           <h2 style="font-weight: bold;">E-mail cím</h2>
           <p>{{tutelary.Email == '' ? '-' : tutelary.Email}}</p>
@@ -46,37 +56,41 @@
   <div *ngIf="sans">
     <ion-card>
       <ion-card-header>
-        <ion-card-title><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-title>
+        <ion-card-title>
+          <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="70%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
       </ion-card-content>
     </ion-card>
     <ion-card>
       <ion-card-header>
-        <ion-card-title><ion-skeleton-text animated width="40%"></ion-skeleton-text></ion-card-title>
+        <ion-card-title>
+          <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
 
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="40%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
-        <ion-skeleton-text animated width="30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
       </ion-card-content>
     </ion-card>
   </div>

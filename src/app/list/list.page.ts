@@ -37,48 +37,49 @@ export class ListPage implements OnInit {
   public currentWeekIndex;
   public message;
   public unfocusFooterButton: boolean;
-  public days: day[] = [{
-    name: "Hétfő",
-    shortName: "Hé",
-    index: 0,
-    show: false,
-  },
-  {
-    name: "Kedd",
-    shortName: "Ke",
-    index: 1,
-    show: false,
-  },
-  {
-    name: "Szerda",
-    shortName: "Sz",
-    index: 2,
-    show: false,
-  },
-  {
-    name: "Csütörtök",
-    shortName: "Cs",
-    index: 3,
-    show: false,
-  },
-  {
-    name: "Péntek",
-    shortName: "Pé",
-    index: 4,
-    show: false,
-  },
-  {
-    name: "Szombat",
-    shortName: "Szo",
-    index: 5,
-    show: false,
-  },
-  {
-    name: "Vasárnap",
-    shortName: "Va",
-    index: 6,
-    show: false,
-  }];
+  public days: day[] = [
+    {
+      name: "Vasárnap",
+      shortName: "Va",
+      index: 6,
+      show: false,
+    },
+    {
+      name: "Hétfő",
+      shortName: "Hé",
+      index: 0,
+      show: false,
+    },
+    {
+      name: "Kedd",
+      shortName: "Ke",
+      index: 1,
+      show: false,
+    },
+    {
+      name: "Szerda",
+      shortName: "Sz",
+      index: 2,
+      show: false,
+    },
+    {
+      name: "Csütörtök",
+      shortName: "Cs",
+      index: 3,
+      show: false,
+    },
+    {
+      name: "Péntek",
+      shortName: "Pé",
+      index: 4,
+      show: false,
+    },
+    {
+      name: "Szombat",
+      shortName: "Szo",
+      index: 5,
+      show: false,
+    }];
 
   constructor(
     public storage: Storage,
@@ -177,7 +178,7 @@ export class ListPage implements OnInit {
 
   getDayName(date: string) {
     let d = new Date(date);
-    return d.getDay() - 1;
+    return d.getDay();
   }
 
   async getNextWeek() {
@@ -223,14 +224,18 @@ export class ListPage implements OnInit {
   dataToScreen(weekFirst: string, weekLast: string) {
     //getting the date that is shown in brackets in the header
     this.weekToFrom = this.fDate.addZeroToNumber(weekFirst.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekFirst.split('-')[2]) + "-" + this.fDate.addZeroToNumber(weekLast.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekLast.split('-')[2]);
-
-    this.timetable.forEach(x => {
-      let i = this.getDayName(x.StartTime.toString())
-      x.DayOfWeek = i;
-      this.days[i].show = true;
+    this.days.forEach(day => {
+      day.show = false;
     });
 
-    this.timetable.sort((a, b) => a.StartTime.valueOf() - b.StartTime.valueOf());
+    this.timetable.forEach(lesson => {
+      let i = this.getDayName(lesson.StartTime.toString())
+      lesson.DayOfWeek = i - 1;
+      this.days[i].show = true;
+      console.log(`showing days[${i}]`);
+    });
+
+    this.timetable.sort((a, b) => new Date(a.StartTime).valueOf() - new Date(b.StartTime).valueOf());
   }
 
   getShownDays(days: day[]) {

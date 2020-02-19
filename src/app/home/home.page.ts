@@ -10,17 +10,9 @@ import { ColorService } from '../_services/color.service';
 import { AlertController } from '@ionic/angular';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
-
-interface MonthlyGrades {
-  index: number;
-  header: string;
-  data: any[];
-  firstEntryCreatingTime: number;
-  showEvaluations: boolean;
-  showAbsences: boolean;
-  showNotes: boolean;
-  showAll: boolean;
-}
+import { DataLoaderService } from '../_services/data-loader.service';
+import { CollapsibleStudent } from '../_models/student';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -33,7 +25,6 @@ export class HomePage {
   public tokens: Token;
   public access_token: string;
   public monthlyAverage: any;
-  public hasItLoaded: boolean = false
   public sans: boolean = true;
   public thisMonth: number;
   public fiveColor: string;
@@ -45,11 +36,10 @@ export class HomePage {
   public monthsName: string[];
   public showingMonth: number;
   public allData: Array<any>;
-  public allDataByMonths: Array<MonthlyGrades>;
+  public showProgressBar: boolean;
+  public formattedStudent: Observable<CollapsibleStudent[]>;
 
-  public showEvaluations: boolean;
-  public showAbsences: boolean;
-  public showNotes: boolean;
+  private studentSubscription: Subscription;
 
   @Input() data: string;
 
@@ -61,59 +51,87 @@ export class HomePage {
 
 
   constructor(
-    private navRouter: Router,
-    private dataService: DataService,
-    private storage: Storage,
-    private color: ColorService,
-    private alertCtrl: AlertController,
-    private firebase: FirebaseX,
-    private prompt: PromptService,
-
+    public dataLoader: DataLoaderService,
     public fDate: FormattedDateService,
     public Students: Student,
     public kreta: KretaService,
     public student: Student,
+
+    private navRouter: Router,
+    private storage: Storage,
+    private color: ColorService,
+    private firebase: FirebaseX,
+    private prompt: PromptService,
   ) {
     this.allData = [];
-    this.allDataByMonths = [];
     this.thisMonth = new Date().getMonth();
     this.monthsName = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-    this.showEvaluations = true;
-    this.showAbsences = true;
-    this.showNotes = true;
+    this.sans = true;
+    this.showProgressBar = true;
   }
 
   public async ngOnInit() {
-    this.sans = true;
-
     let currentMonth = new Date().getMonth() + 1;
     //the month to show (on init it is the current month)
     this.showingMonth = currentMonth;
 
-    let Student = (await this.kreta.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today")));
+    this.formattedStudent = new Observable<CollapsibleStudent[]>((observer) => {
+      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+        if (subscriptionData.type == "skeleton") {
+          //there is no data in the storage, showing skeleton text until the server responds
+        } else if (subscriptionData.type == "placeholder") {
+          //there is data in the storage, showing that data until the server responds, disabling skeleton text
+          observer.next(this.formatStudent(subscriptionData.data));
+          this.sans = false;
+        } else {
+          //the server has now responded, disabling progress bar and skeleton text if it's still there
+          observer.next(this.formatStudent(subscriptionData.data));
+          this.showProgressBar = false;
+          this.sans = false;
+        }
+      });
+      this.dataLoader.initializeStudent();
+    });
 
-    let allEvaluations = Student.Evaluations;
-    let allAbsences = Student.Absences;
-    let allNotes = Student.Notes;
+    this.firebase.setScreenName('home');
+  }
+
+  ionViewWillLeave() {
+    this.studentSubscription.unsubscribe();
+  }
+
+  async doRefresh(event: any) {
+    console.log("begin operation");
+    this.showProgressBar = true;
+    await this.dataLoader.updateStudent();
+    event.target.complete();
+  }
+
+  public formatStudent(student: Student): CollapsibleStudent[] {
+    let allDataByMonths = [];
+    let allEvaluations = student.Evaluations;
+    let allAbsences = student.Absences;
+    let allNotes = student.Notes;
+    let allData: Array<any> = [];
 
     for (let i = 0; i < allEvaluations.length; i++) {
-      const element = allEvaluations[i];
-      this.allData.push(element);
+      let element = allEvaluations[i];
+      allData.push(element);
     }
 
     for (let i = 0; i < allAbsences.length; i++) {
-      const element = allAbsences[i];
-      this.allData.push(element);
+      let element = allAbsences[i];
+      allData.push(element);
     }
 
     for (let i = 0; i < allNotes.length; i++) {
-      const element = allNotes[i];
-      this.allData.push(element);
+      let element = allNotes[i];
+      allData.push(element);
     }
 
     let months: number[] = [];
 
-    this.allData.forEach(element => {
+    allData.forEach(element => {
       let creatingMonth = new Date(element.CreatingTime).getMonth();
       if (!months.includes(creatingMonth)) {
         months.push(creatingMonth);
@@ -123,7 +141,7 @@ export class HomePage {
     let i = 0;
     months.forEach(month => {
       let monthlyData: any[] = [];
-      this.allData.forEach(item => {
+      allData.forEach(item => {
         if (new Date(item.CreatingTime).getMonth() == month) {
           monthlyData.push(item);
         }
@@ -131,7 +149,7 @@ export class HomePage {
 
       monthlyData.sort((a, b) => new Date(b.CreatingTime).valueOf() - new Date(a.CreatingTime).valueOf());
 
-      this.allDataByMonths.push({
+      allDataByMonths.push({
         index: i,
         header: this.monthsName[month],
         data: monthlyData,
@@ -144,16 +162,11 @@ export class HomePage {
       i++;
     });
 
-    this.allDataByMonths.sort((a, b) => b.firstEntryCreatingTime - a.firstEntryCreatingTime);
-
-    this.sans = false;
-    this.hasItLoaded = true;
-
-    this.firebase.setScreenName('home');
+    allDataByMonths.sort((a, b) => b.firstEntryCreatingTime - a.firstEntryCreatingTime);
+    return allDataByMonths;
   }
 
-
-  showOrHide(type: string, monthlyGrades: MonthlyGrades) {
+  showOrHide(type: string, monthlyGrades: CollapsibleStudent) {
     if (type == "evaluations") {
       monthlyGrades.showEvaluations = monthlyGrades.showEvaluations ? false : true;
     } else if (type == "absences") {
@@ -163,7 +176,7 @@ export class HomePage {
     }
   }
 
-  showOrHideMonth(monthlyGrades: MonthlyGrades) {
+  showOrHideMonth(monthlyGrades: CollapsibleStudent) {
     monthlyGrades.showAll = monthlyGrades.showAll == true ? false : true;
   }
 

@@ -14,7 +14,7 @@
         <ion-icon [color]="focused == 'line' ? 'primary' : 'dark'" slot="icon-only" name="analytics"></ion-icon>
       </ion-button>
       <ion-button (click)="changeGraph(2)">
-        <ion-icon [color]="focused == 'column' ? 'primary' : 'dark'" slot="icon-only" name="stats"></ion-icon>
+        <ion-icon [color]="focused == 'column' ? 'primary' : 'dark'" slot="icon-only" name="stats-chart"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -53,21 +53,25 @@
             [ngStyle]="{'color': ((item.weight == '100%') ? contrast : ((item.weight == '50%') ? 'green' : ((item.weight == '150%') ? '#d1ab00' : ((item.weight == '200%' ? 'red' : 'pink')))) )}">
             <ion-label>{{item.grade}}</ion-label>
             <ion-label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.weight}}</ion-label>
-            <ion-button (click)="removeGrade(item.extraId)">
-              <ion-icon slot="icon-only" name="trash"></ion-icon>
-            </ion-button>
+            <ion-buttons slot="end">
+              <ion-button (click)="removeGrade(item.extraId)">
+                <ion-icon slot="icon-only" name="remove-circle"></ion-icon>
+              </ion-button>
+            </ion-buttons>
           </ion-item>
         </div>
-        <ion-list-header>
+        <ion-item-divider>
           <ion-label>Mi lenne, ha?</ion-label>
-        </ion-list-header>
+        </ion-item-divider>
         <ion-item [ngClass]="{'item-has-focus': this.unfilled}">
           <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newGrade" maxlength="1" type="number" placeholder="Jegy"></ion-input>
           <ion-label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ion-label>
           <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newPercent" maxLength="3" name="input" type="number" placeholder="%"></ion-input>
-          <ion-button type="submit" (click)="addGrade()">
-            <ion-icon slot="icon-only" name="add"></ion-icon>
-          </ion-button>
+          <ion-buttons slot="end">
+            <ion-button type="submit" (click)="addGrade()">
+              <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+            </ion-button>
+          </ion-buttons>
         </ion-item>
       </ion-list>
     </ion-card-content>

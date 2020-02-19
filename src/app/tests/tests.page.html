@@ -13,8 +13,8 @@
       <div *ngFor="let monthlyData of this.testsByMonth">
         <ion-item button (click)="monthlyData.showAll = monthlyData.showAll ? false : true">
           <ion-label>{{monthlyData.header}}</ion-label>
-          <ion-icon *ngIf="monthlyData.showAll" slot="end" name="arrow-dropdown"></ion-icon>
-          <ion-icon *ngIf="!monthlyData.showAll" slot="end" name="arrow-dropright"></ion-icon>
+          <ion-icon *ngIf="monthlyData.showAll" slot="end" name="chevron-forward"></ion-icon>
+          <ion-icon *ngIf="!monthlyData.showAll" slot="end" name="chevron-down"></ion-icon>
         </ion-item>
         <ion-card [hidden]='!monthlyData.showAll' *ngFor="let test of monthlyData.data">
           <ion-card-header>

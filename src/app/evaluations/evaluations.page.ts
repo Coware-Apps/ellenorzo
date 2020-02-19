@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, getDebugNode } from '@angular/core';
 import { KretaService } from '../_services/kreta.service';
 import { Student, evaluation } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
@@ -11,12 +11,16 @@ import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
+import { DataLoaderService } from '../_services/data-loader.service';
+import { Observable, Subscription } from 'rxjs';
+import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.service';
 
-interface selectOption {
+interface SelectOption {
   name: string;
   id: string;
   show: boolean;
   empty: boolean;
+  data: evaluation[] | UniversalSortedData[];
 }
 @Component({
   selector: 'app-evaluations',
@@ -33,8 +37,10 @@ export class EvaluationsPage implements OnInit {
 
   public dates: string[];
   public subjects: string[];
-  public evaluations: evaluation[];
+  public evaluations: Observable<evaluation[]>;
+  public loadedEvaluations: evaluation[];
   public sans: boolean;
+  public showProgressBar: boolean;
   public fiveColor: string;
   public fourColor: string;
   public threeColor: string;
@@ -43,71 +49,124 @@ export class EvaluationsPage implements OnInit {
   public noneColor: string;
   public selected: string;
   public groups: string;
-  public selectOptions: selectOption[] = [{
+  public selectOptions: SelectOption[] = [{
     name: "Tantárgyanként",
     id: "bySubject",
     show: true,
     empty: false,
+    data: [],
   },
   {
     name: "Dátum alapján",
     id: "byDate",
     show: true,
     empty: false,
+    data: [],
   },
   {
     name: "Félévi értékelések",
     id: "halfYear",
     show: true,
     empty: false,
+    data: [],
   },
   {
     name: "Év végi értékelések",
     id: "endYear",
     show: true,
     empty: false,
+    data: [],
   },
   {
     name: "Egyéb értékelések",
     id: "other",
     show: true,
     empty: false,
+    data: [],
   }]
+  public selectOptionsWithData: Observable<SelectOption[]>
 
   private student: Student;
+  private studentSubscription: Subscription;
 
   constructor(
-    private kreta: KretaService,
     public fDate: FormattedDateService,
 
     private color: ColorService,
     private storage: Storage,
-    private alertCtrl: AlertController,
     private data: DataService,
     private navRouter: Router,
     private firebase: FirebaseX,
     private prompt: PromptService,
+    private dataLoader: DataLoaderService,
+    private collapsify: CollapsifyService,
   ) {
     this.dates = [];
     this.subjects = [];
     this.selected = "bySubject";
+    this.sans = true;
+    this.showProgressBar = true;
   }
 
   async ngOnInit() {
-    this.sans = true;
-    this.evaluations = (this.student = await this.kreta.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"))).Evaluations;
-    this.evaluations.forEach(evaluation => {
-      if (!this.dates.includes(evaluation.Date)) {
-        this.dates.push(evaluation.Date);
-      }
-      if (!this.subjects.includes(evaluation.Subject)) {
-        this.subjects.push(evaluation.Subject);
-      }
+    this.selectOptionsWithData = new Observable<SelectOption[]>((observer) => {
+      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+        if (subscriptionData.type == "skeleton") {
+          //there is no data in the storage, showing skeleton text until the server responds
+        } else if (subscriptionData.type == "placeholder") {
+          //there is data in the storage, showing that data until the server responds, disabling skeleton text
+          this.loadedEvaluations = subscriptionData.data.Evaluations;
+          observer.next(this.formatEvaluations(subscriptionData.data.Evaluations));
+          this.sans = false;
+        } else {
+          //the server has now responded, disabling progress bar and skeleton text if it's still there
+          this.loadedEvaluations = subscriptionData.data.Evaluations;
+          //only storing the entire student when the site has completely loaded, because we only need it for when the user clicks the average-graphs button
+          this.student = subscriptionData.data;
+          observer.next(this.formatEvaluations(subscriptionData.data.Evaluations));
+          this.showProgressBar = false;
+          this.sans = false;
+        }
+      });
+      this.dataLoader.initializeStudent();
     });
-    this.dates.sort((a, b) => new Date(a).valueOf() - new Date(b).valueOf()).reverse();
-    this.sans = false;
 
     this.firebase.setScreenName('evaluations');
+  }
+
+  ionViewWillLeave() {
+    this.studentSubscription.unsubscribe();
+  }
+
+  async doRefresh(event: any) {
+    console.log("begin operation");
+    this.showProgressBar = true;
+    await this.dataLoader.updateStudent();
+    event.target.complete();
+  }
+
+  formatEvaluations(evaluations: evaluation[]): SelectOption[] {
+    this.selectOptions.forEach(option => {
+      switch (option.id) {
+        case 'bySubject':
+          option.data = this.collapsify.collapsifyByNames(this.getMidYearEvaluations(evaluations), 'Subject', 'CreatingTime');
+          break;
+        case 'byDate':
+          option.data = this.collapsify.collapsifyByDates(this.getMidYearEvaluations(evaluations), 'CreatingTime');
+          break;
+        case 'halfYear':
+          option.data = this.getHalfYearEvaluations(evaluations);
+          break;
+        case 'endYear':
+          option.data = this.getEndYearEvaluations(evaluations);
+          break;
+        case 'other':
+          option.data = this.getOtherEvaluations(evaluations);
+          break;
+      }
+    });
+
+    return this.selectOptions;
   }
 
   async ionViewDidEnter() {
@@ -135,43 +194,44 @@ export class EvaluationsPage implements OnInit {
     });
   }
 
-  getEvaluations(dateOrSubject: string, byDate: boolean = true, HalfYear: boolean = false, EndYear: boolean = false, other: boolean = false, selectOption: number = 0): evaluation[] {
-    //returns the evaluations that have dateOrSubject Date (byDate == true) or dateOrSubject Subject (ByDate == false) or by types
+  //#region Evaluation Filters
+  getMidYearEvaluations(evaluations: evaluation[]): evaluation[] {
     let returnVal: evaluation[] = [];
-    this.evaluations.forEach(evaluation => {
-      if (evaluation.Date == dateOrSubject && byDate && !other && !EndYear) {
+    evaluations.forEach(evaluation => {
+      if (evaluation.Type == 'MidYear') {
         returnVal.push(evaluation);
-      } else if (evaluation.Subject == dateOrSubject && !byDate && !other && !EndYear) {
-        returnVal.push(evaluation);
-      } else if (HalfYear && evaluation.Type == 'HalfYear' && !other && !EndYear) {
-        returnVal.push(evaluation);
-      } else if (EndYear && evaluation.Type == 'EndYear' && !other) {
-        returnVal.push(evaluation);
-      } else if (other && evaluation.Type != 'HalfYear' && evaluation.Type != 'EndYear' && evaluation.Type != 'MidYear') {
-        returnVal.push(evaluation);
-      }
-    });
-
-    if (returnVal.length > 0) {
-      this.selectOptions[selectOption].empty = false;
-    } else {
-      this.selectOptions[selectOption].empty = true;
-    }
-    return returnVal;
-  }
-
-  doMidYearEvaluationsExist(dateOrSubject: string, byDate: boolean = true): boolean {
-    //returns true if evaluations that have dateOrSubject Date (byDate == true) or dateOrSubject Subject (ByDate == false) and are MidYear type exist
-    let returnVal: boolean = false;
-    this.evaluations.forEach(evaluation => {
-      if (evaluation.Date == dateOrSubject && evaluation.Type == 'MidYear' && byDate) {
-        returnVal = true;
-      } else if (evaluation.Subject == dateOrSubject && evaluation.Type == 'MidYear' && !byDate) {
-        returnVal = true;
       }
     });
     return returnVal;
   }
+  getHalfYearEvaluations(evaluations: evaluation[]): evaluation[] {
+    let returnVal: evaluation[] = [];
+    evaluations.forEach(evaluation => {
+      if (evaluation.Type == 'HalfYear') {
+        returnVal.push(evaluation);
+      }
+    });
+    return returnVal;
+  }
+  getEndYearEvaluations(evaluations: evaluation[]): evaluation[] {
+    let returnVal: evaluation[] = [];
+    evaluations.forEach(evaluation => {
+      if (evaluation.Type == 'EndYear') {
+        returnVal.push(evaluation);
+      }
+    });
+    return returnVal;
+  }
+  getOtherEvaluations(evaluations: evaluation[]): evaluation[] {
+    let returnVal: evaluation[] = [];
+    evaluations.forEach(evaluation => {
+      if (evaluation.Type != 'EndYear' && evaluation.Type != 'MidYear' && evaluation.Type != 'HalfYear') {
+        returnVal.push(evaluation);
+      }
+    });
+    return returnVal;
+  }
+  //#endregion
 
   themeIf(theme: string) {
     if (theme == null || theme == "") {
@@ -235,7 +295,6 @@ export class EvaluationsPage implements OnInit {
   }
 
   async showModal(subject: string) {
-    let student = this.student;
     let classValue: number;
     this.student.SubjectAverages.forEach(subjectAvg => {
       if (subjectAvg.Subject == subject) {

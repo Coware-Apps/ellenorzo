@@ -9,7 +9,7 @@
       </ion-title>
     </div>
     <div *ngIf="sans">
-      <ion-skeleton-text width="33%"></ion-skeleton-text>
+      <ion-skeleton-text style="width: 33%"></ion-skeleton-text>
     </div>
   </ion-toolbar>
 </ion-header>
@@ -59,9 +59,9 @@
 
   <div *ngIf="sans">
     <ion-list>
-      <ion-list-header>
+      <ion-item-divider>
         <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-      </ion-list-header>
+      </ion-item-divider>
       <ion-item>
         <ion-skeleton-text animated style="width: 88%"></ion-skeleton-text>
         <ion-label class="item-note" slot="end">
@@ -135,12 +135,13 @@
       <ion-row>
         <ion-col>
           <ion-button class="footerButton" [disabled]="sans" (click)="getPrevWeek()">
-            <ion-icon name="arrow-dropleft-circle"></ion-icon>
+            <ion-icon name="arrow-back-circle-sharp"></ion-icon>
           </ion-button>
         </ion-col>
 
         <ion-col *ngFor="let day of getShownDays(days)">
-          <ion-button [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == day.index}"
+          <ion-button [hidden]="!day.show"
+            [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == day.index}"
             [fill]="this.focused == day.index ? 'solid' : 'outline'" (click)="getData(day.index)">
             {{day.shortName}}
           </ion-button>
@@ -148,7 +149,7 @@
 
         <ion-col>
           <ion-button [disabled]="sans" (click)="getNextWeek()">
-            <ion-icon name="arrow-dropright-circle"></ion-icon>
+            <ion-icon name="arrow-forward-circle-sharp"></ion-icon>
           </ion-button>
         </ion-col>
       </ion-row>

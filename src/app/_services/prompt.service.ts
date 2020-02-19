@@ -138,6 +138,15 @@ export class PromptService {
   public toast(message: string, autoDismiss: boolean) {
     this.presentToast(message, autoDismiss);
   }
+  public topToast(message: string, autoDismiss: boolean) {
+    this.presentToast(message, autoDismiss, "top");
+  }
+  public async dismissTopToast() {
+    let topToast = await this.toastCtrl.getTop();
+    if (topToast != null) {
+      this.dismissToast(topToast.id);
+    }
+  }
   //#endregion
 
   //#region helpers
@@ -151,7 +160,7 @@ export class PromptService {
     });
     await alert.present();
   }
-  private async presentToast(message: string, autoDismiss: boolean) {
+  private async presentToast(message: string, autoDismiss: boolean, position: "bottom" | "middle" | "top" = "bottom") {
     let topToast = await this.toastCtrl.getTop();
     if (topToast != null) {
       this.toastCtrl.dismiss();
@@ -159,11 +168,19 @@ export class PromptService {
     const toast = await this.toastCtrl.create({
       message: message,
       duration: autoDismiss ? 10000 : 0,
-      closeButtonText: "OK",
       cssClass: this.color.getToastClass(),
-      showCloseButton: true,
+      buttons: [
+        {
+          text: 'OK',
+          role: 'cancel',
+        }
+      ],
+      position: position,
     });
     toast.present();
+  }
+  private async dismissToast(id: string) {
+    this.toastCtrl.dismiss(id);
   }
   private themeIf(theme: string) {
     if (theme == null || theme == "") {

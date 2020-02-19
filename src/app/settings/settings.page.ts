@@ -219,10 +219,10 @@ export class SettingsPage implements OnInit {
     this.devCounter++;
 
     if (this.devCounter >= 7 && 10 > this.devCounter) {
-      this.prompt.toast((10 - this.devCounter) + " lépésre vagy a fejlesztői beállítások engedélyezésétől!", true)
+      this.prompt.topToast((10 - this.devCounter) + " lépésre vagy a fejlesztői beállítások engedélyezésétől!", true)
     } else if (this.devCounter == 10) {
       this.app.changeConfig('devSettingsEnabled', true);
-      this.prompt.toast("Fejlesztői beállítások sikeresen engedélyezve!", true);
+      this.prompt.topToast("Fejlesztői beállítások sikeresen engedélyezve!", true);
     }
   }
 
