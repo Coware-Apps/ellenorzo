@@ -1,4 +1,7 @@
-<p align="center"><img class="center" src="ellenorzo_logo.png" width="200"/></p>
+<p align="center">
+  <img class="center" src="ellenorzo_logo.png" width="200"/>
+  <a href='https://play.google.com/store/apps/details?id=hu.coware.ellenorzo&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="200px" alt='Szerezd meg: Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/hu_badge_web_generic.png'/></a>
+</p>
 
 Ez egy **nem hivatalos** ellenőrző alkalmazás, ami kompatibilis a magyarországi KRÉTA-rendszerrel. 
 
@@ -21,7 +24,6 @@ A szoftver [nyílt forráskódú](https://github.com/Coware-Apps/naplo/), a [GPL
 ### Felhasznált projektek
 - A program az Ionic Framework használatával készült (MIT)
 - A program grafikonjait a [Highcharts](https://www.highcharts.com/) motor teszi lehetővé
-- A KRÉTA API dokumentációt [boapps](https://github.com/boapps) készítette, [itt](https://github.com/boapps/e-kreta-api-docs) található
 - A logót [Raedrim](https://github.com/Raerdrim) készítette, [iconsider](https://www.iconfinder.com/iconsider) ikonja alapján
 
 ### Adatkezelés
