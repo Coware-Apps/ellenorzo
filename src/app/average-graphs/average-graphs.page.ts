@@ -413,7 +413,7 @@ export class AverageGraphsPage implements OnInit {
         data: [this.classValue],
         type: undefined,
         dial: {
-          backgroundColor: this.color.getChartSeriesColor(),
+          backgroundColor: this.color.getChartSecondarySeriesColor(),
         },
       }],
     });

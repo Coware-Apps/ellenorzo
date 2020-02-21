@@ -9,6 +9,7 @@ import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
 import { Observable, Subscription } from 'rxjs';
 import { DataLoaderService } from '../_services/data-loader.service';
+import { AppService } from '../_services/app.service';
 
 @Component({
   selector: 'app-notes',
@@ -24,6 +25,7 @@ export class NotesPage implements OnInit {
   constructor(
     public kretaService: KretaService,
     public fDate: FormattedDateService,
+    public app: AppService,
 
     private dataLoader: DataLoaderService,
     private firebase: FirebaseX,

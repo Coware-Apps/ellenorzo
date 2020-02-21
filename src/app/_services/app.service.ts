@@ -21,6 +21,7 @@ export class AppService {
   public devSettingsEnabled: boolean;
   public localNotificationsEnabled: boolean;
   public userAgent: string;
+  public collapsifyAnimationsEnabled: boolean;
 
   constructor(
     private storage: Storage,
@@ -100,7 +101,7 @@ export class AppService {
       show: true,
     }];
     this.toastLoggingEnabled = false;
-    this.getStockUserAgent()
+    this.getStockUserAgent();
   }
 
   public async changeConfig(configKey: string, value: any) {

@@ -38,8 +38,10 @@
             <ion-icon *ngIf="!item.showAll" slot="end" name="chevron-forward"></ion-icon>
             <ion-icon *ngIf="item.showAll" slot="end" name="chevron-down"></ion-icon>
           </ion-item>
-          <div *ngFor="let absence of item.data">
-            <ion-item [hidden]="!item.showAll" button (click)="getMoreData(absence)">
+          <div *ngFor="let absence of item.data" class="collapsible-wrapper"
+            [ngClass]="{'collapsed': !item.showAll && this.app.collapsifyAnimationsEnabled}">
+            <ion-item class="collapsible" button [hidden]="!item.showAll && !this.app.collapsifyAnimationsEnabled"
+              (click)="getMoreData(absence)">
               <ion-icon *ngIf="absenceGroup.name == 'justified'" slot="start" name="checkmark-done" class="green"
                 size="large"></ion-icon>
               <ion-icon *ngIf="absenceGroup.name == 'beJustified'" slot="start" name="warning" class="yellow"

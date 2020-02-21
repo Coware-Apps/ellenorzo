@@ -9,6 +9,7 @@ import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
 import { DataLoaderService } from '../_services/data-loader.service';
 import { Observable, Subscription } from 'rxjs';
+import { AppService } from '../_services/app.service';
 
 interface AbsenceGroup {
   data: UniversalSortedData[];
@@ -39,6 +40,7 @@ export class AbsencesPage implements OnInit {
 
   constructor(
     public fDate: FormattedDateService,
+    public app: AppService,
 
     private alertCtrl: AlertController,
     private color: ColorService,

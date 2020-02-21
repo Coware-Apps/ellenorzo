@@ -13,6 +13,7 @@ import { PromptService } from '../_services/prompt.service';
 import { DataLoaderService } from '../_services/data-loader.service';
 import { CollapsibleStudent } from '../_models/student';
 import { Observable, Subscription } from 'rxjs';
+import { AppService } from '../_services/app.service';
 
 @Component({
   selector: 'app-home',
@@ -56,6 +57,7 @@ export class HomePage {
     public Students: Student,
     public kreta: KretaService,
     public student: Student,
+    public app: AppService,
 
     private navRouter: Router,
     private storage: Storage,

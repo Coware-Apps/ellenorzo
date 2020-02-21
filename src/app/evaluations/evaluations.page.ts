@@ -14,6 +14,7 @@ import { PromptService } from '../_services/prompt.service';
 import { DataLoaderService } from '../_services/data-loader.service';
 import { Observable, Subscription } from 'rxjs';
 import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.service';
+import { AppService } from '../_services/app.service';
 
 interface SelectOption {
   name: string;
@@ -91,6 +92,7 @@ export class EvaluationsPage implements OnInit {
 
   constructor(
     public fDate: FormattedDateService,
+    public app: AppService,
 
     private color: ColorService,
     private storage: Storage,
@@ -108,7 +110,10 @@ export class EvaluationsPage implements OnInit {
     this.showProgressBar = true;
   }
 
-  async ngOnInit() {
+  ngOnInit() {
+
+  }
+  async ionViewDidEnter() {
     this.selectOptionsWithData = new Observable<SelectOption[]>((observer) => {
       this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
         if (subscriptionData.type == "skeleton") {
@@ -130,6 +135,16 @@ export class EvaluationsPage implements OnInit {
       });
       this.dataLoader.initializeStudent();
     });
+    let a;
+
+    let color = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
+
+    this.fiveColor = color.split('&')[0] != "" ? color.split('&')[0] : "#00CC66";
+    this.fourColor = color.split('&')[1] != "" ? color.split('&')[1] : "#FFFF66";
+    this.threeColor = color.split('&')[2] != "" ? color.split('&')[2] : "#FF9933";
+    this.twoColor = color.split('&')[3] != "" ? color.split('&')[3] : "#663300";
+    this.oneColor = color.split('&')[4] != "" ? color.split('&')[4] : "#FF0000";
+    this.noneColor = color.split('&')[5] != "" ? color.split('&')[5] : "#9933FF";
 
     this.firebase.setScreenName('evaluations');
   }
@@ -167,19 +182,6 @@ export class EvaluationsPage implements OnInit {
     });
 
     return this.selectOptions;
-  }
-
-  async ionViewDidEnter() {
-    let a;
-
-    let color = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
-
-    this.fiveColor = color.split('&')[0] != "" ? color.split('&')[0] : "#00CC66";
-    this.fourColor = color.split('&')[1] != "" ? color.split('&')[1] : "#FFFF66";
-    this.threeColor = color.split('&')[2] != "" ? color.split('&')[2] : "#FF9933";
-    this.twoColor = color.split('&')[3] != "" ? color.split('&')[3] : "#663300";
-    this.oneColor = color.split('&')[4] != "" ? color.split('&')[4] : "#FF0000";
-    this.noneColor = color.split('&')[5] != "" ? color.split('&')[5] : "#9933FF";
   }
 
   getMoreData(evaluation: evaluation) {
@@ -305,6 +307,8 @@ export class EvaluationsPage implements OnInit {
     this.data.setData("subject", subject);
     this.data.setData("student", this.student);
     this.data.setData("classValue", classValue);
+    this.sans = true;
+    this.showProgressBar = true;
     this.navRouter.navigateByUrl("/average-graphs?fromRoute=evaluations");
   }
 

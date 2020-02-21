@@ -39,13 +39,6 @@ export class KretaService {
 
   private thisError: HttpErrorResponse;
   private errorType: string;
-  //keys to delete cache by
-  private lessonKey: string;
-  private studentKey: string;
-  private studentHomeworkKey: string;
-  private teacherHomeworkKey: string;
-  private instituteKey: string;
-  private testKey: string;
   //after this time we will get a new access_token (ms)
   private authenticatedFor: number;
 
@@ -53,7 +46,6 @@ export class KretaService {
     private http: HTTP,
     private storage: Storage,
     private cache: CacheService,
-    private antiSpam: AntiSpamService,
     private authService: AuthenticationService,
     private router: Router,
     private fDate: FormattedDateService,
@@ -65,13 +57,7 @@ export class KretaService {
     private menuCtrl: MenuController,
     private notificationService: NotificationService,
   ) {
-    this.lessonKey = "";
-    this.studentKey = "";
-    this.studentHomeworkKey = "";
-    this.instituteKey = "";
-    this.studentHomeworkKey = "";
     this.authenticatedFor = 3500000;
-    this.testKey = "";
   }
   private access_token: string;
 
@@ -111,7 +97,7 @@ export class KretaService {
 
   //#region Authentication logic
   public async loginIfNotYetLoggedIn(forceLogin: boolean = false): Promise<any> {
-    if (this.authService.isLoginNeeded(this.authenticatedFor) || forceLogin) {
+    if (this.authService.isLoginNeeded(this.authenticatedFor) || forceLogin || this.access_token == null) {
       this.loginStatus.next("inProgress");
       //access_token expired
       this.errorType = "";
@@ -127,12 +113,11 @@ export class KretaService {
 
         console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken... (" + refreshToken + ")");
         this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken...');
-
-        this.authService.login()
         currentTokens = await this.renewToken(refreshToken);
 
         this.errorStatus.subscribe(async error => {
           if (error == 0) {
+            this.authService.login()
             this.storage.set('refresh_token', currentTokens.refresh_token);
             this.access_token = currentTokens.access_token;
             this.menuCtrl.enable(true);
@@ -600,16 +585,16 @@ export class KretaService {
     }
   }
 
-  public async getTests(fromDate: string, toDate: string): Promise<Test[]> {
+  public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false): Promise<Test[]> {
     await this.loginIfNotYetLoggedIn();
     this.institute = await this.getInstituteFromStorage();
     let cacheKey = '_testData';
-
-    let cacheDataIf = await this.cache.getCacheIf(cacheKey);
+    let cacheDataIf: any = false;
+    if (!forceRefresh) {
+      let cacheDataIf = await this.cache.getCacheIf(cacheKey);
+    }
 
     if (cacheDataIf == false) {
-
-      await this.loginIfNotYetLoggedIn();
 
       const headers = {
         'Authorization': 'Bearer ' + this.access_token,
@@ -678,11 +663,15 @@ export class KretaService {
     }
   }
 
-  public async getMessageList(skipCache: boolean = false): Promise<Message[]> {
+  public async getMessageList(forceRefresh: boolean = false): Promise<Message[]> {
     await this.loginIfNotYetLoggedIn();
     let cacheKey = '_messageListData';
-    let cacheDataIf = await this.cache.getCacheIf(cacheKey);
-    if (cacheDataIf == false || skipCache) {
+    let cacheDataIf: any = false;
+    if (!forceRefresh) {
+      cacheDataIf = await this.cache.getCacheIf(cacheKey);
+    }
+
+    if (cacheDataIf == false) {
       try {
         const headers = {
           "Accept": "application/json",
@@ -695,9 +684,7 @@ export class KretaService {
         let msgList = <Message[]>JSON.parse(response.data)
         console.log('msgList', msgList);
 
-        if (!skipCache) {
-          this.cache.setCache(cacheKey, msgList);
-        }
+        this.cache.setCache(cacheKey, msgList);
         return msgList;
       } catch (error) {
         console.error(error);

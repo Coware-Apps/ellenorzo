@@ -86,6 +86,7 @@ export class AppComponent {
     this.app.toastLoggingEnabled = await this.storage.get('toastLoggingEnabled') == true ? true : false;
     this.app.devSettingsEnabled = await this.storage.get('devSettingsEnabled') == true ? true : false;
     this.app.localNotificationsEnabled = await this.storage.get('localNotificationsEnabled') == false ? false : true;
+    this.app.collapsifyAnimationsEnabled = await this.storage.get('collapsifyAnimationsEnabled') == true ? true : false;
     let storedUA = await this.storage.get('userAgent');
     if (storedUA != null) {
       this.app.userAgent = storedUA;
@@ -102,28 +103,18 @@ export class AppComponent {
   }
 
   private async navigate() {
-    let state = this.authService.authenticationState.value;
-    var x = await this.storage.get("defaultPage");
-    if (state) {
-      //authenticated (from memory)
-      if (x != null) {
-        await this.router.navigate([x]);
+    if (await this.storage.get('refresh_token') != null) {
+      let storedDefaultPage = await this.storage.get("defaultPage");
+      if (storedDefaultPage != null) {
+
+        console.log('navResult', await this.router.navigateByUrl(storedDefaultPage));
+        console.log('Navigating to url', storedDefaultPage);
       } else {
-        await this.router.navigate([""]);
+        await this.router.navigateByUrl("");
+        console.log('navigating to timetable');
       }
     } else {
-      //not authenticated
-      if ((await this.storage.get("refresh_token")) != null) {
-        await this.kreta.loginIfNotYetLoggedIn().then(async event => {
-          if (x != null) {
-            await this.router.navigate([x]);
-          } else {
-            await this.router.navigate([""]);
-          }
-        });
-      } else {
-        await this.router.navigate(["login"]);
-      }
+      await this.router.navigate(["login"]);
     }
   }
 

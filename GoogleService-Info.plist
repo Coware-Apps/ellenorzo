@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>160386918075-sutff13bfr7nthum35ihuac3kctqvdi1.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.160386918075-sutff13bfr7nthum35ihuac3kctqvdi1</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>160386918075-09ckpp4vfk20ms38l4qg3k7vdgkg00i4.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD47_0Sye3QGaj2wXYV5c6gYT5VwBsflFk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>160386918075</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>hu.coware.ellenorzo</string>
+	<key>PROJECT_ID</key>
+	<string>coware-ellenorzo</string>
+	<key>STORAGE_BUCKET</key>
+	<string>coware-ellenorzo.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:160386918075:ios:a24c5002a1fe2d1b596b9e</string>
+	<key>DATABASE_URL</key>
+	<string>https://coware-ellenorzo.firebaseio.com</string>
+</dict>
+</plist>

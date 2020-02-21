@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { AuthGuardService } from './_services/auth-guard.service';
 
 const routes: Routes = [
   {
@@ -10,33 +9,27 @@ const routes: Routes = [
   },
   {
     path: 'home',
-    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule),
-    canActivate: [AuthGuardService]
+    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
   },
   {
     path: 'list',
     loadChildren: () => import('./list/list.module').then(m => m.ListPageModule),
-    canActivate: [AuthGuardService]
   },
   {
     path: 'monthly-average',
     loadChildren: () => import('./monthly-average/monthly-average.module').then( m => m.MonthlyAveragePageModule),
-    canActivate: [AuthGuardService]
   },
   {
     path: 'statistics',
     loadChildren: () => import('./statistics/statistics.module').then( m => m.StatisticsPageModule),
-    canActivate: [AuthGuardService]
   },
   {
     path: 'graphs',
     loadChildren: () => import('./graphs/graphs.module').then( m => m.GraphsPageModule),
-    canActivate: [AuthGuardService]
   },
   {
     path: 'settings',
     loadChildren: () => import('./settings/settings.module').then( m => m.SettingsPageModule),
-    canActivate: [AuthGuardService]
   },
   {
     path: 'login',
@@ -45,8 +38,8 @@ const routes: Routes = [
   {
     path: 'averages',
     loadChildren: () => import('./averages/averages.module').then( m => m.AveragesPageModule),
-    canActivate: [AuthGuardService]
-  },  {
+  },
+  {
     path: 'average-graphs',
     loadChildren: () => import('./average-graphs/average-graphs.module').then( m => m.AverageGraphsPageModule)
   },

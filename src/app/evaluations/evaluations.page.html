@@ -41,8 +41,10 @@
             <h1>{{dataGroup.header}}</h1>
           </ion-label>
         </ion-item-divider>
-        <div *ngFor="let evaluation of dataGroup.data" [hidden]=" !dataGroup.showAll">
-          <ion-card button (click)="this.getMoreData(evaluation)"
+        <div *ngFor="let evaluation of dataGroup.data" class="collapsible-wrapper"
+          [ngClass]="{'collapsed': !dataGroup.showAll && this.app.collapsifyAnimationsEnabled}">
+          <ion-card [hidden]="!dataGroup.showAll && !this.app.collapsifyAnimationsEnabled" class="collapsible" button
+            (click)="this.getMoreData(evaluation)"
             [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
             <ion-card-content>
               <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
@@ -92,8 +94,10 @@
             </ion-button>
           </ion-buttons>
         </ion-item-divider>
-        <div *ngFor="let evaluation of dataGroup.data" [hidden]="!dataGroup.showAll">
-          <ion-card button (click)="this.getMoreData(evaluation)"
+        <div *ngFor="let evaluation of dataGroup.data" class="collapsible-wrapper"
+          [ngClass]="{'collapsed': !dataGroup.showAll && this.app.collapsifyAnimationsEnabled}">
+          <ion-card [hidden]="!dataGroup.showAll && !this.app.collapsifyAnimationsEnabled" class="collapsible" button
+            (click)="this.getMoreData(evaluation)"
             [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
             <ion-card-content>
               <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>

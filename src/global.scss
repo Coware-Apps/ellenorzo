@@ -160,19 +160,28 @@ ul {
   list-style-type: square;
 }
 //for the collapsible item groups
-.collapsed {
-  animation-name: collapse;
-  animation-duration: 0.2s;
-  animation-fill-mode: forwards;
+.collapsible-wrapper {
+  display: block;
+  overflow: hidden;
 }
-
-//using max-height because percentages don't work
-@keyframes collapse {
-  from {
-    max-height: 150px;
-  }
-
-  to {
-    max-height: 0px;
-  }
+.collapsible-wrapper:after {
+  content: "";
+  height: 50px;
+  transition: height 0.3s linear, max-height 0s 0.3s linear;
+  max-height: 0px;
+}
+.collapsible {
+  transition: margin-bottom 0.3s cubic-bezier(0, 0, 0, 1);
+  max-height: 1000000px;
+}
+.collapsible-wrapper.collapsed > .collapsible {
+  margin-bottom: -2000px;
+  transition: margin-bottom 0.3s cubic-bezier(1, 0, 1, 1), visibility 0s 0.3s, max-height 0s 0.3s;
+  visibility: hidden;
+  max-height: 0;
+}
+.collapsible-wrapper.collapsed:after {
+  height: 0;
+  transition: height 0.3s linear;
+  max-height: 50px;
 }

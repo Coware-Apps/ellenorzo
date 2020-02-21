@@ -21,15 +21,18 @@
         <ion-icon *ngIf="!item.showAll" slot="end" name="chevron-forward"></ion-icon>
         <ion-icon *ngIf="item.showAll" slot="end" name="chevron-down"></ion-icon>
       </ion-item>
-      <ion-card [hidden]='!item.showAll' button (click)="getMoreData(note)" *ngFor="let note of item.data">
-        <ion-card-header>
-          <ion-card-subtitle>{{note.Teacher}} - {{note.CreatingTime.substring(0, 10)}}</ion-card-subtitle>
-          <ion-card-title>{{note.Title}}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          {{note.Content}}
-        </ion-card-content>
-      </ion-card>
+      <div class="collapsible-wrapper" [ngClass]="{'collapsed': !item.showAll && this.app.collapsifyAnimationsEnabled}">
+        <ion-card [hidden]="!item.showAll && !this.app.collapsifyAnimationsEnabled" class="collapsible" button
+          (click)="getMoreData(note)" *ngFor="let note of item.data">
+          <ion-card-header>
+            <ion-card-subtitle>{{note.Teacher}} - {{note.CreatingTime.substring(0, 10)}}</ion-card-subtitle>
+            <ion-card-title>{{note.Title}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            {{note.Content}}
+          </ion-card-content>
+        </ion-card>
+      </div>
     </div>
   </ion-list>
 

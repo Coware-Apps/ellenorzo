@@ -67,11 +67,20 @@ export class ColorService {
     if (this.currentTheme == 'custom' || this.currentTheme == "minimalDark") {
       return "yellow";
     } else if (this.currentTheme == 'dark') {
-      //the ion-card header color in dark mode (--ion-item-background)
       return "yellow";
     }
     else {
       return "";
+    }
+  }
+  getChartSecondarySeriesColor() {
+    if (this.currentTheme == 'custom' || this.currentTheme == "minimalDark") {
+      return "#aba76a";
+    } else if (this.currentTheme == 'dark') {
+      return "#aba76a";
+    }
+    else {
+      return "#7d7d7d";
     }
   }
   getChartPlotLineColor(count: number) {

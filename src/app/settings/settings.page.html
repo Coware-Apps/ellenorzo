@@ -32,7 +32,7 @@
       </ion-item>
 
       <ion-item button (click)="enableCustom()">
-        <ion-label>[Exp] Saját háttér</ion-label>
+        <ion-label>Saját háttér</ion-label>
         <ion-icon [color]="currentTheme == 'custom' ? 'primary': ''" slot="start" name="image"></ion-icon>
         <ion-buttons slot="end">
           <ion-button (click)="openBgSettings()">
@@ -94,6 +94,19 @@
 
     <ion-item-divider>
       <ion-label>
+        <h1>Teljesítmény</h1>
+      </ion-label>
+    </ion-item-divider>
+    <ion-item>
+      <ion-icon slot="start" name="layers"></ion-icon>
+      <ion-label>[Exp] Animált lista csoportosítás</ion-label>
+      <ion-toggle [checked]="this.app.collapsifyAnimationsEnabled"
+        (ionChange)="this.app.changeConfig('collapsifyAnimationsEnabled', $event.detail.checked)" slot="end">
+      </ion-toggle>
+    </ion-item>
+
+    <ion-item-divider>
+      <ion-label>
         <h1>Adatkezelés</h1>
       </ion-label>
     </ion-item-divider>
@@ -147,9 +160,11 @@
       </ion-label>
     </ion-item-divider>
     <ion-item button (click)="this.versionClicked()">
+      <ion-icon slot="start" name="code-working-sharp"></ion-icon>
       <ion-label>{{this.app.appV}}</ion-label>
     </ion-item>
     <ion-item button (click)="openUrl('https://documenter.getpostman.com/view/10379752/SzKPULz6')">
+      <ion-icon slot="start" name="cloud-sharp"></ion-icon>
       <ion-label>KRÉTA API dokumentáció</ion-label>
     </ion-item>
   </ion-list>
