@@ -5,7 +5,7 @@
         <ion-icon slot="start" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-  <ion-title>Színválasztás - {{title}}</ion-title>
+    <ion-title>Színválasztás - {{title}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -151,50 +151,58 @@
   </div>
 
 
-<ion-item style="text-align: center;">
-  <div [ngStyle]="{'background-color': this.color}">
-    <p>Koppints egy értékre, hogy az általad választott színt beállítsd!</p>
-  </div>
-</ion-item>
-    <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">
-      <ion-slide class="wide">
-        <ion-card class="home" *ngFor="let number of [5, 4, 3, 2, 1, 0]" (click)="changeColor(number)" [style.box-shadow]="'0px 0px 7px 3px ' + returnColor(number)">
-          <ion-card-content class="home">
-            <div style="float: right;">
-              <h1 slot="start">{{number == 0 ? "-" : number}}</h1>
-            </div>
-            <ion-label>
-              <h1 class="tl"> Tantárgy</h1>
-            </ion-label>
-            <ion-label><p class="tl">Tanár</p></ion-label>
-            <ion-label><p class="tl">2000-01-01</p></ion-label>
-          </ion-card-content>
-        </ion-card>
-      </ion-slide>
-      <ion-slide class="wide">
-          <ion-card class="averages" *ngFor="let number of [5, 4, 3, 2, 1]" (click)="changeColor(number)" [style.box-shadow]="'0px 0px 7px 3px ' + returnColor(number)">
-            <ion-card-content class="averages">
-              <div style="float: right;">
-                <h1 [ngStyle]="{'color': colorService.getContrast()}">{{number}}</h1>
-              </div>
-              <ion-card-title><h1 class="tl">Tantárgy</h1></ion-card-title>
-              <ion-card-subtitle [ngStyle]="{'color': colorService.getContrast()}" class="tl">Osztályátlag: {{number}}
-              </ion-card-subtitle>
-            </ion-card-content>
-          </ion-card>
-      </ion-slide>
-      <ion-slide class="wide">
-        <ion-card class="wide">
-          <div id="pie_0" class="chart"></div>
-          <ion-card-header>
-            <ion-card-title>Összátlag: 5.0</ion-card-title>
-            <ion-card-subtitle>Összes jegy: 99</ion-card-subtitle>
-          </ion-card-header>
-          <ion-card-content>
-          </ion-card-content>
-        </ion-card>
-      </ion-slide>
-    </ion-slides>
+  <ion-item style="text-align: center;">
+    <div class="color-indicator-box" [ngStyle]="{'background-color': this.color}">
+      <p>Koppints egy értékre, hogy az általad választott színt beállítsd!</p>
+    </div>
+  </ion-item>
+  <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">
+    <ion-slide class="wide">
+      <ion-card class="home" *ngFor="let number of [5, 4, 3, 2, 1, 0]" (click)="changeColor(number)"
+        [style.box-shadow]="'0px 0px 7px 3px ' + returnColor(number)">
+        <ion-card-content class="home">
+          <div style="float: right;">
+            <h1 slot="start">{{number == 0 ? "-" : number}}</h1>
+          </div>
+          <ion-label>
+            <h1 class="tl"> Tantárgy</h1>
+          </ion-label>
+          <ion-label>
+            <p class="tl">Tanár</p>
+          </ion-label>
+          <ion-label>
+            <p class="tl">2000-01-01</p>
+          </ion-label>
+        </ion-card-content>
+      </ion-card>
+    </ion-slide>
+    <ion-slide class="wide">
+      <ion-card class="averages" *ngFor="let number of [5, 4, 3, 2, 1]" (click)="changeColor(number)"
+        [style.box-shadow]="'0px 0px 7px 3px ' + returnColor(number)">
+        <ion-card-content class="averages">
+          <div style="float: right;">
+            <h1 [ngStyle]="{'color': colorService.getContrast()}">{{number}}</h1>
+          </div>
+          <ion-card-title>
+            <h1 class="tl">Tantárgy</h1>
+          </ion-card-title>
+          <ion-card-subtitle [ngStyle]="{'color': colorService.getContrast()}" class="tl">Osztályátlag: {{number}}
+          </ion-card-subtitle>
+        </ion-card-content>
+      </ion-card>
+    </ion-slide>
+    <ion-slide class="wide">
+      <ion-card class="wide">
+        <div id="pie_0" class="chart"></div>
+        <ion-card-header>
+          <ion-card-title>Összátlag: 5.0</ion-card-title>
+          <ion-card-subtitle>Összes jegy: 99</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+        </ion-card-content>
+      </ion-card>
+    </ion-slide>
+  </ion-slides>
 </ion-content>
 
 <ion-footer>
@@ -203,7 +211,7 @@
       <ion-segment-button value="0">
         <ion-icon name="home-outline"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button  value="1">
+      <ion-segment-button value="1">
         <ion-icon name="trending-up"></ion-icon>
       </ion-segment-button>
       <ion-segment-button value="2">

@@ -55,8 +55,7 @@ export class TestsPage implements OnInit {
         }
       });
     });
-    this.dataLoader.initializeTests();
-
+    this.dataLoader.initializeTests()
     this.firebase.setScreenName('tests');
   }
 

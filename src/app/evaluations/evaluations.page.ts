@@ -1,18 +1,18 @@
-import { Component, OnInit, getDebugNode } from '@angular/core';
+import { Component, OnInit, getDebugNode, ViewChild } from '@angular/core';
 import { KretaService } from '../_services/kreta.service';
 import { Student, evaluation } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { ColorService } from '../_services/color.service';
 import { AverageGraphsPage } from '../average-graphs/average-graphs.page';
 import { Storage } from '@ionic/storage';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, IonSelect } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { DataLoaderService } from '../_services/data-loader.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Subject, BehaviorSubject } from 'rxjs';
 import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.service';
 import { AppService } from '../_services/app.service';
 
@@ -30,10 +30,13 @@ interface SelectOption {
 })
 export class EvaluationsPage implements OnInit {
 
+  @ViewChild('categorySelector', null) categorySelector: IonSelect;
+
   //for the selector
-  customPopoverOptions: any = {
+  customAlertOptions: any = {
     subHeader: 'Rendezés és megjelenítés',
     cssClass: this.color.getPopUpClass(),
+
   };
 
   public dates: string[];
@@ -85,7 +88,7 @@ export class EvaluationsPage implements OnInit {
     empty: false,
     data: [],
   }]
-  public selectOptionsWithData: Observable<SelectOption[]>
+  public selectOptionsWithData: Subject<SelectOption[]>
 
   private student: Student;
   private studentSubscription: Subscription;
@@ -114,27 +117,33 @@ export class EvaluationsPage implements OnInit {
 
   }
   async ionViewDidEnter() {
-    this.selectOptionsWithData = new Observable<SelectOption[]>((observer) => {
-      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
-        if (subscriptionData.type == "skeleton") {
-          //there is no data in the storage, showing skeleton text until the server responds
-        } else if (subscriptionData.type == "placeholder") {
-          //there is data in the storage, showing that data until the server responds, disabling skeleton text
-          this.loadedEvaluations = subscriptionData.data.Evaluations;
-          observer.next(this.formatEvaluations(subscriptionData.data.Evaluations));
-          this.sans = false;
-        } else {
-          //the server has now responded, disabling progress bar and skeleton text if it's still there
-          this.loadedEvaluations = subscriptionData.data.Evaluations;
-          //only storing the entire student when the site has completely loaded, because we only need it for when the user clicks the average-graphs button
-          this.student = subscriptionData.data;
-          observer.next(this.formatEvaluations(subscriptionData.data.Evaluations));
-          this.showProgressBar = false;
-          this.sans = false;
-        }
-      });
-      this.dataLoader.initializeStudent();
+    this.selectOptionsWithData = new Subject<SelectOption[]>();
+
+    this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+      if (subscriptionData.type == "skeleton") {
+        //there is no data in the storage, showing skeleton text until the server responds
+      } else if (subscriptionData.type == "placeholder") {
+        //there is data in the storage, showing that data until the server responds, disabling skeleton text
+        this.loadedEvaluations = subscriptionData.data.Evaluations;
+        let evaluations = this.formatEvaluations(subscriptionData.data.Evaluations);
+        console.log("currently displaying", evaluations);
+        this.selectOptionsWithData.next(evaluations);
+        this.sans = false;
+
+      } else {
+        //the server has now responded, disabling progress bar and skeleton text if it's still there
+        this.loadedEvaluations = subscriptionData.data.Evaluations;
+        //only storing the entire student when the site has completely loaded, because we only need it for when the user clicks the average-graphs button
+        this.student = subscriptionData.data;
+        this.selectOptionsWithData.next(this.formatEvaluations(subscriptionData.data.Evaluations));
+        console.log("currently displaying", this.formatEvaluations(subscriptionData.data.Evaluations));
+        this.showProgressBar = false;
+        this.sans = false;
+      }
     });
+    this.dataLoader.initializeStudent();
+
+
     let a;
 
     let color = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
@@ -153,6 +162,11 @@ export class EvaluationsPage implements OnInit {
     this.studentSubscription.unsubscribe();
   }
 
+  openCategorySelector(event: UIEvent) {
+    this.categorySelector.interface = 'popover';
+    this.categorySelector.open(event);
+  }
+
   async doRefresh(event: any) {
     console.log("begin operation");
     this.showProgressBar = true;
@@ -165,6 +179,15 @@ export class EvaluationsPage implements OnInit {
       switch (option.id) {
         case 'bySubject':
           option.data = this.collapsify.collapsifyByNames(this.getMidYearEvaluations(evaluations), 'Subject', 'CreatingTime');
+          option.data.sort((x, y) => x.index - y.index);
+          let optionData = option.data;
+          optionData.forEach(collapsibleGroup => {
+            console.log("collapsibleGroup.inded", collapsibleGroup.index);
+            if (collapsibleGroup.index != 0 && collapsibleGroup.index != 1) {
+              collapsibleGroup.showAll = false;
+            };
+          });
+          option.data = optionData;
           break;
         case 'byDate':
           option.data = this.collapsify.collapsifyByDates(this.getMidYearEvaluations(evaluations), 'CreatingTime');
@@ -180,6 +203,8 @@ export class EvaluationsPage implements OnInit {
           break;
       }
     });
+    console.log("this.selectoptions", this.selectOptions);
+
 
     return this.selectOptions;
   }

@@ -31,14 +31,12 @@ import { Message } from '../_models/message';
 export class KretaService {
 
   public errorStatus = new BehaviorSubject(0);
-  public loginStatus = new BehaviorSubject("init");
   public institute: Institute;
   public password: string;
   public decoded_user: DecodedUser;
   public registrationId: string;
 
   private thisError: HttpErrorResponse;
-  private errorType: string;
   //after this time we will get a new access_token (ms)
   private authenticatedFor: number;
 
@@ -57,7 +55,8 @@ export class KretaService {
     private menuCtrl: MenuController,
     private notificationService: NotificationService,
   ) {
-    this.authenticatedFor = 3500000;
+    this.authenticatedFor = 3400000;
+    this.errorHandler();
   }
   private access_token: string;
 
@@ -98,59 +97,52 @@ export class KretaService {
   //#region Authentication logic
   public async loginIfNotYetLoggedIn(forceLogin: boolean = false): Promise<any> {
     if (this.authService.isLoginNeeded(this.authenticatedFor) || forceLogin || this.access_token == null) {
-      this.loginStatus.next("inProgress");
       //access_token expired
-      this.errorType = "";
 
       let currentTokens: Token;
       let storedUsername = await this.storage.get('username');
+      await this.getInstituteFromStorage();
       let password = this.password;
 
       let refreshToken = await this.storage.get('refresh_token');
       if (refreshToken != null) {
         //renewing tokens
-        this.errorType = "";
-
         console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken... (" + refreshToken + ")");
         this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Renewing Tokens using refreshtoken...');
         currentTokens = await this.renewToken(refreshToken);
 
-        this.errorStatus.subscribe(async error => {
+        let eSubscription = this.errorStatus.subscribe(async error => {
           if (error == 0) {
             this.authService.login()
             this.storage.set('refresh_token', currentTokens.refresh_token);
             this.access_token = currentTokens.access_token;
             this.menuCtrl.enable(true);
             return true;
-          } else if (this.errorType == "invalid_grant") {
-            //invalid user/pass
-            this.prompt.errorToast("Hibás felhasználónév vagy jelszó");
-            this.storage.remove("username");
-            this.storage.remove("password");
-            this.authService.logout();
-            this.menuCtrl.enable(false);
-            return false;
           }
         });
+        eSubscription.unsubscribe();
       }
       else {
         //login
         console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Getting tokens using credentials");
         this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Getting tokens using credentials');
+
         currentTokens = await this.getToken(storedUsername, password);
 
-        this.errorStatus.subscribe(error => {
+        let eSubscription = this.errorStatus.subscribe(error => {
           if (error == 0) {
             //successful login
+            if (this.jwtDecoder.decodeToken(currentTokens.access_token).role.indexOf('Tanar') != -1) {
+              this.prompt.presentUniversalAlert("Figyelem!", null, "A bejelentkezéshez 'Tanuló' vagy 'Szülő' szerepkör szükséges. Tanároknak a Napló+ alkalmazást ajánljuk.")
+            }
             this.storage.set('refresh_token', currentTokens.refresh_token);
             this.access_token = currentTokens.access_token;
             this.authService.login();
-            this.router.navigate(['']);
             this.menuCtrl.enable(true);
+            this.router.navigate(['home']);
             return true;
-          } else if (this.errorType == "invalid_grant") {
+          } else if (error == 401) {
             //invalid user/pass
-            this.prompt.errorToast("Hibás felhasználónév vagy jelszó");
             this.logout();
             this.menuCtrl.enable(false);
             return false;
@@ -158,20 +150,18 @@ export class KretaService {
             return false;
           }
         });
+        eSubscription.unsubscribe();
       }
-      this.loginStatus.next("done");
     } else {
       //already logged in, no need to refresh access_token yet
       console.log("[KRÉTA->LoginIfNotYetLoggedIn()] Already logged in, access_token:", this.access_token);
       this.prompt.butteredToast('[KRÉTA->LoginIfNotYetLoggedIn()] Already logged in');
       return true;
     }
-    this.loginStatus.next("done");
   }
 
   public async logout() {
     this.access_token = null;
-    this.errorType = "";
     this.thisError = null;
 
     await this.firebase.unregister();
@@ -214,6 +204,9 @@ export class KretaService {
           //known KRÉTA errors
           this.prompt.errorToast("Hiba a KRÉTA szerverrel!")
           break;
+        case 401:
+          this.prompt.errorToast("Hibás bejelentkezési adatok!");
+          break;
 
         default:
           if (error >= 500 && 600 > error) {
@@ -235,7 +228,6 @@ export class KretaService {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json'
       };
-      this.errorType = "";
       const params = {
         'userName': username,
         'password': password,
@@ -263,12 +255,6 @@ export class KretaService {
       console.error("Hiba történt a 'Token' lekérése közben", error);
       //with behaviorsubject
       this.errorStatus.next(error.status);
-      this.errorHandler();
-      this.thisError = error.error.substring(10, 23);
-      if (this.thisError.toString() == "invalid_grant") {
-        this.prompt.errorToast("Hibás felhasználónév vagy jelszó!");
-        this.logout();
-      }
     }
   }
 
@@ -298,7 +284,6 @@ export class KretaService {
     } catch (error) {
       console.error("Hiba a 'Token' lekérése közben: ", error);
       this.errorStatus.next(await error.status);
-      this.errorHandler();
     }
   }
   //#endregion
@@ -337,7 +322,6 @@ export class KretaService {
       catch (error) {
         console.error("Hiba a tanuló lekérdezése közben", error);
         this.errorStatus.next(await error.status);
-        this.errorHandler();
       }
     } else {
       return <Student>cacheDataIf;
@@ -401,7 +385,6 @@ export class KretaService {
       } catch (error) {
         console.error("Hiba történt a 'Lesson' lekérése közben: ", error);
         this.errorStatus.next(await error.status);
-        this.errorHandler();
       }
     } else {
       return <Lesson[]>cacheDataIf;
@@ -468,7 +451,6 @@ export class KretaService {
         } catch (error) {
           console.error("Hiba történt a 'TanuloHaziFeladat' lekérése közben: ", error);
           this.errorStatus.next(await error.status);
-          this.errorHandler();
         }
       } else {
         return cacheDataIf;
@@ -493,7 +475,6 @@ export class KretaService {
       } catch (error) {
         console.error("Hiba történt a 'TanuloHaziFeladat' lekérése közben: ", error);
         this.errorStatus.next(await error.status);
-        this.errorHandler();
       }
     }
   }
@@ -549,7 +530,6 @@ export class KretaService {
         } catch (error) {
           console.error("Hiba történt a 'TanarHaziFeladat' lekérése közben: ", error);
           this.errorStatus.next(await error.status);
-          this.errorHandler();
         }
       } else {
         return cacheDataIf;
@@ -580,7 +560,6 @@ export class KretaService {
       } catch (error) {
         console.error("Hiba történt a 'TanarHaziFeladat' lekérése közben: ", error);
         this.errorStatus.next(await error.status);
-        this.errorHandler();
       }
     }
   }
@@ -621,7 +600,6 @@ export class KretaService {
       } catch (error) {
         console.error("Hiba történt a 'Számonkérések' lekérése közben: ", error);
         this.errorStatus.next(await error.status);
-        this.errorHandler();
       }
     } else {
       return <Test[]>cacheDataIf;
@@ -656,7 +634,6 @@ export class KretaService {
       }
       catch (error) {
         this.errorStatus.next(error.status);
-        this.errorHandler;
       }
     } else {
       return <Institute[]>cacheDataIf;
@@ -688,8 +665,8 @@ export class KretaService {
         return msgList;
       } catch (error) {
         console.error(error);
-        this.errorStatus.next(error.status);
-        this.errorHandler();
+        this.prompt.presentUniversalAlert("Üzenet a fejlesztőtől", "KRÉTA szerver oldali limitáció", "A krétások nemrég elkezdtek valamit fejleszteni az e-üzenetek API-n. A hivatalos appban sem működik (csak ott nem mutat hibaüzenetet sem, egyszerűen nem frissíti az üzenetek listáját...) Szándékomban áll jelezni feléjük, hogy a funkcióra a felhasználóknak szüksége van és igyekezni kéne a javítással. Üdv. 3niXboi")
+        // this.errorStatus.next(error.status);
       }
     } else {
       return <Message[]>cacheDataIf;
@@ -712,7 +689,6 @@ export class KretaService {
     } catch (error) {
       console.error(error);
       this.errorStatus.next(error.status);
-      this.errorHandler();
     }
   }
 
@@ -747,7 +723,6 @@ export class KretaService {
     } catch (error) {
       console.error(consoleText, error);
       this.errorStatus.next(error.status);
-      this.errorHandler();
     }
   }
 
@@ -757,7 +732,6 @@ export class KretaService {
       return <MobileVersionInfo>JSON.parse(response.data);
     } catch (error) {
       this.errorStatus.next(error.status);
-      this.errorHandler();
     }
   }
 
@@ -769,7 +743,6 @@ export class KretaService {
       return JSON.parse(response.data).GlobalMobileApiUrlPROD;
     } catch (error) {
       this.errorStatus.next(error.status);
-      this.errorHandler();
     }
   }
   //#endregion
@@ -807,7 +780,6 @@ export class KretaService {
     } catch (error) {
       console.error("Hiba történt a Tanuló házi feladat hozzáadása közben: ", error);
       this.errorStatus.next(await error.status);
-      this.errorHandler();
     }
   }
   //#endregion
@@ -831,7 +803,6 @@ export class KretaService {
     } catch (error) {
       console.error("Hiba történt a Tanuló házi feladat törlése közben: ", error);
       this.errorStatus.next(await error.status);
-      this.errorHandler();
       return false;
     }
   }
@@ -924,7 +895,6 @@ export class KretaService {
     } catch (error) {
       console.error("Hiba történt a 'Lesson' lekérése közben: ", error);
       this.errorStatus.next(await error.status);
-      this.errorHandler();
       return 0;
     }
   }

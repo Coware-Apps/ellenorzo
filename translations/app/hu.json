@@ -1,0 +1,9 @@
+{
+    "config_ios": {
+        "CFBundleName": "Arisztokréta",
+        "CFBundleDisplayName": "Arisztokréta"
+    },
+    "config_android": {
+        "app_name": "Arisztokréta"
+    }
+}

@@ -141,4 +141,15 @@ export class CollapsifyService {
 
     return sortedData;
   }
+
+  closeAllOpenTop(universalSortedData: UniversalSortedData[]): UniversalSortedData[] {
+    for (let i = 0; i < universalSortedData.length; i++) {
+      if (i == 0) {
+        universalSortedData[i].showAll = true;
+      } else {
+        universalSortedData[i].showAll = false;
+      }
+    }
+    return universalSortedData;
+  }
 }

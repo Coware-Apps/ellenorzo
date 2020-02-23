@@ -68,6 +68,7 @@ export class ThemeService {
     this.renderer.removeClass(this.document.body, 'dark-theme');
 
     //remove custom css styles here
+    this.renderer.removeStyle(this.document.body, 'background-image');
     this.renderer.removeStyle(this.document.body, 'background-size');
     this.renderer.removeStyle(this.document.body, 'background-position-x');
     this.renderer.removeStyle(this.document.body, 'background-position-y');

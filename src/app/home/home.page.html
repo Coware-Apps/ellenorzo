@@ -24,94 +24,81 @@
   </ion-refresher>
   <ion-list>
     <div *ngFor="let monthlyGrades of this.formattedStudent | async">
-      <ion-item-divider>
+      <ion-item button (click)="showOrHideMonth(monthlyGrades)">
+        <ion-icon *ngIf="!monthlyGrades.showAll" slot="start" name="chevron-forward"></ion-icon>
+        <ion-icon *ngIf="monthlyGrades.showAll" slot="start" name="chevron-down"></ion-icon>
         <ion-label>{{monthlyGrades.header}}</ion-label>
         <ion-buttons slot="end">
-          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('evaluations', monthlyGrades)">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showEvaluations ? 'primary' : ''" name="school-outline">
+          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('evaluations', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showEvaluations ? 'primary' : 'dark'" name="school-outline">
             </ion-icon>
           </ion-button>
-          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('absences', monthlyGrades)">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showAbsences ? 'primary' : ''" name="calendar-outline">
+          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('absences', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showAbsences ? 'primary' : 'dark'" name="calendar-outline">
             </ion-icon>
           </ion-button>
-          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('notes', monthlyGrades)">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showNotes ? 'primary' : ''" name="document-text-outline">
+          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('notes', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showNotes ? 'primary' : 'dark'" name="document-text-outline">
             </ion-icon>
-          </ion-button>
-          <ion-button (click)="showOrHideMonth(monthlyGrades)">
-            <ion-icon *ngIf="monthlyGrades.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
-            <ion-icon *ngIf="!monthlyGrades.showAll" slot="icon-only" name="chevron-down"></ion-icon>
           </ion-button>
         </ion-buttons>
-      </ion-item-divider>
+      </ion-item>
       <div *ngFor="let item of monthlyGrades.data">
         <!-- Evaluation -->
-        <div class="collapsible-wrapper"
-          [ngClass]="{'collapsed': (!monthlyGrades.showEvaluations || !monthlyGrades.showAll) && this.app.collapsifyAnimationsEnabled}">
-          <ion-card class="evaluationCard collapsible" button
-            *ngIf="item.EvaluationId != null && item.Type == 'MidYear'"
-            [hidden]="(!monthlyGrades.showEvaluations || !monthlyGrades.showAll) && !this.app.collapsifyAnimationsEnabled"
-            (click)="getMoreData(item)"
-            [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.NumberValue, item.Form)">
-            <ion-card-content>
-              <div *ngIf="item.NumberValue == 0 then thenblock else elseblock"></div>
-              <!-- NumberValue == 0 -->
-              <ng-template #thenblock>
-                <div class="evaluationH1" style="float: right">
-                  <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'">-</h1>
-                  <ion-buttons *ngIf="item.Form == 'Text'" slot="end">
-                    <ion-button>
-                      <ion-icon slot="icon-only" name="text"></ion-icon>
-                    </ion-button>
-                  </ion-buttons>
-                </div>
-              </ng-template>
-              <!-- NumberValue != 0 -->
-              <ng-template #elseblock>
-                <div class="evaluationDiv" style="float: right;">
-                  <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'" slot="start">{{item.NumberValue}}</h1>
-                  <h1 class="evaluationH1" *ngIf="item.Form == 'Percent'" slot="start">{{item.NumberValue}}%</h1>
-                </div>
-              </ng-template>
-              <ion-label>
-                <h1>{{item.Subject}} <small>{{item.Weight}}</small></h1>
+        <ion-card class="evaluationCard" button *ngIf="item.EvaluationId != null && item.Type == 'MidYear' && !(!monthlyGrades.showEvaluations || !monthlyGrades.showAll)"
+          (click)="getMoreData(item)"
+          [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.NumberValue, item.Form)">
+          <ion-card-content>
+            <div *ngIf="item.NumberValue == 0 then thenblock else elseblock"></div>
+            <!-- NumberValue == 0 -->
+            <ng-template #thenblock>
+              <div class="evaluationH1" style="float: right">
+                <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'">-</h1>
+                <ion-buttons *ngIf="item.Form == 'Text'" slot="end">
+                  <ion-button>
+                    <ion-icon slot="icon-only" name="text"></ion-icon>
+                  </ion-button>
+                </ion-buttons>
+              </div>
+            </ng-template>
+            <!-- NumberValue != 0 -->
+            <ng-template #elseblock>
+              <div class="evaluationDiv" style="float: right;">
+                <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'" slot="start">{{item.NumberValue}}</h1>
+                <h1 class="evaluationH1" *ngIf="item.Form == 'Percent'" slot="start">{{item.NumberValue}}%</h1>
+              </div>
+            </ng-template>
+            <ion-label>
+              <h1>{{item.Subject}} <small>{{item.Weight}}</small></h1>
 
-              </ion-label>
-              <ion-label slot="start">{{item.Teacher + themeIf(item.Theme)}}</ion-label>
-              <br>
-              <ion-label slot="end">{{fDate.formatDateWithZerosAndDots(item.CreatingTime)}}</ion-label>
-              <br>
-              <ion-label slot="end"></ion-label>
-            </ion-card-content>
-          </ion-card>
-        </div>
+            </ion-label>
+            <ion-label slot="start">{{item.Teacher + themeIf(item.Theme)}}</ion-label>
+            <br>
+            <ion-label slot="end">{{fDate.formatDateWithZerosAndDots(item.CreatingTime)}}</ion-label>
+            <br>
+            <ion-label slot="end"></ion-label>
+          </ion-card-content>
+        </ion-card>
         <!-- Absence -->
-        <div class="collapsible-wrapper"
-          [ngClass]="{'collapsed': (!monthlyGrades.showAbsences || !monthlyGrades.showAll) && this.app.collapsifyAnimationsEnabled}">
-          <ion-item
-            [hidden]="(!monthlyGrades.showAbsences || !monthlyGrades.showAll) && !this.app.collapsifyAnimationsEnabled"
-            class="collapsible" button *ngIf="item.AbsenceId != null" (click)="getMoreData(item)">
-            <ion-icon slot="start"
-              [name]="item.JustificationState == 'Justified' ? 'checkmark-done' : item.JustificationState == 'BeJustified' ? 'warning' : 'close'"
-              [class]="item.JustificationState == 'Justified' ? 'green' : item.JustificationState == 'BeJustified' ? 'yellow' : 'red'"
-              size="large"></ion-icon>
-            <ion-label class="ion-text-wrap">
-              {{item.Subject}}<br>
-              {{item.TypeName}}
-              <p *ngIf="item.Type == 'Delay'">({{item.DelayTimeMinutes}}p.)</p>
-            </ion-label>
-            <ion-label class="ion-text-wrap">
-              {{item.Teacher}}
-            </ion-label>
-          </ion-item>
-        </div>
+        <ion-item button *ngIf="item.AbsenceId != null && !(!monthlyGrades.showAbsences || !monthlyGrades.showAll)"
+          (click)="getMoreData(item)">
+          <ion-icon slot="start"
+            [name]="item.JustificationState == 'Justified' ? 'checkmark-done' : item.JustificationState == 'BeJustified' ? 'warning' : 'close'"
+            [class]="item.JustificationState == 'Justified' ? 'green' : item.JustificationState == 'BeJustified' ? 'yellow' : 'red'"
+            size="large"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            {{item.Subject}}<br>
+            {{item.TypeName}}
+            <p *ngIf="item.Type == 'Delay'">({{item.DelayTimeMinutes}}p.)</p>
+          </ion-label>
+          <ion-label class="ion-text-wrap">
+            {{item.Teacher}}
+          </ion-label>
+        </ion-item>
         <!-- Note -->
-        <div class="collapsible-wrapper"
-          [ngClass]="{'collapsed': (!monthlyGrades.showNotes || !monthlyGrades.showAll) && this.app.collapsifyAnimationsEnabled}">
-          <ion-card
-            [hidden]="(!monthlyGrades.showNotes || !monthlyGrades.showAll) && !this.app.collapsifyAnimationsEnabled"
-            class="collapsible" button *ngIf="item.NoteId != null" (click)="getMoreData(item)">
+        <div>
+          <ion-card button *ngIf="item.NoteId != null && !(!monthlyGrades.showNotes || !monthlyGrades.showAll)"
+            (click)="getMoreData(item)">
             <ion-card-header>
               <ion-card-subtitle>{{item.Teacher}} - {{this.fDate.formatDateWithZerosAndDots(item.CreatingTime)}}
               </ion-card-subtitle>

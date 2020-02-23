@@ -3,6 +3,7 @@ import { Storage } from '@ionic/storage';
 import { AppService } from 'src/app/_services/app.service';
 import { AppComponent } from 'src/app/app.component';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { PromptService } from 'src/app/_services/prompt.service';
 
 @Component({
   selector: 'app-hide-page-settings',
@@ -23,6 +24,7 @@ export class HidePageSettingsPage implements OnInit {
     private app: AppService,
     private storage: Storage,
     private firebase: FirebaseX,
+    private prompt: PromptService,
     ) {  
 
     }
@@ -49,6 +51,10 @@ export class HidePageSettingsPage implements OnInit {
   hide(page: string) {
     this.app.hidePage(page);
     this.appPages = this.app.appPages;
+  }
+
+  showHideInfo() {
+    this.prompt.presentUniversalAlert("Oldalak elrejtése", null, "Megadhatod, hogy melyik oldalak jelenjenek meg a menüben és melyek ne. Ez azért hasznos, mert vannak olyan iskolák, ahol bizonyos funkciók le vannak tiltva.")
   }
 
 }

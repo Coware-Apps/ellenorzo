@@ -3,6 +3,11 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" class="galleryButton" (click)="showHideInfo()">
+        <ion-icon name="information-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Oldalak elrejtése</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -13,10 +18,10 @@
       <ion-item *ngIf="page.title != 'Beállítások'" >
         <ion-label>{{page.title}}</ion-label>
         <ion-buttons slot="end">
-          <ion-button [color]="page.show ? 'primary' : ''" (click)="show(page.title)">
+          <ion-button [color]="page.show ? 'primary' : 'dark'" (click)="show(page.title)">
             <ion-icon slot="icon-only" name="eye"></ion-icon>
           </ion-button>
-          <ion-button [color]="!page.show ? 'primary' : ''" (click)="hide(page.title)">
+          <ion-button [color]="!page.show ? 'primary' : 'dark'" (click)="hide(page.title)">
             <ion-icon slot="icon-only" name="eye-off"></ion-icon>
           </ion-button>
         </ion-buttons>

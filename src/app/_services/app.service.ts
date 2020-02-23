@@ -21,7 +21,6 @@ export class AppService {
   public devSettingsEnabled: boolean;
   public localNotificationsEnabled: boolean;
   public userAgent: string;
-  public collapsifyAnimationsEnabled: boolean;
 
   constructor(
     private storage: Storage,

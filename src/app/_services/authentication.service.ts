@@ -14,9 +14,7 @@ export class AuthenticationService {
   public authenticationTime = new BehaviorSubject(new Date().valueOf());
 
   constructor(
-    private storage: Storage,
     private plt: Platform,
-    private cache: CacheService,
     private router: Router,
   ) {
     this.authenticationTime = new BehaviorSubject(new Date().valueOf());
@@ -38,16 +36,16 @@ export class AuthenticationService {
 
   isLoginNeeded(authFor: number) {
 
-      let date = new Date().valueOf()
-      if (this.authenticationTime.value + authFor < date) {
-        console.log("[AUTH->isLoginNeeded()] New login needed");
-        return true;
-      }
-      else {
-        console.log("[AUTH->isLoginNeeded()] No login needed (time until next login: " + ((date - this.authenticationTime.value) / 1000) + "s/" + (authFor / 1000) + "s)");
-        return false;
-      }
-    } 
+    let date = new Date().valueOf()
+    if (this.authenticationTime.value + authFor < date) {
+      console.log("[AUTH->isLoginNeeded()] New login needed");
+      return true;
+    }
+    else {
+      console.log("[AUTH->isLoginNeeded()] No login needed (time until next login: " + ((date - this.authenticationTime.value) / 1000) + "s/" + (authFor / 1000) + "s)");
+      return false;
+    }
+  }
 
   //not Async
   isAuthenticated() {

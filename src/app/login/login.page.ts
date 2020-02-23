@@ -50,7 +50,6 @@ export class LoginPage implements OnInit, OnDestroy {
       await this.storage.set('institute', this.data.getData('institute'));
       this.kreta.password = this.pass;
       await this.kreta.loginIfNotYetLoggedIn(true);
-
     }
   }
 

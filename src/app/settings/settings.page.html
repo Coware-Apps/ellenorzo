@@ -67,10 +67,7 @@
         </div>
       </ion-select>
     </ion-item>
-    <ion-button fill="clear" class="galleryButton" (click)="showHideInfo()">
-      <ion-icon name="information-circle-outline"></ion-icon>
-    </ion-button>
-    <ion-item button class="width80" (click)="hidePages()">
+    <ion-item button (click)="hidePages()">
       <ion-icon slot="start" name="eye"></ion-icon>
       <ion-label>Oldalak elrejtése</ion-label>
     </ion-item>
@@ -89,19 +86,6 @@
       </ion-label>
       <ion-toggle [checked]="this.app.localNotificationsEnabled" (ionChange)="this.localNotificationsChanged($event)"
         slot="end">
-      </ion-toggle>
-    </ion-item>
-
-    <ion-item-divider>
-      <ion-label>
-        <h1>Teljesítmény</h1>
-      </ion-label>
-    </ion-item-divider>
-    <ion-item>
-      <ion-icon slot="start" name="layers"></ion-icon>
-      <ion-label>[Exp] Animált lista csoportosítás</ion-label>
-      <ion-toggle [checked]="this.app.collapsifyAnimationsEnabled"
-        (ionChange)="this.app.changeConfig('collapsifyAnimationsEnabled', $event.detail.checked)" slot="end">
       </ion-toggle>
     </ion-item>
 

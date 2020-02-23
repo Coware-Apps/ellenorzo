@@ -4,16 +4,21 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Értékelések</ion-title>
-    <ion-select [(ngModel)]="selected" [disabled]="this.sans" (ionChange)="selectorChanged($event)"
-      [interfaceOptions]="customPopoverOptions" interface="popover" slot="end" placeholder="Adatok">
-      <ion-select-option *ngFor="let option of selectOptions" value="{{option.id}}">{{option.name}}
-      </ion-select-option>
-    </ion-select>
+    <ion-buttons slot="end">
+      <ion-button [disabled]="this.showProgressBar" (click)="this.openCategorySelector($event)">
+        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-select #categorySelector [(ngModel)]="selected" [disabled]="this.sans" (ionChange)="selectorChanged($event)"
+    [interfaceOptions]="customAlertOptions" interface="popover" slot="end">
+    <ion-select-option *ngFor="let option of selectOptions" value="{{option.id}}">{{option.name}}
+    </ion-select-option>
+  </ion-select>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
       refreshingText="Adatok frissítése...">
@@ -27,24 +32,20 @@
     <!-- bySubject -->
     <div *ngIf="item.id == 'bySubject'">
       <div *ngFor="let dataGroup of item.data">
-        <ion-item-divider *ngIf="dataGroup.data.length > 0">
+        <ion-item button (click)="dataGroup.showAll = !dataGroup.showAll" *ngIf="dataGroup.data.length > 0">
+          <ion-icon *ngIf="!dataGroup.showAll" slot="start" name="chevron-forward"></ion-icon>
+          <ion-icon *ngIf="dataGroup.showAll" slot="start" name="chevron-down"></ion-icon>
           <ion-buttons slot="end" style="float: right">
-            <ion-button [disabled]="this.showProgressBar" (click)="showModal(dataGroup.header)">
+            <ion-button [disabled]="this.showProgressBar" (click)="showModal(dataGroup.header); $event.stopPropagation();">
               <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
-            </ion-button>
-            <ion-button (click)="dataGroup.showAll = !dataGroup.showAll">
-              <ion-icon *ngIf="dataGroup.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
-              <ion-icon *ngIf="!dataGroup.showAll" slot="icon-only" name="chevron-down"></ion-icon>
             </ion-button>
           </ion-buttons>
           <ion-label>
             <h1>{{dataGroup.header}}</h1>
           </ion-label>
-        </ion-item-divider>
-        <div *ngFor="let evaluation of dataGroup.data" class="collapsible-wrapper"
-          [ngClass]="{'collapsed': !dataGroup.showAll && this.app.collapsifyAnimationsEnabled}">
-          <ion-card [hidden]="!dataGroup.showAll && !this.app.collapsifyAnimationsEnabled" class="collapsible" button
-            (click)="this.getMoreData(evaluation)"
+        </ion-item>
+        <div *ngFor="let evaluation of dataGroup.data">
+          <ion-card *ngIf="dataGroup.showAll" button (click)="this.getMoreData(evaluation)"
             [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
             <ion-card-content>
               <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
@@ -83,21 +84,15 @@
     <!-- byDates -->
     <div *ngIf="item.id == 'byDate'">
       <div *ngFor="let dataGroup of item.data">
-        <ion-item-divider>
+        <ion-item button (click)="dataGroup.showAll = !dataGroup.showAll">
           <ion-label>
             <h1>{{dataGroup.header}}</h1>
           </ion-label>
-          <ion-buttons slot="end">
-            <ion-button (click)="dataGroup.showAll = !dataGroup.showAll">
-              <ion-icon *ngIf="dataGroup.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
-              <ion-icon *ngIf="!dataGroup.showAll" slot="icon-only" name="chevron-down"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-item-divider>
-        <div *ngFor="let evaluation of dataGroup.data" class="collapsible-wrapper"
-          [ngClass]="{'collapsed': !dataGroup.showAll && this.app.collapsifyAnimationsEnabled}">
-          <ion-card [hidden]="!dataGroup.showAll && !this.app.collapsifyAnimationsEnabled" class="collapsible" button
-            (click)="this.getMoreData(evaluation)"
+          <ion-icon *ngIf="!dataGroup.showAll" slot="start" name="chevron-forward"></ion-icon>
+          <ion-icon *ngIf="dataGroup.showAll" slot="start" name="chevron-down"></ion-icon>
+        </ion-item>
+        <div *ngFor="let evaluation of dataGroup.data">
+          <ion-card *ngIf="dataGroup.showAll" button (click)="this.getMoreData(evaluation)"
             [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
             <ion-card-content>
               <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>

@@ -115,19 +115,19 @@ export class AbsencesPage implements OnInit {
     }
 
     allAbsences[0] = {
-      data: this.collapsifyService.collapsifyByDates(justifiedAbsences, 'LessonStartTime', 'LessonStartTime'),
+      data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(justifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
       empty: justifiedEmpty,
       name: 'justified',
       fullName: 'igazolt',
     };
     allAbsences[1] = {
-      data: this.collapsifyService.collapsifyByDates(beJustifiedAbsences, 'LessonStartTime', 'LessonStartTime'),
+      data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(beJustifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
       empty: beJustifiedEmpty,
       name: 'beJustified',
       fullName: 'igazolandó',
     }
     allAbsences[2] = {
-      data: this.collapsifyService.collapsifyByDates(unJustifiedAbsences, 'LessonStartTime', 'LessonStartTime'),
+      data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(unJustifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
       empty: unJustifiedEmpty,
       name: 'unJustified',
       fullName: 'igazolatlan',

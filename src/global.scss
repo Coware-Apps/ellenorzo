@@ -69,6 +69,13 @@
       --background: black;
       --color: white;
     }
+    //sort of ios-specific settings
+    ion-item-divider {
+      --background: black;
+    }
+    ion-toolbar {
+      --background: black;
+    }
     --ion-background-color: black;
     --ion-background-color-rgb: 0, 0, 0;
     --ion-item-background: black;
@@ -102,6 +109,14 @@
     .timeTableAlert {
       --ion-item-background: transparent;
       --ion-background-color: black;
+    }
+
+    //sort of ios-specific settings
+    ion-item-divider {
+      --background: rgba(0, 0, 0, 0.432);
+    }
+    ion-toolbar {
+      --background: rgba(0, 0, 0, 0.432);
     }
 
     //<ion-select> background color
@@ -158,30 +173,4 @@
 //mostly for the popup messages
 ul {
   list-style-type: square;
-}
-//for the collapsible item groups
-.collapsible-wrapper {
-  display: block;
-  overflow: hidden;
-}
-.collapsible-wrapper:after {
-  content: "";
-  height: 50px;
-  transition: height 0.3s linear, max-height 0s 0.3s linear;
-  max-height: 0px;
-}
-.collapsible {
-  transition: margin-bottom 0.3s cubic-bezier(0, 0, 0, 1);
-  max-height: 1000000px;
-}
-.collapsible-wrapper.collapsed > .collapsible {
-  margin-bottom: -2000px;
-  transition: margin-bottom 0.3s cubic-bezier(1, 0, 1, 1), visibility 0s 0.3s, max-height 0s 0.3s;
-  visibility: hidden;
-  max-height: 0;
-}
-.collapsible-wrapper.collapsed:after {
-  height: 0;
-  transition: height 0.3s linear;
-  max-height: 50px;
 }

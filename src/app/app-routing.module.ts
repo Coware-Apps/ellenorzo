@@ -3,13 +3,8 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: '',
-    redirectTo: 'list',
-    pathMatch: 'full'
-  },
-  {
     path: 'home',
-    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
+    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule),
   },
   {
     path: 'list',
@@ -17,86 +12,84 @@ const routes: Routes = [
   },
   {
     path: 'monthly-average',
-    loadChildren: () => import('./monthly-average/monthly-average.module').then( m => m.MonthlyAveragePageModule),
+    loadChildren: () => import('./monthly-average/monthly-average.module').then(m => m.MonthlyAveragePageModule),
   },
   {
     path: 'statistics',
-    loadChildren: () => import('./statistics/statistics.module').then( m => m.StatisticsPageModule),
+    loadChildren: () => import('./statistics/statistics.module').then(m => m.StatisticsPageModule),
   },
   {
     path: 'graphs',
-    loadChildren: () => import('./graphs/graphs.module').then( m => m.GraphsPageModule),
+    loadChildren: () => import('./graphs/graphs.module').then(m => m.GraphsPageModule),
   },
   {
     path: 'settings',
-    loadChildren: () => import('./settings/settings.module').then( m => m.SettingsPageModule),
+    loadChildren: () => import('./settings/settings.module').then(m => m.SettingsPageModule),
   },
   {
     path: 'login',
-    loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
+    loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule)
   },
   {
     path: 'averages',
-    loadChildren: () => import('./averages/averages.module').then( m => m.AveragesPageModule),
+    loadChildren: () => import('./averages/averages.module').then(m => m.AveragesPageModule),
   },
   {
     path: 'average-graphs',
-    loadChildren: () => import('./average-graphs/average-graphs.module').then( m => m.AverageGraphsPageModule)
+    loadChildren: () => import('./average-graphs/average-graphs.module').then(m => m.AverageGraphsPageModule)
   },
   {
     path: 'absences',
-    loadChildren: () => import('./absences/absences.module').then( m => m.AbsencesPageModule)
+    loadChildren: () => import('./absences/absences.module').then(m => m.AbsencesPageModule)
   },
   {
     path: 'notes',
-    loadChildren: () => import('./notes/notes.module').then( m => m.NotesPageModule)
+    loadChildren: () => import('./notes/notes.module').then(m => m.NotesPageModule)
   },
   {
     path: 'error',
-    loadChildren: () => import('./error/error.module').then( m => m.ErrorPageModule)
+    loadChildren: () => import('./error/error.module').then(m => m.ErrorPageModule)
   },
   {
     path: 'color-picker',
-    loadChildren: () => import('./color-picker/color-picker.module').then( m => m.ColorPickerPageModule)
+    loadChildren: () => import('./color-picker/color-picker.module').then(m => m.ColorPickerPageModule)
   },
   {
     path: 'bg-settings',
-    loadChildren: () => import('./sub-settings/bg-settings/bg-settings.module').then( m => m.BgSettingsPageModule)
+    loadChildren: () => import('./sub-settings/bg-settings/bg-settings.module').then(m => m.BgSettingsPageModule)
   },
   {
     path: 'homeworks',
-    loadChildren: () => import('./homeworks/homeworks.module').then( m => m.HomeworksPageModule)
+    loadChildren: () => import('./homeworks/homeworks.module').then(m => m.HomeworksPageModule)
   },
   {
     path: 'hide-page-settings',
-    loadChildren: () => import('./sub-settings/hide-page-settings/hide-page-settings.module').then( m => m.HidePageSettingsPageModule)
+    loadChildren: () => import('./sub-settings/hide-page-settings/hide-page-settings.module').then(m => m.HidePageSettingsPageModule)
   },
   {
     path: 'timetable-homeworks',
-    loadChildren: () => import('./list/timetable-homeworks/timetable-homeworks.module').then( m => m.TimetableHomeworksPageModule)
+    loadChildren: () => import('./list/timetable-homeworks/timetable-homeworks.module').then(m => m.TimetableHomeworksPageModule)
   },
   {
     path: 'tests',
-    loadChildren: () => import('./tests/tests.module').then( m => m.TestsPageModule)
+    loadChildren: () => import('./tests/tests.module').then(m => m.TestsPageModule)
   },
   {
     path: 'evaluations',
-    loadChildren: () => import('./evaluations/evaluations.module').then( m => m.EvaluationsPageModule)
+    loadChildren: () => import('./evaluations/evaluations.module').then(m => m.EvaluationsPageModule)
   },
   {
     path: 'user',
-    loadChildren: () => import('./user/user.module').then( m => m.UserPageModule)
+    loadChildren: () => import('./user/user.module').then(m => m.UserPageModule)
   },
   {
     path: 'user-agent',
-    loadChildren: () => import('./sub-settings/user-agent/user-agent.module').then( m => m.UserAgentPageModule)
+    loadChildren: () => import('./sub-settings/user-agent/user-agent.module').then(m => m.UserAgentPageModule)
   },
   {
     path: 'messages',
-    loadChildren: () => import('./messages/messages.module').then( m => m.MessagesPageModule)
+    loadChildren: () => import('./messages/messages.module').then(m => m.MessagesPageModule)
   }
-
-
 ];
 
 @NgModule({
@@ -105,4 +98,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

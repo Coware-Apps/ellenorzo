@@ -148,10 +148,6 @@ export class SettingsPage implements OnInit {
   }
   //#endregion
 
-  showHideInfo() {
-    this.prompt.presentUniversalAlert("Oldalak elrejtése", null, "Megadhatod, hogy melyik oldalak jelenjenek meg a menüben és melyek ne. Ez azért hasznos, mert vannak olyan iskolák, ahol bizonyos funkciók le vannak tiltva.")
-  }
-
   hidePages() {
     this.router.navigateByUrl('/hide-page-settings');
   }
@@ -170,7 +166,7 @@ export class SettingsPage implements OnInit {
     this.camera.getPicture(options).then(async (imageData) => {
       this.theme.changeBackground(imageData);
       //popup message
-      await this.prompt.presentUniversalAlert('Testreszabható háttér', null, 'A funkció még kísérleti fázisban van. A képet úgy válaszd meg, hogy a <ul><li>szélessége min. ' + this.width + 'px </li><li>magassága min. ' + this.height + 'px </li></ul> legyen, ha a nem ajánl fel alapból egy crop ablakot. (Ezek az adatok a te eszközöd képernyőadatai alapján lettek generálva)');
+      await this.prompt.presentUniversalAlert('Testreszabható háttér', null, 'A képet úgy válaszd meg, hogy a <ul><li>szélessége min. ' + this.width + 'px </li><li>magassága min. ' + this.height + 'px </li></ul> legyen, ha a nem ajánl fel alapból egy crop ablakot. (Ezek az adatok a te eszközöd képernyőadatai alapján lettek generálva)');
     }, async (err) => {
       await this.prompt.presentUniversalAlert('Hiba történt!', null, 'Nem sikerült a kiválasztott képet beállítani. (' + err + ')')
       //error

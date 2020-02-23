@@ -1,12 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormattedDateService } from '../_services/formatted-date.service';
-import { Student, evaluation, CollapsibleStudent } from '../_models/student';
+import { Student, evaluation } from '../_models/student';
 import { Storage } from '@ionic/storage';
 import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
-import { ThemeService } from '../_services/theme.service';
-import { KretaService } from '../_services/kreta.service';
-import { IonSlides } from '@ionic/angular';
+import { IonSlides, IonSelect } from '@ionic/angular';
 import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
@@ -44,6 +41,7 @@ export class StatisticsPage implements OnInit {
   };
 
   @ViewChild('slides', { static: true }) slides: IonSlides;
+  @ViewChild('categorySelector', null) categorySelector: IonSelect;
 
   public sans: boolean;
   public focused: number;
@@ -133,6 +131,10 @@ export class StatisticsPage implements OnInit {
     }
   }
 
+  openCategorySelector(event: UIEvent) {
+    this.categorySelector.open(event);
+  }
+
   async getData(event: any) {
     if (await this.slides.getActiveIndex() == this.focused) {
       //the segment's ionChange event wasn't fired by a slide moving
@@ -171,7 +173,7 @@ export class StatisticsPage implements OnInit {
           this.dataService.setData("statisticsData", this.evaluations);
           this.dataService.setData("statisticsType", "line-column-buttons");
           this.dataService.setData("statisticsGrouping", true);
-          this.dataService.setData("graphTitle", date.getFullYear());
+          this.dataService.setData("graphTitle", 'tanév');
           this.navRouter.navigateByUrl('/graphs');
           break;
         case "yearly":

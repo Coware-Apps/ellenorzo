@@ -4,19 +4,24 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Statisztika</ion-title>
-    <ion-select [(ngModel)]="selected" [disabled]="this.showProgressBar"
-      (ionChange)="selectorChanged($event, true, true)" [interfaceOptions]="customPopoverOptions" interface="popover"
-      slot="end" placeholder="Adatok">
-      <ion-select-option value="yBySubject">Egész év - tantárgyanként</ion-select-option>
-      <ion-select-option value="yearly">Egész év - összesítve</ion-select-option>
-      <ion-select-option value="mBySubject">Ez a hónap - tantárgyanként</ion-select-option>
-      <ion-select-option value="monthly">Ez a hónap - összesítve</ion-select-option>
-    </ion-select>
+    <ion-buttons slot="end">
+      <ion-button [disabled]="this.showProgressBar" (click)="openCategorySelector($event)">
+        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-select #categorySelector [(ngModel)]="selected" [disabled]="this.showProgressBar"
+    (ionChange)="selectorChanged($event, true, true)" [interfaceOptions]="customPopoverOptions" interface="popover"
+    slot="end" placeholder="Adatok">
+    <ion-select-option value="yBySubject">Tárgyankénti éves</ion-select-option>
+    <ion-select-option value="yearly">Éves</ion-select-option>
+    <ion-select-option value="mBySubject">Tárgyankénti havi</ion-select-option>
+    <ion-select-option value="monthly">Havi</ion-select-option>
+  </ion-select>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
       refreshingText="Adatok frissítése...">

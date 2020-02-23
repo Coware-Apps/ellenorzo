@@ -29,8 +29,6 @@ export class ColorPickerPage implements OnInit {
   public focused: number;
   public title: string;
 
-  public p = this;
-
 
   constructor(
     public colorService: ColorService,
@@ -40,7 +38,7 @@ export class ColorPickerPage implements OnInit {
     private Route: ActivatedRoute,
     private firebase: FirebaseX,
   ) {
-    this.color = "#FFFFFF";
+    this.color = "#00CC00";
     this.focused = 0;
     this.title = "Értékelések";
   }

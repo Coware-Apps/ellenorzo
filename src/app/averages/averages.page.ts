@@ -45,26 +45,6 @@ export class AveragesPage implements OnInit {
   }
 
   async ngOnInit() {
-    this.subjectAverages = new Observable<SubjectAverage[]>((observer) => {
-      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
-        if (subscriptionData.type == "skeleton") {
-          //there is no data in the storage, showing skeleton text until the server responds
-        } else if (subscriptionData.type == "placeholder") {
-          //there is data in the storage, showing that data until the server responds, disabling skeleton text
-          observer.next(subscriptionData.data.SubjectAverages);
-          this.sans = false;
-        } else {
-          //the server has now responded, disabling progress bar and skeleton text if it's still there
-          observer.next(subscriptionData.data.SubjectAverages);
-          //only storing the entire student when the site has completely loaded, because we only need it for when the user clicks the average-graphs button
-          this.student = subscriptionData.data;
-          this.showProgressBar = false;
-          this.sans = false;
-          this.prompt.dismissTopToast();
-        }
-      });
-      this.dataLoader.initializeStudent();
-    });
     this.firebase.setScreenName('averages');
   }
 
@@ -73,6 +53,31 @@ export class AveragesPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    this.subjectAverages = new Observable<SubjectAverage[]>((observer) => {
+      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+        if (subscriptionData.type == "skeleton") {
+          console.log("got skeleton");
+          //there is no data in the storage, showing skeleton text until the server responds
+        } else if (subscriptionData.type == "placeholder") {
+          //there is data in the storage, showing that data until the server responds, disabling skeleton text
+          observer.next(subscriptionData.data.SubjectAverages);
+          this.sans = false;
+          console.log("got placeholder");
+        } else {
+          //the server has now responded, disabling progress bar and skeleton text if it's still there
+          observer.next(subscriptionData.data.SubjectAverages);
+          //only storing the entire student when the site has completely loaded, because we only need it for when the user clicks the average-graphs button
+          this.student = subscriptionData.data;
+          this.showProgressBar = false;
+          this.sans = false;
+          this.prompt.dismissTopToast();
+          console.log("got final");
+        }
+      });
+      this.dataLoader.initializeStudent();
+    });
+
+
     let a;
     this.shadowcolor = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
   }
@@ -92,6 +97,7 @@ export class AveragesPage implements OnInit {
     console.log("begin operation");
     this.showProgressBar = true;
     await this.dataLoader.updateStudent();
+    console.log('got student');
     event.target.complete();
   }
 

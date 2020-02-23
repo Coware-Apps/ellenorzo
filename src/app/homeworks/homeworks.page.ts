@@ -2,9 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { KretaService } from '../_services/kreta.service';
 import { TeacherHomework, StudentHomework } from '../_models/homework';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { Lesson } from '../_models/lesson';
-import { ColorService } from '../_services/color.service';
-import { AlertController } from '@ionic/angular';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 
@@ -17,7 +14,6 @@ export class HomeworksPage implements OnInit {
   public teacherHomeworks: TeacherHomework[];
   public studentHomeworks: StudentHomework[];
   public sans: boolean;
-
   constructor(
     public fDate: FormattedDateService,
 
@@ -31,11 +27,13 @@ export class HomeworksPage implements OnInit {
     this.teacherHomeworks = await this.kreta.getTeacherHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today"));
     this.studentHomeworks = await this.kreta.getStudentHomeworks(this.fDate.getDate("today"), this.fDate.getDate("today"));
     this.sans = false;
-
     this.firebase.setScreenName('homeworks');
   }
 
   showInfo(teacherHomework: TeacherHomework) {
     this.prompt.teacherHomeworkAlert(teacherHomework, teacherHomework.Tantargy);
+  }
+  getHeaderDate(): string{
+    return this.fDate.formatDateWithZerosAndDots(new Date());
   }
 }

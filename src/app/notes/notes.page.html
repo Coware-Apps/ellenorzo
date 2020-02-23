@@ -18,12 +18,11 @@
     <div *ngFor="let item of this.collapsifiedData | async">
       <ion-item button (click)="item.showAll = item.showAll ? false : true">
         <ion-label>{{item.header}}</ion-label>
-        <ion-icon *ngIf="!item.showAll" slot="end" name="chevron-forward"></ion-icon>
-        <ion-icon *ngIf="item.showAll" slot="end" name="chevron-down"></ion-icon>
+        <ion-icon *ngIf="!item.showAll" slot="start" name="chevron-forward"></ion-icon>
+        <ion-icon *ngIf="item.showAll" slot="start" name="chevron-down"></ion-icon>
       </ion-item>
-      <div class="collapsible-wrapper" [ngClass]="{'collapsed': !item.showAll && this.app.collapsifyAnimationsEnabled}">
-        <ion-card [hidden]="!item.showAll && !this.app.collapsifyAnimationsEnabled" class="collapsible" button
-          (click)="getMoreData(note)" *ngFor="let note of item.data">
+      <div *ngIf="item.showAll">
+        <ion-card button (click)="getMoreData(note)" *ngFor="let note of item.data">
           <ion-card-header>
             <ion-card-subtitle>{{note.Teacher}} - {{note.CreatingTime.substring(0, 10)}}</ion-card-subtitle>
             <ion-card-title>{{note.Title}}</ion-card-title>

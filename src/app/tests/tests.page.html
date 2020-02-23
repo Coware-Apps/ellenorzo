@@ -18,13 +18,11 @@
     <div *ngFor="let monthlyData of this.testsByMonth | async">
       <ion-item button (click)="monthlyData.showAll = monthlyData.showAll ? false : true">
         <ion-label>{{monthlyData.header}}</ion-label>
-        <ion-icon *ngIf="monthlyData.showAll" slot="end" name="chevron-forward"></ion-icon>
-        <ion-icon *ngIf="!monthlyData.showAll" slot="end" name="chevron-down"></ion-icon>
+        <ion-icon *ngIf="!monthlyData.showAll" slot="start" name="chevron-forward"></ion-icon>
+        <ion-icon *ngIf="monthlyData.showAll" slot="start" name="chevron-down"></ion-icon>
       </ion-item>
-      <div class="collapsible-wrapper"
-        [ngClass]="{'collapsed': !monthlyData.showAll && this.app.collapsifyAnimationsEnabled}">
-        <ion-card class="collapsible" *ngFor="let test of monthlyData.data"
-          [hidden]="!monthlyData.showAll && !this.app.collapsifyAnimationsEnabled">
+      <div *ngIf="monthlyData.showAll">
+        <ion-card *ngFor="let test of monthlyData.data">
           <ion-card-header>
             <ion-card-title>{{test.SzamonkeresMegnevezese == '' ? '-' : test.SzamonkeresMegnevezese}}</ion-card-title>
             <ion-card-subtitle>{{test.Tanar}} - {{this.fDate.formatDateWithZerosAndDots(test.Datum)}}

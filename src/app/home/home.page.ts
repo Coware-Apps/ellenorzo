@@ -165,6 +165,13 @@ export class HomePage {
     });
 
     allDataByMonths.sort((a, b) => b.firstEntryCreatingTime - a.firstEntryCreatingTime);
+    for (let i = 0; i < allDataByMonths.length; i++) {
+      if (i == 0) {
+        allDataByMonths[i].showAll = true;
+      } else {
+        allDataByMonths[i].showAll = false;
+      }
+    }
     return allDataByMonths;
   }
 

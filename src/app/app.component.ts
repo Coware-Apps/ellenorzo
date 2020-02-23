@@ -45,8 +45,8 @@ export class AppComponent {
   async initializeApp() {
     this.platform.ready().then(async () => {
       await this.initializeConfig();
-      this.splashScreen.hide();
       await this.navigate();
+      this.splashScreen.hide();
       this.initializeDelayedConfig();
     });
   }
@@ -86,7 +86,6 @@ export class AppComponent {
     this.app.toastLoggingEnabled = await this.storage.get('toastLoggingEnabled') == true ? true : false;
     this.app.devSettingsEnabled = await this.storage.get('devSettingsEnabled') == true ? true : false;
     this.app.localNotificationsEnabled = await this.storage.get('localNotificationsEnabled') == false ? false : true;
-    this.app.collapsifyAnimationsEnabled = await this.storage.get('collapsifyAnimationsEnabled') == true ? true : false;
     let storedUA = await this.storage.get('userAgent');
     if (storedUA != null) {
       this.app.userAgent = storedUA;
@@ -110,11 +109,11 @@ export class AppComponent {
         console.log('navResult', await this.router.navigateByUrl(storedDefaultPage));
         console.log('Navigating to url', storedDefaultPage);
       } else {
-        await this.router.navigateByUrl("");
+        await this.router.navigateByUrl('home');
         console.log('navigating to timetable');
       }
     } else {
-      await this.router.navigate(["login"]);
+      this.router.navigate(["login"]);
     }
   }
 
