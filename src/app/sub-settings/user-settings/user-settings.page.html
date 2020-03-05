@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>Fiókok kezelése</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let user of this.userManager.allUsers">
+      <ion-buttons slot="end">
+        <ion-button (click)="this.userManager.removeUser(user.id)">
+          <ion-icon slot="icon-only" color="danger" name="close-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-label>
+        <h2>{{user.fullName}}</h2>
+        <ion-note>{{user.institute.Name}} - {{user.id}}</ion-note>
+      </ion-label>
+    </ion-item>
+    <ion-button (click)="addUser()" expand="block" fill="outline" shape="round">
+      Fiók hozzáadása
+    </ion-button>
+  </ion-list>
+</ion-content>

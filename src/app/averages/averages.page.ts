@@ -11,8 +11,8 @@ import { promise } from 'protractor';
 import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { Observable, Subscription } from 'rxjs';
-import { DataLoaderService } from '../_services/data-loader.service';
 import { PromptService } from '../_services/prompt.service';
+import { UserManagerService } from '../_services/user-manager.service';
 
 
 @Component({
@@ -27,8 +27,8 @@ export class AveragesPage implements OnInit {
   public sans: boolean;
   public showProgressBar: boolean;
 
-  private shadowcolor: string;
   private studentSubscription: Subscription;
+  private reloaderSubscription: Subscription;
 
   constructor(
     public color: ColorService,
@@ -37,7 +37,7 @@ export class AveragesPage implements OnInit {
     private navRouter: Router,
     private data: DataService,
     private firebase: FirebaseX,
-    private dataLoader: DataLoaderService,
+    private userManager: UserManagerService,
     private prompt: PromptService,
   ) {
     this.sans = true;
@@ -48,13 +48,21 @@ export class AveragesPage implements OnInit {
     this.firebase.setScreenName('averages');
   }
 
-  ionViewWillLeave() {
-    this.studentSubscription.unsubscribe();
+  async ionViewDidEnter() {
+    await this.loadData();
+    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
+      if (value == 'reload') {
+        this.sans = true;
+        this.showProgressBar = true;
+        this.studentSubscription.unsubscribe();
+        this.loadData();
+      }
+    });
   }
 
-  async ionViewDidEnter() {
+  private async loadData() {
     this.subjectAverages = new Observable<SubjectAverage[]>((observer) => {
-      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+      this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
         if (subscriptionData.type == "skeleton") {
           console.log("got skeleton");
           //there is no data in the storage, showing skeleton text until the server responds
@@ -74,12 +82,13 @@ export class AveragesPage implements OnInit {
           console.log("got final");
         }
       });
-      this.dataLoader.initializeStudent();
     });
+    await this.userManager.currentUser.initializeStudent();
+  }
 
-
-    let a;
-    this.shadowcolor = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
+  ionViewWillLeave() {
+    this.studentSubscription.unsubscribe();
+    this.reloaderSubscription.unsubscribe();
   }
 
   async showModal(subject: string, classValue: number, student: Student) {
@@ -94,33 +103,27 @@ export class AveragesPage implements OnInit {
   }
 
   async doRefresh(event: any) {
-    console.log("begin operation");
     this.showProgressBar = true;
-    await this.dataLoader.updateStudent();
+    await this.userManager.currentUser.updateStudent();
     console.log('got student');
     event.target.complete();
   }
 
   getShadowColor(average: number) {
-
-    if (this.shadowcolor == null) {
-      return this.color.getContrast();
-    }
-
     if (average >= 4.5) {
-      return this.shadowcolor.split('&')[0] != "" ? this.shadowcolor.split('&')[0] : "#00CC66";
+      return this.color.cardColors.fiveColor;
     }
     else if (average < 4.5 && average >= 3.5) {
-      return this.shadowcolor.split('&')[1] != "" ? this.shadowcolor.split('&')[1] : "#FFFF66";
+      return this.color.cardColors.fourColor;
     }
     else if (average < 3.5 && average >= 2.5) {
-      return this.shadowcolor.split('&')[2] != "" ? this.shadowcolor.split('&')[2] : "#FF9933";
+      return this.color.cardColors.threeColor;
     }
     else if (average < 2.5 && average >= 1.5) {
-      return this.shadowcolor.split('&')[3] != "" ? this.shadowcolor.split('&')[3] : "#663300";
+      return this.color.cardColors.twoColor;
     }
     else if (average < 1.5) {
-      return this.shadowcolor.split('&')[4] != "" ? this.shadowcolor.split('&')[4] : "#FF0000";
+      return this.color.cardColors.oneColor;
     }
   }
   async showPicker() {

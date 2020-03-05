@@ -14,6 +14,9 @@
       refreshingText="Adatok frissítése...">
     </ion-refresher-content>
   </ion-refresher>
+  <ion-item *ngIf="this.inboxEmpty">
+    <ion-label style="text-align: center">Nincsenek beérkezett üzenetek</ion-label>
+  </ion-item>
   <div *ngFor="let message of this.messages | async">
     <ion-card button [ngClass]="{'unread': !message.isElolvasva}" (click)="openMessage(message)">
       <ion-card-header>

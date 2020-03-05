@@ -7,7 +7,6 @@ import { IonicModule } from '@ionic/angular';
 import { NotesPageRoutingModule } from './notes-routing.module';
 
 import { NotesPage } from './notes.page';
-import { ComponentsModule } from '../_components/component.module';
 
 @NgModule({
   imports: [

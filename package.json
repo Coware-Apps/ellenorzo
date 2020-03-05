@@ -1,6 +1,6 @@
 {
   "name": "arisztokreta",
-  "version": "0.9.2",
+  "version": "0.9.5",
   "author": "Coware",
   "homepage": "https://coware-apps.github.io/ellenorzo/",
   "scripts": {
@@ -46,7 +46,7 @@
     "cordova-plugin-firebasex": "^7.0.2",
     "cordova-plugin-inappbrowser": "^3.2.0",
     "cordova-plugin-is-debug": "^1.0.0",
-    "cordova-plugin-local-notification": "^0.9.0-beta.2",
+    "cordova-plugin-local-notification": "git+https://github.com/Coware-Apps/cordova-plugin-local-notifications.git",
     "cordova-plugin-localization-strings": "3.2.1",
     "cordova-plugin-save-image-gallery": "0.0.26",
     "cordova-support-google-services": "^1.3.2",
@@ -117,10 +117,10 @@
         "FIREBASE_CRASHLYTICS_COLLECTION_ENABLED": "true"
       },
       "cordova-plugin-is-debug": {},
-      "cordova-plugin-local-notification": {},
       "cordova-plugin-localization-strings": {
         "TRANSLATION_PATH": "translations/app/"
-      }
+      },
+      "cordova-plugin-local-notification": {}
     },
     "platforms": [
       "android",

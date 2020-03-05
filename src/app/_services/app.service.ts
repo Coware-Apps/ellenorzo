@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, config } from 'rxjs';
+import { BehaviorSubject, config, Subject } from 'rxjs';
 import { Storage } from '@ionic/storage';
+import { userInitData } from '../_models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +16,21 @@ export class AppService {
     src?: string;
     show: boolean,
   }[];
+  public isStudentSelectorReady = false;
   public toastLoggingEnabled: boolean;
   public appV: string;
   public analyticsCollectionEnabled: boolean;
   public devSettingsEnabled: boolean;
   public localNotificationsEnabled: boolean;
   public userAgent: string;
+  public usersInitData: userInitData[] = [];
+  public webApiRegistration = {
+    registered: false,
+    username: "",
+    password: "",
+    loggedIn: false,
+    loggedInFor: 0,
+  };
 
   constructor(
     private storage: Storage,
@@ -87,6 +97,12 @@ export class AppService {
       icon: 'chatbox-outline',
       show: true,
     },
+    //{
+    // title: 'Közösségi szolgálat',
+    // url: '/community-service',
+    // icon: 'body-outline',
+    // show: true,
+    //},
     {
       title: 'Felhasználó adatai',
       url: '/user',
@@ -134,6 +150,37 @@ export class AppService {
         console.log("shown", page.title);
       }
     });
+  }
+
+  async clearStorage(keepSettings: boolean = true) {
+    if (keepSettings) {
+      let ramStorage: Array<any> = [];
+      ramStorage.push(await this.storage.get("base64bg"));
+      ramStorage.push(await this.storage.get("bgSize"));
+      ramStorage.push(await this.storage.get("bgX"));
+      ramStorage.push(await this.storage.get("bgY"));
+      ramStorage.push(await this.storage.get("cardColor"));
+      ramStorage.push(await this.storage.get("defaultPage"));
+      ramStorage.push(await this.storage.get("theme"));
+      ramStorage.push(await this.storage.get("antiSpamUA"));
+      ramStorage.push(await this.storage.get("devSettingsEnabled"));
+      ramStorage.push(await this.storage.get("toastLoggingEnabled"));
+
+      await this.storage.clear();
+
+      this.storage.set("base64bg", ramStorage[0]);
+      this.storage.set("bgSize", ramStorage[1]);
+      this.storage.set("bgX", ramStorage[2]);
+      this.storage.set("bgY", ramStorage[3]);
+      this.storage.set("cardColor", ramStorage[4]);
+      this.storage.set("defaultPage", ramStorage[5]);
+      this.storage.set("theme", ramStorage[6]);
+      this.storage.set("antiSpamUA", ramStorage[7]);
+      this.storage.set("devSettingsEnabled", ramStorage[8]);
+      this.storage.set("toastLoggingEnabled", ramStorage[9]);
+    } else {
+      this.storage.clear();
+    }
   }
 
   //when something is updated (sidemenu)

@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Közösségi szolgálat</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card *ngIf="!this.sans && this.needsRegistration">
+    <ion-card-header class="login-header">
+      <img src="../../assets/img/logo.png" class="logo">
+      <h1 class="title">Arisztokréta Web Services</h1>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-label position="floating">
+          <h1>Felhasználónév</h1>
+        </ion-label>
+        <ion-input [(ngModel)]="this.username" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">
+          <h1>Jelszó</h1>
+        </ion-label>
+        <ion-input [(ngModel)]="password" type="password" required></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-input placeholder="Válasszon intézményt!" disabled [value]="" name="selectedInstitute"
+          aria-label="Válasszon intézményt!" required readonly></ion-input>
+      </ion-item>
+      <ion-button color="primary" expand="full" fill="solid" (click)="register()">
+        Bejelentkezés
+      </ion-button>
+      <p class="dataProt">A bejelentkezés gombra kattintva elfogadom az Adatkezelési Feltételeket (<a
+          (click)="openWebpage('https://coware-apps.github.io/ellenorzo/privacy')">https://coware-apps.github.io/ellenorzo/privacy</a>).
+      </p>
+    </ion-card-content>
+  </ion-card>
+  <ion-list *ngIf="this.loggedIn">
+    <ion-item button (click)="this.prompt.communityServiceAlert(item)" *ngFor="let item of this.comServiceData.Data">
+      <ion-label>{{item.KozossegiSzolgalatTipusa_DNAME}}</ion-label>
+      <ion-label style="text-align: right;">{{item.Oraszam}} óra</ion-label>
+    </ion-item>
+  </ion-list>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-item>
+      <ion-icon slot="start" name="person"></ion-icon>
+      <ion-label>{{userFullName}} ({{this.authFor | date: 'mm:ss'}})</ion-label>
+      <ion-buttons slot="end">
+        <ion-button (click)="showSmartLoginInfo($event)">
+          <ion-icon slot="icon-only" name="cloud-upload-sharp"></ion-icon>
+        </ion-button>
+
+      </ion-buttons>
+    </ion-item>
+  </ion-toolbar>
+</ion-footer>

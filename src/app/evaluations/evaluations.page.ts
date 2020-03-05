@@ -11,10 +11,10 @@ import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
-import { DataLoaderService } from '../_services/data-loader.service';
 import { Observable, Subscription, Subject, BehaviorSubject } from 'rxjs';
 import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.service';
 import { AppService } from '../_services/app.service';
+import { UserManagerService } from '../_services/user-manager.service';
 
 interface SelectOption {
   name: string;
@@ -36,7 +36,6 @@ export class EvaluationsPage implements OnInit {
   customAlertOptions: any = {
     subHeader: 'Rendezés és megjelenítés',
     cssClass: this.color.getPopUpClass(),
-
   };
 
   public dates: string[];
@@ -45,12 +44,6 @@ export class EvaluationsPage implements OnInit {
   public loadedEvaluations: evaluation[];
   public sans: boolean;
   public showProgressBar: boolean;
-  public fiveColor: string;
-  public fourColor: string;
-  public threeColor: string;
-  public twoColor: string;
-  public oneColor: string;
-  public noneColor: string;
   public selected: string;
   public groups: string;
   public selectOptions: SelectOption[] = [{
@@ -92,18 +85,18 @@ export class EvaluationsPage implements OnInit {
 
   private student: Student;
   private studentSubscription: Subscription;
+  private reloaderSubscription: Subscription;
 
   constructor(
     public fDate: FormattedDateService,
     public app: AppService,
 
     private color: ColorService,
-    private storage: Storage,
     private data: DataService,
     private navRouter: Router,
     private firebase: FirebaseX,
     private prompt: PromptService,
-    private dataLoader: DataLoaderService,
+    private userManager: UserManagerService,
     private collapsify: CollapsifyService,
   ) {
     this.dates = [];
@@ -114,52 +107,49 @@ export class EvaluationsPage implements OnInit {
   }
 
   ngOnInit() {
-
+    this.firebase.setScreenName('evaluations');
   }
   async ionViewDidEnter() {
+    await this.loadData();
+    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
+      if (value == 'reload') {
+        this.sans = true;
+        this.showProgressBar = true;
+        this.studentSubscription.unsubscribe();
+        this.loadData();
+      }
+    });
+  }
+  private async loadData() {
     this.selectOptionsWithData = new Subject<SelectOption[]>();
-
-    this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+    this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
       if (subscriptionData.type == "skeleton") {
+        this.sans = true;
+        this.showProgressBar = true;
         //there is no data in the storage, showing skeleton text until the server responds
       } else if (subscriptionData.type == "placeholder") {
         //there is data in the storage, showing that data until the server responds, disabling skeleton text
         this.loadedEvaluations = subscriptionData.data.Evaluations;
         let evaluations = this.formatEvaluations(subscriptionData.data.Evaluations);
-        console.log("currently displaying", evaluations);
         this.selectOptionsWithData.next(evaluations);
         this.sans = false;
-
+        this.showProgressBar = true;
       } else {
         //the server has now responded, disabling progress bar and skeleton text if it's still there
         this.loadedEvaluations = subscriptionData.data.Evaluations;
         //only storing the entire student when the site has completely loaded, because we only need it for when the user clicks the average-graphs button
         this.student = subscriptionData.data;
         this.selectOptionsWithData.next(this.formatEvaluations(subscriptionData.data.Evaluations));
-        console.log("currently displaying", this.formatEvaluations(subscriptionData.data.Evaluations));
         this.showProgressBar = false;
         this.sans = false;
       }
     });
-    this.dataLoader.initializeStudent();
-
-
-    let a;
-
-    let color = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
-
-    this.fiveColor = color.split('&')[0] != "" ? color.split('&')[0] : "#00CC66";
-    this.fourColor = color.split('&')[1] != "" ? color.split('&')[1] : "#FFFF66";
-    this.threeColor = color.split('&')[2] != "" ? color.split('&')[2] : "#FF9933";
-    this.twoColor = color.split('&')[3] != "" ? color.split('&')[3] : "#663300";
-    this.oneColor = color.split('&')[4] != "" ? color.split('&')[4] : "#FF0000";
-    this.noneColor = color.split('&')[5] != "" ? color.split('&')[5] : "#9933FF";
-
-    this.firebase.setScreenName('evaluations');
+    await this.userManager.currentUser.initializeStudent();
   }
 
   ionViewWillLeave() {
     this.studentSubscription.unsubscribe();
+    this.reloaderSubscription.unsubscribe();
   }
 
   openCategorySelector(event: UIEvent) {
@@ -168,9 +158,8 @@ export class EvaluationsPage implements OnInit {
   }
 
   async doRefresh(event: any) {
-    console.log("begin operation");
     this.showProgressBar = true;
-    await this.dataLoader.updateStudent();
+    await this.userManager.currentUser.updateStudent();
     event.target.complete();
   }
 
@@ -182,7 +171,6 @@ export class EvaluationsPage implements OnInit {
           option.data.sort((x, y) => x.index - y.index);
           let optionData = option.data;
           optionData.forEach(collapsibleGroup => {
-            console.log("collapsibleGroup.inded", collapsibleGroup.index);
             if (collapsibleGroup.index != 0 && collapsibleGroup.index != 1) {
               collapsibleGroup.showAll = false;
             };
@@ -203,7 +191,6 @@ export class EvaluationsPage implements OnInit {
           break;
       }
     });
-    console.log("this.selectoptions", this.selectOptions);
 
 
     return this.selectOptions;
@@ -272,43 +259,43 @@ export class EvaluationsPage implements OnInit {
     if (form == "Mark") {
       switch (numberValue) {
         case 5:
-          return this.fiveColor;
+          return this.color.cardColors.fiveColor;
         case 4:
-          return this.fourColor;
+          return this.color.cardColors.fourColor;
         case 3:
-          return this.threeColor;
+          return this.color.cardColors.threeColor;
         case 2:
-          return this.twoColor;
+          return this.color.cardColors.twoColor;
         case 1:
-          return this.oneColor;
+          return this.color.cardColors.oneColor;
 
         default:
-          return this.noneColor
+          return this.color.cardColors.noneColor
       }
     } else if (form == 'Percent') {
       if (numberValue < 50) {
-        return this.oneColor;
+        return this.color.cardColors.oneColor;
       } else if (numberValue < 60 && numberValue >= 50) {
-        return this.twoColor;
+        return this.color.cardColors.twoColor;
       } else if (numberValue < 70 && numberValue >= 60) {
-        return this.threeColor;
+        return this.color.cardColors.threeColor;
       } else if (numberValue < 80 && numberValue >= 70) {
-        return this.fourColor;
+        return this.color.cardColors.fourColor;
       } else if (numberValue >= 80) {
-        return this.fiveColor;
+        return this.color.cardColors.fiveColor;
       }
     } else if (form == 'Diligence' || form == 'Deportment') {
       if (Value == 'Példás') {
-        return this.fiveColor;
+        return this.color.cardColors.fiveColor;
       } else if (Value == 'Jó') {
-        return this.fourColor;
+        return this.color.cardColors.fourColor;
       } else if (Value == 'Változó') {
-        return this.threeColor;
+        return this.color.cardColors.threeColor;
       } else if (Value == 'Hanyag') {
-        return this.oneColor;
+        return this.color.cardColors.oneColor;
       }
     } else {
-      return this.noneColor;
+      return this.color.cardColors.noneColor;
     }
   }
 

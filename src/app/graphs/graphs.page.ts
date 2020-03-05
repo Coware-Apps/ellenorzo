@@ -4,7 +4,7 @@ import * as HighCharts from 'highcharts';
 import { evaluation } from '../_models/student';
 import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import more from 'highcharts/highcharts-more';
-import { IonSlides } from '@ionic/angular';
+import { IonSlides, MenuController } from '@ionic/angular';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 more(HighCharts);
@@ -53,6 +53,7 @@ export class GraphsPage implements OnInit {
     private dataService: DataService,
     private color: ColorService,
     private firebase: FirebaseX,
+    private menuCtrl: MenuController,
   ) {
     this.focused = 0;
     this.lineColumnButtons = false;
@@ -76,6 +77,7 @@ export class GraphsPage implements OnInit {
   }
 
   async ngOnInit() {
+    this.menuCtrl.enable(false);
     this.evaluations = await this.dataService.getData("statisticsData");
     this.statisticsType = await this.dataService.getData("statisticsType");
     this.statisticsGrouping = await this.dataService.getData("statisticsGrouping");
@@ -116,6 +118,10 @@ export class GraphsPage implements OnInit {
 
   ionViewDidEnter() {
     this.chartSwitch(this.statisticsType);
+  }
+
+  async ionViewWillLeave() {
+    await this.menuCtrl.enable(true)
   }
 
   chartSwitch(statisticsType: string) {

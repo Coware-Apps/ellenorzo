@@ -3,13 +3,15 @@ import { Token } from '../_models/token';
 import { Storage } from '@ionic/storage';
 import { Lesson } from '../_models/lesson';
 import { ThemeService } from '../_services/theme.service';
-import { AlertController, IonSlides } from '@ionic/angular';
+import { AlertController, IonSlides, MenuController } from '@ionic/angular';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
+import { UserManagerService } from '../_services/user-manager.service';
+import { Subscription } from 'rxjs';
 
 interface day {
   name: string,
@@ -80,10 +82,11 @@ export class ListPage implements OnInit {
       index: 5,
       show: false,
     }];
+  private reloaderSubscription: Subscription;
 
   constructor(
     public storage: Storage,
-    public kreta: KretaService,
+    public userManager: UserManagerService,
     public alertCtrl: AlertController,
     private navRouter: Router,
     private dataService: DataService,
@@ -92,6 +95,7 @@ export class ListPage implements OnInit {
     private fDate: FormattedDateService,
     private firebase: FirebaseX,
     private prompt: PromptService,
+    private menuCtrl: MenuController,
   ) {
     this.focused = 0;
     this.currentWeekIndex = 0;
@@ -107,9 +111,24 @@ export class ListPage implements OnInit {
   }
 
   async ngOnInit() {
+    //firebase
+    this.firebase.setScreenName('timetable');
+  }
+
+  async ionViewDidEnter() {
+    await this.menuCtrl.enable(true);
+    await this.loadData();
+    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
+      if (value == 'reload') {
+        this.sans = true;
+        this.loadData();
+      }
+    });
+  }
+
+  private async loadData() {
     this.sans = true;
     let now = new Date();
-
     //getting the first day and last day to show
     let weekFirst;
     let weekLast;
@@ -126,14 +145,15 @@ export class ListPage implements OnInit {
     }
 
     //getting the timetable data from the server
-    this.timetable = await this.kreta.getLesson(weekFirst, weekLast);
+    this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast);
 
     this.dataToScreen(weekFirst, weekLast);
     this.sans = false;
     this.slides.slideTo(this.focused);
+  }
 
-    //firebase
-    this.firebase.setScreenName('timetable');
+  ionViewWillLeave() {
+    this.reloaderSubscription.unsubscribe();
   }
 
   async getMoreData(lesson: Lesson) {
@@ -189,9 +209,9 @@ export class ListPage implements OnInit {
 
     if (this.currentWeekIndex != 0) {
       //not caching extra weeks (timetable requests are pretty quick, and there is an issue with the storage overfill on ionic :(  )
-      this.timetable = await this.kreta.getLesson(weekFirst, weekLast, true);
+      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast, true);
     } else {
-      this.timetable = await this.kreta.getLesson(weekFirst, weekLast);
+      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast);
     }
 
     this.dataToScreen(weekFirst, weekLast);
@@ -208,9 +228,9 @@ export class ListPage implements OnInit {
 
     if (this.currentWeekIndex != 0) {
       //not caching extra weeks (timetable requests are pretty quick, and there is an issue with the storage overfill on ionic :(  )
-      this.timetable = await this.kreta.getLesson(weekFirst, weekLast, true);
+      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast, true);
     } else {
-      this.timetable = await this.kreta.getLesson(weekFirst, weekLast);
+      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast);
     }
 
     console.log("timetable", this.timetable);
@@ -232,7 +252,6 @@ export class ListPage implements OnInit {
       let i = this.getDayName(lesson.StartTime.toString())
       lesson.DayOfWeek = i - 1;
       this.days[i].show = true;
-      console.log(`showing days[${i}]`);
     });
 
     this.timetable.sort((a, b) => new Date(a.StartTime).valueOf() - new Date(b.StartTime).valueOf());

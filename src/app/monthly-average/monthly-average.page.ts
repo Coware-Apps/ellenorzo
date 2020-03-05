@@ -1,11 +1,8 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { NavComponent } from '@ionic/core';
-import { NavController, NavParams, AlertController } from '@ionic/angular';
+import { Component, OnInit } from '@angular/core';
+import { AlertController, MenuController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../_services/data.service';
 import * as HighCharts from 'highcharts';
-import { Storage } from '@ionic/storage';
-import { stringify } from 'querystring';
 import { evaluation } from '../_models/student';
 import { ColorService } from '../_services/color.service';
 import { FormattedDateService } from '../_services/formatted-date.service';
@@ -26,10 +23,10 @@ export class MonthlyAveragePage implements OnInit {
     private route: ActivatedRoute,
     private dataService: DataService,
     private alertCtrl: AlertController,
-    private storage: Storage,
     private color: ColorService,
     private fDate: FormattedDateService,
     private firebase: FirebaseX,
+    private menuCtrl: MenuController,
   ) {
     this.route.queryParams.subscribe(params => {
       this.monthlySubjectData = dataService.getData(params.id);
@@ -50,6 +47,7 @@ export class MonthlyAveragePage implements OnInit {
   }
 
   ionViewDidEnter() {
+    this.menuCtrl.enable(false);
     for (let i = 0; i < this.monthlySubjectData.length; i++) {
       if (this.monthlySubjectData[i].Form == "Mark" && this.monthlySubjectData[i].Type == "MidYear") {
         this.grades[i] = this.monthlySubjectData[i].NumberValue;
@@ -121,6 +119,10 @@ export class MonthlyAveragePage implements OnInit {
         },
       }
     });
+  }
+
+  async ionViewWillLeave() {
+    await this.menuCtrl.enable(true)
   }
 
   themeIf(theme: string) {

@@ -7,10 +7,10 @@ import { IonSlides, IonSelect } from '@ionic/angular';
 import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { DataLoaderService } from '../_services/data-loader.service';
+import { UserManagerService } from '../_services/user-manager.service';
 more(HighCharts);
 
 interface ChartData {
@@ -60,6 +60,7 @@ export class StatisticsPage implements OnInit {
 
   private evaluations: evaluation[];
   private studentSubscription: Subscription;
+  private reloaderSubscription: Subscription;
   private mockSelector: selectorEvent;
 
   constructor(
@@ -71,7 +72,7 @@ export class StatisticsPage implements OnInit {
     private navRouter: Router,
     private color: ColorService,
     private firebase: FirebaseX,
-    private dataLoader: DataLoaderService,
+    private userManager: UserManagerService,
   ) {
     this.focused = 0;
     this.title = "Vonal";
@@ -88,10 +89,21 @@ export class StatisticsPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    await this.loadData();
+    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
+      if (value == 'reload') {
+        this.sans = true;
+        this.showProgressBar = true;
+        this.studentSubscription.unsubscribe();
+        this.loadData();
+      }
+    });
+  }
+  private async loadData() {
     this.sans = true;
     this.showProgressBar = true;
     this.selected = "yearly";
-    this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+    this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
       if (subscriptionData.type == "skeleton") {
         //there is no data in the storage, showing skeleton text until the server responds
       } else if (subscriptionData.type == "placeholder") {
@@ -107,13 +119,12 @@ export class StatisticsPage implements OnInit {
         this.sans = false;
       }
     });
-    this.dataLoader.initializeStudent();
-
-    this.sans = false;
+    await this.userManager.currentUser.initializeStudent();
   }
 
   ionViewWillLeave() {
     this.studentSubscription.unsubscribe();
+    this.reloaderSubscription.unsubscribe();
   }
 
   async ionSlideWillChange() {
@@ -157,9 +168,8 @@ export class StatisticsPage implements OnInit {
   }
 
   async doRefresh(event: any) {
-    console.log("begin operation");
     this.showProgressBar = true;
-    await this.dataLoader.updateStudent();
+    await this.userManager.currentUser.updateStudent();
     event.target.complete();
   }
 
@@ -413,40 +423,18 @@ export class StatisticsPage implements OnInit {
     }
   }
 
-  returnPieColors(colors: string[]): string[] {
-    let changedColors: string[] = [];
-
-    for (let i = 0; i < colors.length; i++) {
-      if (colors[i] == "") {
-        switch (i) {
-          case 0:
-            changedColors[0] = "#00CC66";
-            break;
-          case 1:
-            changedColors[1] = "#FFFF66";
-            break;
-          case 2:
-            changedColors[2] = "#FF9933";
-            break;
-          case 3:
-            changedColors[3] = "#663300";
-            break;
-          case 4:
-            changedColors[4] = "#FF0000";
-            break;
-        }
-      } else {
-        changedColors[i] = colors[i];
+  returnPieColors(): string[] {
+    let returnVal: string[] = [];
+    for (const key in this.color.cardColors) {
+      if (this.color.cardColors.hasOwnProperty(key)) {
+        const element = this.color.cardColors[key];
+        returnVal.push(element);
       }
     }
-    return changedColors;
-
+    return returnVal;
   }
   async showPie(pieData: ChartData[]) {
     //draws pie charts pieData.length times with pieData (div container id syntax: pie_<number>)
-    let a;
-    let colors = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
-    colors = colors.split("&");
 
     for (let i = 0; i < pieData.length; i++) {
       const element = pieData[i];
@@ -495,7 +483,7 @@ export class StatisticsPage implements OnInit {
             }
           },
           pie: {
-            colors: this.returnPieColors(colors),
+            colors: this.returnPieColors(),
           }
         },
         series: [{

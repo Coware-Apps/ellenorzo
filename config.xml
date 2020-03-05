@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="hu.coware.ellenorzo" version="0.9.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="hu.coware.ellenorzo" version="0.9.5" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Arisztokreta</name>
     <description>Nem hivatalos kliens a KRETA rendszerhez</description>
     <author email="cowareapps@gmail.com" href="https://coware-apps.github.io/ellenorzo/">Coware</author>
@@ -25,12 +25,12 @@
         </edit-config>
         <resource-file src="resources/android/xml/network_security_config.xml" target="app/src/main/res/xml/network_security_config.xml" />
         <allow-intent href="market:*" />
-        <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
-        <icon density="mdpi" src="resources/android/icon/drawable-mdpi-icon.png" />
-        <icon density="hdpi" src="resources/android/icon/drawable-hdpi-icon.png" />
-        <icon density="xhdpi" src="resources/android/icon/drawable-xhdpi-icon.png" />
-        <icon density="xxhdpi" src="resources/android/icon/drawable-xxhdpi-icon.png" />
-        <icon density="xxxhdpi" src="resources/android/icon/drawable-xxxhdpi-icon.png" />
+        <icon background="resources/android/icon/ldpi-background.png" density="ldpi" foreground="resources/android/icon/ldpi-foreground.png" src="resources/android/icon/drawable-ldpi-icon.png" />
+        <icon background="resources/android/icon/mdpi-background.png" density="mdpi" foreground="resources/android/icon/mdpi-foreground.png" src="resources/android/icon/drawable-mdpi-icon.png" />
+        <icon background="resources/android/icon/hdpi-background.png" density="hdpi" foreground="resources/android/icon/hdpi-foreground.png" src="resources/android/icon/drawable-hdpi-icon.png" />
+        <icon background="resources/android/icon/xhdpi-background.png" density="xhdpi" foreground="resources/android/icon/xhdpi-foreground.png" src="resources/android/icon/drawable-xhdpi-icon.png" />
+        <icon background="resources/android/icon/xxhdpi-background.png" density="xxhdpi" foreground="resources/android/icon/xxhdpi-foreground.png" src="resources/android/icon/drawable-xxhdpi-icon.png" />
+        <icon background="resources/android/icon/xxxhdpi-background.png" density="xxxhdpi" foreground="resources/android/icon/xxxhdpi-foreground.png" src="resources/android/icon/drawable-xxxhdpi-icon.png" />
         <splash density="land-ldpi" src="resources/android/splash/drawable-land-ldpi-screen.png" />
         <splash density="land-mdpi" src="resources/android/splash/drawable-land-mdpi-screen.png" />
         <splash density="land-hdpi" src="resources/android/splash/drawable-land-hdpi-screen.png" />

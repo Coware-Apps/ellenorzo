@@ -8,6 +8,7 @@ import { AppService } from 'src/app/_services/app.service';
 import { PromptService } from 'src/app/_services/prompt.service';
 import { LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { UserManagerService } from 'src/app/_services/user-manager.service';
 interface TestData {
   UA: string;
   data: number[];
@@ -25,7 +26,7 @@ export class UserAgentPage implements OnInit {
   public hasItLoaded: boolean;
   public showPreviousData: boolean;
   constructor(
-    public kreta: KretaService,
+    public userManager: UserManagerService,
     private fDate: FormattedDateService,
     private color: ColorService,
     private app: AppService,
@@ -117,7 +118,7 @@ export class UserAgentPage implements OnInit {
       }
 
       for (let i = 0; i < 5; i++) {
-        currentTest.data.push(await this.kreta.getLessonLAB(weekFirst, weekLast, this.currentUA));
+        currentTest.data.push(await this.userManager.currentUser.getLessonLAB(weekFirst, weekLast, this.currentUA));
         await this.delay(2000);
       }
 

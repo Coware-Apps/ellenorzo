@@ -2,13 +2,12 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TeacherHomework, StudentHomework, HomeworkResponse } from 'src/app/_models/homework';
 import { KretaService } from 'src/app/_services/kreta.service';
-import {AlertController, ToastController } from '@ionic/angular';
-import {IonSlides} from "@ionic/angular";
-import { ColorService } from 'src/app/_services/color.service';
+import { IonSlides, MenuController } from "@ionic/angular";
 import { DataService } from 'src/app/_services/data.service';
 import { FormattedDateService } from 'src/app/_services/formatted-date.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from 'src/app/_services/prompt.service';
+import { UserManagerService } from 'src/app/_services/user-manager.service';
 @Component({
   selector: 'app-timetable-homeworks',
   templateUrl: './timetable-homeworks.page.html',
@@ -34,15 +33,13 @@ export class TimetableHomeworksPage implements OnInit {
 
   constructor(
     private actRoute: ActivatedRoute,
-    private kreta: KretaService,
+    private userManager: UserManagerService,
     private router: Router,
-    private color: ColorService,
-    private alertCtrl: AlertController,
     private data: DataService,
     private fDate: FormattedDateService,
-    private toastCtrl: ToastController,
     private firebase: FirebaseX,
     private prompt: PromptService,
+    private menuCtrl: MenuController,
   ) {
     this.teacherHomeworkId = null;
     this.focused = 0;
@@ -50,6 +47,7 @@ export class TimetableHomeworksPage implements OnInit {
   }
 
   async ngOnInit() {
+    this.menuCtrl.enable(false);
     this.sans = true;
     this.actRoute.queryParams.subscribe(async (params) => {
       let id = params['id'];
@@ -62,15 +60,19 @@ export class TimetableHomeworksPage implements OnInit {
       this.StartTime = this.data.getData(id).StartTime;
 
       if (this.teacherHomeworkId != null) {
-        this.teacherHomeworks = await this.kreta.getTeacherHomeworks(null, null, this.teacherHomeworkId);
+        this.teacherHomeworks = await this.userManager.currentUser.getTeacherHomeworks(null, null, this.teacherHomeworkId);
         if (this.isTHFE == true) {
-          this.studentHomeworks = await this.kreta.getStudentHomeworks(null, null, this.teacherHomeworkId);
+          this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, this.teacherHomeworkId);
         }
       }
     });
     console.log('this.isTHFE', this.isTHFE);
     this.sans = false;
     this.firebase.setScreenName('timetable-homeworks');
+  }
+
+  async ionViewWillLeave() {
+    await this.menuCtrl.enable(true)
   }
 
   showInfo(teacherHomework: TeacherHomework) {
@@ -113,12 +115,12 @@ export class TimetableHomeworksPage implements OnInit {
       }
 
       let homeworkResponse: HomeworkResponse;
-      if ((homeworkResponse = await this.kreta.addStudentHomework(lesson, this.homeworkText)).HozzaadottTanuloHaziFeladatId != null) {
+      if ((homeworkResponse = await this.userManager.currentUser.addStudentHomework(lesson, this.homeworkText)).HozzaadottTanuloHaziFeladatId != null) {
         this.prompt.toast('A házi feladatot sikeresen hozzáadtuk!', true);
         this.homeworkText = null;
         this.sans = true;
         this.teacherHomeworkId = homeworkResponse.TanarHaziFeladatId;
-        this.studentHomeworks = await this.kreta.getStudentHomeworks(null, null, this.teacherHomeworkId);
+        this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, this.teacherHomeworkId);
         this.focused = 1;
         this.isTHFE = true;
         this.sans = false;
@@ -128,13 +130,13 @@ export class TimetableHomeworksPage implements OnInit {
     }
   }
   async deleteHomework(id: number) {
-    if(await this.kreta.deleteStudentHomework(id)) {
+    if (await this.userManager.currentUser.deleteStudentHomework(id)) {
       this.prompt.toast('Házi feladat sikeresen törölve!', true);
       this.sans = true;
-      this.studentHomeworks = await this.kreta.getStudentHomeworks(null, null, this.teacherHomeworkId);
+      this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, this.teacherHomeworkId);
       this.sans = false;
     };
-    
+
   }
 
 }

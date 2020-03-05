@@ -3,7 +3,7 @@ import { ThemeService } from '../_services/theme.service';
 import { Storage } from '@ionic/storage';
 import { AuthenticationService } from '../_services/authentication.service';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import { Platform, AlertController, ToastController, LoadingController } from '@ionic/angular';
+import { Platform, AlertController, ToastController, LoadingController, MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ColorService } from '../_services/color.service';
 import { AppService } from '../_services/app.service';
@@ -15,6 +15,7 @@ import { LocalNotifications, ILocalNotification } from '@ionic-native/local-noti
 import { PromptService } from '../_services/prompt.service';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { NotificationService } from '../_services/notification.service';
+import { UserManagerService } from '../_services/user-manager.service';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.page.html',
@@ -43,19 +44,17 @@ export class SettingsPage implements OnInit {
   constructor(
     public app: AppService,
 
-    private toastController: ToastController,
+    private kreta: KretaService,
     private theme: ThemeService,
     private storage: Storage,
     private camera: Camera,
     private platform: Platform,
     private router: Router,
     private color: ColorService,
-    private kreta: KretaService,
     private firebase: FirebaseX,
     private prompt: PromptService,
     private inAppBrowser: InAppBrowser,
-    private notificationService: NotificationService,
-    private fDate: FormattedDateService,
+    private menuCtrl: MenuController,
   ) {
     this.platform.ready().then((readySource) => {
       this.width = platform.width();
@@ -108,6 +107,10 @@ export class SettingsPage implements OnInit {
     this.firebase.setScreenName('settings');
   }
 
+  async ionViewDidEnter() {
+    await this.menuCtrl.enable(true);
+  }
+
   //#region themes
   enableDark() {
     this.theme.enableDark();
@@ -135,7 +138,7 @@ export class SettingsPage implements OnInit {
   //#endregion
 
   async logout() {
-    await this.kreta.logout();
+    //TODO
   }
 
   //#region starting pages
@@ -190,18 +193,12 @@ export class SettingsPage implements OnInit {
     await this.app.changeConfig('toastLoggingEnabled', event.detail.checked);
   }
 
-  async localNotificationsChanged(event: any) {
-    if (event.detail.checked) {
-      let timetable = await this.kreta.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(0));
-      await this.notificationService.enableLocalNotifications(timetable);
-      await this.app.changeConfig('localNotificationsEnabled', true);
-      this.prompt.toast('Értesítések sikeresen engedélyezve!', true);
-    } else {
-      await this.notificationService.disableLocalNotifications();
-      await this.app.changeConfig('localNotificationsEnabled', false);
-      this.prompt.toast('Értesítések sikeresen letiltva!', true);
-    }
-    this.app.localNotificationsEnabled = event.detail.checked;
+  openUserSettings() {
+    this.router.navigateByUrl('user-settings');
+  }
+
+  openNotificationSettings() {
+    this.router.navigateByUrl('notification-settings');
   }
 
   openUrl(url: string) {

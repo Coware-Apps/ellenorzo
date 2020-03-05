@@ -25,7 +25,7 @@ export class JwtDecodeHelper {
 
     public decodeToken(token: string = ''): DecodedUser {
         if (token === null || token === '') {
-             return null; 
+            return null;
         }
         const parts = token.split('.');
         if (parts.length !== 3) {

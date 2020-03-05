@@ -6,6 +6,14 @@ import { ThemeService } from './theme.service';
 })
 export class ColorService {
 
+  public cardColors = {
+    fiveColor: "#00CC66",
+    fourColor: "#FFFF66",
+    threeColor: "#FF9933",
+    twoColor: "#663300",
+    oneColor: "#FF0000",
+    noneColor: "#9933FF",
+  };
   private currentTheme: string;
   constructor(
     private theme: ThemeService,

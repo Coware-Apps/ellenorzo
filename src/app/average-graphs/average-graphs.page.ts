@@ -1,12 +1,10 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { Student, evaluation } from '../_models/student';
-import { ModalController, AlertController, IonSlides, NavController } from '@ionic/angular';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Student, } from '../_models/student';
+import { IonSlides, MenuController } from '@ionic/angular';
 import * as HighCharts from 'highcharts';
 import More from 'highcharts/highcharts-more';
-import { ThemeService } from '../_services/theme.service';
 import { ColorService } from '../_services/color.service';
 import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
-import { FormattedDateService } from '../_services/formatted-date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
@@ -54,31 +52,25 @@ export class AverageGraphsPage implements OnInit {
   public classValue: number;
 
   private graphData: number;
-  private graphType: string;
   private LineData: Array<number>;
   private ColumnData: Array<number>;
-  private graphTextColor;
   private wacData: numWeight[];
   private id: number;
   private fromRoute: string;
 
   constructor(
-    private modalCtrl: ModalController,
-    private theme: ThemeService,
     private color: ColorService,
     private wac: WeighedAvgCalcService,
-    private alertCtrl: AlertController,
-    private fDate: FormattedDateService,
     private router: Router,
     private route: ActivatedRoute,
     private data: DataService,
     private firebase: FirebaseX,
     private prompt: PromptService,
+    private menuCtrl: MenuController,
   ) {
     this.grades = [];
     this.ColumnData = [0, 0, 0, 0, 0];
     this.LineData = [];
-    this.graphTextColor = "#000000";
     this.contrast = this.color.getContrast();
     this.wacData = [];
     this.id = 1;
@@ -93,9 +85,15 @@ export class AverageGraphsPage implements OnInit {
   }
 
   ngOnInit() {
+    this.menuCtrl.enable(false)
+
     this.fillStartData();
 
     this.firebase.setScreenName('average-graphs');
+  }
+
+  async ionViewWillLeave() {
+    await this.menuCtrl.enable(true)
   }
 
   fillStartData() {

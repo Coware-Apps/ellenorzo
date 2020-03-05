@@ -1,18 +1,15 @@
 import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
-import { AuthenticationService } from './authentication.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuardService implements CanActivate {
+  activator: boolean = false;
+  constructor() { }
 
-  constructor(
-    private authService: AuthenticationService,
-  ) { }
-
-  //so this shit can only run if this.authService.isAuthenticated == true
-   canActivate(): boolean {
-     return this.authService.isAuthenticated();
-   }
+  canActivate(): boolean {
+    return this.activator;
+  }
 }

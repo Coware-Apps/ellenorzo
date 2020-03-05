@@ -1,20 +1,21 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthenticationService } from '../_services/authentication.service';
 import { Storage } from '@ionic/storage';
-import { AlertController, ModalController, MenuController } from '@ionic/angular';
+import { AlertController, ModalController, MenuController, LoadingController } from '@ionic/angular';
 import { InAppBrowser, InAppBrowserOptions } from '@ionic-native/in-app-browser/ngx';
 import { InstituteSelectorModalPage } from './institute-selector-modal/institute-selector-modal.page';
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
-import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { UserManagerService } from '../_services/user-manager.service';
+import { AppService } from '../_services/app.service';
+import { PromptService } from '../_services/prompt.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit, OnDestroy {
+export class LoginPage implements OnInit {
 
   public user: string = null;
   public pass: string = null;
@@ -24,21 +25,30 @@ export class LoginPage implements OnInit, OnDestroy {
     public modalCtrl: ModalController,
     public alertCtrl: AlertController,
     public storage: Storage,
+    public userManager: UserManagerService,
+    public router: Router,
 
     private browser: InAppBrowser,
     private kreta: KretaService,
     private data: DataService,
-    private firebase: FirebaseX,
     private menuCtrl: MenuController,
+    private loadingCtrl: LoadingController,
+    private app: AppService,
+    private prompt: PromptService,
   ) { }
 
   ngOnInit() {
-    this.firebase.setScreenName('login');
     this.menuCtrl.enable(false);
   }
 
-  ngOnDestroy(): void {
+  ionViewDidEnter() {
+    this.pass = null;
+    this.user = null;
+    this.instituteName = null;
+  }
 
+  ionViewWillLeave() {
+    this.menuCtrl.enable(true);
   }
 
   async login() {
@@ -46,10 +56,32 @@ export class LoginPage implements OnInit, OnDestroy {
       this.presentAlert('Hibás adatok', 'Kérlek töltsd ki az összes mezőt!');
     }
     else {
+      let loading = await this.loadingCtrl.create({
+        spinner: "crescent",
+        message: 'Kommunikáció folyamatban...',
+        animated: true,
+      });
+      await loading.present();
       await this.storage.set('username', this.user);
-      await this.storage.set('institute', this.data.getData('institute'));
-      this.kreta.password = this.pass;
-      await this.kreta.loginIfNotYetLoggedIn(true);
+      //TODO remove
+      let tokenResult = await this.kreta.getToken(this.user, this.pass, this.data.getData('institute'));
+      if (tokenResult != false) {
+        //checking if the user exists or not
+        if (await this.userManager.addUser(tokenResult, this.data.getData('institute'))) {
+          //the user doesn't exist
+          await this.menuCtrl.enable(true);
+          await loading.dismiss();
+          this.app.isStudentSelectorReady = true;
+          await this.router.navigateByUrl('home');
+        } else {
+          //the user already exists
+          this.prompt.presentUniversalAlert('Hibás adatok', 'Sikertelen művelet', 'Ezzel az azonosítóval már létezik bejelentkezett felhasználó a rendszerben.');
+          await loading.dismiss();
+        }
+      } else {
+        await loading.dismiss();
+      }
+      //TODO login
     }
   }
 

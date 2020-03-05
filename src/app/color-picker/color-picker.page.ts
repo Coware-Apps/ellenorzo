@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { ModalController, IonSlides } from '@ionic/angular';
+import { ModalController, IonSlides, MenuController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ColorService } from '../_services/color.service';
@@ -37,6 +37,7 @@ export class ColorPickerPage implements OnInit {
     private router: Router,
     private Route: ActivatedRoute,
     private firebase: FirebaseX,
+    private menuCtrl: MenuController,
   ) {
     this.color = "#00CC00";
     this.focused = 0;
@@ -44,15 +45,16 @@ export class ColorPickerPage implements OnInit {
   }
 
   async ngOnInit() {
+    this.menuCtrl.enable(false);
     let a;
     let color = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
 
-    this.fiveColor = color.split('&')[0] != "" ? color.split('&')[0] : "#00CC66";
-    this.fourColor = color.split('&')[1] != "" ? color.split('&')[1] : "#FFFF66";
-    this.threeColor = color.split('&')[2] != "" ? color.split('&')[2] : "#FF9933";
-    this.twoColor = color.split('&')[3] != "" ? color.split('&')[3] : "#663300";
-    this.oneColor = color.split('&')[4] != "" ? color.split('&')[4] : "#FF0000";
-    this.noneColor = color.split('&')[5] != "" ? color.split('&')[5] : "#9933FF";
+    this.fiveColor = this.colorService.cardColors.fiveColor;
+    this.fourColor = this.colorService.cardColors.fourColor;
+    this.threeColor = this.colorService.cardColors.threeColor;
+    this.twoColor = this.colorService.cardColors.twoColor;
+    this.oneColor = this.colorService.cardColors.oneColor;
+    this.noneColor = this.colorService.cardColors.noneColor;
 
     this.firebase.setScreenName('color-picker');
   }
@@ -148,6 +150,10 @@ export class ColorPickerPage implements OnInit {
     });
   }
 
+  async ionViewWillLeave() {
+    await this.menuCtrl.enable(true)
+  }
+
   async ionSlideWillChange() {
     this.focused = await this.slides.getActiveIndex();
     switch (this.focused) {
@@ -215,21 +221,33 @@ export class ColorPickerPage implements OnInit {
     switch (grade) {
       case 5:
         this.fiveColor = this.color;
+        this.colorService.cardColors.fiveColor = this.color;
+        await this.storage.set('cardColor', this.colorService.cardColors);
         break;
       case 4:
         this.fourColor = this.color;
+        this.colorService.cardColors.fourColor = this.color;
+        await this.storage.set('cardColor', this.colorService.cardColors);
         break;
       case 3:
         this.threeColor = this.color;
+        this.colorService.cardColors.threeColor = this.color;
+        await this.storage.set('cardColor', this.colorService.cardColors);
         break;
       case 2:
         this.twoColor = this.color;
+        this.colorService.cardColors.twoColor = this.color;
+        await this.storage.set('cardColor', this.colorService.cardColors);
         break;
       case 1:
         this.oneColor = this.color;
+        this.colorService.cardColors.oneColor = this.color;
+        await this.storage.set('cardColor', this.colorService.cardColors);
         break;
       case 0:
         this.noneColor = this.color;
+        this.colorService.cardColors.noneColor = this.color;
+        await this.storage.set('cardColor', this.colorService.cardColors);
         break;
     }
   }

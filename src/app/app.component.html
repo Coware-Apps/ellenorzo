@@ -1,13 +1,19 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
-    <ion-menu contentId="main-content" type="overlay">
+    <ion-menu (ionDidClose)="menuClosed()" contentId="main-content" type="overlay">
       <ion-header>
         <ion-toolbar>
           <ion-title>Arisztokréta</ion-title>
         </ion-toolbar>
+        <ion-item *ngIf="this.app.isStudentSelectorReady" button (click)="this.showAppPages = !this.showAppPages">
+          <ion-icon slot="start" name="person-sharp"></ion-icon>
+          <ion-label>{{this.userManager.currentUser.fullName}}</ion-label>
+          <ion-icon *ngIf="!this.showAppPages" slot="end" name="caret-up"></ion-icon>
+          <ion-icon *ngIf="this.showAppPages" slot="end" name="caret-down"></ion-icon>
+        </ion-item>
       </ion-header>
       <ion-content>
-        <ion-list>
+        <ion-list *ngIf="this.showAppPages">
           <ion-menu-toggle (ionWillOpen)="checkConfig()" auto-hide="false" *ngFor="let p of appPages">
             <ion-item [hidden]="!p.show" [routerDirection]="'root'" [routerLink]="[p.url]">
               <ion-icon slot="start" [name]="p.icon" [src]="p.src"></ion-icon>
@@ -16,6 +22,22 @@
               </ion-label>
             </ion-item>
           </ion-menu-toggle>
+        </ion-list>
+        <ion-list *ngIf="!this.showAppPages && this.app.isStudentSelectorReady">
+          <div *ngFor="let user of this.userManager.allUsers">
+            <ion-item button (click)="userChanged(user)">
+              <ion-icon *ngIf="this.userManager.currentUser.id != user.id" slot="start" name="person-outline">
+              </ion-icon>
+              <ion-icon *ngIf="this.userManager.currentUser.id == user.id" slot="start" name="person-sharp"></ion-icon>
+              <ion-label>
+                <h2>{{user.fullName}}</h2>
+                <ion-note>{{user.institute.Name}}</ion-note>
+              </ion-label>
+            </ion-item>
+          </div>
+          <ion-button (click)="editUsers()" expand="block" fill="outline" shape="round">
+            Szerkesztés
+          </ion-button>
         </ion-list>
       </ion-content>
     </ion-menu>

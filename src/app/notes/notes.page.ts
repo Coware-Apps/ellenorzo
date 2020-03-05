@@ -8,8 +8,8 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
 import { Observable, Subscription } from 'rxjs';
-import { DataLoaderService } from '../_services/data-loader.service';
 import { AppService } from '../_services/app.service';
+import { UserManagerService } from '../_services/user-manager.service';
 
 @Component({
   selector: 'app-notes',
@@ -22,12 +22,13 @@ export class NotesPage implements OnInit {
   public collapsifiedData: Observable<UniversalSortedData[]>;
   public showProgressBar: boolean;
   private studentSubscription: Subscription;
+  private reloaderSubscription: Subscription;
   constructor(
     public kretaService: KretaService,
     public fDate: FormattedDateService,
     public app: AppService,
 
-    private dataLoader: DataLoaderService,
+    private userManager: UserManagerService,
     private firebase: FirebaseX,
     private prompt: PromptService,
     private collapsifyService: CollapsifyService,
@@ -37,14 +38,33 @@ export class NotesPage implements OnInit {
   }
 
   async ngOnInit() {
+    this.firebase.setScreenName('notes');
+  }
+
+  async ionViewDidEnter() {
+    await this.loadData();
+    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
+      if (value == 'reload') {
+        this.sans = true;
+        this.showProgressBar = true;
+        this.studentSubscription.unsubscribe();
+        this.loadData();
+      }
+    });
+  }
+
+  private async loadData() {
     this.collapsifiedData = new Observable<UniversalSortedData[]>((observer) => {
-      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+      this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
         if (subscriptionData.type == "skeleton") {
           //there is no data in the storage, showing skeleton text until the server responds
+          this.sans = true;
+          this.showProgressBar = true;
         } else if (subscriptionData.type == "placeholder") {
           //there is data in the storage, showing that data until the server responds, disabling skeleton text
           observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data.Notes, "CreatingTime"));
           this.sans = false;
+          this.showProgressBar = true;
         } else {
           //the server has now responded, disabling progress bar and skeleton text if it's still there
           observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data.Notes, "CreatingTime"));
@@ -52,23 +72,21 @@ export class NotesPage implements OnInit {
           this.sans = false;
         }
       });
-      this.dataLoader.initializeStudent();
     });
-
-    this.firebase.setScreenName('notes');
+    await this.userManager.currentUser.initializeStudent();
   }
 
   ionViewWillLeave() {
     this.studentSubscription.unsubscribe();
+    this.reloaderSubscription.unsubscribe();
   }
 
   async getMoreData(note: Note) {
     this.prompt.noteAlert(note);
   }
   async doRefresh(event: any) {
-    console.log("begin operation");
     this.showProgressBar = true;
-    await this.dataLoader.updateStudent();
+    await this.userManager.currentUser.updateStudent();
     event.target.complete();
   }
 }

@@ -1,5 +1,14 @@
+<ion-header *ngIf="this.userManager.allUsers.length > 0">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="this.router.navigateByUrl('/user-settings')">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Fiók hozzáadása</ion-title>
+  </ion-toolbar>
+</ion-header>
 <ion-content>
-
   <ion-card>
     <ion-card-header class="login-header">
       <img src="../../assets/img/logo.png" class="logo">
@@ -9,21 +18,26 @@
     <ion-card-content>
       <ion-item>
         <ion-label position="floating">
-          <h1>Felhasználónév</h1>
+          Felhasználónév
         </ion-label>
         <ion-input [(ngModel)]="user" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="floating">
-          <h1>Jelszó</h1>
+          Jelszó
         </ion-label>
         <ion-input [(ngModel)]="pass" type="password" required></ion-input>
       </ion-item>
       <ion-item>
-        <ion-input placeholder="Válasszon intézményt!" (click)="getInstitute()" [(ngModel)]="instituteName"
-          name="selectedInstitute" aria-label="Válasszon intézményt!" required readonly></ion-input>
+        <ion-label position="floating">
+          Intézmény
+        </ion-label>
+        <ion-input (click)="getInstitute()" [(ngModel)]="instituteName" name="selectedInstitute"
+          aria-label="Válasszon intézményt!" required readonly></ion-input>
       </ion-item>
-      <ion-button color="primary" expand="full" fill="solid" (click)="login()">
+      <ion-button class="loginBtn" color="primary" expand="full"
+        [fill]='this.user != null && this.pass != null && this.instituteName != null ? "solid" : "outline"'
+        shape="round" (click)="login()">
         Bejelentkezés
       </ion-button>
       <p class="dataProt">A bejelentkezés gombra kattintva elfogadom az Adatkezelési Feltételeket (<a

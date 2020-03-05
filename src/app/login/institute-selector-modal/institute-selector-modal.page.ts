@@ -19,7 +19,6 @@ export class InstituteSelectorModalPage implements OnInit {
   constructor(
     private kreta: KretaService,
     private modalController: ModalController,
-    private storage: Storage,
     private data: DataService,
     private firebase: FirebaseX,
   ) { }
@@ -39,7 +38,6 @@ export class InstituteSelectorModalPage implements OnInit {
 
   onSelectionChange(instituteCode: string) {
     const selected = this.institutes.find(x => x.InstituteCode == instituteCode);
-    this.kreta.institute = selected;
     this.data.setData("institute", selected);
     this.modalController.dismiss({ selectedInstitute: selected });
   }

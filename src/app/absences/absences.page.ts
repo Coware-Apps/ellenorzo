@@ -7,9 +7,9 @@ import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
-import { DataLoaderService } from '../_services/data-loader.service';
 import { Observable, Subscription } from 'rxjs';
 import { AppService } from '../_services/app.service';
+import { UserManagerService } from '../_services/user-manager.service';
 
 interface AbsenceGroup {
   data: UniversalSortedData[];
@@ -37,6 +37,7 @@ export class AbsencesPage implements OnInit {
 
   private student: Student;
   private studentSubscription: Subscription;
+  private reloaderSubscription: Subscription;
 
   constructor(
     public fDate: FormattedDateService,
@@ -47,7 +48,7 @@ export class AbsencesPage implements OnInit {
     private firebase: FirebaseX,
     private prompt: PromptService,
     private collapsifyService: CollapsifyService,
-    private dataLoader: DataLoaderService,
+    private userManager: UserManagerService,
   ) {
     this.focused = 0;
     this.title = "Igazolt";
@@ -58,14 +59,33 @@ export class AbsencesPage implements OnInit {
   }
 
   async ngOnInit() {
+    this.firebase.setScreenName('absences');
+  }
+
+  async ionViewDidEnter() {
+    await this.loadData();
+    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
+      if (value == 'reload') {
+        this.sans = true;
+        this.showProgressBar = true;
+        this.studentSubscription.unsubscribe();
+        this.loadData();
+      }
+    });
+  }
+
+  private async loadData() {
     this.allAbsences = new Observable<AbsenceGroup[]>((observer) => {
-      this.studentSubscription = this.dataLoader.student.subscribe(subscriptionData => {
+      this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
         if (subscriptionData.type == "skeleton") {
+          this.sans = true;
+          this.showProgressBar = true;
           //there is no data in the storage, showing skeleton text until the server responds
         } else if (subscriptionData.type == "placeholder") {
           //there is data in the storage, showing that data (placeholder) until the server responds, disabling skeleton text
           observer.next(this.formatStudent(subscriptionData.data));
           this.sans = false;
+          this.showProgressBar = true;
         } else {
           //the server has now responded, disabling progress bar and skeleton text if it's still there
           observer.next(this.formatStudent(subscriptionData.data));
@@ -73,13 +93,13 @@ export class AbsencesPage implements OnInit {
           this.sans = false;
         }
       });
-      this.dataLoader.initializeStudent();
     });
-    this.firebase.setScreenName('absences');
+    await this.userManager.currentUser.initializeStudent();
   }
 
   ionViewWillLeave() {
     this.studentSubscription.unsubscribe();
+    this.reloaderSubscription.unsubscribe();
   }
 
   private formatStudent(student: Student): AbsenceGroup[] {
@@ -175,9 +195,8 @@ export class AbsencesPage implements OnInit {
   }
 
   async doRefresh(event: any) {
-    console.log("begin operation");
     this.showProgressBar = true;
-    await this.dataLoader.updateStudent();
+    await this.userManager.currentUser.updateStudent();
     event.target.complete();
   }
 

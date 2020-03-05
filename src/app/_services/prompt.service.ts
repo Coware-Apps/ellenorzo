@@ -6,6 +6,7 @@ import { FormattedDateService } from './formatted-date.service';
 import { Lesson } from '../_models/lesson';
 import { TeacherHomework } from '../_models/homework';
 import { AppService } from './app.service';
+import { CommunityServiceData } from '../_models/communityService';
 
 @Injectable({
   providedIn: 'root'
@@ -30,8 +31,8 @@ export class PromptService {
   public evaluationAlert(evaluation: evaluation) {
     if (evaluation.Form == "Mark") {
       let date = new Date(evaluation.Date);
-      let formattedDate = this.fDate.formatDate(date);
-      let time = date.getHours() + ":" + date.getMinutes();
+      let formattedDate = this.fDate.formatDateWithZerosAndDots(date);
+      let time = new Date(evaluation.CreatingTime).getHours() + ':' + new Date(evaluation.CreatingTime).getMinutes();
       this.presentAlert(evaluation.NumberValue + this.themeIf(evaluation.Theme), evaluation.Weight,
         "<ul>" +
         "<li>Dátum: " + formattedDate + "</li>" +
@@ -115,10 +116,21 @@ export class PromptService {
       "<li>Dátum: " + formattedDate + "</li>" +
       "<li>Létrehozva: " + time + "</li>" +
       "<li>Típus: " + grade.Mode + "</li>" +
-      "<li>Leírás: " + grade.FormName + "</li></ul>", this.color.getPopUpClass())
+      "<li>Leírás: " + grade.FormName + "</li></ul>", this.color.getPopUpClass());
   }
   public notificationAlert(title: string, content: string) {
     this.presentAlert(title, null, content, this.color.getPopUpClass());
+  }
+  public communityServiceAlert(comServiceDataItem: CommunityServiceData) {
+    let note = comServiceDataItem.Megjegyzes == null ? '-' : comServiceDataItem.Megjegyzes;
+    this.presentAlert(comServiceDataItem.KozossegiSzolgalatTipusa_DNAME,
+      comServiceDataItem.Oraszam + ' óra',
+      "<ul><li>Kezdés: " + this.fDate.formatDateWithZerosAndDots(comServiceDataItem.IntervallumKezdete) + "</li>" +
+      "<li>Befejezés: " + this.fDate.formatDateWithZerosAndDots(comServiceDataItem.IntervallumVege) + "</li>" +
+      "<li>Intézmény neve: " + comServiceDataItem.TeljesitesiHelye + "</li>" +
+      "<li>Rögzítve: " + this.fDate.formatDateWithZerosAndDots(comServiceDataItem.RogzitesDatuma) + "</li></ul>" +
+      "Megjegyzés: " + note,
+      this.color.getPopUpClass());
   }
   //#endregion
 

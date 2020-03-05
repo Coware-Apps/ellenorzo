@@ -3,6 +3,7 @@ import { KretaService } from 'src/app/_services/kreta.service';
 import { Message } from 'src/app/_models/message';
 import { DataService } from 'src/app/_services/data.service';
 import { Router } from '@angular/router';
+import { UserManagerService } from 'src/app/_services/user-manager.service';
 
 @Component({
   selector: 'app-read-message',
@@ -13,7 +14,7 @@ export class ReadMessagePage implements OnInit {
   public message: Message;
   public sans: boolean;
   constructor(
-    public kreta: KretaService,
+    public userManager: UserManagerService,
     public data: DataService,
     private router: Router,
   ) {
@@ -22,7 +23,7 @@ export class ReadMessagePage implements OnInit {
 
   async ngOnInit() {
     let messageId = this.data.getData('messageId');
-    this.message = await this.kreta.getMessage(messageId);
+    this.message = await this.userManager.currentUser.getMessage(messageId);
     this.sans = false;
   }
 

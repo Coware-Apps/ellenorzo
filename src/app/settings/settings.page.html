@@ -77,16 +77,11 @@
         <h1>Értesítések</h1>
       </ion-label>
     </ion-item-divider>
-    <ion-item>
-      <ion-icon *ngIf="this.app.localNotificationsEnabled" slot="start" name="notifications"></ion-icon>
-      <ion-icon *ngIf="!this.app.localNotificationsEnabled" slot="start" name="notifications-off"></ion-icon>
+    <ion-item (click)="openNotificationSettings()">
+      <ion-icon slot="start" name="notifications-sharp"></ion-icon>
       <ion-label>
         Órarend értesítések
-        <p>10 perccel minden óra kezdete előtt</p>
       </ion-label>
-      <ion-toggle [checked]="this.app.localNotificationsEnabled" (ionChange)="this.localNotificationsChanged($event)"
-        slot="end">
-      </ion-toggle>
     </ion-item>
 
     <ion-item-divider>
@@ -130,12 +125,15 @@
 
     <ion-item-divider>
       <ion-label>
-        <h1>Fiók</h1>
+        <h1>Fiókok</h1>
       </ion-label>
     </ion-item-divider>
-    <ion-item button (click)="logout()">
-      Kijelentkezés
-      <ion-icon slot="start" name="log-out"></ion-icon>
+    <ion-item button (click)="openUserSettings()">
+      <ion-icon slot="start" name="people-sharp"></ion-icon>
+      <ion-label>
+        <h2>Kezelés</h2>
+        <ion-note>Hozzáadás és eltávolítás</ion-note>
+      </ion-label>
     </ion-item>
 
     <ion-item-divider>

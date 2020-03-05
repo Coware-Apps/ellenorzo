@@ -6,7 +6,7 @@ import { ConvertActionBindingResult } from '@angular/compiler/src/compiler_util/
 })
 export class FormattedDateService {
 
-  getDate(whatDate: string = "today") {
+  getDate(whatDate: "today" | "thisMonthBegin" | "thisMonthEnd" | "thisYearBegin" = "today") {
     let date: Date = new Date();
     let month: number = 0;
 
