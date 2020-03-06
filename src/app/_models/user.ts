@@ -176,52 +176,37 @@ export class User {
      * Enables the user's local notifications. NOTE: Doesn't set any notifications. To do that, see: `User`.`setLocalNotifications()`
      * @param changeTo set to `true` to turn the user's local notifications on, `false` to turn them off
      */
-    public async localNotificationsEnabler(changeTo: boolean) {
+    public localNotificationsEnabler(changeTo: boolean) {
         if (changeTo) {
             console.log(`%c[USER->localNotificationsEnabler()] Enabling notifications for ${this.fullName}`, 'background-color: darkgreen; color: white');
         } else {
             console.log(`%c[USER->localNotificationsEnabler()] Disabling notifications for ${this.fullName}`, 'background-color: pink; color: black')
         }
         this.notificationsEnabled = changeTo;
-        let newUserInitData = {
-            id: this.id,
-            tokens: this.tokens,
-            institute: this.institute,
-            fullName: this.fullName,
-            notificationsEnabled: changeTo,
-            lastNotificationSetTime: 0,
-        }
-        for (let i = 0; i < this.app.usersInitData.length; i++) {
-            if (this.app.usersInitData[i].id == this.id) {
-                this.app.usersInitData[i] = newUserInitData;
+
+        try {
+            for (let i = 0; i < this.app.usersInitData.length; i++) {
+                if (this.app.usersInitData[i].id == this.id) {
+                    this.app.usersInitData[i].notificationsEnabled = changeTo;
+                }
             }
+        } catch (error) {
+            console.error(error);
         }
-        this.app.changeConfig('usersInitData', this.app.usersInitData);
     }
     /**
      * Sets the user's local timetable notifications from the current week to `howManyWeeks` in the future
      * @param howManyWeeks how many weeks in the future to set the user's local timetable notifications (1 means the current week only)
      */
     public async setLocalNotifications(howManyWeeks: number) {
-        if (this.notificationsEnabled) {
             let lessons = await this.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(howManyWeeks - 1), true);
-            await this.notificationService.setLocalNotifications(lessons);
-        }
-    }
-    /**
-     * Updates the already set notifications with a new lesson array data. NOTE: Doesn't set any NEW notifications. To do that, see: `User`.`setLocalNotifications()`
-     * @param lessons the lessons, that have notifications set, to be updated
-     */
-    private async updateLocalNotifications(lessons: Lesson[]) {
-        if (this.notificationsEnabled) {
-            console.log(`[USER->updateLocalNotifications()] updating notifications for ${this.fullName}`);
-            await this.notificationService.updateNotifications(lessons);
-        }
+            this.notificationService.setLocalNotifications(lessons);
     }
     /**
      * Pre-initializes local notifications for 2 weeks (if it hasn't been initialized this week and notifications are enabled on the user)
      */
     public async preInitializeLocalNotifications() {
+        console.log('preInitialization called | ', this.fullName);
         if (this.fDate.getWeek(new Date(this.lastNotificationSetTime)) != this.fDate.getWeek(new Date()) && this.notificationsEnabled) {
             console.log(`[USER->preInitializeLocalNotifications()] pre-initializing notifications for ${this.fullName}`);
             await this.setLocalNotifications(2);
@@ -441,7 +426,7 @@ export class User {
     public async getLesson(fromDate: string, toDate: string, skipCache: boolean = false): Promise<Lesson[]> {
         await this.loginWithRefreshToken();
         let lessons = await this.kreta.getLesson(fromDate, toDate, skipCache, this.tokens, this.institute, this.cacheIds.lesson)
-        await this.updateLocalNotifications(lessons);
+        //await this.updateLocalNotifications(lessons); (deprecated for now)
         return lessons;
     }
     /**

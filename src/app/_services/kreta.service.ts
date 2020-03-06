@@ -138,8 +138,13 @@ export class KretaService {
       console.log("[KRETA->getToken()] institute", institute);
 
       let response = await this.http.post(institute.Url + "/idp/api/v1/Token", params, headers);
-
-      let parsedResponse = <Token>JSON.parse(response.data);
+      console.log('tokenResponse', response);
+      let parsedResponse: Token;
+      try {
+        parsedResponse = <Token>JSON.parse(response.data);
+      } catch (error) {
+        this.prompt.presentUniversalAlert('Hiba', 'Nem sikerült a szerverrel kapcsolatot létesíteni.', 'A KRÉTA szerver hibás választ küldött. Valószínűleg jelenleg karbantartás alatt van.')
+      }
 
       this.prompt.butteredToast("[KRETA->getToken() result]" + parsedResponse);
       console.log("[KRETA->getToken()] result: ", parsedResponse);
@@ -179,7 +184,12 @@ export class KretaService {
 
       let response = await this.http.post(institute.Url + "/idp/api/v1/Token", params, headers);
 
-      let parsedResponse = <Token>JSON.parse(response.data);
+      let parsedResponse: Token;
+      try {
+        parsedResponse = <Token>JSON.parse(response.data);
+      } catch (error) {
+        this.prompt.presentUniversalAlert('Hiba', 'Nem sikerült a szerverrel kapcsolatot létesíteni.', 'A KRÉTA szerver hibás választ küldött. Valószínűleg jelenleg karbantartás alatt van.')
+      }
 
       this.decoded_user = this.jwtDecoder.decodeToken(parsedResponse.access_token);
       this.initializeFirebase(this.decoded_user["kreta:institute_user_id"]);

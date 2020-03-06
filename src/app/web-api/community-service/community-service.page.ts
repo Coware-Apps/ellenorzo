@@ -5,8 +5,12 @@ import { AppService } from 'src/app/_services/app.service';
 import { InAppBrowserOptions, InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { CommunityService } from 'src/app/_models/communityService';
 import { PromptService } from 'src/app/_services/prompt.service';
-import { PopoverController } from '@ionic/angular';
-import { UserManagerService } from 'src/app/_services/user-manager.service';
+import { PopoverController, ModalController } from '@ionic/angular';
+import { InstituteSelectorModalPage } from 'src/app/login/institute-selector-modal/institute-selector-modal.page';
+import { WebLoginInfoComponent } from 'src/app/_components/web-login-info/web-login-info.component';
+import { DataService } from 'src/app/_services/data.service';
+import { Institute } from 'src/app/_models/institute';
+import { WebUserManagerService } from 'src/app/_services/web-user-manager.service';
 
 @Component({
   selector: 'app-community-service',
@@ -16,6 +20,7 @@ import { UserManagerService } from 'src/app/_services/user-manager.service';
 export class CommunityServicePage implements OnInit {
   public username: string;
   public password: string;
+  public institute: Institute;
   public loggedIn: boolean = false;
   public needsRegistration: boolean = true;
   public sans: boolean = true;
@@ -23,60 +28,39 @@ export class CommunityServicePage implements OnInit {
   public userFullName: string;
   public authFor: Date;
   public timer;
+  public instituteName: string;
   constructor(
     public webApi: WebApiService,
     public kreta: KretaService,
     public prompt: PromptService,
 
-    private userManager: UserManagerService,
     private browser: InAppBrowser,
     private app: AppService,
+    private modalCtrl: ModalController,
     private popoverCtrl: PopoverController,
+    private dataService: DataService,
+    private webUserManager: WebUserManagerService,
   ) {
   }
 
   async ngOnInit() {
-    //TODO replace -> await this.kreta.loginIfNotYetLoggedIn();
-    if (this.app.webApiRegistration.registered) {
-      this.needsRegistration = false;
-      this.username = this.app.webApiRegistration.username;
-      this.password = this.app.webApiRegistration.password;
-      await this.login();
-      this.comServiceData = await this.getDisplayData();
+    if (this.webUserManager.user == null) {
+      this.needsRegistration = true;
+    } else {
+      this.initializeTimer(await this.webUserManager.user.login());
       this.loggedIn = true;
+      this.comServiceData = await this.webUserManager.user.getCommunityService();
     }
     this.sans = false;
   }
 
   async register() {
-    await this.login();
-    await this.app.changeConfig("webApiRegistration", {
-      registered: true,
-      username: this.username,
-      password: this.password,
-      loggedIn: true,
-      loggedInFor: this.app.webApiRegistration.loggedInFor,
-    });
-    await this.getDisplayData();
+    await this.webUserManager.createUser(this.dataService.getData('institute').url, this.username, this.password);
     this.needsRegistration = false;
     this.loggedIn = true;
   }
-  async login() {
-    await this.webApi.login(this.userManager.currentUser.institute.Url, this.username, this.password);
-    this.timer = this.initializeTimer(await this.webApi.getRemainingLoginTime());
-    await this.app.changeConfig("webApiRegistration", {
-      registered: true,
-      username: this.app.webApiRegistration.username,
-      password: this.app.webApiRegistration.password,
-      loggedIn: true,
-      loggedInFor: this.authFor,
-    });
-  }
   async getDisplayData() {
-    this.comServiceData = await this.webApi.getCommunityServiceData();
-    this.userFullName = (await this.webApi.getUserInfo()).UserMenu.UserName;
-    console.log('a', this.comServiceData);
-    return this.comServiceData;
+    return await this.webUserManager.user.getCommunityService();
   }
   private initializeTimer(remainingTime: number): NodeJS.Timer {
     let startTime = new Date(new Date(remainingTime * 1000).valueOf());
@@ -94,13 +78,21 @@ export class CommunityServicePage implements OnInit {
     }, 1000);
     return returnVal;
   }
-
   async showSmartLoginInfo(event: any) {
-    // let popover = await this.popoverCtrl.create({
-    //   component: SmartLoginInfoComponent,
-    //   event: event,
-    // });
-    // await popover.present();
+    let popover = await this.popoverCtrl.create({
+      component: WebLoginInfoComponent,
+      event: event,
+    });
+    await popover.present();
+  }
+  async getInstitute() {
+    const modal = await this.modalCtrl.create({
+      component: InstituteSelectorModalPage
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data && data.selectedInstitute)
+      this.instituteName = data.selectedInstitute.Name;
   }
   openWebpage(url: string) {
     const options: InAppBrowserOptions = {

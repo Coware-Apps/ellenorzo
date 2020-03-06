@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
@@ -18,6 +18,7 @@ import { AppVersion } from '@ionic-native/app-version/ngx';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { IsDebug } from '@ionic-native/is-debug/ngx';
 import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
+import { ErrorHandlerService } from './_services/error-handler.service';
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -39,6 +40,7 @@ import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
     FirebaseX,
     IsDebug,
     LocalNotifications,
+    { provide: ErrorHandler, useClass: ErrorHandlerService },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

@@ -35,12 +35,14 @@ export class NotificationSettingsPage implements OnInit {
     await this.app.changeConfig('localNotificationsEnabled', !this.app.localNotificationsEnabled);
     if (!this.app.localNotificationsEnabled) {
       await this.notificationService.cancelAllNotifications();
-      this.userManager.allUsers.forEach(async user => {
-        await user.localNotificationsEnabler(false);
+      this.userManager.allUsers.forEach(user => {
+        user.localNotificationsEnabler(false);
       });
+      await this.app.changeConfig('usersInitData', this.app.usersInitData);
     }
   }
   async enableNotificationsForUser(userId: number) {
+    console.log('userId', userId);
     let loading = await this.loadingCtrl.create({
       spinner: "crescent",
       message: "Művelet folyamatban..."
@@ -49,13 +51,17 @@ export class NotificationSettingsPage implements OnInit {
     await this.notificationService.cancelAllNotifications();
     for (let i = 0; i < this.userManager.allUsers.length; i++) {
       if (this.userManager.allUsers[i].id == userId) {
-        await this.userManager.allUsers[i].localNotificationsEnabler(true);
-        await this.userManager.allUsers[i].setLocalNotifications(2);
-        this.userManager.allUsers = this.userManager.allUsers;
+        this.userManager.allUsers[i].localNotificationsEnabler(true);
       } else {
-        await this.userManager.allUsers[i].localNotificationsEnabler(false);
+        this.userManager.allUsers[i].localNotificationsEnabler(false);
       }
     }
+    for (let i = 0; i < this.userManager.allUsers.length; i++) {
+      if (this.userManager.allUsers[i].notificationsEnabled) {
+        await this.userManager.allUsers[i].setLocalNotifications(2);
+      }
+    }
+    await this.app.changeConfig('usersInitData', this.app.usersInitData);
     await loading.dismiss();
   }
   async showScheduledNotificactions() {
@@ -66,48 +72,48 @@ export class NotificationSettingsPage implements OnInit {
     });
     loading.present();
     let msg: string = "";
-    let allScheduled = await this.notificationService.getAllScheduledIds();
-    let lessons: Lesson[] = [];
-    let areScheduled: boolean = allScheduled.length > 0 ? true : false;
-    this.userManager.allUsers.forEach(async user => {
-      if (user.notificationsEnabled && this.app.localNotificationsEnabled) {
-        //so that it doesn't update itself
-        user.notificationsEnabled = false;
-        lessons = await user.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(1), true);
-        lessons.sort((a, b) => new Date(a.StartTime).valueOf() - new Date(b.StartTime).valueOf());
-        lessons.forEach(lesson => {
-          allScheduled.forEach(id => {
-            if (lesson.LessonId == id) {
-              msg += `<li>${lesson.Subject} - ${this.fDate.formatDateWithZerosAndDots(lesson.StartTime)} ${this.fDate.getTime(lesson.StartTime)}</li>`
-            }
-          });
-        });
-        user.notificationsEnabled = true;
-        let alert = await this.alertCtrl.create({
-          header: `Időzített értesítések (${allScheduled.length}db)`,
-          subHeader: `Órák, amelyek előtt értesítés fog jönni`,
-          message: `<ul>${msg}</ul>`,
-        });
-        await loading.dismiss();
-        await alert.present();
-      }
+    let allNotifications = await this.notificationService.getAllNonDismissed();
+    allNotifications.forEach(notification => {
+      msg += `<li>${notification.title} - ${this.fDate.formatDateWithZerosAndDots(notification.trigger.at)} ${this.fDate.getTime(notification.trigger.at)}</li>`
+    });
+    let alert = await this.alertCtrl.create({
+      header: `Időzített értesítések (${allNotifications.length}db)`,
+      subHeader: `Fejlesztői funkció`,
+      message: `<ul>${msg}</ul>`,
     });
     await loading.dismiss();
-    if (!areScheduled) {
-      let alert = await this.alertCtrl.create({
-        header: `Időzített értesítések`,
-        subHeader: `Fejlesztői funkció`,
-        message: `Nincsenek időzített értesítések`,
-      });
-      await alert.present();
-    }
+    await alert.present();
   }
   async testNotification() {
     let lessons = await this.userManager.currentUser.getLesson(this.fDate.getWeekFirst(), this.fDate.getWeekLast(1), true);
-      this.notificationService.testSetLocalNotifications(lessons)
+    this.notificationService.testSetLocalNotifications(lessons)
   }
   async updateNotification() {
     let lessons = await this.userManager.currentUser.getLesson(this.fDate.getWeekFirst(), this.fDate.getWeekLast(0), true);
-      this.notificationService.testUpdateLocalNotifications(lessons);
+    this.notificationService.testUpdateLocalNotifications(lessons);
+  }
+  async testBug(userId: number) {
+    console.log('userId', userId);
+    let loading = await this.loadingCtrl.create({
+      spinner: "crescent",
+      message: "Művelet folyamatban..."
+    });
+    await loading.present();
+    await this.notificationService.cancelAllNotifications();
+    for (let i = 0; i < this.userManager.allUsers.length; i++) {
+      if (this.userManager.allUsers[i].id == userId) {
+        this.userManager.allUsers[i].localNotificationsEnabler(true);
+      } else {
+        this.userManager.allUsers[i].localNotificationsEnabler(false);
+      }
+    }
+
+    for (let i = 0; i < this.userManager.allUsers.length; i++) {
+      if (this.userManager.allUsers[i].notificationsEnabled) {
+        await this.userManager.allUsers[i].setLocalNotifications(2);
+      }
+    }
+    await this.app.changeConfig('usersInitData', this.app.usersInitData);
+    await loading.dismiss();
   }
 }

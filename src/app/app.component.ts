@@ -98,7 +98,7 @@ export class AppComponent {
     this.app.localNotificationsEnabled = configs[4];
     let storedWebApiRegistration = configs[5];
     if (storedWebApiRegistration != null) {
-      this.app.webApiRegistration = storedWebApiRegistration;
+      this.app.webUser = JSON.parse(storedWebApiRegistration);
     };
     let storedUA = configs[6];
     if (storedUA != null) {

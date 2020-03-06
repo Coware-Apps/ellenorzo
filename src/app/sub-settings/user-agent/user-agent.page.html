@@ -42,16 +42,15 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-card>
-    <ion-card-content>
-      <ion-card-title>Információ</ion-card-title>
-      A rendszer a Teszt gomb megnyomása után 5 db órarend (Lesson) lekérést fog végezni 2 másodperces szünetekkel, majd
-      a mért adatokból készít grafikont. A KRÉTA szerverek túlterhelésének elkerülése érdekében óránként 5db ilyen
-      tesztelés engedélyezett. A
-      funkció még fejlesztés alatt áll, bővítés várható.
-    </ion-card-content>
-  </ion-card>
-
+  <ion-list lines="none">
+    <ion-item>
+      <ion-icon slot="start" name="information-circle-outline"></ion-icon>
+      <ion-note>A rendszer a Teszt gomb megnyomása után 5 db órarend (Lesson) lekérést fog végezni 2 másodperces szünetekkel, majd
+        a mért adatokból készít grafikont. A KRÉTA szerverek túlterhelésének elkerülése érdekében óránként 5db ilyen
+        tesztelés engedélyezett. A
+        funkció még fejlesztés alatt áll, bővítés várható.</ion-note>
+    </ion-item>
+  </ion-list>
   <ion-card [hidden]='!this.showPreviousData'>
     <ion-card-header>
       <div id="previousData" class="chart"></div>

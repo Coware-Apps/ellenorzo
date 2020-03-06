@@ -9,6 +9,8 @@ import { Institute } from '../_models/institute';
 import { AppService } from './app.service';
 import { NotificationService } from './notification.service';
 import { PromptService } from './prompt.service';
+import { WebUser } from '../_models/webUser';
+import { HTTP } from '@ionic-native/http/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +25,7 @@ export class UserFactoryService {
     private app: AppService,
     private notificationSerice: NotificationService,
     private prompt: PromptService,
+    private http: HTTP,
   ) {
 
   }
@@ -30,5 +33,10 @@ export class UserFactoryService {
   public createUser(tokens: Token, institute: Institute): User {
     let newUser = new User(tokens, institute, this.kreta, this.storage, this.fDate, this.cache, this.app, this.notificationSerice, this.prompt);
     return newUser;
+  }
+
+  public createWebUser(instituteUrl: string, username: string, password: string): WebUser {
+    let newWebUser = new WebUser(instituteUrl, username, password, this.http);
+    return newWebUser;
   }
 }

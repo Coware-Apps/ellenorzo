@@ -1,6 +1,6 @@
 {
   "name": "arisztokreta",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "author": "Coware",
   "homepage": "https://coware-apps.github.io/ellenorzo/",
   "scripts": {
@@ -123,8 +123,8 @@
       "cordova-plugin-local-notification": {}
     },
     "platforms": [
-      "android",
-      "ios"
+      "ios",
+      "android"
     ]
   }
 }

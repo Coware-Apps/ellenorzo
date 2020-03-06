@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, config, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import { userInitData } from '../_models/user';
+import { WebUser } from '../_models/webUser';
 
 @Injectable({
   providedIn: 'root'
@@ -24,13 +25,7 @@ export class AppService {
   public localNotificationsEnabled: boolean;
   public userAgent: string;
   public usersInitData: userInitData[] = [];
-  public webApiRegistration = {
-    registered: false,
-    username: "",
-    password: "",
-    loggedIn: false,
-    loggedInFor: 0,
-  };
+  public webUser: WebUser;
 
   constructor(
     private storage: Storage,
@@ -97,12 +92,12 @@ export class AppService {
       icon: 'chatbox-outline',
       show: true,
     },
-    //{
+    // {
     // title: 'Közösségi szolgálat',
     // url: '/community-service',
     // icon: 'body-outline',
     // show: true,
-    //},
+    // },
     {
       title: 'Felhasználó adatai',
       url: '/user',
@@ -122,6 +117,10 @@ export class AppService {
   public async changeConfig(configKey: string, value: any) {
     this[configKey] = value;
     await this.storage.set(configKey, value);
+  }
+  public async changeConfigSaveJSON(configKey: string, value: any) {
+    this[configKey] = value;
+    await this.storage.set(configKey, JSON.stringify(value));
   }
 
   public getStockUserAgent() {

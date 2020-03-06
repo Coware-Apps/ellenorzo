@@ -28,21 +28,24 @@ export class NotificationService {
       }
     });
   }
-  public async setLocalNotifications(lessons: Lesson[]) {
+  public setLocalNotifications(lessons: Lesson[]) {
     console.groupCollapsed('[SCHEDULED NOTIFICATIONS]');
+    console.log('lessons', lessons);
     lessons.forEach(lesson => {
       //10 minutes before the lesson
       let triggerTime = new Date(new Date(lesson.StartTime).getTime() - 600000);
       let stateNameIf = lesson.StateName == 'Elmaradt Tanóra' ? '(Elmarad)' : lesson.DeputyTeacher != '' ? '(Helyettesítés)' : '';
 
-      //only scheduling notifications that are 5 minutes or more in the future
-      if (new Date(triggerTime).valueOf() + 300000 > new Date().valueOf()) {
+      //only scheduling notifications that are in the future
+      if (new Date(triggerTime).valueOf() > new Date().valueOf()) {
         let notificationOpts: ILocalNotification = {
           id: lesson.LessonId,
           title: "Következő óra: " + lesson.Subject + ' ' + stateNameIf,
           text: "Időpont: " + this.fDate.getTimetableTime(lesson.StartTime, lesson.EndTime) + " - " + lesson.ClassRoom,
           foreground: true,
           group: 'timetable',
+          smallIcon: 'res://ic_notification_small',
+          timeoutAfter: 900000,
           data: {
             'navigateToUrl': 'list',
           },
@@ -92,8 +95,11 @@ export class NotificationService {
   }
   public async getAllScheduledIds(): Promise<number[]> {
     //This would be ideal, but it crashes the plugin
-    //return await this.localNotifications.getAllScheduled();
+    //console.log(await this.localNotifications.getAllScheduled());
     return await this.localNotifications.getScheduledIds();
+  }
+  public async getAllNonDismissed(): Promise<ILocalNotification[]> {
+    return await this.localNotifications.getAll();
   }
   public testSetLocalNotifications(lessons: Lesson[]) {
     console.groupCollapsed('[SCHEDULED NOTIFICATIONS]');

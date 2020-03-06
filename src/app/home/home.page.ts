@@ -1,6 +1,5 @@
-import { Student, evaluation, Absence, Note } from '../_models/student';
+import { Student, evaluation } from '../_models/student';
 import { Token } from '../_models/token';
-import { Storage } from '@ionic/storage';
 import { Router } from '@angular/router';
 import { Component, Input } from '@angular/core';
 import { KretaService } from '../_services/kreta.service';
@@ -54,7 +53,6 @@ export class HomePage {
     public app: AppService,
 
     private navRouter: Router,
-    private storage: Storage,
     private color: ColorService,
     private firebase: FirebaseX,
     private prompt: PromptService,
