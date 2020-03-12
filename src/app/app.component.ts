@@ -1,8 +1,7 @@
 import { Component } from "@angular/core";
 
-import { Platform, ToastController, MenuController, NavController } from "@ionic/angular";
+import { Platform, ToastController, MenuController } from "@ionic/angular";
 import { SplashScreen } from "@ionic-native/splash-screen/ngx";
-import { AuthenticationService } from "./_services/authentication.service";
 import { Router } from "@angular/router";
 import { Storage } from "@ionic/storage";
 import { ThemeService } from "./_services/theme.service";
@@ -10,13 +9,10 @@ import { AppService } from "./_services/app.service";
 import { Student } from "./_models/student";
 import { FirebaseX } from "@ionic-native/firebase-x/ngx";
 import { NotificationService } from './_services/notification.service';
-import { AppVersion } from '@ionic-native/app-version/ngx';
 import { ColorService } from './_services/color.service';
-import { FormattedDateService } from './_services/formatted-date.service';
 import { UserManagerService } from './_services/user-manager.service';
 import { userInitData } from './_models/user';
 import { AuthGuardService } from './_services/auth-guard.service';
-import { Token } from './_models/token';
 import { KretaService } from './_services/kreta.service';
 import { PromptService } from './_services/prompt.service';
 
@@ -31,16 +27,15 @@ export class AppComponent {
   public student: Student;
   constructor(
     public userManager: UserManagerService,
+    public theme: ThemeService,
     public app: AppService,
 
     private platform: Platform,
     private splashScreen: SplashScreen,
     private router: Router,
     private storage: Storage,
-    private theme: ThemeService,
     private firebaseX: FirebaseX,
     private notificationService: NotificationService,
-    private appVersion: AppVersion,
     private toastCtrl: ToastController,
     private color: ColorService,
     private authGuard: AuthGuardService,
@@ -80,41 +75,9 @@ export class AppComponent {
 
   public async initializeConfig() {
     await this.getAppPages();
-    await this.setTheme();
-    let configs = await Promise.all([
-      await this.appVersion.getVersionNumber(),
-      await this.storage.get('analyticsCollectionEnabled') == false ? false : true,
-      await this.storage.get('toastLoggingEnabled') == true ? true : false,
-      await this.storage.get('devSettingsEnabled') == true ? true : false,
-      await this.storage.get('localNotificationsEnabled') == true ? true : false,
-      await this.storage.get('webApiRegistration'),
-      await this.storage.get('userAgent'),
-      await this.storage.get('cardColor'),
-    ]);
-    this.app.appV = configs[0];
-    this.app.analyticsCollectionEnabled = configs[1];
-    this.app.toastLoggingEnabled = configs[2];
-    this.app.devSettingsEnabled = configs[3];
-    this.app.localNotificationsEnabled = configs[4];
-    let storedWebApiRegistration = configs[5];
-    if (storedWebApiRegistration != null) {
-      this.app.webUser = JSON.parse(storedWebApiRegistration);
-    };
-    let storedUA = configs[6];
-    if (storedUA != null) {
-      this.app.userAgent = storedUA;
-    }
-    if (configs[7] != null) {
-      let cSplitted = configs[7].split('&');
-      this.color.cardColors.fiveColor = cSplitted[0];
-      this.color.cardColors.fourColor = cSplitted[1];
-      this.color.cardColors.threeColor = cSplitted[2];
-      this.color.cardColors.twoColor = cSplitted[3];
-      this.color.cardColors.oneColor = cSplitted[4];
-      this.color.cardColors.noneColor = cSplitted[5];
-    }
-    console.table(configs);
-
+    await this.theme.onInit();
+    await this.app.onInit();
+    await this.color.onInit();
     let storedUsersInitData: userInitData[] = await this.storage.get("usersInitData");
     if (storedUsersInitData != null && storedUsersInitData.length > 0) {
       this.app.usersInitData = storedUsersInitData;
@@ -156,35 +119,12 @@ export class AppComponent {
     if (this.app.usersInitData.length > 0) {
       let storedDefaultPage = await this.storage.get("defaultPage");
       if (storedDefaultPage != null) {
-
         await this.router.navigateByUrl(storedDefaultPage);
       } else {
         await this.router.navigateByUrl('home');
       }
     } else {
       this.router.navigate(["login"]);
-    }
-  }
-
-  private async setTheme() {
-    let storedTheme = await this.storage.get("theme");
-    if (storedTheme == null) {
-      this.storage.set("theme", "light");
-    }
-
-    switch (await this.storage.get("theme")) {
-      case "light":
-        this.theme.enableLight();
-        break;
-      case "dark":
-        this.theme.enableDark();
-        break;
-      case "minimalDark":
-        this.theme.enableMinimalDark();
-        break;
-      case "custom":
-        this.theme.enableCustom();
-        break;
     }
   }
 

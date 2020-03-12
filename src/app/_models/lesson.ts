@@ -17,7 +17,7 @@ export class Lesson {
     public DeputyTeacher: string;
     //'Elmarad' etc
     public StateName: string;
-
+    public State: string;
 
     //optional
     public LessonId?: number;

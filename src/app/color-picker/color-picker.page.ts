@@ -1,13 +1,12 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { ModalController, IonSlides, MenuController } from '@ionic/angular';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { IonSlides, MenuController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ColorService } from '../_services/color.service';
 import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
-import { promise } from 'protractor';
-import { Observable, BehaviorSubject } from 'rxjs';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { TranslateService } from '@ngx-translate/core';
 more(HighCharts);
 
 @Component({
@@ -29,7 +28,6 @@ export class ColorPickerPage implements OnInit {
   public focused: number;
   public title: string;
 
-
   constructor(
     public colorService: ColorService,
 
@@ -38,10 +36,11 @@ export class ColorPickerPage implements OnInit {
     private Route: ActivatedRoute,
     private firebase: FirebaseX,
     private menuCtrl: MenuController,
+    private translator: TranslateService,
   ) {
     this.color = "#00CC00";
     this.focused = 0;
-    this.title = "Értékelések";
+    this.title = this.translator.instant('pages.evaluations.title');
   }
 
   async ngOnInit() {
@@ -71,7 +70,7 @@ export class ColorPickerPage implements OnInit {
         enabled: false
       },
       title: {
-        text: "Grafikon",
+        text: this.translator.instant('pages.color-picker.pieChart.title'),
         //color
         style: {
           color: this.colorService.getChartTextColor(),
@@ -122,25 +121,25 @@ export class ColorPickerPage implements OnInit {
       },
       series: [{
         type: undefined,
-        name: 'Jegyek',
+        name: this.translator.instant('graphs.evaluations.pie.seriesName'),
         data: [{
-          name: '5-ös',
+          name: this.translator.instant('graphs.evaluations.pie.5Text'),
           y: 30,
         },
         {
-          name: '4-es',
+          name: this.translator.instant('graphs.evaluations.pie.4Text'),
           y: 20,
         },
         {
-          name: '3-as',
+          name: this.translator.instant('graphs.evaluations.pie.3Text'),
           y: 15,
         },
         {
-          name: '2-es',
+          name: this.translator.instant('graphs.evaluations.pie.2Text'),
           y: 10,
         },
         {
-          name: '1-es',
+          name: this.translator.instant('graphs.evaluations.pie.1Text'),
           y: 5,
         },
         ],
@@ -158,13 +157,13 @@ export class ColorPickerPage implements OnInit {
     this.focused = await this.slides.getActiveIndex();
     switch (this.focused) {
       case 0:
-        this.title = "Értékelések";
+        this.title = this.translator.instant('pages.evaluations.title');
         break;
       case 1:
-        this.title = "Átlagok";
+        this.title = this.translator.instant('pages.averages.title');
         break;
       case 2:
-        this.title = "Statisztikák";
+        this.title = this.translator.instant('pages.statistics.title');
         this.ionViewDidEnter();
         break;
     }
@@ -177,13 +176,13 @@ export class ColorPickerPage implements OnInit {
       this.slides.slideTo(day);
       switch (day) {
         case 0:
-          this.title = "Értékelések";
+          this.title = this.translator.instant('pages.evaluations.title');
           break;
         case 1:
-          this.title = "Átlagok";
+          this.title = this.translator.instant('pages.averages.title');
           break;
         case 2:
-          this.title = "Statisztikák";
+          this.title = this.translator.instant('pages.statistics.title');
           this.ionViewDidEnter();
           break;
       }
@@ -222,38 +221,37 @@ export class ColorPickerPage implements OnInit {
       case 5:
         this.fiveColor = this.color;
         this.colorService.cardColors.fiveColor = this.color;
-        await this.storage.set('cardColor', this.colorService.cardColors);
+        await this.storage.set('cardColor', this.colorService.returnColorCodes());
         break;
       case 4:
         this.fourColor = this.color;
         this.colorService.cardColors.fourColor = this.color;
-        await this.storage.set('cardColor', this.colorService.cardColors);
+        await this.storage.set('cardColor', this.colorService.returnColorCodes());
         break;
       case 3:
         this.threeColor = this.color;
         this.colorService.cardColors.threeColor = this.color;
-        await this.storage.set('cardColor', this.colorService.cardColors);
+        await this.storage.set('cardColor', this.colorService.returnColorCodes());
         break;
       case 2:
         this.twoColor = this.color;
         this.colorService.cardColors.twoColor = this.color;
-        await this.storage.set('cardColor', this.colorService.cardColors);
+        await this.storage.set('cardColor', this.colorService.returnColorCodes());
         break;
       case 1:
         this.oneColor = this.color;
         this.colorService.cardColors.oneColor = this.color;
-        await this.storage.set('cardColor', this.colorService.cardColors);
+        await this.storage.set('cardColor', this.colorService.returnColorCodes());
         break;
       case 0:
         this.noneColor = this.color;
         this.colorService.cardColors.noneColor = this.color;
-        await this.storage.set('cardColor', this.colorService.cardColors);
+        await this.storage.set('cardColor', this.colorService.returnColorCodes());
         break;
     }
   }
 
   async goBack() {
-    await this.storage.set('cardColor', this.fiveColor + "&" + this.fourColor + "&" + this.threeColor + "&" + this.twoColor + "&" + this.oneColor + "&" + this.noneColor);
     this.Route.queryParams.subscribe(params => {
       this.router.navigateByUrl(params["from"]);
     })

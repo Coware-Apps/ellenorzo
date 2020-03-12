@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { AverageGraphsPageRoutingModule } from './average-graphs-routing.module';
 
 import { AverageGraphsPage } from './average-graphs.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    AverageGraphsPageRoutingModule
+    AverageGraphsPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [AverageGraphsPage]
 })
-export class AverageGraphsPageModule {}
+export class AverageGraphsPageModule { }

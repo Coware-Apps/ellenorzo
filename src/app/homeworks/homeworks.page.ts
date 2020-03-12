@@ -30,6 +30,7 @@ export class HomeworksPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
         this.sans = true;

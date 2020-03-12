@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UserManagerService } from '../_services/user-manager.service';
+import { TranslateService } from '@ngx-translate/core';
 more(HighCharts);
 
 interface ChartData {
@@ -35,8 +36,8 @@ export class StatisticsPage implements OnInit {
 
   //for the selector
   customPopoverOptions: any = {
-    subHeader: 'Megjelenítés',
-    message: 'Válaszd ki milyen adatok jelenjenek meg a grafikonokon!',
+    subHeader: this.translator.instant('pages.statistics.categorySelector.subHeader'),
+    message: this.translator.instant('pages.statistics.categorySelector.message'),
     cssClass: this.color.getPopUpClass(),
   };
 
@@ -45,7 +46,6 @@ export class StatisticsPage implements OnInit {
 
   public sans: boolean;
   public focused: number;
-  public title: string;
   //how many graphs are we showing
   public howMany: number;
   public lineData: ChartData[];
@@ -73,9 +73,9 @@ export class StatisticsPage implements OnInit {
     private color: ColorService,
     private firebase: FirebaseX,
     private userManager: UserManagerService,
+    private translator: TranslateService,
   ) {
     this.focused = 0;
-    this.title = "Vonal";
     this.mockSelector = { detail: { value: "yearly" } };
     this.filled = false;
     this.dataArray = [0];
@@ -129,17 +129,6 @@ export class StatisticsPage implements OnInit {
 
   async ionSlideWillChange() {
     this.focused = await this.slides.getActiveIndex();
-    switch (this.focused) {
-      case 0:
-        this.title = "Vonal";
-        break;
-      case 1:
-        this.title = "Oszlop";
-        break;
-      case 2:
-        this.title = "Kör";
-        break;
-    }
   }
 
   openCategorySelector(event: UIEvent) {
@@ -152,19 +141,7 @@ export class StatisticsPage implements OnInit {
       let day = event.detail.value;
       this.focused = day;
       this.slides.slideTo(day);
-      switch (day) {
-        case 0:
-          this.title = "Vonal";
-          break;
-        case 1:
-          this.title = "Oszlop";
-          break;
-        case 2:
-          this.title = "Kör";
-          break;
-      }
     }
-
   }
 
   async doRefresh(event: any) {
@@ -183,26 +160,32 @@ export class StatisticsPage implements OnInit {
           this.dataService.setData("statisticsData", this.evaluations);
           this.dataService.setData("statisticsType", "line-column-buttons");
           this.dataService.setData("statisticsGrouping", true);
-          this.dataService.setData("graphTitle", 'tanév');
+          this.dataService.setData("graphTitle", this.translator.instant('pages.statistics.averageGraphsFullYearTitle'));
           this.navRouter.navigateByUrl('/graphs');
           break;
         case "yearly":
-          this.fillChartData(this.evaluations, "Éves összesített statisztika", false);
+          this.fillChartData(
+            this.evaluations,
+            this.translator.instant('pages.statistics.yearlyTitle'),
+            false
+          );
           break;
         case "mBySubject":
           this.dataService.setData("statisticsData", this.filter(date, this.evaluations));
           this.dataService.setData("statisticsType", "line-column-buttons");
           this.dataService.setData("statisticsGrouping", true);
-          this.dataService.setData("graphTitle", (date.getMonth() + 1) + ". hónap");
+          this.dataService.setData("graphTitle", (date.getMonth() + 1) + ". " + this.translator.instant('pages.statistics.averageGraphMonthTitle'));
           this.navRouter.navigateByUrl('/graphs');
           break;
         case "monthly":
-          this.fillChartData(this.filter(new Date(), this.evaluations), "Havi összesített statisztika", false);
+          this.fillChartData(
+            this.filter(new Date(), this.evaluations),
+            this.translator.instant('pages.statistics.yearlyTitle'),
+            false);
           break;
       }
       this.filled = true;
       this.showGraphs = true;
-
     }
 
     if (draw) {
@@ -321,7 +304,7 @@ export class StatisticsPage implements OnInit {
           min: 1,
           max: 5,
           title: {
-            text: 'Értékelés',
+            text: this.translator.instant('graphs.evaluations.line.yText'),
             //color
             style: {
               color: this.color.getChartTextColor(),
@@ -336,7 +319,7 @@ export class StatisticsPage implements OnInit {
               zIndex: 2,
               dashStyle: "Dash",
               label: {
-                text: 'Átlag',
+                text: this.translator.instant('graphs.evaluations.line.averageText'),
                 //color
                 style: {
                   color: this.color.getChartTextColor(),
@@ -347,7 +330,7 @@ export class StatisticsPage implements OnInit {
         },
         series: [{
           type: undefined,
-          name: 'Jegyek',
+          name: this.translator.instant('graphs.evaluations.line.seriesName'),
           data: lineData[i].data,
           width: 5,
           zIndex: 3,
@@ -389,7 +372,7 @@ export class StatisticsPage implements OnInit {
         },
         yAxis: {
           title: {
-            text: 'Darabszám',
+            text: this.translator.instant('graphs.evaluations.column.yText'),
             //color
             style: {
               color: this.color.getChartTextColor(),
@@ -407,7 +390,7 @@ export class StatisticsPage implements OnInit {
           }
         },
         series: [{
-          name: 'Jegyek',
+          name: this.translator.instant('graphs.evaluations.column.seriesName'),
           data: element.data,
           width: 5,
           zIndex: 3,
@@ -459,20 +442,8 @@ export class StatisticsPage implements OnInit {
         },
         yAxis: {
           title: {
-            text: 'Darabszám'
-          },
-          plotLines: [
-            {
-              value: element.average,
-              color: "red",
-              width: 2,
-              zIndex: 9999,
-              dashStyle: "Dash",
-              label: {
-                text: 'Átlag'
-              }
-            }
-          ]
+            text: this.translator.instant('graphs.evaluations.pie.yText'),
+          }
         },
         plotOptions: {
           series: {
@@ -488,25 +459,25 @@ export class StatisticsPage implements OnInit {
         },
         series: [{
           type: undefined,
-          name: 'Jegyek',
+          name: this.translator.instant('graphs.evaluations.pie.seriesName'),
           data: [{
-            name: '5-ös',
+            name: this.translator.instant('graphs.evaluations.pie.5Text'),
             y: element.data[0],
           },
           {
-            name: '4-es',
+            name: this.translator.instant('graphs.evaluations.pie.4Text'),
             y: element.data[1],
           },
           {
-            name: '3-as',
+            name: this.translator.instant('graphs.evaluations.pie.3Text'),
             y: element.data[2],
           },
           {
-            name: '2-es',
+            name: this.translator.instant('graphs.evaluations.pie.2Text'),
             y: element.data[3],
           },
           {
-            name: '1-es',
+            name: this.translator.instant('graphs.evaluations.pie.1Text'),
             y: element.data[4],
           },
           ],

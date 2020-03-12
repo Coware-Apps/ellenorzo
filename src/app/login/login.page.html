@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Fiók hozzáadása</ion-title>
+    <ion-title>{{'pages.login.title' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content>
@@ -18,19 +18,19 @@
     <ion-card-content>
       <ion-item>
         <ion-label position="floating">
-          Felhasználónév
+          {{'pages.login.usernameName' | translate}}
         </ion-label>
         <ion-input [(ngModel)]="user" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="floating">
-          Jelszó
+          {{'pages.login.passwordName' | translate}}
         </ion-label>
         <ion-input [(ngModel)]="pass" type="password" required></ion-input>
       </ion-item>
       <ion-item>
         <ion-label position="floating">
-          Intézmény
+          {{'pages.login.instituteName' | translate}}
         </ion-label>
         <ion-input (click)="getInstitute()" [(ngModel)]="instituteName" name="selectedInstitute"
           aria-label="Válasszon intézményt!" required readonly></ion-input>
@@ -40,7 +40,7 @@
         shape="round" (click)="login()">
         Bejelentkezés
       </ion-button>
-      <p class="dataProt">A bejelentkezés gombra kattintva elfogadom az Adatkezelési Feltételeket (<a
+      <p class="dataProt">{{'pages.login.privacyPolicyText' | translate}} (<a
           (click)="openWebpage('https://coware-apps.github.io/ellenorzo/privacy')">https://coware-apps.github.io/ellenorzo/privacy</a>).
       </p>
     </ion-card-content>

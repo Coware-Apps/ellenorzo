@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Student, Note } from '../_models/student';
+import { Note } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { KretaService } from '../_services/kreta.service';
-import { ColorService } from '../_services/color.service';
-import { AlertController } from '@ionic/angular';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
@@ -62,18 +60,39 @@ export class NotesPage implements OnInit {
           this.showProgressBar = true;
         } else if (subscriptionData.type == "placeholder") {
           //there is data in the storage, showing that data until the server responds, disabling skeleton text
-          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data.Notes, "CreatingTime"));
+          observer.next(this.collapsifyService.collapsifyByMonths(this.filterCoronaText(subscriptionData.data.Notes), "CreatingTime"));
           this.sans = false;
           this.showProgressBar = true;
         } else {
           //the server has now responded, disabling progress bar and skeleton text if it's still there
-          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data.Notes, "CreatingTime"));
+          observer.next(this.collapsifyService.collapsifyByMonths(this.filterCoronaText(subscriptionData.data.Notes), "CreatingTime"));
           this.showProgressBar = false;
           this.sans = false;
         }
       });
     });
     await this.userManager.currentUser.initializeStudent();
+  }
+
+  filterCoronaText(noteArray: Note[]) {
+    let newArray = [];
+    let hasCoronaBeenAdded = false;
+    for (let i = 0; i < noteArray.length; i++) {
+      let element = noteArray[i];
+      //CORONA text quick fix
+      if (
+        element.Title == "Koronavírus tájékoztató" &&
+        this.fDate.formatDate(new Date(element.CreatingTime)) == "2020-3-11"
+      ) {
+        if (!hasCoronaBeenAdded) {
+          newArray.push(element);
+          hasCoronaBeenAdded = true;
+        }
+      } else {
+        newArray.push(element);
+      }
+    }
+    return newArray;
   }
 
   ionViewWillLeave() {

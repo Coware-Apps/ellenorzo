@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { GraphsPageRoutingModule } from './graphs-routing.module';
 
 import { GraphsPage } from './graphs.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    GraphsPageRoutingModule
+    GraphsPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [GraphsPage]
 })
-export class GraphsPageModule {}
+export class GraphsPageModule { }

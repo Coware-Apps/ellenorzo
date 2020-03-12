@@ -13,6 +13,7 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { Observable, Subscription } from 'rxjs';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Component({
@@ -39,6 +40,7 @@ export class AveragesPage implements OnInit {
     private firebase: FirebaseX,
     private userManager: UserManagerService,
     private prompt: PromptService,
+    private translator: TranslateService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
@@ -98,7 +100,7 @@ export class AveragesPage implements OnInit {
       this.data.setData("classValue", classValue);
       this.navRouter.navigateByUrl("/average-graphs?fromRoute=averages");
     } else {
-      this.prompt.toast("Adatok betöltése folyamatban!", true);
+      this.prompt.toast(this.translator.instant('pages.averages.loadingToastText'), true);
     }
   }
 

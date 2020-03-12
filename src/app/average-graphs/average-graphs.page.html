@@ -5,7 +5,7 @@
         <ion-icon slot="start" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Részletek</ion-title>
+    <ion-title>{{'pages.average-graphs.title' | translate}}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="changeGraph(0)">
         <ion-icon [color]="focused == 'gauge' ? 'primary' : 'dark'" slot="icon-only" name="speedometer"></ion-icon>
@@ -40,8 +40,8 @@
     <ion-card-content>
       <ion-list>
         <ion-item>
-          <ion-label>Jegy</ion-label>
-          <ion-label>Súly</ion-label>
+          <ion-label>{{'pages.average-graphs.gradeName' | translate}}</ion-label>
+          <ion-label>{{'pages.average-graphs.weightName' | translate}}</ion-label>
         </ion-item>
         <div *ngFor="let item of grades">
           <ion-item (click)="showAlert(item)" *ngIf="item.extraId == 0"
@@ -61,12 +61,14 @@
           </ion-item>
         </div>
         <ion-item-divider>
-          <ion-label>Mi lenne, ha?</ion-label>
+          <ion-label>{{'pages.average-graphs.whatIfText' | translate}}</ion-label>
         </ion-item-divider>
         <ion-item [ngClass]="{'item-has-focus': this.unfilled}">
-          <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newGrade" maxlength="1" type="number" placeholder="Jegy"></ion-input>
+          <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newGrade" maxlength="1" type="number"
+            placeholder="Jegy"></ion-input>
           <ion-label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ion-label>
-          <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newPercent" maxLength="3" name="input" type="number" placeholder="%"></ion-input>
+          <ion-input [color]="this.unfilled ? 'danger' : ''" required [(ngModel)]="newPercent" maxLength="3"
+            name="input" type="number" placeholder="%"></ion-input>
           <ion-buttons slot="end">
             <ion-button type="submit" (click)="addGrade()">
               <ion-icon slot="icon-only" name="add-circle"></ion-icon>

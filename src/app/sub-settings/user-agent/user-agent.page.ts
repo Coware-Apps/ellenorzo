@@ -9,6 +9,7 @@ import { PromptService } from 'src/app/_services/prompt.service';
 import { LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { UserManagerService } from 'src/app/_services/user-manager.service';
+import { TranslateService } from '@ngx-translate/core';
 interface TestData {
   UA: string;
   data: number[];
@@ -34,6 +35,7 @@ export class UserAgentPage implements OnInit {
     private prompt: PromptService,
     private loadingCtrl: LoadingController,
     private router: Router,
+    private translator: TranslateService,
   ) {
     this.currentUA = this.app.userAgent;
     this.testData = [];
@@ -55,13 +57,13 @@ export class UserAgentPage implements OnInit {
         UA: 'Válaszidő',
         data: previousData,
         average: average,
-      }], 'previousData', "Alkalmazás előző " + previousData.length + " órarend lekérése alapján mért KRÉTA válaszidő");
+      }], 'previousData', this.translator.instant('pages.user-agent.graphs.lastRequests.title', { count: previousData.length }));
     }
   }
 
   async saveUA() {
     await this.app.changeConfig('userAgent', this.currentUA);
-    this.prompt.toast('User-Agent sikeresen elmentve!', true);
+    this.prompt.toast(this.translator.instant('pages.user-agent.successfullySavedUAToastText'), true);
   }
 
   async testUA() {
@@ -80,7 +82,7 @@ export class UserAgentPage implements OnInit {
       //we are in the same hour as the last click and in that hour they clicked 5 times
       let now = new Date().valueOf();
       let cooldown = new Date(clickCooldownUntil - now).getMinutes() + ':' + new Date(clickCooldownUntil - now).getSeconds();
-      this.prompt.toast('Óránként 5 User-Agent Lab lekérés engedélyezett! (' + cooldown + ')', true);
+      this.prompt.toast(this.translator.instant('pages.user-agent.hourlyLimitText') + '(' + cooldown + ')', true);
       console.log('[ANTISPAM] Cant click');
       canClick = false;
     } else {
@@ -95,7 +97,7 @@ export class UserAgentPage implements OnInit {
     //anti-spam
     if (canClick) {
       let loading = await this.loadingCtrl.create({
-        message: 'Kréta szerverrel való kommunikáció folyamatban...',
+        message: this.translator.instant('pages.user-agent.kretaComInProgressText'),
         spinner: "lines",
       });
       await loading.present();
@@ -134,7 +136,7 @@ export class UserAgentPage implements OnInit {
       this.showLine(this.testData);
 
       if (clickCount == 5) {
-        this.prompt.toast('Óránkénti 5 teszt lekérés limit elérve!', true);
+        this.prompt.toast(this.translator.instant('pages.user-agent.hourlyLimitReachedText'), true);
       }
       antiSpamUA = new Date().valueOf() + '&' + clickCount;
       await this.storage.set('antiSpamUA', antiSpamUA);
@@ -142,7 +144,7 @@ export class UserAgentPage implements OnInit {
     }
   }
 
-  showLine(lineData: TestData[], id: string = 'line', title: string = "KRÉTA válaszidő User-Agent alapján", ) {
+  showLine(lineData: TestData[], id: string = 'line', title: string = this.translator.instant('pages.user-agent.graphs.testRequests.title')) {
     let myChart: HighCharts.Chart;
     let averageSum = 0;
     lineData.forEach(d => {
@@ -176,7 +178,7 @@ export class UserAgentPage implements OnInit {
           yAxis: {
             min: 0,
             title: {
-              text: 'Idő [ms]',
+              text: this.translator.instant('pages.user-agent.graphs.yText'),
               //color
               style: {
                 color: this.color.getChartTextColor(),
@@ -191,7 +193,7 @@ export class UserAgentPage implements OnInit {
                 zIndex: 2,
                 dashStyle: "Dash",
                 label: {
-                  text: 'Átlag lekérési idő (' + Math.round(n) + 'ms)',
+                  text: this.translator.instant('pages.user-agent.graphs.averageText', { time: Math.round(n) }),
                   //color
                   style: {
                     color: this.color.getChartTextColor(),

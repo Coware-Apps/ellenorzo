@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Értesítések</ion-title>
+    <ion-title>{{'pages.notification-settings.title' | translate}}</ion-title>
     <ion-toggle [checked]="this.app.localNotificationsEnabled" (ionChange)="toggleNotifications()" slot="end">
     </ion-toggle>
   </ion-toolbar>
@@ -25,18 +25,15 @@
         <ion-note>{{user.institute.Name}} - {{user.id}}</ion-note>
       </ion-label>
     </ion-item>
-    <ion-item button (click)="this.showScheduledNotificactions()" *ngIf="this.app.devSettingsEnabled">
+    <ion-item button (click)="this.showScheduledNotifications()" *ngIf="this.app.devSettingsEnabled">
       <ion-icon slot="start" name="list-circle-sharp"></ion-icon>
-      <ion-label>Jelenleg időzített értesítések</ion-label>
+      <ion-label>{{'pages.notification-settings.currentlyScheduledText' | translate}}</ion-label>
     </ion-item>
   </ion-list>
   <ion-list lines="none">
     <ion-item>
       <ion-icon slot="start" name="information-circle-outline"></ion-icon>
-      <ion-note>A rendszer az órarend értesítések beállítás bekapcsolt állapota
-        esetén értesítéseket fog küldeni 10 perccel minden
-        óra kezdete előtt (időpont, tantárgy, terem, helyettesítés) a kiválasztott profil órarendje alapján. Az értesítés ezután 15 perccel el fog tűnni. Ilyen
-        felhasználó kijelölése a harang ikonra kattintva lehetséges.</ion-note>
+      <ion-note>{{'pages.notification-settings.info' | translate}}</ion-note>
     </ion-item>
   </ion-list>
   <!-- <ion-button (click)="testBug(186220)" expand="block" fill="clear" shape="round">

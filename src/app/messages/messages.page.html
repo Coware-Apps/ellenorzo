@@ -3,19 +3,19 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Üzenetek</ion-title>
+    <ion-title>{{'pages.messages.title' | translate}}</ion-title>
     <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
-      refreshingText="Adatok frissítése...">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
+      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
     </ion-refresher-content>
   </ion-refresher>
   <ion-item *ngIf="this.inboxEmpty">
-    <ion-label style="text-align: center">Nincsenek beérkezett üzenetek</ion-label>
+    <ion-label style="text-align: center">{{'pages.messages.noMessagesText' | translate}}</ion-label>
   </ion-item>
   <div *ngFor="let message of this.messages | async">
     <ion-card button [ngClass]="{'unread': !message.isElolvasva}" (click)="openMessage(message)">

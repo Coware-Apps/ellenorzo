@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Házi feladatok ({{getHeaderDate()}})</ion-title>
+    <ion-title>{{'pages.homeworks.title' | translate}} ({{getHeaderDate()}})</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,8 +11,8 @@
   <ion-list>
     <ion-item-divider>
       <ion-label>
-        <h1>Tanár által feladott</h1>
-        <p *ngIf="!this.sans && teacherHomeworks.length == 0">(üres)</p>
+        <h1>{{'pages.homeworks.teacherHomeworkName' | translate}}</h1>
+        <p *ngIf="!this.sans && teacherHomeworks.length == 0">({{'pages.homeworks.emptyText' | translate}})</p>
       </ion-label>
     </ion-item-divider>
     <div *ngIf="!sans">
@@ -25,7 +25,8 @@
           </ion-buttons>
           <ion-card-title>{{homework.Tantargy}}</ion-card-title>
           <ion-card-subtitle>{{homework.Rogzito}} - {{homework.FeladasDatuma.substring(0,10)}}</ion-card-subtitle>
-          <ion-card-subtitle class="deadlineText">Határidő: {{homework.Hatarido.substring(0, 10)}}</ion-card-subtitle>
+          <ion-card-subtitle class="deadlineText">{{'pages.homeworks.deadlineText' | translate}}:
+            {{homework.Hatarido.substring(0, 10)}}</ion-card-subtitle>
           <ion-card-title>
             <div [innerHTML]="homework.Szoveg"></div>
           </ion-card-title>
@@ -60,8 +61,8 @@
 
     <ion-item-divider>
       <ion-label>
-        <h1>Tanuló által feladott</h1>
-        <p *ngIf="!this.sans && studentHomeworks.length == 0">(üres)</p>
+        <h1>{{'pages.homeworks.studentHomeworkName' | translate}}</h1>
+        <p *ngIf="!this.sans && studentHomeworks.length == 0">({{'pages.homeworks.emptyText' | translate}})</p>
       </ion-label>
     </ion-item-divider>
     <div>

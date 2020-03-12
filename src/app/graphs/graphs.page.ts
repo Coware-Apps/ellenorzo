@@ -7,6 +7,7 @@ import more from 'highcharts/highcharts-more';
 import { IonSlides, MenuController } from '@ionic/angular';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { TranslateService } from '@ngx-translate/core';
 more(HighCharts);
 
 export interface subjectWithGrade {
@@ -54,10 +55,11 @@ export class GraphsPage implements OnInit {
     private color: ColorService,
     private firebase: FirebaseX,
     private menuCtrl: MenuController,
+    private translator: TranslateService,
   ) {
     this.focused = 0;
     this.lineColumnButtons = false;
-    this.months = ['január', "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
+    this.months = this.translator.instant('dates.monthNames');
   }
 
 
@@ -89,7 +91,6 @@ export class GraphsPage implements OnInit {
         this.howManyGrades++;
 
         if (this.statisticsGrouping) {
-          //I swear I will kill whoever made this shit to work like this.
           this.unGroupedGrades[i] = { subjectName: 'placeHolder', grade: { numVal: 1, weight: '' } };
           this.unGroupedGrades[i].grade.numVal = this.evaluations[i].NumberValue;
           this.unGroupedGrades[i].grade.weight = this.evaluations[i].Weight;
@@ -226,7 +227,7 @@ export class GraphsPage implements OnInit {
           },
           yAxis: {
             title: {
-              text: 'Értékelés',
+              text: this.translator.instant('graphs.evaluations.line.yText'),
               //color
               style: {
                 color: this.color.getChartTextColor(),
@@ -243,14 +244,14 @@ export class GraphsPage implements OnInit {
                 zIndex: 2,
                 dashStyle: "Dash",
                 label: {
-                  text: 'Átlag'
+                  text: this.translator.instant('graphs.evaluations.line.averageText')
                 }
               }
             ]
           },
           series: [{
             type: undefined,
-            name: 'Jegyek',
+            name: this.translator.instant('graphs.evaluations.line.seriesName'),
             data: this.getNumVals(this.helper[i]).reverse(),
             //color
             color: this.color.getChartSeriesColor(),
@@ -293,7 +294,7 @@ export class GraphsPage implements OnInit {
         },
         yAxis: {
           title: {
-            text: 'Értékelés'
+            text: this.translator.instant('graphs.evaluations.line.yText')
           },
           plotLines: [
             {
@@ -303,13 +304,13 @@ export class GraphsPage implements OnInit {
               zIndex: 2,
               dashStyle: "Dash",
               label: {
-                text: 'Átlag'
+                text: this.translator.instant('graphs.evaluations.line.averageText'),
               }
             }
           ]
         },
         series: [{
-          name: 'Jegyek',
+          name: this.translator.instant('graphs.evaluations.line.seriesName'),
           data: xData,
           width: 5,
           zIndex: 3,
@@ -335,7 +336,7 @@ export class GraphsPage implements OnInit {
           },
           yAxis: {
             title: {
-              text: 'Értékelés'
+              text: this.translator.instant('graphs.evaluations.line.yText'),
             },
             plotLines: [
               {
@@ -345,14 +346,14 @@ export class GraphsPage implements OnInit {
                 zIndex: 2,
                 dashStyle: "Dash",
                 label: {
-                  text: 'Átlag'
+                  text: this.translator.instant('graphs.evaluations.line.averageText')
                 }
               }
             ]
           },
           series: [{
             type: undefined,
-            name: 'Jegyek',
+            name: this.translator.instant('graphs.evaluations.line.seriesName'),
             data: this.getNumVals(this.helper[i]).reverse(),
             width: 5,
             zIndex: 3
@@ -413,7 +414,7 @@ export class GraphsPage implements OnInit {
           },
           yAxis: {
             title: {
-              text: 'Darabszám',
+              text: this.translator.instant('graphs.evaluations.column.yText'),
               //color
               style: {
                 color: this.color.getChartTextColor(),
@@ -430,7 +431,7 @@ export class GraphsPage implements OnInit {
             }
           },
           series: [{
-            name: 'Jegyek',
+            name: this.translator.instant('graphs.evaluations.column.seriesName'),
             data: xData,
             width: 5,
             zIndex: 3,
@@ -489,7 +490,7 @@ export class GraphsPage implements OnInit {
         },
         yAxis: {
           title: {
-            text: 'Darabszám'
+            text: this.translator.instant('graphs.evaluations.column.yText'),
           },
           plotLines: [
             {
@@ -512,7 +513,7 @@ export class GraphsPage implements OnInit {
           }
         },
         series: [{
-          name: 'Jegyek',
+          name: this.translator.instant('graphs.evaluations.column.seriesName'),
           data: xData,
           width: 5,
           zIndex: 3,
@@ -565,7 +566,7 @@ export class GraphsPage implements OnInit {
           },
           yAxis: {
             title: {
-              text: 'Darabszám'
+              text: this.translator.instant('graphs.evaluations.column.yText'),
             }
           },
           plotOptions: {
@@ -576,7 +577,7 @@ export class GraphsPage implements OnInit {
             }
           },
           series: [{
-            name: 'Jegyek',
+            name: this.translator.instant('graphs.evaluations.column.seriesName'),
             data: xData,
             width: 5,
             zIndex: 3,

@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
+import { TranslateService } from '@ngx-translate/core';
 
 
 export interface grade {
@@ -67,6 +68,7 @@ export class AverageGraphsPage implements OnInit {
     private firebase: FirebaseX,
     private prompt: PromptService,
     private menuCtrl: MenuController,
+    private translator: TranslateService,
   ) {
     this.grades = [];
     this.ColumnData = [0, 0, 0, 0, 0];
@@ -215,7 +217,7 @@ export class AverageGraphsPage implements OnInit {
       this.id++;
       await this.prompt.dismissTopToast();
     } else {
-      this.prompt.topToast("Hibás adatok!", true);
+      this.prompt.topToast(this.translator.instant('pages.average-graphs.wrongDataToastText'), true);
       this.unfilled = true;
     }
   }
@@ -308,7 +310,6 @@ export class AverageGraphsPage implements OnInit {
 
   drawGauge(id: string = 'container') {
     let myChart = HighCharts.chart(id, {
-
       chart: {
         type: 'gauge',
         plotBackgroundColor: this.color.getChartBgColor(),
@@ -337,7 +338,7 @@ export class AverageGraphsPage implements OnInit {
       },
 
       title: {
-        text: (this.subject + ' átlag'),
+        text: (this.subject + ' ' + this.translator.instant('pages.average-graphs.averageName')),
         style: {
           color: this.color.getChartTextColor(),
           fontWeight: 'bold'
@@ -394,20 +395,17 @@ export class AverageGraphsPage implements OnInit {
       },
 
       series: [{
-        name: 'Átlag',
+        name: this.translator.instant('graphs.evaluations.gauge.averageText'),
         data: [this.graphData],
         type: undefined,
-        title: 'Átlag',
-        dial: {
-          backgroundColor: this.color.getChartSeriesColor(),
-        },
+        title: this.translator.instant('graphs.evaluations.gauge.averageText'),
         //color
         style: {
           color: this.color.getChartTextColor(),
         }
       },
       {
-        name: 'Osztályátlag',
+        name: this.translator.instant('graphs.evaluations.gauge.classAverageText'),
         data: [this.classValue],
         type: undefined,
         dial: {
@@ -428,7 +426,7 @@ export class AverageGraphsPage implements OnInit {
         enabled: false
       },
       title: {
-        text: (this.subject + ' átlag'),
+        text: (this.subject + ' ' + this.translator.instant('pages.average-graphs.averageName')),
         //color
         style: {
           color: this.color.getChartTextColor(),
@@ -441,7 +439,7 @@ export class AverageGraphsPage implements OnInit {
         min: 1,
         max: 5,
         title: {
-          text: 'Értékelés',
+          text: ' ' + this.translator.instant('graphs.evaluations.line.yText'),
           //color
           style: {
             color: this.color.getChartTextColor(),
@@ -456,7 +454,7 @@ export class AverageGraphsPage implements OnInit {
             zIndex: 3,
             dashStyle: "Dash",
             label: {
-              text: 'Átlag',
+              text: ' ' + this.translator.instant('graphs.evaluations.line.averageText'),
               //color
               style: {
                 color: this.color.getChartTextColor(),
@@ -470,7 +468,7 @@ export class AverageGraphsPage implements OnInit {
             zIndex: 2,
             dashStyle: "Dot",
             label: {
-              text: 'Osztályátlag',
+              text: this.translator.instant('graphs.evaluations.line.classAverageText'),
               //textAlign doesn't work but is needed to use x offset
               textAlign: 'left',
               x: 90,
@@ -484,7 +482,7 @@ export class AverageGraphsPage implements OnInit {
       },
       series: [{
         type: undefined,
-        name: 'Jegyek',
+        name: this.translator.instant('graphs.evaluations.line.seriesName'),
         data: this.LineData,
         zIndex: 3,
         color: this.color.getChartSeriesColor(),
@@ -509,7 +507,7 @@ export class AverageGraphsPage implements OnInit {
         enabled: false
       },
       title: {
-        text: (this.subject + ' átlag'),
+        text: (this.subject + ' ' + this.translator.instant('pages.average-graphs.averageName')),
         //color
         style: {
           color: this.color.getChartTextColor(),
@@ -521,7 +519,7 @@ export class AverageGraphsPage implements OnInit {
       },
       yAxis: {
         title: {
-          text: 'Darabszám',
+          text: this.translator.instant('graphs.evaluations.column.yText'),
           //color
           style: {
             color: this.color.getChartTextColor(),
@@ -539,7 +537,7 @@ export class AverageGraphsPage implements OnInit {
         }
       },
       series: [{
-        name: 'Jegyek',
+        name: this.translator.instant('graphs.evaluations.column.seriesName'),
         data: this.ColumnData,
         zIndex: 3,
         type: undefined

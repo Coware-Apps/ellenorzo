@@ -1,21 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { ThemeService } from '../_services/theme.service';
 import { Storage } from '@ionic/storage';
-import { AuthenticationService } from '../_services/authentication.service';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import { Platform, AlertController, ToastController, LoadingController, MenuController } from '@ionic/angular';
+import { Platform, LoadingController, MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ColorService } from '../_services/color.service';
 import { AppService } from '../_services/app.service';
-import { AppVersion } from '@ionic-native/app-version/ngx';
 import { KretaService } from '../_services/kreta.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { InAppBrowserOptions, InAppBrowser } from '@ionic-native/in-app-browser/ngx';
-import { LocalNotifications, ILocalNotification } from '@ionic-native/local-notifications/ngx';
 import { PromptService } from '../_services/prompt.service';
-import { FormattedDateService } from '../_services/formatted-date.service';
-import { NotificationService } from '../_services/notification.service';
 import { UserManagerService } from '../_services/user-manager.service';
+import { TranslateService } from '@ngx-translate/core';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.page.html',
@@ -24,7 +20,10 @@ import { UserManagerService } from '../_services/user-manager.service';
 export class SettingsPage implements OnInit {
 
   customAlertOptions: any = {
-    header: 'Kezdőlap',
+    header: this.translator.instant('pages.settings.pages.startingPageName'),
+    cssClass: this.color.getPopUpClass(),
+  };
+  customPopoverOptions: any = {
     cssClass: this.color.getPopUpClass(),
   };
 
@@ -35,6 +34,7 @@ export class SettingsPage implements OnInit {
     url: string,
     icon: string,
     show: boolean,
+    translatorVal?: string;
   }[];
 
   private width: number;
@@ -55,6 +55,9 @@ export class SettingsPage implements OnInit {
     private prompt: PromptService,
     private inAppBrowser: InAppBrowser,
     private menuCtrl: MenuController,
+    private translator: TranslateService,
+    private userManager: UserManagerService,
+    private loadingCtrl: LoadingController,
   ) {
     this.platform.ready().then((readySource) => {
       this.width = platform.width();
@@ -70,39 +73,19 @@ export class SettingsPage implements OnInit {
     if (storedTheme == null) {
       this.storage.set('theme', 'light')
     }
-
-    switch (await this.storage.get('theme')) {
-      case 'light':
-        this.currentTheme = "light";
-        this.enableLight();
-        break;
-      case 'dark':
-        this.currentTheme = "dark";
-        this.enableDark();
-        break;
-      case 'minimalDark':
-        this.currentTheme = "minimalDark";
-        this.enableMinimalDark();
-        break;
-      case 'custom':
-        this.currentTheme = "custom";
-        this.enableCustom();
-        break;
-    }
+    this.currentTheme = this.theme.currentTheme.value;
     //#endregion
 
     //#region default page
     let a = await this.storage.get('defaultPage');
-
     if (a == null) {
-      this.defaultPage = "/list";
+      this.defaultPage = "/home";
     }
     else {
       this.defaultPage = a;
     }
-
-    this.devCounter = this.app.devSettingsEnabled ? 9 : 0;
     //#endregion
+    this.devCounter = this.app.devSettingsEnabled ? 9 : 0;
 
     this.firebase.setScreenName('settings');
   }
@@ -137,10 +120,6 @@ export class SettingsPage implements OnInit {
   }
   //#endregion
 
-  async logout() {
-    //TODO
-  }
-
   //#region starting pages
   selectorChanged(event: any) {
     this.setDefaultPage(event.detail.value);
@@ -153,6 +132,27 @@ export class SettingsPage implements OnInit {
 
   hidePages() {
     this.router.navigateByUrl('/hide-page-settings');
+  }
+
+  async currentLngChanged(event) {
+    this.app.currentLng = event.detail.value;
+    if (this.app.localNotificationsEnabled) {
+      this.userManager.allUsers.forEach(async user => {
+        if (user.notificationsEnabled) {
+          let loading = await this.loadingCtrl.create({
+            spinner: "crescent",
+            message: this.translator.instant('pages.notification-settings.operationInProgressText')
+          });
+          try {
+            loading.present();
+            await user.setLocalNotifications(2);
+          } catch (error) {
+            this.prompt.toast('Unable to change notification language', true);
+          }
+          loading.dismiss();
+        }
+      })
+    }
   }
 
   async getImage() {
@@ -169,9 +169,16 @@ export class SettingsPage implements OnInit {
     this.camera.getPicture(options).then(async (imageData) => {
       this.theme.changeBackground(imageData);
       //popup message
-      await this.prompt.presentUniversalAlert('Testreszabható háttér', null, 'A képet úgy válaszd meg, hogy a <ul><li>szélessége min. ' + this.width + 'px </li><li>magassága min. ' + this.height + 'px </li></ul> legyen, ha a nem ajánl fel alapból egy crop ablakot. (Ezek az adatok a te eszközöd képernyőadatai alapján lettek generálva)');
+      await this.prompt.presentUniversalAlert(
+        this.translator.instant('pages.settings.themes.customBgAlert.header'),
+        null,
+        this.translator.instant('pages.settings.themes.customBgAlert.message')
+      );
     }, async (err) => {
-      await this.prompt.presentUniversalAlert('Hiba történt!', null, 'Nem sikerült a kiválasztott képet beállítani. (' + err + ')')
+      await this.prompt.presentUniversalAlert(
+        this.translator.instant('pages.settings.themes.customBgErrorAlert.header'),
+        null,
+        this.translator.instant('pages.settings.themes.customBgErrorAlert.message') + ' (' + err + ')');
       //error
     });
   }
@@ -212,10 +219,10 @@ export class SettingsPage implements OnInit {
     this.devCounter++;
 
     if (this.devCounter >= 7 && 10 > this.devCounter) {
-      this.prompt.topToast((10 - this.devCounter) + " lépésre vagy a fejlesztői beállítások engedélyezésétől!", true)
+      this.prompt.topToast((10 - this.devCounter) + " " + this.translator.instant('pages.settings.devSettings.devSettingsEnablingText'), true)
     } else if (this.devCounter == 10) {
       this.app.changeConfig('devSettingsEnabled', true);
-      this.prompt.topToast("Fejlesztői beállítások sikeresen engedélyezve!", true);
+      this.prompt.topToast(this.translator.instant('pages.settings.devSettings.devSettingsEnabledText'), true);
     }
   }
 

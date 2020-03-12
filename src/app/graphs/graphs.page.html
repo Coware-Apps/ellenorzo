@@ -11,35 +11,34 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Részletes statisztika</ion-title>
+    <ion-title>{{'pages.graphs.title' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-toolbar *ngIf="!this.linecolumn">
-    <div *ngIf="!this.statisticsGrouping">
-      <ion-card *ngFor="let number of howMany" #thenblock>
-        <div id="container" style="display: block;"></div>
-        <ion-card-header>
-          <ion-card-subtitle>Összes jegy: {{this.howManyGrades}}</ion-card-subtitle>
-          <ion-card-title>{{this.title}}{{this.average}}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-        </ion-card-content>
-      </ion-card>
-    </div>
-    <div *ngIf="this.statisticsGrouping">
-      <ion-card #elseblock *ngFor="let subjectKey of helper">
-        <div id={{subjectKey}} style="display: block;"></div>
-        <ion-card-header>
-          <ion-card-subtitle>Összes jegy: {{getNumVals(subjectKey).length}}</ion-card-subtitle>
-          <ion-card-subtitle>Átlag: {{getAvg(subjectKey)}}</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-        </ion-card-content>
-      </ion-card>
-    </div>
-  </ion-toolbar>
+  <div *ngIf="!this.linecolumn && !this.statisticsGrouping">
+    <ion-card *ngFor="let number of howMany" #thenblock>
+      <div id="container" style="display: block;"></div>
+      <ion-card-header>
+        <ion-card-subtitle>{{'pages.graphs.allGradesText' | translate}} {{this.howManyGrades}}</ion-card-subtitle>
+        <ion-card-title>{{this.title}}{{this.average}}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+      </ion-card-content>
+    </ion-card>
+  </div>
+  <div *ngIf="!this.linecolumn && this.statisticsGrouping">
+    <ion-card #elseblock *ngFor="let subjectKey of helper">
+      <div id={{subjectKey}} style="display: block;"></div>
+      <ion-card-header>
+        <ion-card-subtitle>{{'pages.graphs.allGradesText' | translate}} {{getNumVals(subjectKey).length}}
+        </ion-card-subtitle>
+        <ion-card-subtitle>{{'pages.graphs.averageText' | translate}} {{getAvg(subjectKey)}}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+      </ion-card-content>
+    </ion-card>
+  </div>
 
 
 
@@ -48,8 +47,9 @@
       <ion-card class="wide" *ngFor="let subjectKey of helper">
         <div class="chart" [attr.id]="'line_' + subjectKey"></div>
         <ion-card-header>
-          <ion-card-subtitle>Összes jegy: {{getNumVals(subjectKey).length}}</ion-card-subtitle>
-          <ion-card-subtitle>Átlag: {{getAvg(subjectKey)}}</ion-card-subtitle>
+          <ion-card-subtitle>{{'pages.graphs.allGradesText' | translate}} {{getNumVals(subjectKey).length}}
+          </ion-card-subtitle>
+          <ion-card-subtitle>{{'pages.graphs.averageText' | translate}} {{getAvg(subjectKey)}}</ion-card-subtitle>
         </ion-card-header>
       </ion-card>
     </ion-slide>
@@ -57,8 +57,9 @@
       <ion-card class="wide" *ngFor="let subjectKey of helper">
         <div class="chart" [attr.id]="'column_' + subjectKey" style="display: block;"></div>
         <ion-card-header>
-          <ion-card-subtitle>Összes jegy: {{getNumVals(subjectKey).length}}</ion-card-subtitle>
-          <ion-card-subtitle>Átlag: {{getAvg(subjectKey)}}</ion-card-subtitle>
+          <ion-card-subtitle>{{'pages.graphs.allGradesText' | translate}} {{getNumVals(subjectKey).length}}
+          </ion-card-subtitle>
+          <ion-card-subtitle>{{'pages.graphs.averageText' | translate}} {{getAvg(subjectKey)}}</ion-card-subtitle>
         </ion-card-header>
       </ion-card>
     </ion-slide>

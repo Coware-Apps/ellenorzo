@@ -8,6 +8,7 @@ import { AveragesPageRoutingModule } from './averages-routing.module';
 
 import { AveragesPage } from './averages.page';
 import { AverageGraphsPageModule } from '../average-graphs/average-graphs.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { AverageGraphsPageModule } from '../average-graphs/average-graphs.module
     FormsModule,
     IonicModule,
     AveragesPageRoutingModule,
-    AverageGraphsPageModule
+    AverageGraphsPageModule,
+    TranslateModule,
   ],
   declarations: [
     AveragesPage,

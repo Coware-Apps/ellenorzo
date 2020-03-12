@@ -7,8 +7,8 @@ import { Storage } from '@ionic/storage';
   providedIn: 'root'
 })
 export class ThemeService {
-  renderer: Renderer2;
-  currentTheme = new BehaviorSubject("light");
+  public renderer: Renderer2;
+  public currentTheme = new BehaviorSubject("light");
 
   constructor(
     private storage: Storage,
@@ -16,6 +16,28 @@ export class ThemeService {
     @Inject(DOCUMENT) private document: Document,
   ) {
     this.renderer = this.rendererFactory.createRenderer(null, null);
+  }
+
+  public async onInit() {
+    let storedTheme = await this.storage.get("theme");
+    if (storedTheme == null) {
+      this.storage.set("theme", "light");
+    }
+
+    switch (await this.storage.get("theme")) {
+      case "light":
+        this.enableLight();
+        break;
+      case "dark":
+        this.enableDark();
+        break;
+      case "minimalDark":
+        this.enableMinimalDark();
+        break;
+      case "custom":
+        this.enableCustom();
+        break;
+    }
   }
 
   enableDark() {
@@ -42,7 +64,11 @@ export class ThemeService {
     let temp;
     this.addBodyStyle("background-position-x", (temp = await this.storage.get('bgX')) == null ? "center" : (temp * -1) + "%");
     this.addBodyStyle("background-position-y", (temp = await this.storage.get('bgY')) == null ? "center" : temp + "%");
-    this.addBodyStyle("background-size", (temp = await this.storage.get('bgSize')) == null || temp == "cover" ? "cover" :  temp + "%");
+    this.addBodyStyle("background-size", (temp = await this.storage.get('bgSize')) == null || temp == "cover" ? "cover" : temp + "%");
+    let bd = await this.storage.get('bdClass');
+    if (bd != null) {
+      this.addBodyClass(bd);
+    }
     this.changeBackground(await this.storage.get('base64bg'));
 
     //the order of these is important, otherwise it causes lag ^
@@ -57,6 +83,14 @@ export class ThemeService {
   addBodyStyle(style: string, value: string) {
     this.renderer.setStyle(this.document.body, style, value);
   }
+
+  addBodyClass(cls: string) {
+    this.renderer.addClass(this.document.body, cls);
+  }
+  removeBodyClass(cls: string) {
+    this.renderer.removeClass(this.document.body, cls);
+  }
+
 
   removeBodyStyle(style: string) {
     this.renderer.removeStyle(this.document.body, style);

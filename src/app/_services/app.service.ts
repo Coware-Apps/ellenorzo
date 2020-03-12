@@ -3,6 +3,9 @@ import { BehaviorSubject } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import { userInitData } from '../_models/user';
 import { WebUser } from '../_models/webUser';
+import { TranslateService } from '@ngx-translate/core';
+import { registerLocaleData } from '@angular/common';
+import { AppVersion } from '@ionic-native/app-version/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +19,7 @@ export class AppService {
     icon: string,
     src?: string;
     show: boolean,
+    translatorVal?: string,
   }[];
   public isStudentSelectorReady = false;
   public toastLoggingEnabled: boolean;
@@ -26,51 +30,83 @@ export class AppService {
   public userAgent: string;
   public usersInitData: userInitData[] = [];
   public webUser: WebUser;
+  private _languages = [{
+    id: 'hu',
+    displayName: 'Magyar'
+  },
+  {
+    id: 'en',
+    displayName: 'English'
+  }];
+  public get languages() {
+    return this._languages;
+  }
+
+  private _currentLng: string;
+  public get currentLng() {
+    return this._currentLng;
+  }
+  public set currentLng(newLng: string) {
+    this.translator.use(newLng);
+    this._currentLng = newLng;
+    import(`@angular/common/locales/${newLng}.js`)
+      .then(module => registerLocaleData(module.default));
+    this.storage.set('language', newLng);
+  }
 
   constructor(
     private storage: Storage,
+    private translator: TranslateService,
+    private appVersion: AppVersion,
   ) {
     this.appPages = [{
       title: 'Főoldal',
       url: '/home',
       icon: 'home-outline',
       show: true,
+      translatorVal: 'pages.home.title'
     },
     {
       title: 'Értékelések',
       url: '/evaluations',
       icon: 'school-outline',
       show: true,
+      translatorVal: 'pages.evaluations.title'
     },
     {
       title: 'Órarend',
       url: '/list',
       icon: 'list-outline',
       show: true,
+      translatorVal: 'pages.list.title'
     },
     {
-      title: 'Statisztikák',
+      title: 'Statisztika',
       url: '/statistics',
       icon: 'analytics-outline',
       show: true,
+      translatorVal: 'pages.statistics.title'
     },
     {
       title: 'Átlagok',
       url: '/averages',
       icon: 'bar-chart-outline',
       show: true,
+      translatorVal: 'pages.averages.title'
     },
     {
       title: 'Mulasztások',
       url: '/absences',
       icon: 'calendar-outline',
       show: true,
+      translatorVal: 'pages.absences.title'
     },
     {
       title: 'Feljegyzések',
       url: '/notes',
       icon: 'document-text-outline',
       show: true,
+      translatorVal: 'pages.notes.title'
     },
     {
       title: 'Házi feladatok',
@@ -78,6 +114,7 @@ export class AppService {
       icon: '',
       show: true,
       src: "/assets/extraicons/homewarning.svg",
+      translatorVal: 'pages.homeworks.title'
     },
     {
       title: 'Számonkérések',
@@ -85,12 +122,14 @@ export class AppService {
       icon: '',
       show: true,
       src: "/assets/extraicons/test.svg",
+      translatorVal: 'pages.tests.title'
     },
     {
-      title: 'E-üzenetek',
+      title: 'Üzenetek',
       url: '/messages',
       icon: 'chatbox-outline',
       show: true,
+      translatorVal: 'pages.messages.title'
     },
     // {
     // title: 'Közösségi szolgálat',
@@ -99,19 +138,62 @@ export class AppService {
     // show: true,
     // },
     {
-      title: 'Felhasználó adatai',
+      title: 'Adatlap',
       url: '/user',
       icon: 'person-circle-outline',
       show: true,
+      translatorVal: 'pages.user.title'
     },
     {
       title: 'Beállítások',
       url: '/settings',
       icon: 'settings-outline',
       show: true,
+      translatorVal: 'pages.settings.title'
     }];
     this.toastLoggingEnabled = false;
     this.getStockUserAgent();
+  }
+
+  public async onInit() {
+    try {
+      let configs = await Promise.all([
+        await this.appVersion.getVersionNumber(),
+        await this.storage.get('analyticsCollectionEnabled') == false ? false : true,
+        await this.storage.get('toastLoggingEnabled') == true ? true : false,
+        await this.storage.get('devSettingsEnabled') == true ? true : false,
+        await this.storage.get('localNotificationsEnabled') == true ? true : false,
+        await this.storage.get('webApiRegistration'),
+        await this.storage.get('userAgent'),
+        await this.storage.get('language'),
+      ]);
+      this.appV = configs[0];
+      this.analyticsCollectionEnabled = configs[1];
+      this.toastLoggingEnabled = configs[2];
+      this.devSettingsEnabled = configs[3];
+      this.localNotificationsEnabled = configs[4];
+      let storedWebApiRegistration = configs[5];
+      if (storedWebApiRegistration != null) {
+        this.webUser = JSON.parse(storedWebApiRegistration);
+      };
+      let storedUA = configs[6];
+      if (storedUA != null) {
+        this.userAgent = storedUA;
+      }
+
+      if (configs[7] != null) {
+        this.currentLng = configs[7];
+      } else {
+        let browserLang = this.translator.getBrowserLang();
+        this.languages.forEach(l => {
+          if (l.id == browserLang) {
+            this.currentLng = browserLang;
+          }
+        });
+      }
+    } catch (error) {
+      console.error('error trying to load some settings');
+    }
   }
 
   public async changeConfig(configKey: string, value: any) {
@@ -122,7 +204,6 @@ export class AppService {
     this[configKey] = value;
     await this.storage.set(configKey, JSON.stringify(value));
   }
-
   public getStockUserAgent() {
     //this.userAgent = 'Kreta.Ellenorzo/2.9.8.2020012301 (Android; SM-G950F 0.0)'
     //this.userAgent = 'x.x/0 (Android)'
@@ -132,23 +213,25 @@ export class AppService {
     return 'Arisztokreta.Ellenorzo/0.8.3.2020012301 (Android)';
   }
 
-  //sidemenu
-  hidePage(title: string) {
+  //#region sidemenu
+  async hidePage(url: string) {
     this.appPages.forEach(page => {
-      if (page.title == title) {
+      if (page.url == url) {
         page.show = false;
         console.log("hid", page.title);
       }
     });
+    await this.storage.set('sidemenu', this.appPages);
   }
 
-  showPage(title: string) {
+  async showPage(url: string) {
     this.appPages.forEach(page => {
-      if (page.title == title) {
+      if (page.url == url) {
         page.show = true;
         console.log("shown", page.title);
       }
     });
+    await this.storage.set('sidemenu', this.appPages);
   }
 
   async clearStorage(keepSettings: boolean = true) {
@@ -192,4 +275,5 @@ export class AppService {
   public finishConfig() {
     this.updated.next("finished");
   }
+  //#endregion
 }

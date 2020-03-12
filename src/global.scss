@@ -106,29 +106,25 @@
     --ion-color-step-950: #f3f3f3;
   }
   .custom-theme {
+    //alerts
     .timeTableAlert {
       --ion-item-background: transparent;
       --ion-background-color: black;
     }
-
-    //sort of ios-specific settings
-    ion-item-divider {
-      --background: rgba(0, 0, 0, 0.432);
-    }
+    //ios-specific settings
+    ion-item-divider,
     ion-toolbar {
       --background: rgba(0, 0, 0, 0.432);
     }
-
     //<ion-select> background color
     .alert-wrapper {
       --background: black;
     }
-
     //<ion-item-divider> background color
     ion-item-divider {
       --background: transparent;
     }
-
+    //toast background color
     .darkToast {
       --ion-item-background: transparent;
       --background: black;
@@ -168,6 +164,31 @@
     --ion-color-step-850: #dbdbdb;
     --ion-color-step-900: #e7e7e7;
     --ion-color-step-950: #f3f3f3;
+  }
+  //custom theme backdrop settings
+  .custom-theme.bd-25 {
+    --ion-background-color: rgba(0, 0, 0, 0.5);
+    ion-toolbar {
+      --background: rgba(0, 0, 0, 0.5);
+    }
+  }
+  .custom-theme.bd-50 {
+    --ion-background-color: rgba(0, 0, 0, 0.6);
+    ion-toolbar {
+      --background: rgba(0, 0, 0, 0.6);
+    }
+  }
+  .custom-theme.bd-75 {
+    --ion-background-color: rgba(0, 0, 0, 0.7);
+    ion-toolbar {
+      --background: rgba(0, 0, 0, 0.7);
+    }
+  }
+  .custom-theme.bd-100 {
+    --ion-background-color: rgba(0, 0, 0, 0.8);
+    ion-toolbar {
+      --background: rgba(0, 0, 0, 0.8);
+    }
   }
 }
 //mostly for the popup messages

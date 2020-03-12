@@ -1,6 +1,6 @@
 {
   "name": "arisztokreta",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "author": "Coware",
   "homepage": "https://coware-apps.github.io/ellenorzo/",
   "scripts": {
@@ -33,6 +33,8 @@
     "@ionic-native/status-bar": "^5.21.1",
     "@ionic/angular": "^5.0.0",
     "@ionic/storage": "^2.2.0",
+    "@ngx-translate/core": "^12.1.2",
+    "@ngx-translate/http-loader": "^4.0.0",
     "cordova-android": "8.1.0",
     "cordova-base64-to-gallery": "^4.1.3",
     "cordova-ios": "^5.1.1",

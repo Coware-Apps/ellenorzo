@@ -12,6 +12,7 @@ import { Observable, Subscription } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { MenuController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
@@ -57,10 +58,11 @@ export class HomePage {
     private firebase: FirebaseX,
     private prompt: PromptService,
     private menuCtrl: MenuController,
+    private translator: TranslateService,
   ) {
     this.allData = [];
     this.thisMonth = new Date().getMonth();
-    this.monthsName = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
+    this.monthsName = this.translator.instant("dates.monthNames");
     this.sans = true;
     this.showProgressBar = true;
   }
@@ -137,9 +139,21 @@ export class HomePage {
       allData.push(element);
     }
 
+    let hasCoronaBeenAdded = false;
     for (let i = 0; i < allNotes.length; i++) {
       let element = allNotes[i];
-      allData.push(element);
+      //CORONA text quick fix
+      if (
+        element.Title == "Koronavírus tájékoztató" &&
+        this.fDate.formatDate(new Date(element.CreatingTime)) == "2020-3-11"
+      ) {
+        if (!hasCoronaBeenAdded) {
+          allData.push(element);
+          hasCoronaBeenAdded = true;
+        }
+      } else {
+        allData.push(element);
+      }
     }
 
     let months: number[] = [];

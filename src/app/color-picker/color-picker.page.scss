@@ -10,7 +10,6 @@ ion-card-header.home {
   margin-bottom: 0px !important;
   margin-top: 0px !important;
 }
-
 ion-card-content.home {
   div > h1 {
     font-size: 3rem !important;
@@ -29,22 +28,23 @@ ion-card-content.averages {
     padding-top: 5px;
   }
 }
-
 .color-indicator-box {
   width: 100%;
+  border-radius: 5px;
 }
-
 .wide {
   width: 95%;
   display: block;
 }
-
 .tl {
   text-align: left;
 }
-
 .chart {
   display: block;
   width: 100%;
   min-width: min-content;
+}
+.home,
+.averages {
+  transition: box-shadow 0.3s ease 0s;
 }

@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { TimetableHomeworksPageRoutingModule } from './timetable-homeworks-routing.module';
 
 import { TimetableHomeworksPage } from './timetable-homeworks.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    TimetableHomeworksPageRoutingModule
+    TimetableHomeworksPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [TimetableHomeworksPage]
 })
-export class TimetableHomeworksPageModule {}
+export class TimetableHomeworksPageModule { }

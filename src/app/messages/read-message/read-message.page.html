@@ -5,22 +5,22 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Üzenet</ion-title>
+    <ion-title>{{'pages.read-message.title' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-card *ngIf="!this.sans">
     <ion-card-content>
-      <h2 style="font-weight: bold;">Feladó</h2>
+      <h2 style="font-weight: bold;">{{'pages.read-message.senderName' | translate}}</h2>
       <p>{{this.message.uzenet.feladoNev}}</p>
-      <h2 style="font-weight: bold;">Címzett(ek)</h2>
+      <h2 style="font-weight: bold;">{{'pages.read-message.addresseeName' | translate}}</h2>
       <p *ngFor="let cimzett of this.message.uzenet.cimzettLista">
         {{cimzett.nev}}
       </p>
-      <h2 style="font-weight: bold;">Tárgy</h2>
+      <h2 style="font-weight: bold;">{{'pages.read-message.subjectName' | translate}}</h2>
       <p>{{this.message.uzenet.targy}}</p>
-      <h2 style="font-weight: bold;">Szöveg</h2>
+      <h2 style="font-weight: bold;">{{'pages.read-message.textName' | translate}}</h2>
       <div [innerHTML]="message.uzenet.szoveg"></div>
     </ion-card-content>
   </ion-card>

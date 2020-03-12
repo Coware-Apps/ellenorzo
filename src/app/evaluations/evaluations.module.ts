@@ -9,14 +9,16 @@ import { EvaluationsPageRoutingModule } from './evaluations-routing.module';
 import { EvaluationsPage } from './evaluations.page';
 
 import { AverageGraphsPageModule } from '../average-graphs/average-graphs.module';
+import { TranslateModule } from '@ngx-translate/core';
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
     EvaluationsPageRoutingModule,
-    AverageGraphsPageModule
+    AverageGraphsPageModule,
+    TranslateModule,
   ],
   declarations: [EvaluationsPage]
 })
-export class EvaluationsPageModule {}
+export class EvaluationsPageModule { }

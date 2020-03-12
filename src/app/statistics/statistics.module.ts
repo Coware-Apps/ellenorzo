@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { StatisticsPageRoutingModule } from './statistics-routing.module';
 
 import { StatisticsPage } from './statistics.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    StatisticsPageRoutingModule
+    StatisticsPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [StatisticsPage]
 })
-export class StatisticsPageModule {}
+export class StatisticsPageModule { }

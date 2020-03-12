@@ -15,6 +15,7 @@ import { Observable, Subscription, Subject, BehaviorSubject } from 'rxjs';
 import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.service';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface SelectOption {
   name: string;
@@ -34,7 +35,7 @@ export class EvaluationsPage implements OnInit {
 
   //for the selector
   customAlertOptions: any = {
-    subHeader: 'Rendezés és megjelenítés',
+    subHeader: this.translator.instant('pages.evaluations.categorySelectorTitle'),
     cssClass: this.color.getPopUpClass(),
   };
 
@@ -47,35 +48,35 @@ export class EvaluationsPage implements OnInit {
   public selected: string;
   public groups: string;
   public selectOptions: SelectOption[] = [{
-    name: "Tantárgyanként",
+    name: this.translator.instant(`pages.evaluations.categorySelector.bySubject`),
     id: "bySubject",
     show: true,
     empty: false,
     data: [],
   },
   {
-    name: "Dátum alapján",
+    name: this.translator.instant(`pages.evaluations.categorySelector.byDate`),
     id: "byDate",
     show: true,
     empty: false,
     data: [],
   },
   {
-    name: "Félévi értékelések",
+    name: this.translator.instant(`pages.evaluations.categorySelector.halfYear`),
     id: "halfYear",
     show: true,
     empty: false,
     data: [],
   },
   {
-    name: "Év végi értékelések",
+    name: this.translator.instant(`pages.evaluations.categorySelector.endYear`),
     id: "endYear",
     show: true,
     empty: false,
     data: [],
   },
   {
-    name: "Egyéb értékelések",
+    name: this.translator.instant(`pages.evaluations.categorySelector.other`),
     id: "other",
     show: true,
     empty: false,
@@ -98,6 +99,7 @@ export class EvaluationsPage implements OnInit {
     private prompt: PromptService,
     private userManager: UserManagerService,
     private collapsify: CollapsifyService,
+    private translator: TranslateService,
   ) {
     this.dates = [];
     this.subjects = [];

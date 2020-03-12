@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Note, Absence, evaluation } from '../_models/student';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface UniversalSortedData {
   index: number;
@@ -16,10 +17,10 @@ export class CollapsifyService {
   private monthsName: string[];
   private dayNames: string[];
   constructor(
-
+    private translator: TranslateService,
   ) {
-    this.monthsName = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-    this.dayNames = ["Vasárnap", "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat"];
+    this.monthsName = this.translator.instant('dates.monthNames')
+    this.dayNames = this.translator.instant('dates.dayNames');
   }
 
   collapsifyByMonths(data: any[], groupBy: string, sortBy: string = groupBy): UniversalSortedData[] {

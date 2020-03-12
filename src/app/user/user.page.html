@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Személyes adatlap</ion-title>
+    <ion-title>{{'pages.user.title' | translate}}</ion-title>
     <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
@@ -18,19 +18,19 @@
     <ion-card>
       <ion-card-header>
         <ion-card-title>
-          <h1>Személyes adatok</h1>
+          <h1>{{'pages.user.personalInfo.title' | translate}}</h1>
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <h2 style="font-weight: bold;">Név</h2>
+        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.name' | translate}}</h2>
         <p>{{s.Name}}</p>
-        <h2 style="font-weight: bold;">Születési név</h2>
+        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.birthName' | translate}}</h2>
         <p>{{s.NameOfBirth}}</p>
-        <h2 style="font-weight: bold;">Születési idő</h2>
+        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.birthDate' | translate}}</h2>
         <p>{{this.fDate.formatDate(s.DateOfBirthUtc)}}</p>
-        <h2 style="font-weight: bold;">Születési hely</h2>
+        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.birthPlace' | translate}}</h2>
         <p>{{s.PlaceOfBirth}}</p>
-        <h2 style="font-weight: bold;">Lakcím adatok</h2>
+        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.addressData' | translate}}</h2>
         <p *ngFor="let address of s.AddressDataList">{{address}}</p>
       </ion-card-content>
     </ion-card>
@@ -38,15 +38,15 @@
     <ion-card>
       <ion-card-header>
         <ion-card-title>
-          <h1>Gondviselői adatok</h1>
+          <h1>{{'pages.user.tutelaryInfo.title' | translate}}</h1>
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <div *ngFor="let tutelary of s.Tutelaries">
           <h1>{{tutelary.Name}}</h1>
-          <h2 style="font-weight: bold;">E-mail cím</h2>
+          <h2 style="font-weight: bold;">{{'pages.user.tutelaryInfo.email' | translate}}</h2>
           <p>{{tutelary.Email == '' ? '-' : tutelary.Email}}</p>
-          <h2 style="font-weight: bold;">Telefonszám</h2>
+          <h2 style="font-weight: bold;">{{'pages.user.tutelaryInfo.phone' | translate}}</h2>
           <p>{{tutelary.PhoneNumber == '' ? '-' : tutelary.PhoneNumber}}</p>
         </div>
       </ion-card-content>

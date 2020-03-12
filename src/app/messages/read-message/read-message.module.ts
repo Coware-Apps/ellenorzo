@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { ReadMessagePageRoutingModule } from './read-message-routing.module';
 
 import { ReadMessagePage } from './read-message.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ReadMessagePageRoutingModule
+    ReadMessagePageRoutingModule,
+    TranslateModule,
   ],
   declarations: [ReadMessagePage]
 })
-export class ReadMessagePageModule {}
+export class ReadMessagePageModule { }

@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { NotesPageRoutingModule } from './notes-routing.module';
 
 import { NotesPage } from './notes.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { NotesPage } from './notes.page';
     FormsModule,
     IonicModule,
     NotesPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [NotesPage]
 })

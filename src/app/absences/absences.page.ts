@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { Student, Absence } from '../_models/student';
-import { KretaService } from '../_services/kreta.service';
 import { IonSlides, AlertController, IonContent } from '@ionic/angular';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
@@ -10,6 +9,7 @@ import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.
 import { Observable, Subscription } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface AbsenceGroup {
   data: UniversalSortedData[];
@@ -35,7 +35,6 @@ export class AbsencesPage implements OnInit {
   public allAbsences: Observable<AbsenceGroup[]>;
   public showProgressBar: boolean;
 
-  private student: Student;
   private studentSubscription: Subscription;
   private reloaderSubscription: Subscription;
 
@@ -49,9 +48,10 @@ export class AbsencesPage implements OnInit {
     private prompt: PromptService,
     private collapsifyService: CollapsifyService,
     private userManager: UserManagerService,
+    private translator: TranslateService,
   ) {
     this.focused = 0;
-    this.title = "Igazolt";
+    this.title = this.translator.instant('pages.absences.justifiedTitle');
     this.a = false;
     this.totalAbsences = 0;
     this.showProgressBar = true;
@@ -138,19 +138,19 @@ export class AbsencesPage implements OnInit {
       data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(justifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
       empty: justifiedEmpty,
       name: 'justified',
-      fullName: 'igazolt',
+      fullName: this.translator.instant('pages.absences.justified'),
     };
     allAbsences[1] = {
       data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(beJustifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
       empty: beJustifiedEmpty,
       name: 'beJustified',
-      fullName: 'igazolandó',
+      fullName: this.translator.instant('pages.absences.beJustified'),
     }
     allAbsences[2] = {
       data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(unJustifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
       empty: unJustifiedEmpty,
       name: 'unJustified',
-      fullName: 'igazolatlan',
+      fullName: this.translator.instant('pages.absences.unJustified'),
     }
     return allAbsences;
   }
@@ -159,13 +159,13 @@ export class AbsencesPage implements OnInit {
     this.focused = await this.slides.getActiveIndex();
     switch (this.focused) {
       case 0:
-        this.title = "Igazolt";
+        this.title = this.translator.instant('pages.absences.justifiedTitle');
         break;
       case 1:
-        this.title = "Igazolandó";
+        this.title =  this.translator.instant('pages.absences.beJustifiedTitle');
         break;
       case 2:
-        this.title = "Igazolatlan";
+        this.title =  this.translator.instant('pages.absences.unJustifiedTitle');
         break;
     }
   }
@@ -178,13 +178,13 @@ export class AbsencesPage implements OnInit {
       this.slides.slideTo(day);
       switch (day) {
         case 0:
-          this.title = "Igazolt";
+          this.title = this.translator.instant('pages.absences.justifiedTitle');
           break;
         case 1:
-          this.title = "Igazolandó";
+          this.title =  this.translator.instant('pages.absences.beJustifiedTitle');
           break;
         case 2:
-          this.title = "Igazolatlan";
+          this.title =  this.translator.instant('pages.absences.unJustifiedTitle');
           break;
       }
     }
@@ -214,7 +214,11 @@ export class AbsencesPage implements OnInit {
   }
 
   showTotal() {
-    this.presentAlert("Mulasztások", null, "Összesen: " + (this.totalAbsences - this.totalAbsences % 45) / 45 + " óra " + this.totalAbsences % 45 + " perc", this.color.getPopUpClass());
+    this.presentAlert(
+      this.translator.instant('pages.absences.totalAlert.title'),
+      null,
+      this.translator.instant('pages.absences.totalAlert.totalText') + (this.totalAbsences - this.totalAbsences % 45) / 45 + this.translator.instant('pages.absences.totalAlert.hourUnit') + this.totalAbsences % 45 + this.translator.instant('pages.absences.totalAlert.minuteUnit'),
+      this.color.getPopUpClass());
   }
 
   async presentAlert(header: string, subHeader: string, message: string, css: string) {

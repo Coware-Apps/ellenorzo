@@ -1,0 +1,459 @@
+{
+    "pages": {
+        "home": {
+            "title": "Home",
+            "colorBtn": "Colors"
+        },
+        "evaluations": {
+            "title": "Evaluations",
+            "categorySelector": {
+                "bySubject": "By subjects",
+                "byDate": "By dates",
+                "halfYear": "Half-year evaluations",
+                "endYear": "End-year evaluations",
+                "other": "Other evaluations"
+            },
+            "categorySelectorTitle": "Sorting and display",
+            "noEvaluationsText": "No evaluations to show."
+        },
+        "list": {
+            "title": "Timetable",
+            "canceled": "Canceled",
+            "substitutes": "Substitute"
+        },
+        "statistics": {
+            "title": "Statistics",
+            "categorySelector": {
+                "subHeader": "Display",
+                "message": "Select an option to display on the graphs!",
+                "options": {
+                    "yBySubject": "Yearly, by subjects",
+                    "yearly": "Yearly, summarized",
+                    "mBySubject": "Monthly, by subjects",
+                    "monthly": "Monthly, summarized"
+                }
+            },
+            "totalAverageText": "Total average:",
+            "totalGrades": "Total grades:",
+            "yearlyTitle": "Yearly statistics",
+            "monthlyTitle": "Monthly statistics",
+            "averageGraphsFullYearTitle": "school year",
+            "averageGraphMonthTitle": "month"
+        },
+        "averages": {
+            "title": "Averages",
+            "colorBtn": "Colors",
+            "classAverageText": "Class average:",
+            "loadingToastText": "Loading..."
+        },
+        "absences": {
+            "title": "Absences",
+            "justifiedTitle": "Justified",
+            "beJustifiedTitle": "To be justified",
+            "unJustifiedTitle": "Unjustified",
+            "justified": "justified",
+            "beJustified": "to be justified",
+            "unJustified": "unjustified",
+            "justificationText": "No {{type}} absences to show.",
+            "totalAlert": {
+                "title": "Absences",
+                "totalText": "Total: ",
+                "hourUnit": " hours ",
+                "minuteUnit": " minutes "
+            }
+        },
+        "notes": {
+            "title": "Notes"
+        },
+        "homeworks": {
+            "title": "Homeworks",
+            "teacherHomeworkName": "Logged by teachers",
+            "studentHomeworkName": "Logged by students",
+            "deadlineText": "Deadline",
+            "emptyText": "empty"
+        },
+        "tests": {
+            "title": "Tests"
+        },
+        "messages": {
+            "title": "Messages",
+            "noMessagesText": "No messages to show."
+        },
+        "user": {
+            "title": "Personal data",
+            "personalInfo": {
+                "title": "Personal information",
+                "name": "Name",
+                "birthName": "Birth name",
+                "birthDate": "Date of birth",
+                "birthPlace": "Place of birth",
+                "addressData": "Address list"
+            },
+            "tutelaryInfo": {
+                "title": "Tutelary information",
+                "email": "Email address",
+                "phone": "Phone number"
+            }
+        },
+        "settings": {
+            "title": "Settings",
+            "themes": {
+                "title": "Theme",
+                "lightName": "Light",
+                "darkName": "Dark",
+                "amoledName": "Amoled",
+                "customName": "Custom",
+                "customBgAlert": {
+                    "header": "Custom background",
+                    "message": "Choose a picture that has a resolution and height to width ratio that matches that of your phone's."
+                },
+                "customBgErrorAlert": {
+                    "header": "Error!",
+                    "message": "Something went wrong while setting the background picture."
+                },
+                "customizeColorsName": "Customize colors"
+            },
+            "pages": {
+                "title": "Pages",
+                "startingPageName": "Main page",
+                "hidePagesName": "Hide pages"
+            },
+            "language": {
+                "title": "Language"
+            },
+            "notifications": {
+                "title": "Notifications",
+                "timetableNotificationsName": "Timetable notifications"
+            },
+            "dataHandling": {
+                "title": "Data handling",
+                "anonymusStatistics": {
+                    "name": "Anonymus statistcis",
+                    "note": "Help us further develop the app"
+                },
+                "privacyPolicyName": "Privacy policy"
+            },
+            "devSettings": {
+                "title": "Developer settings",
+                "toastLoggingName": "Toast-logging",
+                "UALAB": {
+                    "name": "User-Agent LAB (beta)",
+                    "note": "Only use if you know exactly what this is!"
+                },
+                "devSettingsEnablingText": "steps away from becoming a developer.",
+                "devSettingsEnabledText": "Developer settings successfully enabled."
+            },
+            "accounts": {
+                "title": "Accounts",
+                "handling": {
+                    "name": "Manage",
+                    "note": "Add or remove accounts"
+                }
+            },
+            "version": {
+                "title": "Version",
+                "documentationName": "KRÉTA API documentation"
+            }
+        },
+        "color-picker": {
+            "title": "Colors",
+            "selectionZoneText": "Tap a value to set a color of your choice!",
+            "evaluationCard": {
+                "placeholderSubject": "Subject",
+                "placeholderTeacher": "Teacher"
+            },
+            "averageCard": {
+                "placeholderSubject": "Subject",
+                "placeholderClassAvg": "Class average:"
+            },
+            "pieChart": {
+                "title": "Graph",
+                "totalAverage": "Total average: 5.0",
+                "totalGrades": "Total grades: 99"
+            }
+        },
+        "average-graphs": {
+            "title": "Details",
+            "averageName": "average",
+            "gradeName": "Grade",
+            "weightName": "Weight",
+            "whatIfText": "What if I got?",
+            "wrongDataToastText": "Incorrect data!"
+        },
+        "timetable-homeworks": {
+            "title": "Homeworks",
+            "teacherHomeworks": {
+                "deadlineText": "Deadline:"
+            },
+            "addStudentHomework": {
+                "newHomeworkText": "New homework",
+                "textLabel": "Text:",
+                "addBtnText": "Add"
+            },
+            "segment": {
+                "teacherName": "Teacher",
+                "studentName": "Student",
+                "addName": "Add"
+            },
+            "noHomeworksText": "No homeworks to show",
+            "loadingText": "Communication in progress...",
+            "textareaPlaceholder": "Enter the text of the new homework here...",
+            "successfullyAddedToastText": "Successfully added homework!",
+            "checkFieldAlertText": "Invalid text! Please check the text field and try again!",
+            "successfullyDeletedToastText": "Successfully deleted homework!"
+        },
+        "graphs": {
+            "title": "Specific statistics",
+            "allGradesText": "Total number of grades:",
+            "averageText": "Average:"
+        },
+        "read-message": {
+            "title": "Message",
+            "senderName": "Sender",
+            "addresseeName": "Addressee(s)",
+            "subjectName": "Subject",
+            "textName": "Text"
+        },
+        "bg-settings": {
+            "title": "Custom background",
+            "autoResizeBgText": "Auto adjust background size",
+            "bgSaturationText": "Backdrop strength",
+            "info": "The size and position of the background image along with the intensity of the backdrop can be changed. The app will try to automatically adjust the image to every specific display but this can be overwritten manually."
+        },
+        "hide-page-settings": {
+            "title": "Hide pages",
+            "hideInfo": {
+                "header": "Hiding pages",
+                "message": "You can specify which pages to show and which pages not to show in the side menu of the app. This can be useful if your school disabled some of the original functions."
+            }
+        },
+        "notification-settings": {
+            "title": "Notifications",
+            "currentlyScheduledText": "Currently scheduled notifications",
+            "info": "The app will send notifications 10 minutes before the start of every lesson (time, subject, classroom, substitution) that you can enable for one user by clicking the bell icon. The notifications will be automatically dismissed after 15 minutes.",
+            "operationInProgressText": "Operation in progress...",
+            "scheduledNotifications": {
+                "header": "Scheduled notifications",
+                "subHeader": "Developer tool"
+            }
+        },
+        "user-agent": {
+            "title": "User-Agent LAB (beta)",
+            "currentUAText": "Current User-Agent",
+            "testBtnText": "Test",
+            "saveBtnText": "Save",
+            "info": "After clicking the Test button, the app will send 5 timetable (Lesson) requests with a 2 second cooldown in between. It will then create graphs from the response times of the server. To avoid a potential overload of the KRÉTA servers, 5 tests are allowed every hour. The function is still in development phase, more functions are coming.",
+            "graphs": {
+                "yText": "Time [ms]",
+                "averageText": "Average response time ({{time}}ms)",
+                "lastRequests": {
+                    "title": "Average KRÉTA response time (last {{count}} requests)",
+                    "seriesName": "Response time"
+                },
+                "testRequests": {
+                    "title": "KRÉTA response time by User-Agents"
+                }
+            },
+            "successfullySavedUAToastText": "User-Agent successfully saved!",
+            "kretaComInProgressText": "Communication in progress...",
+            "hourlyLimitText": "5 User-Agent LAB requests are allowed every hour",
+            "hourlyLimitReachedText": "5 User-Agent LAB request limit reached!"
+        },
+        "user-settings": {
+            "title": "Accounts",
+            "addUserBtnText": "Add account",
+            "info": "It is possible for multiple users to be logged in at the same time. The app will display their data separately on every page. You can switch between accounts in the side menu of the app by clicking the name of the user."
+        },
+        "login": {
+            "title": "Add account",
+            "usernameName": "Username",
+            "passwordName": "Password",
+            "instituteName": "Institute",
+            "loginBtnText": "Sign in",
+            "privacyPolicyText": "By clicking the sign in button and logging in I accept the Terms of Use and Privacy Policy",
+            "loadingText": "Communication in progress...",
+            "insufficientDataAlert": {
+                "header": "Incorrect fields!",
+                "message": "Please fill out all required fields!"
+            },
+            "userAlreadyExistsAlert": {
+                "header": "Error!",
+                "subHeader": "Incorrect data",
+                "message": "This user is already logged in on this device."
+            }
+        }
+    },
+    "dates": {
+        "monthNames": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "dayNames": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        ],
+        "days": {
+            "monday": {
+                "name": "Monday",
+                "shortName": "Mo"
+            },
+            "tuesday": {
+                "name": "Tuesday",
+                "shortName": "Tu"
+            },
+            "wednesday": {
+                "name": "Wednesday",
+                "shortName": "We"
+            },
+            "thursday": {
+                "name": "Thursday",
+                "shortName": "Th"
+            },
+            "friday": {
+                "name": "Friday",
+                "shortName": "Fr"
+            },
+            "saturday": {
+                "name": "Saturday",
+                "shortName": "Sa"
+            },
+            "sunday": {
+                "name": "Sunday",
+                "shortName": "Su"
+            }
+        }
+    },
+    "components": {
+        "appComponent": {
+            "editUsersText": "Manage"
+        },
+        "refresher": {
+            "pullingText": "Pull to refresh!",
+            "refreshingText": "Refreshing data..."
+        },
+        "absence": {
+            "AbsenceName": "Absence",
+            "DelayName": "Delay",
+            "unit": "min"
+        }
+    },
+    "graphs": {
+        "evaluations": {
+            "line": {
+                "yText": "Evaluation",
+                "seriesName": "Grades",
+                "averageText": "Average",
+                "classAverageText": "Class average"
+            },
+            "column": {
+                "yText": "Number of grades",
+                "seriesName": "Grades"
+            },
+            "pie": {
+                "yText": "Number of grades",
+                "seriesName": "Grades",
+                "1Text": "1",
+                "2Text": "2",
+                "3Text": "3",
+                "4Text": "4",
+                "5Text": "5"
+            },
+            "gauge": {
+                "averageText": "Average",
+                "classAverageText": "Class average:"
+            }
+        }
+    },
+    "services": {
+        "kreta": {
+            "invalidJSONResponseAlert": {
+                "header": "Error",
+                "subHeader": "Error while connecting to the KRÉTA server.",
+                "message": "The server sent an invalid response. It's probably under maintenance."
+            },
+            "httpErrors": {
+                "-4": "The connection timed out! Check your connection and try again!",
+                "-3": "No internet!",
+                "-2": "The KRÉTA server doesn't respond.",
+                "-1": "There was an error while connecting to the internet.",
+                "400": "Invalid credentials!",
+                "403": "Access denied!",
+                "69420": "Error with the KRÉTA server!",
+                "401": "Invalid credentials!",
+                "defaultServerSide": "The KRÉTA server doesn't respond.",
+                "defaultClientSide": "An unknown error occured ({{error}})"
+            }
+        },
+        "prompt": {
+            "wrongText": "Incorrect text!",
+            "evaluationAlert": {
+                "dateName": "Date",
+                "creatingTimeName": "Created",
+                "descriptionName": "Description",
+                "modeName": "Mode",
+                "formName": "Form",
+                "contentName": "Content"
+            },
+            "absenceAlert": {
+                "dateName": "Date",
+                "stateName": "State",
+                "modeName": "Mode",
+                "seenByTutelaryName": "Seen by tutelaries?",
+                "justificationTypeName": "Type",
+                "creatingTimeName": "Time of logging"
+            },
+            "noteAlert": {
+                "typeName": "Type",
+                "creatingTimeName": "Created",
+                "seenByTutelaryName": "Seen by tutelaries?",
+                "contentName": "Content"
+            },
+            "lessonAlert": {
+                "timeName": "Time",
+                "groupName": "Group",
+                "classRoomName": "Classroom"
+            },
+            "teacherHomeworkAlert": {
+                "lessonCountName": "Count of the lesson",
+                "teacherLoggedItName": "Logged by a teacher?",
+                "assignmentDateName": "Assigned",
+                "deadlineName": "Deadline"
+            },
+            "gradeAlert": {
+                "dateName": "Date",
+                "creatingTimeName": "Created",
+                "formName": "Form",
+                "typeName": "Type",
+                "contentName": "Content"
+            },
+            "communityServiceAlert": {
+                "beginName": "Began",
+                "finishName": "Finished",
+                "instituteTagName": "Name of the institute",
+                "loggingTimeName": "Logged at",
+                "noteName": "Note"
+            }
+        },
+        "notification": {
+            "canceledText": "Canceled",
+            "substitutionText": "Substitution",
+            "nextLessonText": "Next lesson",
+            "timeName": "At"
+        }
+    }
+}

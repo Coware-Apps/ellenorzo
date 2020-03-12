@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { AbsencesPageRoutingModule } from './absences-routing.module';
 
 import { AbsencesPage } from './absences.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    AbsencesPageRoutingModule
+    AbsencesPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [AbsencesPage]
 })

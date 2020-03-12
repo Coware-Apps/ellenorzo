@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Értékelések</ion-title>
+    <ion-title>{{'pages.evaluations.title' | translate}}</ion-title>
     <ion-buttons slot="end">
       <ion-button [disabled]="this.showProgressBar" (click)="this.openCategorySelector($event)">
         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
@@ -20,13 +20,13 @@
     </ion-select-option>
   </ion-select>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
-      refreshingText="Adatok frissítése...">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
+      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
     </ion-refresher-content>
   </ion-refresher>
   <ion-list [hidden]="this.selected != item.id" *ngFor="let item of this.selectOptionsWithData | async">
     <ion-item *ngIf="this.sans == false" [hidden]="item.data.length != 0" style="text-align: center;">
-      <ion-label style="text-align: center">Nincsenek naplózott értékelések.</ion-label>
+      <ion-label style="text-align: center">{{'pages.evaluations.noEvaluationsText' | translate}}</ion-label>
     </ion-item>
     <!-- Grouped -->
     <!-- bySubject -->
@@ -36,7 +36,8 @@
           <ion-icon *ngIf="!dataGroup.showAll" slot="start" name="chevron-forward"></ion-icon>
           <ion-icon *ngIf="dataGroup.showAll" slot="start" name="chevron-down"></ion-icon>
           <ion-buttons slot="end" style="float: right">
-            <ion-button [disabled]="this.showProgressBar" (click)="showModal(dataGroup.header); $event.stopPropagation();">
+            <ion-button [disabled]="this.showProgressBar"
+              (click)="showModal(dataGroup.header); $event.stopPropagation();">
               <ion-icon slot="icon-only" name="bar-chart-outline"></ion-icon>
             </ion-button>
           </ion-buttons>

@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { HidePageSettingsPageRoutingModule } from './hide-page-settings-routing.module';
 
 import { HidePageSettingsPage } from './hide-page-settings.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    HidePageSettingsPageRoutingModule
+    HidePageSettingsPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [HidePageSettingsPage]
 })
-export class HidePageSettingsPageModule {}
+export class HidePageSettingsPageModule { }

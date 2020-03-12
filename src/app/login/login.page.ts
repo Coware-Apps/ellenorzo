@@ -9,6 +9,7 @@ import { DataService } from '../_services/data.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { AppService } from '../_services/app.service';
 import { PromptService } from '../_services/prompt.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
@@ -35,6 +36,7 @@ export class LoginPage implements OnInit {
     private loadingCtrl: LoadingController,
     private app: AppService,
     private prompt: PromptService,
+    private translator: TranslateService,
   ) { }
 
   ngOnInit() {
@@ -53,12 +55,15 @@ export class LoginPage implements OnInit {
 
   async login() {
     if (this.user == null || this.pass == null || this.instituteName == null) {
-      this.presentAlert('Hibás adatok', 'Kérlek töltsd ki az összes mezőt!');
+      this.presentAlert(
+        this.translator.instant('pages.login.insufficientDataAlert.header'),
+        this.translator.instant('pages.login.insufficientDataAlert.message')
+      );
     }
     else {
       let loading = await this.loadingCtrl.create({
         spinner: "crescent",
-        message: 'Kommunikáció folyamatban...',
+        message: this.translator.instant('pages.login.loadingText'),
         animated: true,
       });
       await loading.present();
@@ -75,7 +80,11 @@ export class LoginPage implements OnInit {
           await this.router.navigateByUrl('home');
         } else {
           //the user already exists
-          this.prompt.presentUniversalAlert('Hibás adatok', 'Sikertelen művelet', 'Ezzel az azonosítóval már létezik bejelentkezett felhasználó a rendszerben.');
+          this.prompt.presentUniversalAlert(
+            this.translator.instant('pages.login.userAlreadyExistsAlert.header'),
+            this.translator.instant('pages.login.userAlreadyExistsAlert.subHeader'),
+            this.translator.instant('pages.login.userAlreadyExistsAlert.message'),
+          );
           await loading.dismiss();
         }
       } else {

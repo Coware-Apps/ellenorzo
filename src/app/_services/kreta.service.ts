@@ -1,18 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Lesson } from '../_models/lesson';
 import { Student } from '../_models/student';
 import { Token, DecodedUser } from '../_models/token';
 import { Storage } from '@ionic/storage';
 import { CacheService } from './cache.service';
-import { AntiSpamService } from './anti-spam.service';
 import { HTTP } from '@ionic-native/http/ngx';
-import { BehaviorSubject, from } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { StudentHomework, TeacherHomework, HomeworkResponse } from '../_models/homework';
 import { Institute } from '../_models/institute';
-import { AuthenticationService } from './authentication.service';
 import { Test } from '../_models/test';
-import { Router } from '@angular/router';
 import { FormattedDateService } from './formatted-date.service';
 import { MobileVersionInfo } from '../_models/mobileVersionInfo';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
@@ -20,9 +16,8 @@ import { JwtDecodeHelper } from '../_helpers/jwt-decode-helper';
 import { IsDebug } from '@ionic-native/is-debug/ngx';
 import { PromptService } from './prompt.service';
 import { AppService } from './app.service';
-import { MenuController } from '@ionic/angular';
-import { NotificationService } from './notification.service';
 import { Message } from '../_models/message';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Injectable({
@@ -44,7 +39,7 @@ export class KretaService {
     private isDebug: IsDebug,
     private prompt: PromptService,
     private app: AppService,
-    private notificationService: NotificationService,
+    private translator: TranslateService,
   ) {
     this.errorHandler();
   }
@@ -80,38 +75,38 @@ export class KretaService {
 
         //client side / plugin error
         case -4:
-          this.prompt.errorToast('Időtúllépési hiba, ellenőrizd az internetkapcsolatod!')
+          this.translator.instant('services.kreta.httpErrors.-4');
           break;
         case -3:
-          this.prompt.errorToast("Nincs internetkapcsolat!");
+          this.translator.instant('services.kreta.httpErrors.-3');
           break;
         case -2:
-          this.prompt.errorToast("A KRÉTA szerver nem válaszol!");
+          this.translator.instant('services.kreta.httpErrors.-2');
           break;
         case -1:
-          this.prompt.errorToast("Hiba az internetkapcsolattal!");
+          this.translator.instant('services.kreta.httpErrors.-1');
           break;
 
         //server errors
         case 400:
-          this.prompt.errorToast("Hibás bejelentkezési adatok!");
+          this.translator.instant('services.kreta.httpErrors.400');
           break;
         case 403:
-          this.prompt.errorToast("Hozzáférés megtagadva!");
+          this.translator.instant('services.kreta.httpErrors.403');
           break;
         case 69420:
           //known KRÉTA errors
-          this.prompt.errorToast("Hiba a KRÉTA szerverrel!")
+          this.translator.instant('services.kreta.httpErrors.69420');
           break;
         case 401:
-          this.prompt.errorToast("Hibás bejelentkezési adatok!");
+          this.translator.instant('services.kreta.httpErrors.401');
           break;
 
         default:
           if (error >= 500 && 600 > error) {
-            this.prompt.errorToast("A KRÉTA szerver nem válaszol!");
+            this.translator.instant('services.kreta.httpErrors.defaultServerSide');
           } else {
-            this.prompt.errorToast("Ismeretlen hiba történt! (" + error + ")");
+            this.translator.instant('services.kreta.httpErrors.defaultClientSide', { error: error });
           }
           break;
       }
@@ -143,7 +138,11 @@ export class KretaService {
       try {
         parsedResponse = <Token>JSON.parse(response.data);
       } catch (error) {
-        this.prompt.presentUniversalAlert('Hiba', 'Nem sikerült a szerverrel kapcsolatot létesíteni.', 'A KRÉTA szerver hibás választ küldött. Valószínűleg jelenleg karbantartás alatt van.')
+        this.prompt.presentUniversalAlert(
+          this.translator.instant('services.kreta.invalidJSONResponseAlert.header'),
+          this.translator.instant('services.kreta.invalidJSONResponseAlert.subHeader'),
+          this.translator.instant('services.kreta.invalidJSONResponseAlert.message'),
+        );
       }
 
       this.prompt.butteredToast("[KRETA->getToken() result]" + parsedResponse);
@@ -188,7 +187,11 @@ export class KretaService {
       try {
         parsedResponse = <Token>JSON.parse(response.data);
       } catch (error) {
-        this.prompt.presentUniversalAlert('Hiba', 'Nem sikerült a szerverrel kapcsolatot létesíteni.', 'A KRÉTA szerver hibás választ küldött. Valószínűleg jelenleg karbantartás alatt van.')
+        this.prompt.presentUniversalAlert(
+          this.translator.instant('services.kreta.invalidJSONResponseAlert.header'),
+          this.translator.instant('services.kreta.invalidJSONResponseAlert.subHeader'),
+          this.translator.instant('services.kreta.invalidJSONResponseAlert.message'),
+        );
       }
 
       this.decoded_user = this.jwtDecoder.decodeToken(parsedResponse.access_token);
@@ -270,7 +273,6 @@ export class KretaService {
         console.log('Request time: ', requestTime);
         let storedTimetableTrace: number[] = await this.storage.get('timetableTrace');
         storedTimetableTrace = storedTimetableTrace == null ? [] : storedTimetableTrace;
-        console.log('storedTimetableTrace', storedTimetableTrace);
         storedTimetableTrace.reverse();
         storedTimetableTrace.push(requestTime);
         storedTimetableTrace.reverse();
@@ -394,7 +396,7 @@ export class KretaService {
 
       cacheDataIf = await this.cache.getCacheIf(cacheId);
 
-      //getting HAZIFELADATIDs from lessons (https://github.com/boapps/e-kreta-api-docs#user-content-tanul%C3%B3i-h%C3%A1zi-feladat-lek%C3%A9r%C3%A9se)
+      //getting HAZIFELADATIDs from lessons
       lessons.forEach(lesson => {
         if (lesson.TeacherHomeworkId != null) {
           homeworkIds.push(lesson.TeacherHomeworkId);

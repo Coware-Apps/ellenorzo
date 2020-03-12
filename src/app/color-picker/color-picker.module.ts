@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { ColorPickerPageRoutingModule } from './color-picker-routing.module';
 
 import { ColorPickerPage } from './color-picker.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ColorPickerPageRoutingModule
+    ColorPickerPageRoutingModule,
+    TranslateModule,
   ],
   declarations: [ColorPickerPage]
 })
-export class ColorPickerPageModule {}
+export class ColorPickerPageModule { }

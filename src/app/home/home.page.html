@@ -4,12 +4,12 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>
-      Főoldal
+      {{'pages.home.title' | translate}}
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="showPicker()">
         <ion-icon slot="start" name="color-palette"></ion-icon>
-        Színek &nbsp;&nbsp;&nbsp;
+        {{'pages.home.colorBtn' | translate}}
       </ion-button>
     </ion-buttons>
     <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
@@ -18,8 +18,8 @@
 
 <ion-content>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
-      refreshingText="Adatok frissítése...">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
+      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
@@ -29,23 +29,30 @@
         <ion-icon *ngIf="monthlyGrades.showAll" slot="start" name="chevron-down"></ion-icon>
         <ion-label>{{monthlyGrades.header}}</ion-label>
         <ion-buttons slot="end">
-          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('evaluations', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showEvaluations ? 'primary' : 'dark'" name="school-outline">
+          <ion-button [disabled]="!monthlyGrades.showAll"
+            (click)="showOrHide('evaluations', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showEvaluations ? 'primary' : 'dark'"
+              name="school-outline">
             </ion-icon>
           </ion-button>
-          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('absences', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showAbsences ? 'primary' : 'dark'" name="calendar-outline">
+          <ion-button [disabled]="!monthlyGrades.showAll"
+            (click)="showOrHide('absences', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showAbsences ? 'primary' : 'dark'"
+              name="calendar-outline">
             </ion-icon>
           </ion-button>
-          <ion-button [disabled]="!monthlyGrades.showAll" (click)="showOrHide('notes', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showNotes ? 'primary' : 'dark'" name="document-text-outline">
+          <ion-button [disabled]="!monthlyGrades.showAll"
+            (click)="showOrHide('notes', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showNotes ? 'primary' : 'dark'"
+              name="document-text-outline">
             </ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-item>
       <div *ngFor="let item of monthlyGrades.data">
         <!-- Evaluation -->
-        <ion-card class="evaluationCard" button *ngIf="item.EvaluationId != null && item.Type == 'MidYear' && !(!monthlyGrades.showEvaluations || !monthlyGrades.showAll)"
+        <ion-card class="evaluationCard" button
+          *ngIf="item.EvaluationId != null && item.Type == 'MidYear' && !(!monthlyGrades.showEvaluations || !monthlyGrades.showAll)"
           (click)="getMoreData(item)"
           [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.NumberValue, item.Form)">
           <ion-card-content>
@@ -88,8 +95,8 @@
             size="large"></ion-icon>
           <ion-label class="ion-text-wrap">
             {{item.Subject}}<br>
-            {{item.TypeName}}
-            <p *ngIf="item.Type == 'Delay'">({{item.DelayTimeMinutes}}p.)</p>
+            {{'components.absence.' + item.Type + 'Name' | translate}}
+            <p *ngIf="item.Type == 'Delay'">({{item.DelayTimeMinutes}}{{'components.absence.unit' | translate}}.)</p>
           </ion-label>
           <ion-label class="ion-text-wrap">
             {{item.Teacher}}

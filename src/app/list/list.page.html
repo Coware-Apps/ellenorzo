@@ -5,7 +5,7 @@
     </ion-buttons>
     <div *ngIf="!sans">
       <ion-title>
-        Órarend ({{weekToFrom}})
+        {{'pages.list.title' | translate}} ({{weekToFrom}})
       </ion-title>
     </div>
     <div *ngIf="sans">
@@ -20,33 +20,35 @@
       <ion-list>
         <div *ngIf="!sans">
           <div *ngFor="let item of this.timetable">
-            <ion-item button *ngIf="item.DayOfWeek == day.index" [ngClass]="getStateClass(item)" slot="start">
-              <ion-buttons *ngIf="item.IsTanuloHaziFeladatEnabled || item.TeacherHomeworkId != null"
-                class="homeworksBtn" slot="end">
+            <ion-item (click)="getMoreData(item)" button *ngIf="item.DayOfWeek == day.index"
+              [ngClass]="getStateClass(item)" slot="start">
+              <ion-buttons [hidden]="hideHomeworkBtn(item.StartTime)"
+                *ngIf="item.IsTanuloHaziFeladatEnabled || item.TeacherHomeworkId != null" class="homeworksBtn"
+                slot="end">
                 <ion-button
-                  (click)="openHomeworks(item.TeacherHomeworkId, item.Subject, item.IsTanuloHaziFeladatEnabled, item.LessonId, item.CalendarOraType, item.StartTime)">
+                  (click)="openHomeworks(item.TeacherHomeworkId, item.Subject, item.IsTanuloHaziFeladatEnabled, item.LessonId, item.CalendarOraType, item.StartTime); $event.stopPropagation();">
                   <ion-icon *ngIf="item.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
                   <ion-icon *ngIf="item.TeacherHomeworkId != null" color="warning" slot="icon-only"
                     src="/assets/extraicons/homewarning.svg"></ion-icon>
                 </ion-button>
               </ion-buttons>
 
-              <ion-label (click)="getMoreData(item)" class="ion-text-wrap">
+              <ion-label class="ion-text-wrap">
                 <h2 slot="start">{{item.Count == -1 ? '+' : item.Count}}. {{item.Subject}}</h2>
               </ion-label>
 
-              <ion-label class="middleLabel" (click)="getMoreData(item)">
+              <ion-label class="middleLabel">
                 <div *ngIf="item.DeputyTeacher == ''; then thenBlock else elseBlock"></div>
                 <ng-template #thenBlock>
                   <div *ngIf="item.StateName == 'Elmaradt tanóra'; then canceledBlock else notCanceledBlock"></div>
-                  <ng-template #canceledBlock>Elmarad</ng-template>
+                  <ng-template #canceledBlock>{{'pages.list.canceled' | translate}}</ng-template>
                   <ng-template #notCanceledBlock>
                     <p>{{item.ClassRoom}}</p>
                     <p>{{getTime(item.StartTime, item.EndTime)}}</p>
                   </ng-template>
                 </ng-template>
                 <ng-template #elseBlock>
-                  <p>Helyettesít:</p>
+                  <p>{{'pages.list.substitutes' | translate}}:</p>
                   <p>{{item.DeputyTeacher}}</p>
                 </ng-template>
               </ion-label>
@@ -133,13 +135,13 @@
   <ion-toolbar>
     <ion-buttons class="justify-content-center align-items-center" style="height: 100%; flex-direction: column">
       <ion-row>
-        <ion-col>
+        <ion-col class="bottomCol back">
           <ion-button class="footerButton" [disabled]="sans" (click)="getPrevWeek()">
             <ion-icon name="arrow-back-circle-sharp"></ion-icon>
           </ion-button>
         </ion-col>
 
-        <ion-col *ngFor="let day of getShownDays(days)">
+        <ion-col class="bottomCol" *ngFor="let day of getShownDays(days)">
           <ion-button [hidden]="!day.show"
             [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == day.index}"
             [fill]="this.focused == day.index ? 'solid' : 'outline'" (click)="getData(day.index)">
@@ -147,7 +149,7 @@
           </ion-button>
         </ion-col>
 
-        <ion-col>
+        <ion-col class="bottomCol forward">
           <ion-button [disabled]="sans" (click)="getNextWeek()">
             <ion-icon name="arrow-forward-circle-sharp"></ion-icon>
           </ion-button>

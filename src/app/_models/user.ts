@@ -199,15 +199,14 @@ export class User {
      * @param howManyWeeks how many weeks in the future to set the user's local timetable notifications (1 means the current week only)
      */
     public async setLocalNotifications(howManyWeeks: number) {
-            let lessons = await this.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(howManyWeeks - 1), true);
-            this.notificationService.setLocalNotifications(lessons);
+        let lessons = await this.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(howManyWeeks - 1), true);
+        this.notificationService.setLocalNotifications(lessons);
     }
     /**
      * Pre-initializes local notifications for 2 weeks (if it hasn't been initialized this week and notifications are enabled on the user)
      */
     public async preInitializeLocalNotifications() {
-        console.log('preInitialization called | ', this.fullName);
-        if (this.fDate.getWeek(new Date(this.lastNotificationSetTime)) != this.fDate.getWeek(new Date()) && this.notificationsEnabled) {
+        if ((await this.notificationService.getAllNonDismissed()).length < 10) {
             console.log(`[USER->preInitializeLocalNotifications()] pre-initializing notifications for ${this.fullName}`);
             await this.setLocalNotifications(2);
             let newUsersInitData = this.app.usersInitData;
@@ -239,7 +238,6 @@ export class User {
     */
     async initializeStudent() {
         let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.student);
-        console.log('cacheDataIf that the initializeStudent got', cacheDataIf);
         if (cacheDataIf == false) {
             let storedStudent = await this.storage.get(this.cacheIds.student);
             if (storedStudent != null) {
@@ -428,6 +426,9 @@ export class User {
         let lessons = await this.kreta.getLesson(fromDate, toDate, skipCache, this.tokens, this.institute, this.cacheIds.lesson)
         //await this.updateLocalNotifications(lessons); (deprecated for now)
         return lessons;
+    }
+    public async clearLessonCache() {
+        await this.storage.remove(`${this.id}_lessonData`)
     }
     /**
      * Gets the user's student homeworks between two dates or by a homeworkId

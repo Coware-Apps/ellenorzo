@@ -8,25 +8,25 @@
         <ion-icon name="information-circle-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Oldalak elrejtése</ion-title>
+    <ion-title>{{'pages.hide-page-settings.title' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
+  <ion-list *ngIf="this.loaded">
     <div *ngFor="let page of this.appPages">
-      <ion-item *ngIf="page.title != 'Beállítások'" >
-        <ion-label>{{page.title}}</ion-label>
+      <ion-item *ngIf="page.title != 'Beállítások'">
+        <ion-label>{{page.translatorVal | translate}}</ion-label>
         <ion-buttons slot="end">
-          <ion-button [color]="page.show ? 'primary' : 'dark'" (click)="show(page.title)">
+          <ion-button [color]="page.show ? 'primary' : 'dark'" (click)="show(page.url)">
             <ion-icon slot="icon-only" name="eye"></ion-icon>
           </ion-button>
-          <ion-button [color]="!page.show ? 'primary' : 'dark'" (click)="hide(page.title)">
+          <ion-button [color]="!page.show ? 'primary' : 'dark'" (click)="hide(page.url)">
             <ion-icon slot="icon-only" name="eye-off"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-item>
     </div>
-    
+
   </ion-list>
 </ion-content>

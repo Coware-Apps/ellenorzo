@@ -8,6 +8,7 @@ import { LoginPageRoutingModule } from './login-routing.module';
 
 import { LoginPage } from './login.page';
 import { InstituteSelectorModalPageModule } from './institute-selector-modal/institute-selector-modal.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { InstituteSelectorModalPageModule } from './institute-selector-modal/ins
     IonicModule,
     LoginPageRoutingModule,
     InstituteSelectorModalPageModule,
+    TranslateModule,
   ],
   declarations: [LoginPage]
 })
-export class LoginPageModule {}
+export class LoginPageModule { }

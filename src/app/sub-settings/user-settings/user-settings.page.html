@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-title>Fiókok kezelése</ion-title>
+    <ion-title>{{'pages.user-settings.title' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -21,14 +21,13 @@
       </ion-label>
     </ion-item>
     <ion-button (click)="addUser()" expand="block" fill="outline" shape="round">
-      Fiók hozzáadása
+      {{'pages.user-settings.addUserBtnText' | translate}}
     </ion-button>
   </ion-list>
   <ion-list lines="none">
     <ion-item>
       <ion-icon slot="start" name="information-circle-outline"></ion-icon>
-      <ion-note>Több hozzáadott felhasználó esetén a rendszer azok adatait minden oldalon külön jeleníti meg.
-        A fiókok közötti váltás az oldalsó menüben lehetséges a felhasználó nevére kattintva.</ion-note>
+      <ion-note>{{'pages.user-settings.info' | translate}}</ion-note>
     </ion-item>
   </ion-list>
 </ion-content>

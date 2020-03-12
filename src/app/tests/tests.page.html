@@ -3,15 +3,15 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Számonkérések</ion-title>
+    <ion-title>{{'pages.tests.title' | translate}}</ion-title>
   </ion-toolbar>
   <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
 </ion-header>
 
 <ion-content>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
-      refreshingText="Adatok frissítése...">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}" refreshingSpinner="dots"
+      refreshingText="{{'components.refresher.refreshingText' | translate}}">
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>

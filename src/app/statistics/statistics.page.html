@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Statisztikák</ion-title>
+    <ion-title>{{'pages.statistics.title' | translate}}</ion-title>
     <ion-buttons slot="end">
       <ion-button [disabled]="this.showProgressBar" (click)="openCategorySelector($event)">
         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
@@ -17,10 +17,14 @@
   <ion-select #categorySelector [(ngModel)]="selected" [disabled]="this.showProgressBar"
     (ionChange)="selectorChanged($event, true, true)" [interfaceOptions]="customPopoverOptions" interface="popover"
     slot="end" placeholder="Adatok">
-    <ion-select-option value="yBySubject">Tárgyankénti éves</ion-select-option>
-    <ion-select-option value="yearly">Éves</ion-select-option>
-    <ion-select-option value="mBySubject">Tárgyankénti havi</ion-select-option>
-    <ion-select-option value="monthly">Havi</ion-select-option>
+    <ion-select-option value="yBySubject">{{'pages.statistics.categorySelector.options.yBySubject' | translate}}
+    </ion-select-option>
+    <ion-select-option value="yearly">{{'pages.statistics.categorySelector.options.yearly' | translate}}
+    </ion-select-option>
+    <ion-select-option value="mBySubject">{{'pages.statistics.categorySelector.options.mBySubject' | translate}}
+    </ion-select-option>
+    <ion-select-option value="monthly">{{'pages.statistics.categorySelector.options.monthly' | translate}}
+    </ion-select-option>
   </ion-select>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
@@ -33,8 +37,10 @@
       <ion-card class="wide">
         <div id="line0" class="chart"></div>
         <ion-card-header *ngIf="showGraphs">
-          <ion-card-title>Összátlag: {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
-          <ion-card-subtitle>Összes jegy: {{this.lineData[0].numOfGrades}}</ion-card-subtitle>
+          <ion-card-title>{{'pages.statistics.totalAverageText' | translate}}
+            {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
+          <ion-card-subtitle>{{'pages.statistics.totalGrades' | translate}} {{this.lineData[0].numOfGrades}}
+          </ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
         </ion-card-content>
@@ -45,8 +51,10 @@
       <ion-card class="wide">
         <div id="column_0" class="chart"></div>
         <ion-card-header *ngIf="showGraphs">
-          <ion-card-title>Összátlag: {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
-          <ion-card-subtitle>Összes jegy: {{this.lineData[0].numOfGrades}}</ion-card-subtitle>
+          <ion-card-title>{{'pages.statistics.totalAverageText' | translate}}
+            {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
+          <ion-card-subtitle>{{'pages.statistics.totalGrades' | translate}} {{this.lineData[0].numOfGrades}}
+          </ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
         </ion-card-content>
@@ -57,8 +65,10 @@
       <ion-card class="wide">
         <div id="pie_0" class="chart"></div>
         <ion-card-header *ngIf="showGraphs">
-          <ion-card-title>Összátlag: {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
-          <ion-card-subtitle>Összes jegy: {{this.lineData[0].numOfGrades}}</ion-card-subtitle>
+          <ion-card-title>{{'pages.statistics.totalAverageText' | translate}}
+            {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
+          <ion-card-subtitle>{{'pages.statistics.totalGrades' | translate}} {{this.lineData[0].numOfGrades}}
+          </ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
         </ion-card-content>

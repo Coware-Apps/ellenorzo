@@ -8,15 +8,15 @@
         <ion-icon slot="icon-only" name="information-circle"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Mulasztások - {{title}}</ion-title>
+    <ion-title>{{'pages.absences.title' | translate}} - {{title}}</ion-title>
     <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content (ionScroll)="ionScroll($event)" scrollEvents="true" #scroll>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
-      refreshingText="Adatok frissítése...">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
+      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
     </ion-refresher-content>
   </ion-refresher>
   <ion-fab [hidden]="!a" vertical="top" horizontal="center" slot="fixed">
@@ -28,7 +28,7 @@
     <ion-slide *ngFor="let absenceGroup of this.allAbsences | async">
       <ion-list>
         <ion-item *ngIf="absenceGroup.empty && this.sans == false" style="text-align: center;">
-          <ion-label>Nincsenek {{absenceGroup.fullName}} mulasztások.</ion-label>
+          <ion-label>{{'pages.absences.justificationText' | translate: {type: absenceGroup.fullName} }}</ion-label>
         </ion-item>
         <div *ngFor="let item of absenceGroup.data">
           <ion-item button (click)="item.showAll = item.showAll ? false : true">
@@ -48,8 +48,9 @@
               </ion-icon>
               <ion-label class="ion-text-wrap">
                 {{absence.Subject}}<br>
-                {{absence.TypeName}}
-                <p *ngIf="absence.Type == 'Delay'">({{absence.DelayTimeMinutes}}p.)</p>
+                {{'components.absence.' + absence.Type + 'Name' | translate}}
+                <p *ngIf="absence.Type == 'Delay'">
+                  ({{absence.DelayTimeMinutes}}{{'components.absence.unit' | translate}}.)</p>
               </ion-label>
               <ion-label class="ion-text-wrap">
                 {{absence.Teacher}}

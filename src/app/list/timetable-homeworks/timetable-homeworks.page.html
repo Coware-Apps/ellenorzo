@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Házi feladatok ({{subject}})</ion-title>
+    <ion-title>{{'pages.timetable-homeworks.title' | translate}} ({{subject}})</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -15,16 +15,22 @@
     <ion-slide *ngIf="this.teacherHomeworkId != null" class="wide">
 
       <div *ngIf="!sans">
-        <ion-card class="wide" *ngFor="let homework of teacherHomeworks">
+        <ion-item style="text-align: center;" *ngIf="teacherHomeworks.length == 0 || areAllTeacherHomeworksEmpty()">
+          <ion-label>{{'pages.timetable-homeworks.noHomeworksText' | translate}}</ion-label>
+        </ion-item>
+        <ion-card [hidden]="homework.Szoveg == ''" button (click)="showInfo(homework)" class=" wide"
+          *ngFor="let homework of teacherHomeworks">
           <ion-card-header>
             <ion-buttons style="float: right;">
-              <ion-button (click)="showInfo(homework)">
+              <ion-button>
                 <ion-icon slot="icon-only" name="information-circle"></ion-icon>
               </ion-button>
             </ion-buttons>
             <ion-card-subtitle class="subtitles">{{homework.Rogzito}} - {{homework.FeladasDatuma.substring(0,10)}}
             </ion-card-subtitle>
-            <ion-card-subtitle class="subtitles" style="color: red;">Határidő: {{homework.Hatarido.substring(0, 10)}}
+            <ion-card-subtitle class="subtitles" style="color: red;">
+              {{'pages.timetable-homeworks.teacherHomeworks.deadlineText' | translate}}
+              {{homework.Hatarido.substring(0, 10)}}
             </ion-card-subtitle>
             <ion-card-title>
               <div [innerHTML]="homework.Szoveg"></div>
@@ -73,10 +79,10 @@
             </ion-buttons>
             <ion-card-subtitle class="subtitles">{{homework.TanuloNev}} - {{homework.FeladasDatuma.substring(0,10)}}
             </ion-card-subtitle>
-            <ion-card-title [ngClass]="{'linethrough': homework.TanuloAltalTorolt}">
-              {{homework.FeladatSzovege}}
-            </ion-card-title>
           </ion-card-header>
+          <ion-card-content [ngClass]="{'linethrough': homework.TanuloAltalTorolt}">
+            <div [innerHTML]="getHomeworkText(homework.FeladatSzovege)"></div>
+          </ion-card-content>
         </ion-card>
       </div>
 
@@ -112,15 +118,18 @@
     <ion-slide *ngIf="isTHFE == true  && !sans">
       <ion-list class="wide">
         <ion-list-header>
-          <ion-label>Új házi feladat</ion-label>
+          <ion-label>{{'pages.timetable-homeworks.addStudentHomework.newHomeworkText' | translate}}</ion-label>
         </ion-list-header>
         <ion-item>
-          <ion-label position="floating">Szöveg:</ion-label>
-          <ion-input [(ngModel)]="homeworkText"></ion-input>
+          <ion-label position="floating">{{'pages.timetable-homeworks.addStudentHomework.textLabel' | translate}}
+          </ion-label>
+          <ion-textarea autoGrow="true" [(ngModel)]="homeworkText"
+            placeholder="{{'pages.timetable-homeworks.textareaPlaceholder' | translate}}">
+          </ion-textarea>
         </ion-item>
-        <ion-button expand="full" (click)="addHomework()">
+        <ion-button expand="full" rows="4" shape="round" (click)="addHomework()">
           <ion-icon slot="start" name="add"></ion-icon>
-          Hozzáadás
+          {{'pages.timetable-homeworks.addStudentHomework.addBtnText' | translate}}
         </ion-button>
       </ion-list>
     </ion-slide>
@@ -131,13 +140,13 @@
   <ion-toolbar>
     <ion-segment (ionChange)="getData($event)" [value]="this.focused">
       <ion-segment-button *ngIf="this.teacherHomeworkId != null" [disabled]="sans" value="0">
-        Tanár
+        {{'pages.timetable-homeworks.segment.teacherName' | translate}}
       </ion-segment-button>
       <ion-segment-button *ngIf="this.teacherHomeworkId != null && isTHFE == true" [disabled]="sans" value="1">
-        Diák
+        {{'pages.timetable-homeworks.segment.studentName' | translate}}
       </ion-segment-button>
       <ion-segment-button *ngIf="isTHFE == true" [disabled]="sans" value="a3" value="2">
-        Hozzáadás
+        {{'pages.timetable-homeworks.segment.addName' | translate}}
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>

@@ -12,6 +12,7 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 interface day {
   name: string,
@@ -41,44 +42,44 @@ export class ListPage implements OnInit {
   public unfocusFooterButton: boolean;
   public days: day[] = [
     {
-      name: "Vasárnap",
-      shortName: "Va",
+      name: this.translator.instant('dates.days.sunday.name'),
+      shortName: this.translator.instant('dates.days.sunday.shortName'),
       index: 6,
       show: false,
     },
     {
-      name: "Hétfő",
-      shortName: "Hé",
+      name: this.translator.instant('dates.days.monday.name'),
+      shortName: this.translator.instant('dates.days.monday.shortName'),
       index: 0,
       show: false,
     },
     {
-      name: "Kedd",
-      shortName: "Ke",
+      name: this.translator.instant('dates.days.tuesday.name'),
+      shortName: this.translator.instant('dates.days.tuesday.shortName'),
       index: 1,
       show: false,
     },
     {
-      name: "Szerda",
-      shortName: "Sz",
+      name: this.translator.instant('dates.days.wednesday.name'),
+      shortName: this.translator.instant('dates.days.wednesday.shortName'),
       index: 2,
       show: false,
     },
     {
-      name: "Csütörtök",
-      shortName: "Cs",
+      name: this.translator.instant('dates.days.thursday.name'),
+      shortName: this.translator.instant('dates.days.thursday.shortName'),
       index: 3,
       show: false,
     },
     {
-      name: "Péntek",
-      shortName: "Pé",
+      name: this.translator.instant('dates.days.friday.name'),
+      shortName: this.translator.instant('dates.days.friday.shortName'),
       index: 4,
       show: false,
     },
     {
-      name: "Szombat",
-      shortName: "Szo",
+      name: this.translator.instant('dates.days.saturday.name'),
+      shortName: this.translator.instant('dates.days.saturday.shortName'),
       index: 5,
       show: false,
     }];
@@ -96,6 +97,7 @@ export class ListPage implements OnInit {
     private firebase: FirebaseX,
     private prompt: PromptService,
     private menuCtrl: MenuController,
+    private translator: TranslateService,
   ) {
     this.focused = 0;
     this.currentWeekIndex = 0;
@@ -255,6 +257,14 @@ export class ListPage implements OnInit {
     });
 
     this.timetable.sort((a, b) => new Date(a.StartTime).valueOf() - new Date(b.StartTime).valueOf());
+  }
+
+  hideHomeworkBtn(startTime: Date) {
+    if (new Date(startTime).valueOf() > new Date().valueOf()) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   getShownDays(days: day[]) {

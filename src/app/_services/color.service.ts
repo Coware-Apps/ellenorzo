@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ThemeService } from './theme.service';
+import { Storage } from '@ionic/storage';
 
 @Injectable({
   providedIn: 'root'
@@ -17,10 +18,28 @@ export class ColorService {
   private currentTheme: string;
   constructor(
     private theme: ThemeService,
+    private storage: Storage,
   ) {
     this.theme.currentTheme.subscribe(value => {
       this.currentTheme = value;
     })
+  }
+
+  public async onInit() {
+    let storedCardColor = await this.storage.get('cardColor');
+    if (storedCardColor != null) {
+      let cSplitted = storedCardColor.split('&');
+      this.cardColors.fiveColor = cSplitted[0];
+      this.cardColors.fourColor = cSplitted[1];
+      this.cardColors.threeColor = cSplitted[2];
+      this.cardColors.twoColor = cSplitted[3];
+      this.cardColors.oneColor = cSplitted[4];
+      this.cardColors.noneColor = cSplitted[5];
+    }
+  }
+
+  returnColorCodes() {
+    return `${this.cardColors.fiveColor}&${this.cardColors.fourColor}&${this.cardColors.threeColor}&${this.cardColors.twoColor}&${this.cardColors.oneColor}&${this.cardColors.noneColor}`
   }
 
   getContrast() {
