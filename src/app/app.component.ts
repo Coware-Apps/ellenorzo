@@ -52,7 +52,7 @@ export class AppComponent {
       this.authGuard.activator = true;
       await this.navigate();
       this.splashScreen.hide();
-      this.initializeDelayedConfig();
+    this.initializeDelayedConfig();
     });
   }
 
@@ -87,7 +87,6 @@ export class AppComponent {
     } else {
       await this.migrate();
     }
-
     //needs to run before the navigation (preInitialization needs login)
     this.notificationService.subscribeToLocalNotifications();
     if (this.app.localNotificationsEnabled) {

@@ -38,7 +38,7 @@
       <ion-button class="loginBtn" color="primary" expand="full"
         [fill]='this.user != null && this.pass != null && this.instituteName != null ? "solid" : "outline"'
         shape="round" (click)="login()">
-        Bejelentkezés
+        {{'pages.login.loginBtnText' | translate}}
       </ion-button>
       <p class="dataProt">{{'pages.login.privacyPolicyText' | translate}} (<a
           (click)="openWebpage('https://coware-apps.github.io/ellenorzo/privacy')">https://coware-apps.github.io/ellenorzo/privacy</a>).

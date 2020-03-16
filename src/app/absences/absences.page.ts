@@ -217,7 +217,15 @@ export class AbsencesPage implements OnInit {
     this.presentAlert(
       this.translator.instant('pages.absences.totalAlert.title'),
       null,
-      this.translator.instant('pages.absences.totalAlert.totalText') + (this.totalAbsences - this.totalAbsences % 45) / 45 + this.translator.instant('pages.absences.totalAlert.hourUnit') + this.totalAbsences % 45 + this.translator.instant('pages.absences.totalAlert.minuteUnit'),
+      this.translator.instant('pages.absences.totalAlert.totalText') + 
+      ": " +
+      (this.totalAbsences - this.totalAbsences % 45) / 45 + 
+      " " +
+      this.translator.instant('pages.absences.totalAlert.hourUnit') + 
+      " " +
+      this.totalAbsences % 45 + 
+      " " +
+      this.translator.instant('pages.absences.totalAlert.minuteUnit'),
       this.color.getPopUpClass());
   }
 

@@ -1,9 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="goBack()">
-        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-      </ion-button>
+      <ion-back-button defaultHref="messages"></ion-back-button>
     </ion-buttons>
     <ion-title>{{'pages.read-message.title' | translate}}</ion-title>
   </ion-toolbar>
@@ -21,7 +19,7 @@
       <h2 style="font-weight: bold;">{{'pages.read-message.subjectName' | translate}}</h2>
       <p>{{this.message.uzenet.targy}}</p>
       <h2 style="font-weight: bold;">{{'pages.read-message.textName' | translate}}</h2>
-      <div [innerHTML]="message.uzenet.szoveg"></div>
+      <div class="selectableText" [innerHTML]="message.uzenet.szoveg"></div>
     </ion-card-content>
   </ion-card>
   <ion-card *ngIf="sans">

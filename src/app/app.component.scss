@@ -1,6 +1,7 @@
 #title {
   padding: 5px;
   text-align: center;
+  position: relative;
 }
 #logo {
   width: 20%;
@@ -10,4 +11,10 @@
 }
 #logoDiv {
   display: inline-block;
+}
+//this is only needed to avoid the status bar overlap on iOS (above iPhone X)
+#emptyToolbar {
+  height: 0;
+  //by default there is an annoying 0.55px (what) line here
+  --border-width: 0 0 0px;
 }

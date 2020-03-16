@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>{{'pages.tests.title' | translate}}</ion-title>
+    <ion-title>{{'pages.events.title' | translate}}</ion-title>
   </ion-toolbar>
   <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
 </ion-header>
@@ -14,31 +14,27 @@
       refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
     </ion-refresher-content>
   </ion-refresher>
+
   <ion-list>
-    <div *ngFor="let monthlyData of this.testsByMonth | async">
+    <div *ngFor="let monthlyData of this.eventsByMonth | async">
       <ion-item button (click)="monthlyData.showAll = monthlyData.showAll ? false : true">
         <ion-label>{{monthlyData.header}}</ion-label>
         <ion-icon *ngIf="!monthlyData.showAll" slot="start" name="chevron-forward"></ion-icon>
         <ion-icon *ngIf="monthlyData.showAll" slot="start" name="chevron-down"></ion-icon>
       </ion-item>
       <div *ngIf="monthlyData.showAll">
-        <ion-card *ngFor="let test of monthlyData.data">
+        <ion-card *ngFor="let event of monthlyData.data">
           <ion-card-header>
-            <ion-card-title class="selectableText">
-              {{test.SzamonkeresMegnevezese == '' ? '-' : test.SzamonkeresMegnevezese}}</ion-card-title>
-            <ion-card-subtitle>{{test.Tanar}} - {{this.fDate.formatDateWithZerosAndDots(test.Datum)}}
-              ({{test.HetNapja}})
-            </ion-card-subtitle>
-            <ion-card-subtitle>{{test.SzamonkeresModja}}</ion-card-subtitle>
+            <ion-card-title>{{event.Title}}</ion-card-title>
+            <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(event.Date)}}</ion-card-subtitle>
           </ion-card-header>
-          <ion-card-content class="subject">
-            <h2>{{test.Tantargy}}</h2>
+          <ion-card-content class="selectableText">
+            {{event.Content}}
           </ion-card-content>
         </ion-card>
       </div>
     </div>
   </ion-list>
-
 
   <div *ngIf="sans">
     <ion-card *ngFor="let number of [0, 1, 2, 3, 4, 5]">

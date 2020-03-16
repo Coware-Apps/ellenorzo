@@ -109,6 +109,13 @@ export class AppService {
       translatorVal: 'pages.notes.title'
     },
     {
+      title: 'Faliújság',
+      url: '/events',
+      icon: 'document-attach-outline',
+      show: true,
+      translatorVal: 'pages.events.title'
+    },
+    {
       title: 'Házi feladatok',
       url: '/homeworks',
       icon: '',
@@ -192,7 +199,7 @@ export class AppService {
         });
       }
     } catch (error) {
-      console.error('error trying to load some settings');
+      console.error('Error initializing app');
     }
   }
 

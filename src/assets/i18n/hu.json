@@ -58,8 +58,8 @@
             "totalAlert": {
                 "title": "Mulasztások",
                 "totalText": "Összesen",
-                "hourUnit": " óra ",
-                "minuteUnit": "perc "
+                "hourUnit": "óra",
+                "minuteUnit": "perc"
             }
         },
         "notes": {
@@ -119,7 +119,8 @@
                 "hidePagesName": "Oldalak elrejtése"
             },
             "language": {
-                "title": "Nyelv"
+                "title": "Nyelv",
+                "displayLanguageName": "Megjelenítés nyelve"
             },
             "notifications": {
                 "title": "Értesítések",
@@ -138,7 +139,7 @@
                 "toastLoggingName": "Toast-logging",
                 "UALAB": {
                     "name": "User-Agent LAB (beta)",
-                    "note": "Ha nem tudod pontosan mi ez, ne használd!"
+                    "note": "Válaszidő adatok, saját User-Agent megadása"
                 },
                 "devSettingsEnablingText": "lépésre vagy a fejlesztői beállítások engedélyezésétől!",
                 "devSettingsEnabledText": "Fejlesztői beállítások sikeresen engedélyezve!"
@@ -150,8 +151,10 @@
                     "note": "Hozzáadás és eltávolítás"
                 }
             },
-            "version": {
-                "title": "Verzió és egyéb adatok",
+            "application": {
+                "title": "Alkalmazás",
+                "reportErrorName": "Hiba jelentése",
+                "seeSourceCodeName": "Forráskód megtekintése",
                 "documentationName": "KRÉTA API dokumentáció"
             }
         },
@@ -272,6 +275,10 @@
             "loginBtnText": "Bejelentkezés",
             "privacyPolicyText": "A bejelentkezés gombra kattintva elfogadom az Adatkezelési feltételeket",
             "loadingText": "Kommunikáció folyamatban...",
+            "invalidGrant": {
+                "header": "Hibás adatok",
+                "message": "A felhasználónév vagy jelszó helytelen!"
+            },
             "insufficientDataAlert": {
                 "header": "Hibás adatok",
                 "message": "Kérlek töltsd ki az összes mezőt!"
@@ -281,6 +288,9 @@
                 "subHeader": "Sikertelen művelet",
                 "message": "Ezzel az azonosítóval már létezik bejelentkezett felhasználó a rendszerben."
             }
+        },
+        "events": {
+            "title": "Faliújság"
         }
     },
     "dates": {
@@ -347,8 +357,8 @@
             "refreshingText": "Adatok frissítése..."
         },
         "absence": {
-            "absenceName": "Hiányzás",
-            "delayName": "Késés",
+            "AbsenceName": "Hiányzás",
+            "DelayName": "Késés",
             "unit": "p"
         }
     },
@@ -392,7 +402,7 @@
                 "-2": "A KRÉTA szerver nem válaszol!",
                 "-1": "Hiba az internetkapcsolattal!",
                 "400": "Hibás bejelentkezési adatok!",
-                "403": "Hozzáférés megtagadva!",
+                "403": "A KRÉTA szerver jelenleg karbantartás alatt áll. (403)",
                 "69420": "Hiba a KRÉTA szerverrel!",
                 "401": "Hibás bejelentkezési adatok!",
                 "defaultServerSide": "A KRÉTA szerver nem válaszol!",

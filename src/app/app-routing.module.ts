@@ -120,7 +120,13 @@ const routes: Routes = [
     path: 'notification-settings',
     loadChildren: () => import('./sub-settings/notification-settings/notification-settings.module').then(m => m.NotificationSettingsPageModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'events',
+    loadChildren: () => import('./events/events.module').then(m => m.EventsPageModule),
+    canActivate: [AuthGuard]
   }
+
 
 
 

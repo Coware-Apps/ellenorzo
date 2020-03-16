@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button defaultHref="settings"></ion-back-button>
     </ion-buttons>
     <ion-title>{{'pages.user-settings.title' | translate}}</ion-title>
   </ion-toolbar>
@@ -24,7 +24,7 @@
       {{'pages.user-settings.addUserBtnText' | translate}}
     </ion-button>
   </ion-list>
-  <ion-list lines="none">
+  <ion-list mode="md" lines="none">
     <ion-item>
       <ion-icon slot="start" name="information-circle-outline"></ion-icon>
       <ion-note>{{'pages.user-settings.info' | translate}}</ion-note>

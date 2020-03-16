@@ -18,6 +18,7 @@ import { PromptService } from './prompt.service';
 import { AppService } from './app.service';
 import { Message } from '../_models/message';
 import { TranslateService } from '@ngx-translate/core';
+import { Event } from '../_models/event';
 
 
 @Injectable({
@@ -499,6 +500,22 @@ export class KretaService {
       }
     } else {
       return <Test[]>cacheDataIf;
+    }
+  }
+
+  public async getEvents(tokens: Token, institute: Institute): Promise<Event[]> {
+    try {
+      const headers = {
+        Accept: `application/json`,
+        'User-Agent': this.app.userAgent,
+        Authorization: `Bearer ${tokens.access_token}`
+      }
+      let response = await this.http.get(`${institute.Url}/mapi/api/v1/EventAmi`, null, headers);
+      let responseData = <Event[]>JSON.parse(response.data);
+      return responseData;
+    } catch (error) {
+      console.error("An error occured during the Events request", error);
+      this.errorStatus.next(error.status)
     }
   }
 

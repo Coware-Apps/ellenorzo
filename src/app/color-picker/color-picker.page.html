@@ -1,9 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="goBack()">
-        <ion-icon slot="start" name="arrow-back"></ion-icon>
-      </ion-button>
+      <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
     <ion-title>{{'pages.color-picker.title' | translate}} - {{title}}</ion-title>
   </ion-toolbar>

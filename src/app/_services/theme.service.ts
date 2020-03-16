@@ -2,6 +2,7 @@ import { Injectable, RendererFactory2, Inject, Renderer2 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { Storage } from '@ionic/storage';
+import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +15,13 @@ export class ThemeService {
     private storage: Storage,
     private rendererFactory: RendererFactory2,
     @Inject(DOCUMENT) private document: Document,
+    private statusBar: StatusBar,
   ) {
     this.renderer = this.rendererFactory.createRenderer(null, null);
   }
 
   public async onInit() {
+    this.statusBar.overlaysWebView(false);
     let storedTheme = await this.storage.get("theme");
     if (storedTheme == null) {
       this.storage.set("theme", "light");
@@ -37,6 +40,9 @@ export class ThemeService {
       case "custom":
         this.enableCustom();
         break;
+      default:
+        this.enableLight();
+        break;
     }
   }
 
@@ -44,17 +50,23 @@ export class ThemeService {
     this.removeAll();
     this.renderer.addClass(this.document.body, 'dark-theme');
     this.currentTheme.next("dark");
+    this.statusBar.backgroundColorByHexString("#121212");
+    this.statusBar.styleBlackOpaque();
   }
 
   enableMinimalDark() {
     this.removeAll();
     this.renderer.addClass(this.document.body, 'dark-minimal-theme')
     this.currentTheme.next("minimalDark");
+    this.statusBar.backgroundColorByName("black");
+    this.statusBar.styleLightContent();
   }
 
   enableLight() {
     this.removeAll();
     this.currentTheme.next("light");
+    this.statusBar.backgroundColorByName("white");
+    this.statusBar.styleDefault();
   }
 
   async enableCustom() {
@@ -72,7 +84,8 @@ export class ThemeService {
     this.changeBackground(await this.storage.get('base64bg'));
 
     //the order of these is important, otherwise it causes lag ^
-
+    this.statusBar.backgroundColorByName("black");
+    this.statusBar.styleLightContent();
   }
 
   changeBackground(url) {

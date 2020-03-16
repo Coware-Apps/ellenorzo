@@ -190,8 +190,16 @@
       --background: rgba(0, 0, 0, 0.8);
     }
   }
-}
-//mostly for the popup messages
-ul {
-  list-style-type: disc;
+
+  //mostly for the popup messages
+  ul {
+    list-style-type: disc;
+  }
+
+  .selectableText {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
 }

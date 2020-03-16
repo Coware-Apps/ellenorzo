@@ -10,8 +10,8 @@
 
 <ion-content>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}" refreshingSpinner="dots"
-      refreshingText="{{'components.refresher.refreshingText' | translate}}">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
+      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
@@ -27,7 +27,7 @@
             <ion-card-subtitle>{{note.Teacher}} - {{note.CreatingTime.substring(0, 10)}}</ion-card-subtitle>
             <ion-card-title>{{note.Title}}</ion-card-title>
           </ion-card-header>
-          <ion-card-content>
+          <ion-card-content class="selectableText">
             {{note.Content}}
           </ion-card-content>
         </ion-card>

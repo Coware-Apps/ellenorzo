@@ -88,6 +88,10 @@ export class LoginPage implements OnInit {
           await loading.dismiss();
         }
       } else {
+        this.presentAlert(
+          this.translator.instant('pages.login.invalidGrant.header'),
+          this.translator.instant('pages.login.invalidGrant.message')
+        );
         await loading.dismiss();
       }
       //TODO login

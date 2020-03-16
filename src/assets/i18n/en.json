@@ -57,9 +57,9 @@
             "justificationText": "No {{type}} absences to show.",
             "totalAlert": {
                 "title": "Absences",
-                "totalText": "Total: ",
-                "hourUnit": " hours ",
-                "minuteUnit": " minutes "
+                "totalText": "Total",
+                "hourUnit": "hours",
+                "minuteUnit": "minutes"
             }
         },
         "notes": {
@@ -119,7 +119,8 @@
                 "hidePagesName": "Hide pages"
             },
             "language": {
-                "title": "Language"
+                "title": "Language",
+                "displayLanguageName": "Display language"
             },
             "notifications": {
                 "title": "Notifications",
@@ -138,7 +139,7 @@
                 "toastLoggingName": "Toast-logging",
                 "UALAB": {
                     "name": "User-Agent LAB (beta)",
-                    "note": "Only use if you know exactly what this is!"
+                    "note": "Response time statistics, custom User-Agent"
                 },
                 "devSettingsEnablingText": "steps away from becoming a developer.",
                 "devSettingsEnabledText": "Developer settings successfully enabled."
@@ -150,8 +151,10 @@
                     "note": "Add or remove accounts"
                 }
             },
-            "version": {
-                "title": "Version",
+            "application": {
+                "title": "Application",
+                "reportErrorName": "Report an issue",
+                "seeSourceCodeName": "Check source code",
                 "documentationName": "KRÉTA API documentation"
             }
         },
@@ -272,6 +275,10 @@
             "loginBtnText": "Sign in",
             "privacyPolicyText": "By clicking the sign in button and logging in I accept the Terms of Use and Privacy Policy",
             "loadingText": "Communication in progress...",
+            "invalidGrant": {
+                "header": "Error",
+                "message": "Invalid username or password"
+            },
             "insufficientDataAlert": {
                 "header": "Incorrect fields!",
                 "message": "Please fill out all required fields!"
@@ -281,6 +288,9 @@
                 "subHeader": "Incorrect data",
                 "message": "This user is already logged in on this device."
             }
+        },
+        "events": {
+            "title": "Events"
         }
     },
     "dates": {
@@ -392,7 +402,7 @@
                 "-2": "The KRÉTA server doesn't respond.",
                 "-1": "There was an error while connecting to the internet.",
                 "400": "Invalid credentials!",
-                "403": "Access denied!",
+                "403": "The KRÉTA server is currently under maintenance. (403)",
                 "69420": "Error with the KRÉTA server!",
                 "401": "Invalid credentials!",
                 "defaultServerSide": "The KRÉTA server doesn't respond.",

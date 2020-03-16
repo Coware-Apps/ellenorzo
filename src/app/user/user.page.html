@@ -21,7 +21,7 @@
           <h1>{{'pages.user.personalInfo.title' | translate}}</h1>
         </ion-card-title>
       </ion-card-header>
-      <ion-card-content>
+      <ion-card-content class="selectableText">
         <h2 style="font-weight: bold;">{{'pages.user.personalInfo.name' | translate}}</h2>
         <p>{{s.Name}}</p>
         <h2 style="font-weight: bold;">{{'pages.user.personalInfo.birthName' | translate}}</h2>
@@ -41,7 +41,7 @@
           <h1>{{'pages.user.tutelaryInfo.title' | translate}}</h1>
         </ion-card-title>
       </ion-card-header>
-      <ion-card-content>
+      <ion-card-content class="selectableText">
         <div *ngFor="let tutelary of s.Tutelaries">
           <h1>{{tutelary.Name}}</h1>
           <h2 style="font-weight: bold;">{{'pages.user.tutelaryInfo.email' | translate}}</h2>

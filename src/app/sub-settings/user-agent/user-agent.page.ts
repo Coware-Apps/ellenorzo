@@ -233,9 +233,6 @@ export class UserAgentPage implements OnInit {
     this.storage.set('userAgent', this.currentUA);
   }
 
-  goBack() {
-    this.router.navigate(['settings']);
-  }
 
   private async delay(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));

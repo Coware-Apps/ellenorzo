@@ -25,9 +25,4 @@ export class ReadMessagePage implements OnInit {
     this.message = await this.userManager.currentUser.getMessage(messageId);
     this.sans = false;
   }
-
-  goBack() {
-    this.router.navigateByUrl("/messages");
-  }
-
 }

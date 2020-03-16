@@ -13,6 +13,7 @@ import { StudentHomework, TeacherHomework, HomeworkResponse } from './homework';
 import { AppService } from '../_services/app.service';
 import { NotificationService } from '../_services/notification.service';
 import { PromptService } from '../_services/prompt.service';
+import { Event } from './event';
 export class User {
     //unique data
     public fullName: string;
@@ -39,6 +40,11 @@ export class User {
     */
     public tests = new Subject<LoadedTests>();
     /**
+    * A subject that returns a LoadedEvents object 3 times upon init (skeleton->placeholder->final) and on updates (final)
+    * @requires `initializeEvents()`
+    */
+    public events = new Subject<LoadedEvents>();
+    /**
      * How often the users datastream requests can be updated
      */
     public allowUpdatesIn = 30000;
@@ -50,6 +56,8 @@ export class User {
     private lastUpdatedMessageListData: Message[] = null;
     private lastUpdatedTests = 0;
     private lastUpdatedTestsData: Test[] = null;
+    private lastUpdatedEvents = 0;
+    private lastUpdatedEventsData: Event[] = null;
     private tokens: Token;
     private lastLoggedIn: number = 0;
     private authDiff: number = 300000;
@@ -60,7 +68,8 @@ export class User {
         messageList: string;
         lesson: string;
         studentHomeworks: string;
-        teacherHomeworks: string
+        teacherHomeworks: string;
+        events: string;
     }
 
     constructor(
@@ -162,6 +171,7 @@ export class User {
                 lesson: `${this.id}_lessonData`,
                 studentHomeworks: `${this.id}_studentHomeworkData`,
                 teacherHomeworks: `${this.id}_teacherHomeworkKey`,
+                events: `${this.id}_eventsData`
             }
     }
     /**
@@ -224,6 +234,12 @@ export class User {
             }
             await this.app.changeConfig('usersInitData', newUsersInitData);
         }
+    }
+    /**
+     * Clears the user's Lesson (timetable) cache from the storage. Useful for the student homeworks page.
+     */
+    public async clearLessonCache() {
+        await this.storage.remove(`${this.id}_lessonData`)
     }
     //#endregion
 
@@ -411,6 +427,66 @@ export class User {
         }
     }
     //#endregion
+
+    //#region student
+    /**
+    * Initializes the user's events subject
+    */
+    async initializeEvents() {
+        let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.events);
+        if (cacheDataIf == false) {
+            let storedEvents = await this.storage.get(this.cacheIds.events);
+            if (storedEvents != null) {
+                this.events.next({
+                    data: storedEvents.data,
+                    type: "placeholder",
+                });
+            } else {
+                this.events.next({
+                    data: null,
+                    type: "skeleton",
+                });
+            }
+            await this.loginWithRefreshToken();
+            let refreshedEvents = await this.kreta.getEvents(this.tokens, this.institute);
+            this.events.next({
+                data: refreshedEvents,
+                type: "final",
+            });
+            this.lastUpdatedEvents = new Date().valueOf();
+            this.lastUpdatedEventsData = refreshedEvents;
+        } else {
+            this.events.next({
+                data: <Event[]>cacheDataIf,
+                type: "final",
+            });
+            this.lastUpdatedEventsData = <Event[]>cacheDataIf;
+        }
+    }
+
+    /**
+    * Updates the user's events subject with data that it gets from the API
+    */
+    public async updateEvents() {
+        let now = new Date().valueOf();
+        if (this.lastUpdatedEvents + this.allowUpdatesIn < now) {
+            await this.loginWithRefreshToken();
+            let updatedEvents = await this.kreta.getEvents(this.tokens, this.institute);
+            this.events.next({
+                data: updatedEvents,
+                type: "final",
+            });
+            this.lastUpdatedEventsData = updatedEvents;
+            this.lastUpdatedEvents = now;
+        } else {
+            this.showAntiSpamToast('A faliújság', now - this.lastUpdatedEvents);
+            this.events.next({
+                data: this.lastUpdatedEventsData,
+                type: "final",
+            });
+        }
+    }
+    //#endregion
     //#endregion
 
     //#region async requests
@@ -426,9 +502,6 @@ export class User {
         let lessons = await this.kreta.getLesson(fromDate, toDate, skipCache, this.tokens, this.institute, this.cacheIds.lesson)
         //await this.updateLocalNotifications(lessons); (deprecated for now)
         return lessons;
-    }
-    public async clearLessonCache() {
-        await this.storage.remove(`${this.id}_lessonData`)
     }
     /**
      * Gets the user's student homeworks between two dates or by a homeworkId
@@ -511,6 +584,10 @@ interface LoadedTests {
 }
 interface LoadedMessageList {
     data: Message[];
+    type: "skeleton" | "placeholder" | "final";
+}
+interface LoadedEvents {
+    data: Event[];
     type: "skeleton" | "placeholder" | "final";
 }
 export interface userInitData {

@@ -79,7 +79,7 @@
       </ion-label>
     </ion-item-divider>
     <ion-item>
-      <ion-label>{{'pages.settings.language.title' | translate}}</ion-label>
+      <ion-label>{{'pages.settings.language.displayLanguageName' | translate}}</ion-label>
       <ion-select (ionChange)="this.currentLngChanged($event)" [interfaceOptions]="customPopoverOptions"
         interface="popover" [value]="this.app.currentLng">
         <ion-select-option *ngFor="let language of this.app.languages" value="{{language.id}}">{{language.displayName}}
@@ -153,16 +153,24 @@
 
     <ion-item-divider>
       <ion-label>
-        <h1>{{'pages.settings.version.title' | translate}}</h1>
+        <h1>{{'pages.settings.application.title' | translate}}</h1>
       </ion-label>
     </ion-item-divider>
-    <ion-item button (click)="this.versionClicked()">
-      <ion-icon slot="start" name="code-working-sharp"></ion-icon>
-      <ion-label>{{this.app.appV}}</ion-label>
+    <ion-item button (click)="openUrl('https://github.com/Coware-Apps/ellenorzo/issues/new')">
+      <ion-icon slot="start" name="bug-sharp"></ion-icon>
+      <ion-label>{{'pages.settings.application.reportErrorName' | translate}}</ion-label>
+    </ion-item>
+    <ion-item button (click)="openUrl('https://github.com/Coware-Apps/ellenorzo')">
+      <ion-icon slot="start" name="logo-github"></ion-icon>
+      <ion-label>{{'pages.settings.application.seeSourceCodeName' | translate}}</ion-label>
     </ion-item>
     <ion-item button (click)="openUrl('https://documenter.getpostman.com/view/10379752/SzKPULz6')">
       <ion-icon slot="start" name="cloud-sharp"></ion-icon>
-      <ion-label>{{'pages.settings.version.documentationName' | translate}}</ion-label>
+      <ion-label>{{'pages.settings.application.documentationName' | translate}}</ion-label>
+    </ion-item>
+    <ion-item button (click)="this.versionClicked()">
+      <ion-icon slot="start" name="code-working-sharp"></ion-icon>
+      <ion-label slot="start">{{this.app.appV}}</ion-label>
     </ion-item>
   </ion-list>
 </ion-content>

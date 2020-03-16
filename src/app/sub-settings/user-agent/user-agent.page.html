@@ -1,9 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="goBack()">
-        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-      </ion-button>
+      <ion-back-button defaultHref="settings"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-button (click)="resetUA()">
@@ -42,7 +40,7 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-list lines="none">
+  <ion-list mode="md" lines="none">
     <ion-item>
       <ion-icon slot="start" name="information-circle-outline"></ion-icon>
       <ion-note>{{'pages.user-agent.info' | translate}}</ion-note>

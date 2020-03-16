@@ -250,11 +250,4 @@ export class ColorPickerPage implements OnInit {
         break;
     }
   }
-
-  async goBack() {
-    this.Route.queryParams.subscribe(params => {
-      this.router.navigateByUrl(params["from"]);
-    })
-  }
-
 }

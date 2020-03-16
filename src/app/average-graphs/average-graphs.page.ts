@@ -139,10 +139,6 @@ export class AverageGraphsPage implements OnInit {
     this.LineData.reverse();
   }
 
-  async goBack() {
-    this.router.navigateByUrl(this.fromRoute);
-  }
-
   async ionSlideWillChange() {
     let position = await this.slides.getActiveIndex();
     switch (position) {
