@@ -3,13 +3,13 @@ Ez egy **nem hivatalos** ellenőrző alkalmazás, ami kompatibilis a magyarorsz�
 _Az alkalmazást nem az eKréta Informatikai Zrt. fejlesztette, ezért az esetleges problémákkal, kérdésekkel kapcsolatban ne az ő ügyfélszolgálatukat keresd!_
 
 #### Miben különbözik ez az alkalmazás a hivatalostól?
-Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen. Jelenleg nem minden funkció támogatott.
+Az elsődleges cél, hogy gyorsabb, megbízhatóbb, használhatóbb legyen.
 
 #### Ötletem van, hova küldhetem?
 Minden ötletet szívesen fogadunk a cowareapps@gmail.com címen. Sajnos az alkalmazás továbbfejlesztésének korlátokat szab, hogy hivatalos dokumentáció híján csak azokkal az adatokkal tudunk dolgozni, amivel a hivatalos alkalmazás is dolgozik.
 
 #### Biztonságban vannak az adataim?
-Az alkalmazás közvetlenül az e-napló szervereivel kommunikál titkosított kapcsolaton keresztül, semmilyen más szerverre küld semmilyen személyes adatot. Ennek ellenére kizárólag saját felelősségre használható, hiszen a személyes adatok kezelője az iskola, illetve a tanár.
+Az alkalmazás közvetlenül az e-napló szervereivel kommunikál titkosított kapcsolaton keresztül, más szerverre nem küld személyes adatot. Ennek ellenére kizárólag saját felelősségre használható, hiszen a személyes adatok kezelője az iskola, illetve a tanár.
 
 ### Felhasználási feltételek
 Ezt az alkalmazást a készítők és a közreműködők "ahogy van" adják közre, és minden nyílt vagy burkolt garanciajogot visszautasítanak vele kapcsolatban, ideértve de nem kizárólagosan az eladhatóságra vagy az egy adott célra való alkalmazhatóságra vonatkozó garanciát. A készítők nem vonhatók felelősségre semmilyen, a szoftver használatából eredő esemény kapcsán, mely közvetlen, közvetett, véletlenszerű, különleges, példátlan vagy szükségszerű módon bekövetkező kárhoz vezet még akkor sem, ha a károsodás lehetősége előre látható volt.
