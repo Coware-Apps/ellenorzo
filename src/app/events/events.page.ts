@@ -14,6 +14,8 @@ export class EventsPage implements OnInit {
   public sans: boolean = true;
   public showProgressBar: boolean = true;
   public eventsByMonth: Observable<UniversalSortedData[]>;
+  public isEmpty: boolean = false;
+
   private eventsSubscription: Subscription;
   private reloaderSubscription: Subscription;
   constructor(
@@ -47,11 +49,23 @@ export class EventsPage implements OnInit {
           this.sans = true;
           this.showProgressBar = true;
         } else if (subscriptionData.type == "placeholder") {
-          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data, 'Date'));
+          let cd = this.collapsifyService.collapsifyByMonths(subscriptionData.data, 'Date');
+          if (cd.length == 0) {
+            this.isEmpty = true;
+          } else {
+            this.isEmpty = false;
+          }
+          observer.next(cd);
           this.sans = false;
           this.showProgressBar = true;
         } else {
-          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data, 'Date'));
+          let cd = this.collapsifyService.collapsifyByMonths(subscriptionData.data, 'Date');
+          if (cd.length == 0) {
+            this.isEmpty = true;
+          } else {
+            this.isEmpty = false;
+          }
+          observer.next(cd);
           this.showProgressBar = false;
           this.sans = false;
         }

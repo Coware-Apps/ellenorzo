@@ -3,7 +3,8 @@
         "home": {
             "title": "Home",
             "colorBtn": "Colors",
-            "readMoreText": "More..."
+            "readMoreText": "More...",
+            "noDataText": "No data to show."
         },
         "evaluations": {
             "title": "Evaluations",
@@ -291,7 +292,8 @@
             }
         },
         "events": {
-            "title": "Events"
+            "title": "Events",
+            "noDataText": "No data to show."
         },
         "home-settings": {
             "title": "Customize home page",

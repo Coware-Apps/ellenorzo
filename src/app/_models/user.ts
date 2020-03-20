@@ -544,7 +544,6 @@ export class User {
                 MessageList: {}
             };
             let i = 0;
-            console.time("[USER - Combined request time (init)]");
             (await Promise.all(get.map(function (element) {
                 return this.kreta[`get${element}`].apply(this.kreta, this.fnParams[element]);
             }.bind(this)))).forEach(res => {

@@ -168,6 +168,9 @@
         </ion-card>
       </div>
     </div>
+    <ion-item *ngIf="this.isEmpty && this.sans == false">
+      <ion-label style="text-align: center;">{{'pages.home.noDataText' | translate}}</ion-label>
+    </ion-item>
   </ion-list>
 
 

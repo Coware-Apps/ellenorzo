@@ -3,7 +3,8 @@
         "home": {
             "title": "Főoldal",
             "colorBtn": "Színek",
-            "readMoreText": "Tovább..."
+            "readMoreText": "Tovább...",
+            "noDataText": "Nincsenek rögzített adatok."
         },
         "evaluations": {
             "title": "Értékelések",
@@ -291,7 +292,8 @@
             }
         },
         "events": {
-            "title": "Faliújság"
+            "title": "Faliújság",
+            "noDataText": "Nincsenek rögzített adatok."
         },
         "home-settings": {
             "title": "Főoldal testreszabása",

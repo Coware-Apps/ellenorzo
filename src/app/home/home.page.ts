@@ -37,6 +37,7 @@ export class HomePage {
   public showProgressBar: boolean;
   public formattedCombined: Observable<CollapsibleCombined[]>;
   public unsubOnLeave = true;
+  public isEmpty: boolean = false;
 
   private combinedSubscription: Subscription;
   private reloaderSubscription: Subscription;
@@ -173,11 +174,15 @@ export class HomePage {
     let allDataByMonths = [];
     let allData = [];
     if (student != null) {
-      allData = allData.concat(
-        student.Evaluations,
-        student.Absences,
-        student.Notes,
-      );
+      if (student.Evaluations != null) {
+        allData = allData.concat(student.Evaluations);
+      }
+      if (student.Absences != null) {
+        allData = allData.concat(student.Absences);
+      }
+      if (student.Notes != null) {
+        allData = allData.concat(student.Notes);
+      }
     }
     if (messages[0] != null) {
       allData = allData.concat(messages);
@@ -189,49 +194,56 @@ export class HomePage {
       allData = allData.concat(events);
     }
 
-    let months: number[] = [];
-    for (let i = 0; i < allData.length; i++) {
-      let creatingMonth = new Date(this.getDateField(allData[i])).getMonth();
-      if (!months.includes(creatingMonth)) {
-        months.push(creatingMonth);
-      }
-      allData[i].opened = false;
-    }
-
-    let i = 0;
-    months.forEach(month => {
-      let monthlyData: any[] = [];
-      allData.forEach(item => {
-        if (new Date(this.getDateField(item)).getMonth() == month) {
-          monthlyData.push(item);
+    if (allData[0] != null) {
+      let months: number[] = [];
+      for (let i = 0; i < allData.length; i++) {
+        let creatingMonth = new Date(this.getDateField(allData[i])).getMonth();
+        if (!months.includes(creatingMonth)) {
+          months.push(creatingMonth);
         }
-      });
-
-      monthlyData.sort((a, b) => new Date(this.getDateField(b)).valueOf() - new Date(this.getDateField(a)).valueOf());
-
-      allDataByMonths.push({
-        index: i,
-        header: this.monthsName[month],
-        data: monthlyData,
-        firstEntryCreatingTime: new Date(this.getDateField(monthlyData[monthlyData.length - 1])).valueOf(),
-        showEvaluations: true,
-        showAbsences: true,
-        showDocs: true,
-        showMessages: true,
-        showAll: true,
-      });
-      i++;
-    });
-
-    allDataByMonths.sort((a, b) => b.firstEntryCreatingTime - a.firstEntryCreatingTime);
-    for (let i = 0; i < allDataByMonths.length; i++) {
-      if (i == 0) {
-        allDataByMonths[i].showAll = true;
-      } else {
-        allDataByMonths[i].showAll = false;
+        allData[i].opened = false;
       }
+
+      let i = 0;
+      months.forEach(month => {
+        let monthlyData: any[] = [];
+        allData.forEach(item => {
+          if (new Date(this.getDateField(item)).getMonth() == month) {
+            monthlyData.push(item);
+          }
+        });
+
+        monthlyData.sort((a, b) => new Date(this.getDateField(b)).valueOf() - new Date(this.getDateField(a)).valueOf());
+
+        allDataByMonths.push({
+          index: i,
+          header: this.monthsName[month],
+          data: monthlyData,
+          firstEntryCreatingTime: new Date(this.getDateField(monthlyData[monthlyData.length - 1])).valueOf(),
+          showEvaluations: true,
+          showAbsences: true,
+          showDocs: true,
+          showMessages: true,
+          showAll: true,
+        });
+        i++;
+      });
+
+      allDataByMonths.sort((a, b) => b.firstEntryCreatingTime - a.firstEntryCreatingTime);
+      for (let i = 0; i < allDataByMonths.length; i++) {
+        if (i == 0) {
+          allDataByMonths[i].showAll = true;
+        } else {
+          allDataByMonths[i].showAll = false;
+        }
+      }
+
+      this.isEmpty = false;
+      return allDataByMonths;
+    } else {
+      this.isEmpty = true;
+      return [];
     }
-    return allDataByMonths;
   }
   private getDateField(item: any) {
     if (item.CreatingTime != null) {
