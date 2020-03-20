@@ -1,7 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="messages"></ion-back-button>
+      <ion-button (click)="goBack()" expand="block" fill="clear" shape="round">
+        <ion-icon slot="start" name="arrow-back"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title>{{'pages.read-message.title' | translate}}</ion-title>
   </ion-toolbar>
@@ -22,6 +24,12 @@
       <div class="selectableText" [innerHTML]="message.uzenet.szoveg"></div>
     </ion-card-content>
   </ion-card>
+  <ion-list *ngIf="!this.sans && this.message.uzenet.csatolmanyok.length > 0">
+    <ion-item button (click)="getFile(f.azonosito, f.fajlNev)" *ngFor="let f of message.uzenet.csatolmanyok">
+      <ion-icon slot="start" name="attach-outline"></ion-icon>
+      <ion-label>{{f.fajlNev}}</ion-label>
+    </ion-item>
+  </ion-list>
   <ion-card *ngIf="sans">
     <ion-card-content>
       <ion-skeleton-text animated style="width: 10%"></ion-skeleton-text>

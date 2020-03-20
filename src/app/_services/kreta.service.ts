@@ -19,6 +19,11 @@ import { AppService } from './app.service';
 import { Message } from '../_models/message';
 import { TranslateService } from '@ngx-translate/core';
 import { Event } from '../_models/event';
+import { Platform } from '@ionic/angular';
+import { File } from '@ionic-native/file/ngx';
+import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ngx';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+
 
 
 @Injectable({
@@ -41,10 +46,13 @@ export class KretaService {
     private prompt: PromptService,
     private app: AppService,
     private translator: TranslateService,
+    private transfer: FileTransfer,
+    private file: File,
+    private platform: Platform,
+    private androidPermissions: AndroidPermissions,
   ) {
     this.errorHandler();
   }
-  private access_token: string;
 
 
   //#region Sub-functions and other 
@@ -76,38 +84,40 @@ export class KretaService {
 
         //client side / plugin error
         case -4:
-          this.translator.instant('services.kreta.httpErrors.-4');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.-4'));
           break;
         case -3:
-          this.translator.instant('services.kreta.httpErrors.-3');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.-3'));
           break;
         case -2:
-          this.translator.instant('services.kreta.httpErrors.-2');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.-2'));
           break;
         case -1:
-          this.translator.instant('services.kreta.httpErrors.-1');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.-1'));
           break;
 
         //server errors
         case 400:
-          this.translator.instant('services.kreta.httpErrors.400');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.400'));
           break;
         case 403:
-          this.translator.instant('services.kreta.httpErrors.403');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.403'));
           break;
         case 69420:
           //known KRÉTA errors
-          this.translator.instant('services.kreta.httpErrors.69420');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.69420'));
+
           break;
         case 401:
-          this.translator.instant('services.kreta.httpErrors.401');
+          this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.401'));
           break;
 
         default:
           if (error >= 500 && 600 > error) {
-            this.translator.instant('services.kreta.httpErrors.defaultServerSide');
+            this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.defaultServerSide'));
           } else {
-            this.translator.instant('services.kreta.httpErrors.defaultClientSide', { error: error });
+            this.prompt.errorToast(this.translator.instant('services.kreta.httpErrors.defaultClientSide',
+              { error: error }));
           }
           break;
       }
@@ -156,7 +166,6 @@ export class KretaService {
     } catch (error) {
       console.error("Hiba történt a 'Token' lekérése közben", error);
       //with behaviorsubject
-      this.errorStatus.next(error.status);
       return false;
     }
   }
@@ -568,9 +577,7 @@ export class KretaService {
         }
 
         let response = await this.http.get("https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/postaladaelemek/sajat", null, headers);
-        console.log('msgListResponse', response);
         let msgList = <Message[]>JSON.parse(response.data)
-        console.log('msgList', msgList);
 
         this.cache.setCache(cacheId, msgList);
         return msgList;
@@ -594,7 +601,6 @@ export class KretaService {
 
       let response = await this.http.get(`https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/postaladaelemek/${messageId}`, null, headers);
       let msg = <Message>JSON.parse(response.data)
-      console.log('message', msg);
       return msg;
     } catch (error) {
       console.error(error);
@@ -803,4 +809,71 @@ export class KretaService {
     }
   }
   //#endregion
+
+  //#region KRÉTA->DOWNLOAD
+  public async getMessageFile(fileId: number, fileName: string, fileExtension: string, tokens: Token): Promise<string> {
+
+    // try {
+    //   let headers = {
+    //     'Authorization': `Bearer ${tokens.access_token}`,
+    //     'User-Agent': this.app.userAgent,
+    //   }
+    //   let response = await this.http.get(
+    //     `https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/dokumentumok/uzenetek/${fileId}`,
+    //     null,
+    //     headers
+    //   );
+    //   console.log('response', response.data);
+    //   let entry = await this.file.writeFile(
+    //     this.file.externalDataDirectory,
+    //     `${fileName}.${fileExtension}`,
+    //     response.data,
+    //     { replace: true }
+    //   );
+    //   console.log('entry', entry);
+    //   return entry.nativeURL;
+    // } catch (error) {
+    //   console.error('Error trying to get file', error);
+    // }
+
+
+    let fileTransfer = this.transfer.create();
+    let uri = `https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/dokumentumok/uzenetek/${fileId}`;
+    let fullFileName = fileName + '.' + fileExtension;
+    let url = "";
+    try {
+      let entry = await fileTransfer.download(
+        uri,
+        this.file.dataDirectory + fullFileName,
+        false,
+        {
+          headers: {
+            "Authorization": `Bearer ${tokens.access_token}`,
+            "User-Agent": this.app.userAgent,
+          }
+        }
+      )
+      console.log('entry', entry);
+      url = entry.nativeURL;
+      return url;
+    } catch (error) {
+      console.error('Error trying to get file', error);
+      this.prompt.toast(this.translator.instant('services.kreta.cantDownloadText', { fileName: fullFileName }), true);
+    }
+  }
+  public async getDownloadPath() {
+    if (this.platform.is('ios')) {
+      return this.file.documentsDirectory;
+    }
+
+    await this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE).then(
+      result => {
+        if (!result.hasPermission) {
+          return this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE);
+        }
+      }
+    );
+
+    return this.file.dataDirectory;
+  }  //#endregion
 }

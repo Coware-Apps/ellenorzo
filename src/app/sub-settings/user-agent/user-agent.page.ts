@@ -230,7 +230,7 @@ export class UserAgentPage implements OnInit {
 
   resetUA() {
     this.currentUA = this.app.getStockUserAgent();
-    this.storage.set('userAgent', this.currentUA);
+    this.storage.remove('userAgent');
   }
 
 

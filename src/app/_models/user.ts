@@ -45,9 +45,14 @@ export class User {
     */
     public events = new Subject<LoadedEvents>();
     /**
+    * A subject that returns a combined data object 3 times upon init (skeleton->placeholder->final) and on updates (final)
+    * @requires `initializeCombined()`
+    */
+    public combined = new Subject<LoadedCombined>();
+    /**
      * How often the users datastream requests can be updated
      */
-    public allowUpdatesIn = 30000;
+    public allowUpdatesIn = 120000;
 
     //anti-spam
     private lastUpdatedStudent = 0;
@@ -58,10 +63,11 @@ export class User {
     private lastUpdatedTestsData: Test[] = null;
     private lastUpdatedEvents = 0;
     private lastUpdatedEventsData: Event[] = null;
+    private lastUpdatedCombined = 0;
+    private lastUpdatedCombinedData: any = null;
     private tokens: Token;
     private lastLoggedIn: number = 0;
     private authDiff: number = 300000;
-    private memoryCacheTime: number = 1200000;
     private cacheIds: {
         student: string;
         tests: string;
@@ -70,7 +76,12 @@ export class User {
         studentHomeworks: string;
         teacherHomeworks: string;
         events: string;
+        combined: string;
     }
+    /**
+     * For the combined data requests (it is initalized in `setUserData()`)
+     */
+    private fnParams = {};
 
     constructor(
         tokens: Token,
@@ -92,11 +103,10 @@ export class User {
      * Logs in with the users current refresh token if needed (the token's expires_in minus the user's authDiff passes)
      */
     public async loginWithRefreshToken() {
-        console.log(`[USER->logingWithRefreshToken()] called | ${this.fullName}`);
         let now = new Date().valueOf();
         let loggedInFor = (this.tokens.expires_in * 1000) - this.authDiff;
         if (this.lastLoggedIn + loggedInFor <= now) {
-            console.log(`%cRenewing tokens (${now / 1000 - (this.lastLoggedIn + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
+            console.log(`%c${this.fullName} - Renewing tokens (${now / 1000 - (this.lastLoggedIn + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
             let newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
             if (newTokens != null) {
                 this.tokens = newTokens;
@@ -118,7 +128,7 @@ export class User {
                 await this.app.changeConfig("usersInitData", newUsersInitData);
             }
         } else {
-            console.log(`%cNot renewing tokens yet (${(this.lastLoggedIn + loggedInFor - now) / 1000} / ${(this.tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
+            console.log(`%c${this.fullName} - Not renewing tokens yet (${(this.lastLoggedIn + loggedInFor - now) / 1000} / ${(this.tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
         }
     }
     /**
@@ -127,26 +137,30 @@ export class User {
      */
     public async fetchUserData(): Promise<boolean> {
         let student = await this.kreta.getStudent(this.fDate.getDate("today"), this.fDate.getDate("today"), true, this.tokens, this.institute, '_studentLoginData');
-        this.setUserData(student.Name, student.StudentId, this.notificationsEnabled, this.lastNotificationSetTime);
-        //overwriting the name and id of the users init data
-        let newUserInitData: userInitData = {
-            id: this.id,
-            tokens: this.tokens,
-            institute: this.institute,
-            fullName: this.fullName,
-            notificationsEnabled: this.notificationsEnabled,
-            lastNotificationSetTime: this.lastNotificationSetTime,
-        }
-        let doesUserAlreadyExist = false;
-        this.app.usersInitData.forEach(userInitData => {
-            if (userInitData.id == newUserInitData.id) {
-                doesUserAlreadyExist = true;
+        if (student != null) {
+            this.setUserData(student.Name, student.StudentId, this.notificationsEnabled, this.lastNotificationSetTime);
+            //overwriting the name and id of the users init data
+            let newUserInitData: userInitData = {
+                id: this.id,
+                tokens: this.tokens,
+                institute: this.institute,
+                fullName: this.fullName,
+                notificationsEnabled: this.notificationsEnabled,
+                lastNotificationSetTime: this.lastNotificationSetTime,
             }
-        });
-        if (!doesUserAlreadyExist) {
-            this.app.usersInitData.push(newUserInitData);
-            await this.app.changeConfig("usersInitData", this.app.usersInitData);
-            return true;
+            let doesUserAlreadyExist = false;
+            this.app.usersInitData.forEach(userInitData => {
+                if (userInitData.id == newUserInitData.id) {
+                    doesUserAlreadyExist = true;
+                }
+            });
+            if (!doesUserAlreadyExist) {
+                this.app.usersInitData.push(newUserInitData);
+                await this.app.changeConfig("usersInitData", this.app.usersInitData);
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
@@ -171,16 +185,28 @@ export class User {
                 lesson: `${this.id}_lessonData`,
                 studentHomeworks: `${this.id}_studentHomeworkData`,
                 teacherHomeworks: `${this.id}_teacherHomeworkKey`,
-                events: `${this.id}_eventsData`
+                events: `${this.id}_eventsData`,
+                combined: `${this.id}_combinedData`
             }
     }
     /**
-     * Clears all of the cached data that the had ever stored
+     * Clears all of the cached data that the user had ever stored
      */
     public async clearUserCache() {
         for (const key in this.cacheIds) {
             await this.storage.remove(this.cacheIds[key]);
         }
+    }
+    /**
+     * Clears the user's stored cache for a specific category (this will enforce some pages to be reloaded)
+     * @param key the name of the category you want to be cleared from the storage
+     */
+    public async clearUserCacheByCategory(
+        key: 'student' | 'tests' | 'messageList' | 'lesson' |
+            'studentHomeworks' | 'teacherHomeworks' | 'events' |
+            'combined'
+    ) {
+        await this.storage.remove(this.cacheIds[key]);
     }
     /**
      * Enables the user's local notifications. NOTE: Doesn't set any notifications. To do that, see: `User`.`setLocalNotifications()`
@@ -234,12 +260,6 @@ export class User {
             }
             await this.app.changeConfig('usersInitData', newUsersInitData);
         }
-    }
-    /**
-     * Clears the user's Lesson (timetable) cache from the storage. Useful for the student homeworks page.
-     */
-    public async clearLessonCache() {
-        await this.storage.remove(`${this.id}_lessonData`)
     }
     //#endregion
 
@@ -428,7 +448,7 @@ export class User {
     }
     //#endregion
 
-    //#region student
+    //#region events
     /**
     * Initializes the user's events subject
     */
@@ -453,6 +473,7 @@ export class User {
                 data: refreshedEvents,
                 type: "final",
             });
+
             this.lastUpdatedEvents = new Date().valueOf();
             this.lastUpdatedEventsData = refreshedEvents;
         } else {
@@ -487,6 +508,165 @@ export class User {
         }
     }
     //#endregion
+
+    //#region combined
+    /**
+    * Initializes the user's combined subject
+    */
+    public async initializeCombined(get: Array<'Student' | 'Tests' | 'Events' | 'MessageList'>) {
+        let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.combined);
+        if (cacheDataIf == false) {
+            let storedCombined = await this.storage.get(this.cacheIds.combined);
+            if (storedCombined != null) {
+                this.combined.next({
+                    Student: storedCombined.data.Student,
+                    Tests: storedCombined.data.Tests,
+                    Events: storedCombined.data.Events,
+                    MessageList: storedCombined.data.MessageList,
+                    type: "placeholder",
+                });
+            } else {
+                this.combined.next({
+                    Student: null,
+                    Tests: null,
+                    Events: null,
+                    MessageList: null,
+                    type: "skeleton",
+                });
+            }
+
+            await this.loginWithRefreshToken();
+            this.setCombinedParams();
+            let refreshedCombined = {
+                Student: {},
+                Tests: {},
+                Events: {},
+                MessageList: {}
+            };
+            let i = 0;
+            console.time("[USER - Combined request time (init)]");
+            (await Promise.all(get.map(function (element) {
+                return this.kreta[`get${element}`].apply(this.kreta, this.fnParams[element]);
+            }.bind(this)))).forEach(res => {
+                refreshedCombined[get[i]] = res;
+                i++;
+            });
+            console.timeEnd("[USER - Combined request time (init)]");
+            if (
+                refreshedCombined.Student != null &&
+                refreshedCombined.Events != null &&
+                refreshedCombined.MessageList != null &&
+                refreshedCombined.Tests != null
+            ) {
+                this.combined.next({
+                    //The server only ever sends back 1 student / user
+                    Student: refreshedCombined.Student,
+                    Tests: refreshedCombined.Tests,
+                    Events: refreshedCombined.Events,
+                    MessageList: refreshedCombined.MessageList,
+                    type: "final",
+                });
+                await this.cache.setCache(this.cacheIds.combined, refreshedCombined);
+                this.lastUpdatedCombined = new Date().valueOf();
+                this.lastUpdatedCombinedData = refreshedCombined;
+            }
+        } else {
+            this.combined.next({
+                Student: cacheDataIf.Student,
+                Tests: cacheDataIf.Tests,
+                Events: cacheDataIf.Events,
+                MessageList: cacheDataIf.MessageList,
+                type: "final",
+            });
+            this.lastUpdatedCombinedData = cacheDataIf;
+        }
+    }
+    /**
+    * Updates the user's combined subject with data that it gets from the API
+    */
+    public async updateCombined(get: Array<'Student' | 'Tests' | 'Events' | 'MessageList'>) {
+        let now = new Date().valueOf();
+        if (this.lastUpdatedCombined + this.allowUpdatesIn < now) {
+            await this.loginWithRefreshToken();
+            this.setCombinedParams();
+            let updatedCombined = {
+                Student: {},
+                Tests: {},
+                Events: {},
+                MessageList: {}
+            };
+            console.time("[USER - Combined request time (update)]");
+            let i = 0;
+            (await Promise.all(get.map(function (element) {
+                return this.kreta[`get${element}`].apply(this.kreta, this.fnParams[element]);
+            }.bind(this)))).forEach(res => {
+                updatedCombined[get[i]] = res;
+                i++;
+            });
+            console.timeEnd("[USER - Combined request time (update)]");
+
+            if (
+                updatedCombined.Student != null &&
+                updatedCombined.Events != null &&
+                updatedCombined.MessageList != null &&
+                updatedCombined.Tests != null
+            ) {
+                this.combined.next({
+                    Student: updatedCombined.Student,
+                    Tests: updatedCombined.Tests,
+                    Events: updatedCombined.Events,
+                    MessageList: updatedCombined.MessageList,
+                    type: "final",
+                });
+                await this.cache.setCache(this.cacheIds.combined, updatedCombined);
+                this.lastUpdatedCombined = now;
+                this.lastUpdatedCombinedData = updatedCombined;
+            }
+        } else {
+            this.showAntiSpamToast('A főoldal', now - this.lastUpdatedCombined);
+            this.combined.next({
+                Student: this.lastUpdatedCombinedData.Student,
+                Tests: this.lastUpdatedCombinedData.Tests,
+                Events: this.lastUpdatedCombinedData.Events,
+                MessageList: this.lastUpdatedCombinedData.MessageList,
+                type: "final",
+            });
+        }
+    }
+    /**
+     * Initializes the parameters for the combined requests. If you add requests, you must add their parameters here.
+     */
+    protected setCombinedParams() {
+        this.fnParams = {
+            "Student": [
+                null,
+                null,
+                true,
+                this.tokens,
+                this.institute,
+                this.cacheIds.student,
+            ],
+            "Tests": [
+                null,
+                null,
+                true,
+                this.tokens,
+                this.institute,
+                this.cacheIds.tests,
+            ],
+            "Events": [
+                this.tokens,
+                this.institute,
+            ],
+            "MessageList": [
+                true,
+                this.tokens,
+                this.cacheIds.messageList
+            ],
+        }
+    }
+    //#endregion
+
     //#endregion
 
     //#region async requests
@@ -540,7 +720,7 @@ export class User {
      */
     public async setMessageAsRead(messageId: number): Promise<void> {
         await this.loginWithRefreshToken();
-        return await this.setMessageAsRead(messageId);
+        return await this.kreta.setMessageAsRead(messageId, this.tokens);
     }
     /**
      * Adds a homework to one of the user's lessons
@@ -572,6 +752,10 @@ export class User {
         await this.loginWithRefreshToken();
         return await this.kreta.getLessonLAB(fromDate, toDate, userAgent, this.tokens, this.institute);
     }
+    public async getMessageFile(fileId: number, fileName: string, fileExtension: string) {
+        await this.loginWithRefreshToken();
+        return this.kreta.getMessageFile(fileId, fileName, fileExtension, this.tokens);
+    }
     //#endregion
 }
 interface LoadedStudent {
@@ -589,6 +773,23 @@ interface LoadedMessageList {
 interface LoadedEvents {
     data: Event[];
     type: "skeleton" | "placeholder" | "final";
+}
+type LoadedCombined = {
+    [request in 'Student' | 'Tests' | 'Events' | 'MessageList']: any;
+} & {
+    type: "skeleton" | "placeholder" | "final";
+};
+export interface CollapsibleCombined {
+    index: number;
+    header: string;
+    data: any[];
+    firstEntryCreatingTime: number;
+    showEvaluations: boolean;
+    showAbsences: boolean;
+    //events will be categorized under notes
+    showDocs: boolean;
+    showMessages: boolean;
+    showAll: boolean;
 }
 export interface userInitData {
     id: number;

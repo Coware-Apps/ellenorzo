@@ -21,7 +21,10 @@ import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { ErrorHandlerService } from './_services/error-handler.service';
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-
+import { FileTransfer } from '@ionic-native/file-transfer/ngx';
+import { File } from '@ionic-native/file/ngx';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import { FileOpener } from '@ionic-native/file-opener/ngx';
 export function translateLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
 }
@@ -54,6 +57,10 @@ export function translateLoaderFactory(http: HttpClient) {
     FirebaseX,
     IsDebug,
     LocalNotifications,
+    FileTransfer,
+    File,
+    AndroidPermissions,
+    FileOpener,
     { provide: ErrorHandler, useClass: ErrorHandlerService },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

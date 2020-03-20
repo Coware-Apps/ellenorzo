@@ -51,7 +51,7 @@ export class CacheService {
   }
 
   //cacheTime 1200000
-  async getCacheIf(key: string, cacheTime: number = 1200000): Promise<boolean | Event[] | Lesson[] | Institute[] | Student | Test[] | Message[] | Message> { //300000ms = 5min
+  async getCacheIf(key: string, cacheTime: number = 1200000): Promise<any> { //300000ms = 5min
     //gives back the cache if it exists and if it isn't older than cacheTime
     let cacheItem = await this.storage.get(key);
     if (await this.isCacheNeeded(cacheItem, cacheTime)) {

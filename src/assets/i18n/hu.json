@@ -2,7 +2,8 @@
     "pages": {
         "home": {
             "title": "Főoldal",
-            "colorBtn": "Színek"
+            "colorBtn": "Színek",
+            "readMoreText": "Tovább..."
         },
         "evaluations": {
             "title": "Értékelések",
@@ -291,6 +292,30 @@
         },
         "events": {
             "title": "Faliújság"
+        },
+        "home-settings": {
+            "title": "Főoldal testreszabása",
+            "info": "A főoldal betöltési ideje a legkritikusabb az egész alkalmazás összes oldala közül. Ez a szerverek válaszidejének köszönhető, sajnos ezzel az alkalmazás fejlesztői sem tudnak mit kezdeni. Ritkán használt komponensek kikapcsolásával az oldal gyorsabban be fog tölteni.",
+            "Student": {
+                "title": "Tanuló adatai",
+                "description": "Értékelések, mulasztások, feljegyzések",
+                "impactName": "lassú"
+            },
+            "Tests": {
+                "title": "Számonkérések",
+                "description": "Tanárok által bejelentett számonkérések",
+                "impactName": "gyors"
+            },
+            "MessageList": {
+                "title": "Üzenetek",
+                "description": "Beérkezett üzenetek",
+                "impactName": "gyors"
+            },
+            "Events": {
+                "title": "Faliújság",
+                "description": "Faliújságon szereplő elemek",
+                "impactName": "közepes"
+            }
         }
     },
     "dates": {
@@ -353,8 +378,7 @@
             "editUsersText": "Szerkesztés"
         },
         "refresher": {
-            "pullingText": "Húzd le a frissítéshez",
-            "refreshingText": "Adatok frissítése..."
+            "pullingText": "Húzd le a frissítéshez"
         },
         "absence": {
             "AbsenceName": "Hiányzás",

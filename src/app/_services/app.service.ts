@@ -53,7 +53,43 @@ export class AppService {
       .then(module => registerLocaleData(module.default));
     this.storage.set('language', newLng);
   }
-
+  private _homeRequests = [
+    {
+      id: 0,
+      requestName: "Student",
+      impactName: 'magas',
+      icon: "home-outline",
+      show: true,
+    },
+    {
+      id: 1,
+      requestName: "Tests",
+      impactName: 'alacsony',
+      src: "/assets/extraicons/test.svg",
+      show: true,
+    },
+    {
+      id: 2,
+      requestName: "MessageList",
+      impactName: 'alacsony',
+      icon: "chatbox-outline",
+      show: true,
+    },
+    {
+      id: 3,
+      requestName: "Events",
+      impactName: 'közepes',
+      icon: "document-attach-outline",
+      show: false,
+    }
+  ]
+  public get homeRequests() {
+    return this._homeRequests;
+  }
+  public set homeRequests(n) {
+    this._homeRequests = n;
+    this.storage.set('homeRequests', n);
+  }
   constructor(
     private storage: Storage,
     private translator: TranslateService,
@@ -165,20 +201,21 @@ export class AppService {
   public async onInit() {
     try {
       let configs = await Promise.all([
-        await this.appVersion.getVersionNumber(),
-        await this.storage.get('analyticsCollectionEnabled') == false ? false : true,
-        await this.storage.get('toastLoggingEnabled') == true ? true : false,
-        await this.storage.get('devSettingsEnabled') == true ? true : false,
-        await this.storage.get('localNotificationsEnabled') == true ? true : false,
-        await this.storage.get('webApiRegistration'),
-        await this.storage.get('userAgent'),
-        await this.storage.get('language'),
+        this.appVersion.getVersionNumber(),
+        this.storage.get('analyticsCollectionEnabled'),
+        this.storage.get('toastLoggingEnabled'),
+        this.storage.get('devSettingsEnabled'),
+        this.storage.get('localNotificationsEnabled'),
+        this.storage.get('webApiRegistration'),
+        this.storage.get('userAgent'),
+        this.storage.get('language'),
+        this.storage.get('homeRequests'),
       ]);
       this.appV = configs[0];
-      this.analyticsCollectionEnabled = configs[1];
-      this.toastLoggingEnabled = configs[2];
-      this.devSettingsEnabled = configs[3];
-      this.localNotificationsEnabled = configs[4];
+      this.analyticsCollectionEnabled = configs[1] == false ? false : true;
+      this.toastLoggingEnabled = configs[2] == true ? true : false;
+      this.devSettingsEnabled = configs[3] == true ? true : false;
+      this.localNotificationsEnabled = configs[4] == true ? true : false;
       let storedWebApiRegistration = configs[5];
       if (storedWebApiRegistration != null) {
         this.webUser = JSON.parse(storedWebApiRegistration);
@@ -187,7 +224,6 @@ export class AppService {
       if (storedUA != null) {
         this.userAgent = storedUA;
       }
-
       if (configs[7] != null) {
         this.currentLng = configs[7];
       } else {
@@ -197,6 +233,14 @@ export class AppService {
             this.currentLng = browserLang;
           }
         });
+      }
+
+      if (configs[8] != null) {
+        for (let i = 0; i < configs[8].length; i++) {
+          if (configs[8][i].id == this._homeRequests[i].id) {
+            this._homeRequests[i].show = configs[8][i].show;
+          }
+        }
       }
     } catch (error) {
       console.error('Error initializing app');
@@ -216,8 +260,8 @@ export class AppService {
     //this.userAgent = 'x.x/0 (Android)'
     //response time about 2000-10000ms per request
     //this.userAgent = 'Dalvik/2.1.0 (Linux; U; Android 9; AM-GADDF Build/PPR1.180610.011)';
-    this.userAgent = 'Arisztokreta.Ellenorzo/0.8.3.2020012301 (Android)';
-    return 'Arisztokreta.Ellenorzo/0.8.3.2020012301 (Android)';
+    this.userAgent = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android)';
+    return 'Kreta.Ellenorzo/2.9.9.2020022101 (Android)';
   }
 
   //#region sidemenu

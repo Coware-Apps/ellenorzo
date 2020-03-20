@@ -77,6 +77,9 @@ export class LoginPage implements OnInit {
           await this.menuCtrl.enable(true);
           await loading.dismiss();
           this.app.isStudentSelectorReady = true;
+          if (this.userManager.allUsers.length > 1) {
+            this.data.setData('refreshHome', true);
+          }
           await this.router.navigateByUrl('home');
         } else {
           //the user already exists

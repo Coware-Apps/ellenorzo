@@ -21,7 +21,7 @@
   </ion-select>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
-      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
+      refreshingSpinner="dots">
     </ion-refresher-content>
   </ion-refresher>
   <ion-list [hidden]="this.selected != item.id" *ngFor="let item of this.selectOptionsWithData | async">
@@ -49,25 +49,18 @@
           <ion-card *ngIf="dataGroup.showAll" button (click)="this.getMoreData(evaluation)"
             [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(evaluation.NumberValue, evaluation.Form)">
             <ion-card-content>
-              <div *ngIf="evaluation.NumberValue == 0 then thenblock else elseblock"></div>
-              <!-- NumberValue == 0 -->
-              <ng-template #thenblock>
-                <div style="float: right">
-                  <h1 *ngIf="evaluation.Form == 'Mark'">-</h1>
-                  <ion-buttons *ngIf="evaluation.Form == 'Text'" slot="end">
-                    <ion-button>
-                      <ion-icon slot="icon-only" name="text"></ion-icon>
-                    </ion-button>
-                  </ion-buttons>
-                </div>
-              </ng-template>
-              <!-- NumberValue != 0 -->
-              <ng-template #elseblock>
-                <div style="float: right;">
-                  <h1 *ngIf="evaluation.Form == 'Mark'" slot="start">{{evaluation.NumberValue}}</h1>
-                  <h1 *ngIf="evaluation.Form == 'Percent'" slot="start">{{evaluation.NumberValue}}%</h1>
-                </div>
-              </ng-template>
+              <div *ngIf="evaluation.NumberValue == 0" style="float: right">
+                <h1 *ngIf="evaluation.Form == 'Mark'">-</h1>
+                <ion-buttons *ngIf="evaluation.Form == 'Text'" slot="end">
+                  <ion-button>
+                    <ion-icon slot="icon-only" name="text"></ion-icon>
+                  </ion-button>
+                </ion-buttons>
+              </div>
+              <div *ngIf="evaluation.NumberValue != 0" style="float: right;">
+                <h1 *ngIf="evaluation.Form == 'Mark'" slot="start">{{evaluation.NumberValue}}</h1>
+                <h1 *ngIf="evaluation.Form == 'Percent'" slot="start">{{evaluation.NumberValue}}%</h1>
+              </div>
               <ion-label>
                 <h1>
                   {{evaluation.Date.substring(0,10)}} <small>{{evaluation.Weight}}</small>

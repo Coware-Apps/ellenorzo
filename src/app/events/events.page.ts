@@ -61,8 +61,12 @@ export class EventsPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.eventsSubscription.unsubscribe();
-    this.reloaderSubscription.unsubscribe();
+    if (this.eventsSubscription != null) {
+      this.eventsSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   async doRefresh(event: any) {

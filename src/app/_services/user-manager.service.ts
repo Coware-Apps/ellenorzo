@@ -40,7 +40,6 @@ export class UserManagerService {
       return false;
     }
   }
-
   public async removeUser(userId: number) {
     //removing the user from app.service.ts initData
     for (let i = 0; i < this.app.usersInitData.length; i++) {
@@ -79,7 +78,6 @@ export class UserManagerService {
     await this.app.changeConfig("usersInitData", this.app.usersInitData);
     console.log('[USER-MANAGER] removed a user, new usersInitData', this.app.usersInitData);
   }
-
   public switchToUser(userId: number) {
     console.log('[USER-MANAGER->switchToUser()] switching to user', userId);
     this.allUsers.forEach(user => {
@@ -88,7 +86,6 @@ export class UserManagerService {
       }
     });
   }
-
   public createExistingUsers(usersInitData: userInitData[]) {
     this.allUsers = [];
     usersInitData.forEach(userInitData => {
@@ -96,6 +93,15 @@ export class UserManagerService {
       let newUser = this.userFactory.createUser(userInitData.tokens, userInitData.institute);
       newUser.setUserData(userInitData.fullName, userInitData.id, userInitData.notificationsEnabled, userInitData.lastNotificationSetTime);
       this.allUsers.push(newUser);
+    });
+  }
+  public async clearAllUserCacheByCategory(
+    key: 'student' | 'tests' | 'messageList' | 'lesson' |
+      'studentHomeworks' | 'teacherHomeworks' | 'events' |
+      'combined'
+  ) {
+    this.allUsers.forEach(async u => {
+      await u.clearUserCacheByCategory(key);
     });
   }
 }

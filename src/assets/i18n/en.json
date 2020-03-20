@@ -2,7 +2,8 @@
     "pages": {
         "home": {
             "title": "Home",
-            "colorBtn": "Colors"
+            "colorBtn": "Colors",
+            "readMoreText": "More..."
         },
         "evaluations": {
             "title": "Evaluations",
@@ -291,6 +292,30 @@
         },
         "events": {
             "title": "Events"
+        },
+        "home-settings": {
+            "title": "Customize home page",
+            "info": "Out of all the pages in the app, the loading time of the home page is the most critical. The delay comes from the servers, which means not even the developers of the app can do much about it. You can turn off some components, in order to make the page load faster.",
+            "Student": {
+                "title": "Basic data",
+                "description": "Evaluations, absences, notes",
+                "impactName": "slow"
+            },
+            "Tests": {
+                "title": "Tests",
+                "description": "Tests logged by teachers",
+                "impactName": "fast"
+            },
+            "MessageList": {
+                "title": "Messages",
+                "description": "Inbox messages",
+                "impactName": "fast"
+            },
+            "Events": {
+                "title": "Events",
+                "description": "Items on the events board",
+                "impactName": "medium"
+            }
         }
     },
     "dates": {
@@ -353,8 +378,7 @@
             "editUsersText": "Manage"
         },
         "refresher": {
-            "pullingText": "Pull to refresh!",
-            "refreshingText": "Refreshing data..."
+            "pullingText": "Pull to refresh!"
         },
         "absence": {
             "AbsenceName": "Absence",

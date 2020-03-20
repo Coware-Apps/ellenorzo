@@ -98,8 +98,12 @@ export class AbsencesPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.studentSubscription.unsubscribe();
-    this.reloaderSubscription.unsubscribe();
+    if (this.studentSubscription != null) {
+      this.studentSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   private formatStudent(student: Student): AbsenceGroup[] {
@@ -162,10 +166,10 @@ export class AbsencesPage implements OnInit {
         this.title = this.translator.instant('pages.absences.justifiedTitle');
         break;
       case 1:
-        this.title =  this.translator.instant('pages.absences.beJustifiedTitle');
+        this.title = this.translator.instant('pages.absences.beJustifiedTitle');
         break;
       case 2:
-        this.title =  this.translator.instant('pages.absences.unJustifiedTitle');
+        this.title = this.translator.instant('pages.absences.unJustifiedTitle');
         break;
     }
   }
@@ -181,10 +185,10 @@ export class AbsencesPage implements OnInit {
           this.title = this.translator.instant('pages.absences.justifiedTitle');
           break;
         case 1:
-          this.title =  this.translator.instant('pages.absences.beJustifiedTitle');
+          this.title = this.translator.instant('pages.absences.beJustifiedTitle');
           break;
         case 2:
-          this.title =  this.translator.instant('pages.absences.unJustifiedTitle');
+          this.title = this.translator.instant('pages.absences.unJustifiedTitle');
           break;
       }
     }
@@ -217,13 +221,13 @@ export class AbsencesPage implements OnInit {
     this.presentAlert(
       this.translator.instant('pages.absences.totalAlert.title'),
       null,
-      this.translator.instant('pages.absences.totalAlert.totalText') + 
+      this.translator.instant('pages.absences.totalAlert.totalText') +
       ": " +
-      (this.totalAbsences - this.totalAbsences % 45) / 45 + 
+      (this.totalAbsences - this.totalAbsences % 45) / 45 +
       " " +
-      this.translator.instant('pages.absences.totalAlert.hourUnit') + 
+      this.translator.instant('pages.absences.totalAlert.hourUnit') +
       " " +
-      this.totalAbsences % 45 + 
+      this.totalAbsences % 45 +
       " " +
       this.translator.instant('pages.absences.totalAlert.minuteUnit'),
       this.color.getPopUpClass());

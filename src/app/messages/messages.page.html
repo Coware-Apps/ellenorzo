@@ -11,7 +11,7 @@
 <ion-content>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
-      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
+      refreshingSpinner="dots">
     </ion-refresher-content>
   </ion-refresher>
   <ion-item *ngIf="this.inboxEmpty">

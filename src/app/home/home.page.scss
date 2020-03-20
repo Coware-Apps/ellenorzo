@@ -2,7 +2,7 @@
   margin-bottom: 20px;
 }
 .evaluationH1 {
-  font-size:3rem; 
+  font-size: 3rem;
   font-weight: bold;
 }
 .evaluationDiv {
@@ -17,4 +17,19 @@
 .red {
   color: red;
 }
-  
+.categoryIcon {
+  float: right;
+  font-size: xx-large;
+}
+hr {
+  border: 0;
+  clear: both;
+  display: block;
+  width: 60%;
+  background-color: rgb(115, 115, 115);
+  height: 1px;
+}
+.unread {
+  border-left-width: 10px;
+  border-left-style: solid;
+}

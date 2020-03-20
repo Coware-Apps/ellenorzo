@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { AbsencesPageRoutingModule } from './absences-routing.module';
+import { HomeSettingsPageRoutingModule } from './home-settings-routing.module';
 
-import { AbsencesPage } from './absences.page';
+import { HomeSettingsPage } from './home-settings.page';
 import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
@@ -14,9 +14,9 @@ import { TranslateModule } from '@ngx-translate/core';
     CommonModule,
     FormsModule,
     IonicModule,
-    AbsencesPageRoutingModule,
+    HomeSettingsPageRoutingModule,
     TranslateModule,
   ],
-  declarations: [AbsencesPage]
+  declarations: [HomeSettingsPage]
 })
-export class AbsencesPageModule { }
+export class HomeSettingsPageModule { }

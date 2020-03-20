@@ -71,8 +71,12 @@ export class TestsPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.testsSubscription.unsubscribe();
-    this.reloaderSubscription.unsubscribe();
+    if (this.testsSubscription != null) {
+      this.testsSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   async doRefresh(event: any) {

@@ -27,8 +27,7 @@
     </ion-select-option>
   </ion-select>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots"
-      refreshingText="Adatok frissítése...">
+    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots">
     </ion-refresher-content>
   </ion-refresher>
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">

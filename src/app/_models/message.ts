@@ -23,7 +23,10 @@ export class Message {
                 rovidNev: string;
             };
         }[];
-        csatolmanyok: any[];
+        csatolmanyok: {
+            azonosito: number,
+            fajlNev: string
+        }[];
         feladoNev: string;
         feladoTitulus: string;
         kuldesDatum: Date;

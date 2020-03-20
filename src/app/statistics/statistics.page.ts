@@ -123,8 +123,12 @@ export class StatisticsPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.studentSubscription.unsubscribe();
-    this.reloaderSubscription.unsubscribe();
+    if (this.studentSubscription != null) {
+      this.studentSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   async ionSlideWillChange() {

@@ -9,7 +9,9 @@
     <ion-buttons slot="end">
       <ion-button (click)="showPicker()">
         <ion-icon slot="start" name="color-palette"></ion-icon>
-        {{'pages.home.colorBtn' | translate}}
+      </ion-button>
+      <ion-button [disabled]="this.sans" (click)="goToHomeSettings()">
+        <ion-icon slot="start" name="options"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
@@ -19,32 +21,36 @@
 <ion-content>
   <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
     <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
-      refreshingSpinner="dots" refreshingText="{{'components.refresher.refreshingText' | translate}}">
+      refreshingSpinner="dots">
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
-    <div *ngFor="let monthlyGrades of this.formattedStudent | async">
+    <div *ngFor="let monthlyGrades of this.formattedCombined | async">
       <ion-item button (click)="showOrHideMonth(monthlyGrades)">
         <ion-icon *ngIf="!monthlyGrades.showAll" slot="start" name="chevron-forward"></ion-icon>
         <ion-icon *ngIf="monthlyGrades.showAll" slot="start" name="chevron-down"></ion-icon>
         <ion-label>{{monthlyGrades.header}}</ion-label>
         <ion-buttons slot="end">
-          <ion-button [disabled]="!monthlyGrades.showAll"
+          <ion-button *ngIf="isRequestEnabled('Student')" [disabled]="!monthlyGrades.showAll"
             (click)="showOrHide('evaluations', monthlyGrades);$event.stopPropagation();">
             <ion-icon slot="icon-only" [color]="monthlyGrades.showEvaluations ? 'primary' : 'dark'"
               name="school-outline">
             </ion-icon>
           </ion-button>
-          <ion-button [disabled]="!monthlyGrades.showAll"
+          <ion-button *ngIf="isRequestEnabled('Student')" [disabled]="!monthlyGrades.showAll"
             (click)="showOrHide('absences', monthlyGrades);$event.stopPropagation();">
             <ion-icon slot="icon-only" [color]="monthlyGrades.showAbsences ? 'primary' : 'dark'"
               name="calendar-outline">
             </ion-icon>
           </ion-button>
-          <ion-button [disabled]="!monthlyGrades.showAll"
-            (click)="showOrHide('notes', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showNotes ? 'primary' : 'dark'"
-              name="document-text-outline">
+          <ion-button *ngIf="isRequestEnabled('Events') || isRequestEnabled('Student') || isRequestEnabled('Tests')"
+            [disabled]="!monthlyGrades.showAll" (click)="showOrHide('docs', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showDocs ? 'primary' : 'dark'" name="documents-outline">
+            </ion-icon>
+          </ion-button>
+          <ion-button *ngIf="isRequestEnabled('MessageList')" [disabled]="!monthlyGrades.showAll"
+            (click)="showOrHide('messages', monthlyGrades);$event.stopPropagation();">
+            <ion-icon slot="icon-only" [color]="monthlyGrades.showMessages ? 'primary' : 'dark'" name="chatbox-outline">
             </ion-icon>
           </ion-button>
         </ion-buttons>
@@ -56,25 +62,18 @@
           (click)="getMoreData(item)"
           [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.NumberValue, item.Form)">
           <ion-card-content>
-            <div *ngIf="item.NumberValue == 0 then thenblock else elseblock"></div>
-            <!-- NumberValue == 0 -->
-            <ng-template #thenblock>
-              <div class="evaluationH1" style="float: right">
-                <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'">-</h1>
-                <ion-buttons *ngIf="item.Form == 'Text'" slot="end">
-                  <ion-button>
-                    <ion-icon slot="icon-only" name="text"></ion-icon>
-                  </ion-button>
-                </ion-buttons>
-              </div>
-            </ng-template>
-            <!-- NumberValue != 0 -->
-            <ng-template #elseblock>
-              <div class="evaluationDiv" style="float: right;">
-                <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'" slot="start">{{item.NumberValue}}</h1>
-                <h1 class="evaluationH1" *ngIf="item.Form == 'Percent'" slot="start">{{item.NumberValue}}%</h1>
-              </div>
-            </ng-template>
+            <div *ngIf="item.NumberValue == 0" class="evaluationH1" style="float: right">
+              <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'">-</h1>
+              <ion-buttons *ngIf="item.Form == 'Text'" slot="end">
+                <ion-button>
+                  <ion-icon slot="icon-only" name="text"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+            </div>
+            <div *ngIf="item.NumberValue != 0" class="evaluationDiv" style="float: right;">
+              <h1 class="evaluationH1" *ngIf="item.Form == 'Mark'" slot="start">{{item.NumberValue}}</h1>
+              <h1 class="evaluationH1" *ngIf="item.Form == 'Percent'" slot="start">{{item.NumberValue}}%</h1>
+            </div>
             <ion-label>
               <h1>{{item.Subject}} <small>{{item.Weight}}</small></h1>
 
@@ -103,19 +102,70 @@
           </ion-label>
         </ion-item>
         <!-- Note -->
-        <div>
-          <ion-card button *ngIf="item.NoteId != null && !(!monthlyGrades.showNotes || !monthlyGrades.showAll)"
-            (click)="getMoreData(item)">
-            <ion-card-header>
-              <ion-card-subtitle>{{item.Teacher}} - {{this.fDate.formatDateWithZerosAndDots(item.CreatingTime)}}
-              </ion-card-subtitle>
-              <ion-card-title>{{item.Title}}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content class="selectableText">
+        <ion-card button *ngIf="item.NoteId != null && !(!monthlyGrades.showDocs || !monthlyGrades.showAll)">
+          <ion-card-header (click)="getMoreData(item)">
+            <ion-icon class="categoryIcon" name="document-text-outline"></ion-icon>
+            <ion-card-subtitle>{{item.Teacher}} - {{this.fDate.formatDateWithZerosAndDots(item.CreatingTime)}}
+            </ion-card-subtitle>
+            <ion-card-title>{{item.Title}}</ion-card-title>
+          </ion-card-header>
+          <hr>
+          <div (click)="item.opened = !item.opened">
+            <ion-card-content *ngIf="!item.opened" class="selectableText">
+              {{getLongItemText(item.Content)}}
+              <p style="text-decoration: underline; text-align: center;">{{isOpenableNeeded(item.Content)}}</p>
+            </ion-card-content>
+            <ion-card-content *ngIf="item.opened" class="selectableText">
               {{item.Content}}
             </ion-card-content>
-          </ion-card>
-        </div>
+          </div>
+        </ion-card>
+        <!-- Event -->
+        <ion-card button *ngIf="item.EventId != null && !(!monthlyGrades.showDocs || !monthlyGrades.showAll)">
+          <ion-card-header>
+            <ion-icon class="categoryIcon" name="document-attach-outline"></ion-icon>
+            <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(item.Date)}}</ion-card-subtitle>
+            <ion-card-title>{{item.Title}}</ion-card-title>
+          </ion-card-header>
+          <hr>
+          <div (click)="item.opened = !item.opened">
+            <ion-card-content *ngIf="!item.opened" class="selectableText">
+              {{getLongItemText(item.Content)}}
+              <p style="text-decoration: underline; text-align: center;">{{isOpenableNeeded(item.Content)}}</p>
+            </ion-card-content>
+            <ion-card-content *ngIf="item.opened" class="selectableText">
+              {{item.Content}}
+            </ion-card-content>
+          </div>
+        </ion-card>
+        <!-- Test -->
+        <ion-card *ngIf="item.Id != null && !(!monthlyGrades.showDocs || !monthlyGrades.showAll)">
+          <ion-card-header>
+            <ion-icon class="categoryIcon" src="/assets/extraicons/test.svg"></ion-icon>
+            <ion-card-subtitle>{{item.Tanar}} - {{this.fDate.formatDateWithZerosAndDots(item.Datum)}}
+              ({{item.HetNapja}})
+            </ion-card-subtitle>
+            <ion-card-title class="selectableText">
+              {{item.SzamonkeresMegnevezese == '' ? '-' : item.SzamonkeresMegnevezese}}</ion-card-title>
+            <ion-card-subtitle>{{item.SzamonkeresModja}}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content class="subject">
+            <h2>{{item.Tantargy}}</h2>
+          </ion-card-content>
+        </ion-card>
+        <!-- Message -->
+        <ion-card *ngIf="item.azonosito != null && !(!monthlyGrades.showMessages || !monthlyGrades.showAll)" button
+          [ngClass]="{'unread': !item.isElolvasva}" (click)="openMessage(item)">
+          <ion-card-header>
+            <ion-icon class="categoryIcon" name="chatbox-outline"></ion-icon>
+            <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(item.uzenet.kuldesDatum)}} -
+              {{this.fDate.getTime(item.uzenet.kuldesDatum)}}</ion-card-subtitle>
+            <ion-card-title>{{item.uzenet.feladoNev}}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            {{item.uzenet.targy}}
+          </ion-card-content>
+        </ion-card>
       </div>
     </div>
   </ion-list>

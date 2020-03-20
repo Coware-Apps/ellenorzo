@@ -89,8 +89,12 @@ export class AveragesPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.studentSubscription.unsubscribe();
-    this.reloaderSubscription.unsubscribe();
+    if (this.studentSubscription != null) {
+      this.studentSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   async showModal(subject: string, classValue: number, student: Student) {

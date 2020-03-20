@@ -7,7 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: HomePage
+  },  {
+    path: 'home-settings',
+    loadChildren: () => import('./home-settings/home-settings.module').then( m => m.HomeSettingsPageModule)
   }
+
 ];
 
 @NgModule({

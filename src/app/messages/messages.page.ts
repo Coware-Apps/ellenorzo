@@ -72,8 +72,12 @@ export class MessagesPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.messageListSubscription.unsubscribe();
-    this.reloaderSubscription.unsubscribe();
+    if (this.messageListSubscription != null) {
+      this.messageListSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   async doRefresh(event: any) {
@@ -85,6 +89,7 @@ export class MessagesPage implements OnInit {
   async openMessage(message: Message) {
     if (!message.isElolvasva) {
       await this.userManager.currentUser.setMessageAsRead(message.uzenet.azonosito);
+      await this.userManager.currentUser.clearUserCacheByCategory('messageList');
     }
     this.dataService.setData('messageId', message.azonosito);
     this.router.navigateByUrl('/messages/read-message');

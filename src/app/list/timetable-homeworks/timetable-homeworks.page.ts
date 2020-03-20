@@ -95,7 +95,7 @@ export class TimetableHomeworksPage implements OnInit {
   }
 
   async goBack() {
-    await this.userManager.currentUser.clearLessonCache();
+    await this.userManager.currentUser.clearUserCacheByCategory("lesson");
     this.router.navigateByUrl(this.fromRoute);
   }
 
