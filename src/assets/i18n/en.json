@@ -4,7 +4,8 @@
             "title": "Home",
             "colorBtn": "Colors",
             "readMoreText": "More...",
-            "noDataText": "No data to show."
+            "noDataText": "No data to show.",
+            "filterText": "Filter"
         },
         "evaluations": {
             "title": "Evaluations",

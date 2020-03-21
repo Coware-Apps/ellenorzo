@@ -25,40 +25,38 @@
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
+    <ion-item *ngIf="!this.isEmpty">
+      <ion-label>{{'pages.home.filterText' | translate}}</ion-label>
+      <ion-buttons slot="end">
+        <ion-button *ngIf="isRequestEnabled('Student')" (click)="showOrHide('showEvaluations')">
+          <ion-icon slot="icon-only" [color]="showEvaluations ? 'primary' : 'dark'" name="school-outline">
+          </ion-icon>
+        </ion-button>
+        <ion-button *ngIf="isRequestEnabled('Student')" (click)="showOrHide('showAbsences')">
+          <ion-icon slot="icon-only" [color]="showAbsences ? 'primary' : 'dark'" name="calendar-outline">
+          </ion-icon>
+        </ion-button>
+        <ion-button *ngIf="isRequestEnabled('Events') || isRequestEnabled('Student') || isRequestEnabled('Tests')"
+          (click)="showOrHide('showDocs')">
+          <ion-icon slot="icon-only" [color]="showDocs ? 'primary' : 'dark'" name="documents-outline">
+          </ion-icon>
+        </ion-button>
+        <ion-button *ngIf="isRequestEnabled('MessageList')" (click)="showOrHide('showMessages')">
+          <ion-icon slot="icon-only" [color]="showMessages ? 'primary' : 'dark'" name="chatbox-outline">
+          </ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
     <div *ngFor="let monthlyGrades of this.formattedCombined | async">
       <ion-item button (click)="showOrHideMonth(monthlyGrades)">
         <ion-icon *ngIf="!monthlyGrades.showAll" slot="start" name="chevron-forward"></ion-icon>
         <ion-icon *ngIf="monthlyGrades.showAll" slot="start" name="chevron-down"></ion-icon>
         <ion-label>{{monthlyGrades.header}}</ion-label>
-        <ion-buttons slot="end">
-          <ion-button *ngIf="isRequestEnabled('Student')" [disabled]="!monthlyGrades.showAll"
-            (click)="showOrHide('evaluations', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showEvaluations ? 'primary' : 'dark'"
-              name="school-outline">
-            </ion-icon>
-          </ion-button>
-          <ion-button *ngIf="isRequestEnabled('Student')" [disabled]="!monthlyGrades.showAll"
-            (click)="showOrHide('absences', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showAbsences ? 'primary' : 'dark'"
-              name="calendar-outline">
-            </ion-icon>
-          </ion-button>
-          <ion-button *ngIf="isRequestEnabled('Events') || isRequestEnabled('Student') || isRequestEnabled('Tests')"
-            [disabled]="!monthlyGrades.showAll" (click)="showOrHide('docs', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showDocs ? 'primary' : 'dark'" name="documents-outline">
-            </ion-icon>
-          </ion-button>
-          <ion-button *ngIf="isRequestEnabled('MessageList')" [disabled]="!monthlyGrades.showAll"
-            (click)="showOrHide('messages', monthlyGrades);$event.stopPropagation();">
-            <ion-icon slot="icon-only" [color]="monthlyGrades.showMessages ? 'primary' : 'dark'" name="chatbox-outline">
-            </ion-icon>
-          </ion-button>
-        </ion-buttons>
       </ion-item>
       <div *ngFor="let item of monthlyGrades.data">
         <!-- Evaluation -->
         <ion-card class="evaluationCard" button
-          *ngIf="item.EvaluationId != null && item.Type == 'MidYear' && !(!monthlyGrades.showEvaluations || !monthlyGrades.showAll)"
+          *ngIf="item.EvaluationId != null && item.Type == 'MidYear' && !(!showEvaluations || !monthlyGrades.showAll)"
           (click)="getMoreData(item)"
           [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.NumberValue, item.Form)">
           <ion-card-content>
@@ -86,7 +84,7 @@
           </ion-card-content>
         </ion-card>
         <!-- Absence -->
-        <ion-item button *ngIf="item.AbsenceId != null && !(!monthlyGrades.showAbsences || !monthlyGrades.showAll)"
+        <ion-item button *ngIf="item.AbsenceId != null && !(!showAbsences || !monthlyGrades.showAll)"
           (click)="getMoreData(item)">
           <ion-icon slot="start"
             [name]="item.JustificationState == 'Justified' ? 'checkmark-done' : item.JustificationState == 'BeJustified' ? 'warning' : 'close'"
@@ -102,7 +100,7 @@
           </ion-label>
         </ion-item>
         <!-- Note -->
-        <ion-card button *ngIf="item.NoteId != null && !(!monthlyGrades.showDocs || !monthlyGrades.showAll)">
+        <ion-card button *ngIf="item.NoteId != null && !(!showDocs || !monthlyGrades.showAll)">
           <ion-card-header (click)="getMoreData(item)">
             <ion-icon class="categoryIcon" name="document-text-outline"></ion-icon>
             <ion-card-subtitle>{{item.Teacher}} - {{this.fDate.formatDateWithZerosAndDots(item.CreatingTime)}}
@@ -121,7 +119,7 @@
           </div>
         </ion-card>
         <!-- Event -->
-        <ion-card button *ngIf="item.EventId != null && !(!monthlyGrades.showDocs || !monthlyGrades.showAll)">
+        <ion-card button *ngIf="item.EventId != null && !(!showDocs || !monthlyGrades.showAll)">
           <ion-card-header>
             <ion-icon class="categoryIcon" name="document-attach-outline"></ion-icon>
             <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(item.Date)}}</ion-card-subtitle>
@@ -139,7 +137,7 @@
           </div>
         </ion-card>
         <!-- Test -->
-        <ion-card *ngIf="item.Id != null && !(!monthlyGrades.showDocs || !monthlyGrades.showAll)">
+        <ion-card *ngIf="item.Id != null && !(!showDocs || !monthlyGrades.showAll)">
           <ion-card-header>
             <ion-icon class="categoryIcon" src="/assets/extraicons/test.svg"></ion-icon>
             <ion-card-subtitle>{{item.Tanar}} - {{this.fDate.formatDateWithZerosAndDots(item.Datum)}}
@@ -154,7 +152,7 @@
           </ion-card-content>
         </ion-card>
         <!-- Message -->
-        <ion-card *ngIf="item.azonosito != null && !(!monthlyGrades.showMessages || !monthlyGrades.showAll)" button
+        <ion-card *ngIf="item.azonosito != null && !(!showMessages || !monthlyGrades.showAll)" button
           [ngClass]="{'unread': !item.isElolvasva}" (click)="openMessage(item)">
           <ion-card-header>
             <ion-icon class="categoryIcon" name="chatbox-outline"></ion-icon>

@@ -4,7 +4,8 @@
             "title": "Főoldal",
             "colorBtn": "Színek",
             "readMoreText": "Tovább...",
-            "noDataText": "Nincsenek rögzített adatok."
+            "noDataText": "Nincsenek rögzített adatok.",
+            "filterText": "Szűrés"
         },
         "evaluations": {
             "title": "Értékelések",

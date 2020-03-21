@@ -24,20 +24,22 @@ import { DataService } from '../_services/data.service';
   styleUrls: ['home.page.scss']
 })
 export class HomePage {
-  //i would use list here but fuck me, this is typescript
-  public monthlyEvaluations: Array<evaluation>;
-  public tokens: Token;
-  public access_token: string;
   public monthlyAverage: any;
   public sans: boolean = true;
   public thisMonth: number;
-  public monthsName: string[];
+  public monthNames: string[];
   public showingMonth: number;
   public allData: Array<any>;
   public showProgressBar: boolean;
   public formattedCombined: Observable<CollapsibleCombined[]>;
   public unsubOnLeave = true;
   public isEmpty: boolean = false;
+
+  //categories
+  showEvaluations: boolean = true;
+  showAbsences: boolean = true;
+  showDocs: boolean = true;
+  showMessages: boolean = true;
 
   private combinedSubscription: Subscription;
   private reloaderSubscription: Subscription;
@@ -70,7 +72,7 @@ export class HomePage {
   ) {
     this.allData = [];
     this.thisMonth = new Date().getMonth();
-    this.monthsName = this.translator.instant("dates.monthNames");
+    this.monthNames = this.translator.instant("dates.monthNames");
     this.sans = true;
     this.showProgressBar = true;
   }
@@ -217,13 +219,9 @@ export class HomePage {
 
         allDataByMonths.push({
           index: i,
-          header: this.monthsName[month],
+          header: this.monthNames[month],
           data: monthlyData,
           firstEntryCreatingTime: new Date(this.getDateField(monthlyData[monthlyData.length - 1])).valueOf(),
-          showEvaluations: true,
-          showAbsences: true,
-          showDocs: true,
-          showMessages: true,
           showAll: true,
         });
         i++;
@@ -256,16 +254,8 @@ export class HomePage {
       return item.Datum;
     }
   }
-  showOrHide(type: string, monthlyGrades: CollapsibleCombined) {
-    if (type == "evaluations") {
-      monthlyGrades.showEvaluations = monthlyGrades.showEvaluations ? false : true;
-    } else if (type == "absences") {
-      monthlyGrades.showAbsences = monthlyGrades.showAbsences ? false : true;
-    } else if (type == "docs") {
-      monthlyGrades.showDocs = monthlyGrades.showDocs ? false : true;
-    } else if (type == "messages") {
-      monthlyGrades.showMessages = monthlyGrades.showMessages ? false : true;
-    }
+  showOrHide(cat: string) {
+    this[cat] = !this[cat];
   }
   showOrHideMonth(monthlyGrades: CollapsibleStudent) {
     monthlyGrades.showAll = monthlyGrades.showAll == true ? false : true;
