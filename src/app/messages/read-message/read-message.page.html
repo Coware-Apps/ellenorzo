@@ -28,6 +28,7 @@
     <ion-item button (click)="getFile(f.azonosito, f.fajlNev)" *ngFor="let f of message.uzenet.csatolmanyok">
       <ion-icon slot="start" name="attach-outline"></ion-icon>
       <ion-label>{{f.fajlNev}}</ion-label>
+      <ion-spinner *ngIf="f.loading == true" slot="end" style="float: right" name="crescent"></ion-spinner>
     </ion-item>
   </ion-list>
   <ion-card *ngIf="sans">

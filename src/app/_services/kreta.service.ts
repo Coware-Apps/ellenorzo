@@ -840,21 +840,23 @@ export class KretaService {
     let fileTransfer = this.transfer.create();
     let uri = `https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/dokumentumok/uzenetek/${fileId}`;
     let fullFileName = fileName + '.' + fileExtension;
-    let url = "";
     try {
-      let entry = await fileTransfer.download(
-        uri,
-        this.file.dataDirectory + fullFileName,
-        false,
-        {
-          headers: {
-            "Authorization": `Bearer ${tokens.access_token}`,
-            "User-Agent": this.app.userAgent,
+      let url
+      await this.platform.ready().then(async x => {
+        let entry = await fileTransfer.download(
+          uri,
+          await this.getDownloadPath() + fullFileName,
+          false,
+          {
+            headers: {
+              "Authorization": `Bearer ${tokens.access_token}`,
+              "User-Agent": this.app.userAgent,
+            }
           }
-        }
-      )
-      console.log('entry', entry);
-      url = entry.nativeURL;
+        )
+        console.log('entry', entry);
+        url = entry.nativeURL;
+      });
       return url;
     } catch (error) {
       console.error('Error trying to get file', error);
@@ -869,7 +871,7 @@ export class KretaService {
     await this.androidPermissions.checkPermission(this.androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE).then(
       result => {
         if (!result.hasPermission) {
-          return this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE);
+          this.androidPermissions.requestPermission(this.androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE);
         }
       }
     );

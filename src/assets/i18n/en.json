@@ -434,7 +434,8 @@
                 "401": "Invalid credentials!",
                 "defaultServerSide": "The KRÉTA server doesn't respond.",
                 "defaultClientSide": "An unknown error occured ({{error}})"
-            }
+            },
+            "cantDownloadText": "Couldn't download {{fileName}}."
         },
         "prompt": {
             "wrongText": "Incorrect text!",

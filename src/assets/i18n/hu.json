@@ -434,7 +434,8 @@
                 "401": "Hibás bejelentkezési adatok!",
                 "defaultServerSide": "A KRÉTA szerver nem válaszol!",
                 "defaultClientSide": "Ismeretlen hiba történt! ({{error}})"
-            }
+            },
+            "cantDownloadText": "A következő fájl letöltése sikertelen volt: {{fileName}}"
         },
         "prompt": {
             "wrongText": "Hibás szöveg!",

@@ -25,7 +25,8 @@ export class Message {
         }[];
         csatolmanyok: {
             azonosito: number,
-            fajlNev: string
+            fajlNev: string,
+            loading?: boolean,
         }[];
         feladoNev: string;
         feladoTitulus: string;
