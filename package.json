@@ -1,6 +1,6 @@
 {
   "name": "arisztokreta",
-  "version": "1.0.8",
+  "version": "1.1.2",
   "author": "Coware",
   "homepage": "https://coware-apps.github.io/ellenorzo/",
   "scripts": {
@@ -29,7 +29,6 @@
     "@ionic-native/file-transfer": "^5.22.0",
     "@ionic-native/firebase-x": "^5.21.5",
     "@ionic-native/http": "^5.21.1",
-    "@ionic-native/in-app-browser": "^5.21.1",
     "@ionic-native/is-debug": "^5.21.1",
     "@ionic-native/local-notifications": "^5.21.2",
     "@ionic-native/splash-screen": "^5.21.1",
@@ -52,7 +51,6 @@
     "cordova-plugin-file-opener2": "^3.0.0",
     "cordova-plugin-file-transfer": "^1.7.1",
     "cordova-plugin-firebasex": "^7.0.2",
-    "cordova-plugin-inappbrowser": "^3.2.0",
     "cordova-plugin-is-debug": "^1.0.0",
     "cordova-plugin-local-notification": "git+https://github.com/Coware-Apps/cordova-plugin-local-notifications.git",
     "cordova-plugin-localization-strings": "3.2.1",
@@ -118,7 +116,6 @@
       "cordova-plugin-file": {},
       "cordova-plugin-save-image-gallery": {},
       "cordova-base64-to-gallery": {},
-      "cordova-plugin-inappbrowser": {},
       "cordova-plugin-app-version": {},
       "cordova-plugin-firebasex": {
         "FIREBASE_ANALYTICS_COLLECTION_ENABLED": "true",

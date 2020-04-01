@@ -5,6 +5,7 @@ import { LocalNotifications, ILocalNotification } from '@ionic-native/local-noti
 import { Router } from '@angular/router';
 import { Lesson } from '../_models/lesson';
 import { TranslateService } from '@ngx-translate/core';
+import { Platform } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class NotificationService {
     private localNotifications: LocalNotifications,
     private router: Router,
     private translator: TranslateService,
+    private plt: Platform,
   ) { }
 
   public subscribeToLocalNotifications() {
@@ -34,7 +36,7 @@ export class NotificationService {
     console.log('notificationTexts', notificationTexts);
     lessons.forEach(lesson => {
       //10 minutes before the lesson
-      let triggerTime = new Date(new Date(lesson.StartTime).getTime() - 600000);
+      let triggerTime = new Date(this.fDate.returnCorrectTime(lesson.StartTime).getTime() - 600000);
       let stateNameIf = lesson.StateName ==
         'Elmaradt Tanóra' ?
         ` (${notificationTexts['canceledText']})` : lesson.DeputyTeacher != '' ?

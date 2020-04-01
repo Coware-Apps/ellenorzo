@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { AlertController, ModalController, MenuController, LoadingController } from '@ionic/angular';
-import { InAppBrowser, InAppBrowserOptions } from '@ionic-native/in-app-browser/ngx';
 import { InstituteSelectorModalPage } from './institute-selector-modal/institute-selector-modal.page';
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
@@ -29,7 +28,6 @@ export class LoginPage implements OnInit {
     public userManager: UserManagerService,
     public router: Router,
 
-    private browser: InAppBrowser,
     private kreta: KretaService,
     private data: DataService,
     private menuCtrl: MenuController,
@@ -80,6 +78,7 @@ export class LoginPage implements OnInit {
           if (this.userManager.allUsers.length > 1) {
             this.data.setData('refreshHome', true);
           }
+          console.log('navigating to home now');
           await this.router.navigateByUrl('home');
         } else {
           //the user already exists
@@ -119,13 +118,6 @@ export class LoginPage implements OnInit {
     });
 
     await alert.present();
-  }
-
-  openWebpage(url: string) {
-    const options: InAppBrowserOptions = {
-      zoom: 'no'
-    }
-    const browser = this.browser.create(url, '_self', options);
   }
 
 

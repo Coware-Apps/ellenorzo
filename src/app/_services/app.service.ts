@@ -6,6 +6,8 @@ import { WebUser } from '../_models/webUser';
 import { TranslateService } from '@ngx-translate/core';
 import { registerLocaleData } from '@angular/common';
 import { AppVersion } from '@ionic-native/app-version/ngx';
+import { HTTP } from '@ionic-native/http/ngx';
+import { Platform } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -94,6 +96,8 @@ export class AppService {
     private storage: Storage,
     private translator: TranslateService,
     private appVersion: AppVersion,
+    private http: HTTP,
+    private platform: Platform,
   ) {
     this.appPages = [{
       title: 'Főoldal',
@@ -195,11 +199,11 @@ export class AppService {
       translatorVal: 'pages.settings.title'
     }];
     this.toastLoggingEnabled = false;
-    this.getStockUserAgent();
   }
 
   public async onInit() {
     try {
+      await this.getStockUserAgent();
       let configs = await Promise.all([
         this.appVersion.getVersionNumber(),
         this.storage.get('analyticsCollectionEnabled'),
@@ -255,13 +259,20 @@ export class AppService {
     this[configKey] = value;
     await this.storage.set(configKey, JSON.stringify(value));
   }
-  public getStockUserAgent() {
+  public async getStockUserAgent() {
     //this.userAgent = 'Kreta.Ellenorzo/2.9.8.2020012301 (Android; SM-G950F 0.0)'
     //this.userAgent = 'x.x/0 (Android)'
     //response time about 2000-10000ms per request
     //this.userAgent = 'Dalvik/2.1.0 (Linux; U; Android 9; AM-GADDF Build/PPR1.180610.011)';
-    this.userAgent = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android)';
-    return 'Kreta.Ellenorzo/2.9.9.2020022101 (Android)';
+    let userAgent = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android 0.0)';
+    try {
+      let result = await this.http.get('https://raw.githubusercontent.com/Coware-Apps/ellenorzo/master/docs/config.json', null, null);
+      userAgent = JSON.parse(result.data).userAgent;
+    } catch (error) {
+      console.error("Error trying ot get user agent from server, using local");
+    }
+    this.userAgent = userAgent;
+    return userAgent;
   }
 
   //#region sidemenu

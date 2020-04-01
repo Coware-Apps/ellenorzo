@@ -18,9 +18,8 @@
         <ion-item style="text-align: center;" *ngIf="teacherHomeworks.length == 0 || areAllTeacherHomeworksEmpty()">
           <ion-label>{{'pages.timetable-homeworks.noHomeworksText' | translate}}</ion-label>
         </ion-item>
-        <ion-card [hidden]="homework.Szoveg == ''" button (click)="showInfo(homework)" class=" wide"
-          *ngFor="let homework of teacherHomeworks">
-          <ion-card-header>
+        <ion-card button [hidden]="homework.Szoveg == ''" class=" wide" *ngFor="let homework of teacherHomeworks">
+          <ion-card-header (click)="showInfo(homework)">
             <ion-buttons style="float: right;">
               <ion-button>
                 <ion-icon slot="icon-only" name="information-circle"></ion-icon>
@@ -32,10 +31,10 @@
               {{'pages.timetable-homeworks.teacherHomeworks.deadlineText' | translate}}
               {{homework.Hatarido.substring(0, 10)}}
             </ion-card-subtitle>
-            <ion-card-title>
-              <div [innerHTML]="homework.Szoveg"></div>
-            </ion-card-title>
           </ion-card-header>
+          <ion-card-content class="selectableText">
+            <div [innerHTML]="homework.Szoveg"></div>
+          </ion-card-content>
         </ion-card>
       </div>
 

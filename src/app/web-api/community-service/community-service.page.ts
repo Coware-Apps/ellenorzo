@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { WebApiService } from 'src/app/_services/web-api.service';
 import { KretaService } from 'src/app/_services/kreta.service';
 import { AppService } from 'src/app/_services/app.service';
-import { InAppBrowserOptions, InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { CommunityService } from 'src/app/_models/communityService';
 import { PromptService } from 'src/app/_services/prompt.service';
 import { PopoverController, ModalController } from '@ionic/angular';
@@ -34,7 +33,6 @@ export class CommunityServicePage implements OnInit {
     public kreta: KretaService,
     public prompt: PromptService,
 
-    private browser: InAppBrowser,
     private app: AppService,
     private modalCtrl: ModalController,
     private popoverCtrl: PopoverController,
@@ -93,11 +91,5 @@ export class CommunityServicePage implements OnInit {
     const { data } = await modal.onWillDismiss();
     if (data && data.selectedInstitute)
       this.instituteName = data.selectedInstitute.Name;
-  }
-  openWebpage(url: string) {
-    const options: InAppBrowserOptions = {
-      zoom: 'no'
-    }
-    const browser = this.browser.create(url, '_self', options);
   }
 }

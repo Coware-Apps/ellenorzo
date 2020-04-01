@@ -18,7 +18,7 @@ export class WebUser {
         this._instituteUrl = instituteUrl;
         this._username = username;
         this._password = password;
-        this._webApi = new WebApiService(this._http);
+        //this._webApi = new WebApiService(this._http);
     }
 
     public async login(): Promise<number> {

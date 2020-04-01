@@ -27,11 +27,11 @@ export class WebUserManagerService {
     this.user = this.app.webUser;
   }
   public async createUser(instituteUrl: string, username: string, password: string) {
-    this.user = this.userFactory.createWebUser(
-      instituteUrl,
-      username,
-      password
-    );
-    await this.app.changeConfigSaveJSON('webUser', this.user);
+    // this.user = this.userFactory.createWebUser(
+    //   instituteUrl,
+    //   username,
+    //   password
+    // );
+    // await this.app.changeConfigSaveJSON('webUser', this.user);
   }
 }

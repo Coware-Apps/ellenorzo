@@ -1,7 +1,7 @@
 import { Student, evaluation } from '../_models/student';
 import { Token } from '../_models/token';
 import { Router } from '@angular/router';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { KretaService } from '../_services/kreta.service';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { ColorService } from '../_services/color.service';
@@ -23,7 +23,7 @@ import { DataService } from '../_services/data.service';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss']
 })
-export class HomePage {
+export class HomePage implements OnInit, OnDestroy {
   public monthlyAverage: any;
   public sans: boolean = true;
   public thisMonth: number;
@@ -32,7 +32,6 @@ export class HomePage {
   public allData: Array<any>;
   public showProgressBar: boolean;
   public formattedCombined: Observable<CollapsibleCombined[]>;
-  public unsubOnLeave = true;
   public isEmpty: boolean = false;
 
   //categories
@@ -78,9 +77,11 @@ export class HomePage {
   }
 
   public async ngOnInit() {
+    console.log('ngOnInit called');
+    this.dataService.setData('refreshHome', false);
     this.menuCtrl.enable(true);
-    this.subscribeToData();
     this.subscribeToReloader();
+    this.subscribeToData();
     await this.loadData();
     this.firebase.setScreenName('home');
   }
@@ -88,7 +89,6 @@ export class HomePage {
     //optionally refreshing data
     if (this.dataService.getData('refreshHome') == true) {
       this.ngOnInit();
-      this.dataService.setData('refreshHome', false);
     }
   }
   private async loadData() {
@@ -149,16 +149,10 @@ export class HomePage {
       });
     }
   }
-  ionViewWillLeave() {
-    if (this.unsubOnLeave) {
-      if (this.combinedSubscription != null || !this.combinedSubscription.closed) {
-        this.combinedSubscription.unsubscribe();
-      }
-      if (this.reloaderSubscription != null || !this.reloaderSubscription.closed) {
-        this.reloaderSubscription.unsubscribe();
-      }
-    }
-    this.unsubOnLeave = true;
+  ngOnDestroy() {
+    console.log('ngOnDestroy, unsubscribing');
+    this.combinedSubscription.unsubscribe();
+    this.reloaderSubscription.unsubscribe();
   }
   async doRefresh(event: any) {
     this.subscribeToData();
@@ -311,11 +305,9 @@ export class HomePage {
     }
   }
   async showPicker() {
-    this.unsubOnLeave = false;
     this.navRouter.navigateByUrl('/color-picker?from=home');
   }
   goToHomeSettings() {
-    this.unsubOnLeave = false;
     this.router.navigateByUrl('home/home-settings');
   }
   async openMessage(message: Message) {

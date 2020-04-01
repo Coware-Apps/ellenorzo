@@ -37,9 +37,12 @@ export class ListPage implements OnInit {
   public focused: number;
   public currentDate: Date;
   public weekToFrom: string;
-  public currentWeekIndex;
   public message;
   public unfocusFooterButton: boolean;
+  weekFirst: Date;
+  weekLast: Date;
+  startingWeekFirst: Date;
+  startingWeekLast: Date;
   public days: day[] = [
     {
       name: this.translator.instant('dates.days.sunday.name'),
@@ -100,7 +103,6 @@ export class ListPage implements OnInit {
     private translator: TranslateService,
   ) {
     this.focused = 0;
-    this.currentWeekIndex = 0;
     this.message = "";
 
     this.theme.currentTheme.subscribe(theme => {
@@ -129,27 +131,31 @@ export class ListPage implements OnInit {
   }
 
   private async loadData() {
-    this.sans = true;
     let now = new Date();
     //getting the first day and last day to show
-    let weekFirst;
-    let weekLast;
     let today = now.getDay();
-    console.log("today", today);
     if (today == 0 || today == 6) {
-      weekFirst = this.fDate.getWeekFirst(1);
-      weekLast = this.fDate.getWeekLast(1);
+      this.weekFirst = new Date(this.fDate.getWeekFirstDate(1));
+      this.weekLast = new Date(this.fDate.getWeekLastDate(1));
+      this.startingWeekFirst = new Date(this.fDate.getWeekFirstDate(1));
+      this.startingWeekLast = new Date(this.fDate.getWeekLastDate(1));
       this.focused = 0;
     } else {
-      weekFirst = this.fDate.getWeekFirst();
-      weekLast = this.fDate.getWeekLast();
+      this.weekFirst = new Date(this.fDate.getWeekFirstDate());
+      this.weekLast = new Date(this.fDate.getWeekLastDate());
+      this.startingWeekFirst = new Date(this.fDate.getWeekFirstDate(0));
+      this.startingWeekLast = new Date(this.fDate.getWeekLastDate(0));
       this.focused = now.getDay() - 1;
     }
+    console.log(this.weekFirst + ' ' + this.weekLast);
 
+    this.sans = true;
     //getting the timetable data from the server
-    this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast);
-
-    this.dataToScreen(weekFirst, weekLast);
+    this.timetable = await this.userManager.currentUser.getLesson(
+      this.fDate.formatDate(this.weekFirst),
+      this.fDate.formatDate(this.weekLast)
+    );
+    this.dataToScreen(this.fDate.formatDate(this.weekFirst), this.fDate.formatDate(this.weekLast));
     this.sans = false;
     this.slides.slideTo(this.focused);
   }
@@ -176,9 +182,8 @@ export class ListPage implements OnInit {
   }
 
   getTime(StartTime: Date, EndTime: Date) {
-    let start = new Date(StartTime);
-    let end = new Date(EndTime);
-    return start.getHours() + ":" + (start.getMinutes() >= 10 ? start.getMinutes() : "0" + start.getMinutes()) + "-" + end.getHours() + ":" + (end.getMinutes() >= 10 ? end.getMinutes() : "0" + end.getMinutes());
+    let formatted = this.fDate.getTime(StartTime) + '-' + this.fDate.getTime(EndTime);
+    return formatted;
   }
 
   async ionSlideWillChange() {
@@ -205,18 +210,26 @@ export class ListPage implements OnInit {
 
   async getNextWeek() {
     this.sans = true;
-    this.currentWeekIndex++;
-    let weekFirst = this.fDate.getWeekFirst(this.currentWeekIndex);
-    let weekLast = this.fDate.getWeekLast(this.currentWeekIndex);
-
-    if (this.currentWeekIndex != 0) {
+    this.weekFirst.setDate(this.weekFirst.getDate() + 7);
+    this.weekLast.setDate(this.weekLast.getDate() + 7);
+    if (this.fDate.formatDate(this.weekFirst) != this.fDate.formatDate(this.startingWeekFirst)) {
       //not caching extra weeks (timetable requests are pretty quick, and there is an issue with the storage overfill on ionic :(  )
-      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast, true);
+      this.timetable = await this.userManager.currentUser.getLesson(
+        this.fDate.formatDate(this.weekFirst),
+        this.fDate.formatDate(this.weekLast),
+        true
+      );
     } else {
-      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast);
+      this.timetable = await this.userManager.currentUser.getLesson(
+        this.fDate.formatDate(this.weekFirst),
+        this.fDate.formatDate(this.weekLast),
+      );
     }
 
-    this.dataToScreen(weekFirst, weekLast);
+    this.dataToScreen(
+      this.fDate.formatDate(this.weekFirst),
+      this.fDate.formatDate(this.weekLast),
+    );
     this.focused = 0;
     this.slides.slideTo(this.focused);
     this.sans = false;
@@ -224,20 +237,26 @@ export class ListPage implements OnInit {
 
   async getPrevWeek() {
     this.sans = true;
-    this.currentWeekIndex--;
-    let weekFirst = this.fDate.getWeekFirst(this.currentWeekIndex);
-    let weekLast = this.fDate.getWeekLast(this.currentWeekIndex);
-
-    if (this.currentWeekIndex != 0) {
+    this.weekFirst.setDate(this.weekFirst.getDate() - 7);
+    this.weekLast.setDate(this.weekLast.getDate() - 7);
+    if (this.fDate.formatDate(this.weekFirst) != this.fDate.formatDate(this.startingWeekFirst)) {
       //not caching extra weeks (timetable requests are pretty quick, and there is an issue with the storage overfill on ionic :(  )
-      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast, true);
+      this.timetable = await this.userManager.currentUser.getLesson(
+        this.fDate.formatDate(this.weekFirst),
+        this.fDate.formatDate(this.weekLast),
+        true
+      );
     } else {
-      this.timetable = await this.userManager.currentUser.getLesson(weekFirst, weekLast);
+      this.timetable = await this.userManager.currentUser.getLesson(
+        this.fDate.formatDate(this.weekFirst),
+        this.fDate.formatDate(this.weekLast),
+      );
     }
 
-    console.log("timetable", this.timetable);
-
-    this.dataToScreen(weekFirst, weekLast);
+    this.dataToScreen(
+      this.fDate.formatDate(this.weekFirst),
+      this.fDate.formatDate(this.weekLast),
+    );
     this.focused = 0;
     this.slides.slideTo(this.focused);
     this.sans = false;
@@ -245,7 +264,11 @@ export class ListPage implements OnInit {
 
   dataToScreen(weekFirst: string, weekLast: string) {
     //getting the date that is shown in brackets in the header
-    this.weekToFrom = this.fDate.addZeroToNumber(weekFirst.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekFirst.split('-')[2]) + "-" + this.fDate.addZeroToNumber(weekLast.split('-')[1]) + '.' + this.fDate.addZeroToNumber(weekLast.split('-')[2]);
+    this.weekToFrom = this.fDate.addZeroToNumberByLength(
+      weekFirst.split('-')[1]) + '.' +
+      this.fDate.addZeroToNumberByLength(weekFirst.split('-')[2]) + "-" +
+      this.fDate.addZeroToNumberByLength(weekLast.split('-')[1]) + '.' +
+      this.fDate.addZeroToNumberByLength(weekLast.split('-')[2]);
     this.days.forEach(day => {
       day.show = false;
     });

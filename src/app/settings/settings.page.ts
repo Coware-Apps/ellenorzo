@@ -8,7 +8,6 @@ import { ColorService } from '../_services/color.service';
 import { AppService } from '../_services/app.service';
 import { KretaService } from '../_services/kreta.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { InAppBrowserOptions, InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -53,7 +52,6 @@ export class SettingsPage implements OnInit {
     private color: ColorService,
     private firebase: FirebaseX,
     private prompt: PromptService,
-    private inAppBrowser: InAppBrowser,
     private menuCtrl: MenuController,
     private translator: TranslateService,
     private userManager: UserManagerService,
@@ -206,13 +204,6 @@ export class SettingsPage implements OnInit {
 
   openNotificationSettings() {
     this.router.navigateByUrl('notification-settings');
-  }
-
-  openUrl(url: string) {
-    const options: InAppBrowserOptions = {
-      zoom: 'no'
-    }
-    const browser = this.inAppBrowser.create(url, '_self', options);
   }
 
   async versionClicked() {

@@ -277,7 +277,7 @@
             "instituteName": "Institute",
             "loginBtnText": "Sign in",
             "privacyPolicyText": "By clicking the sign in button and logging in I accept the Terms of Use and Privacy Policy",
-            "loadingText": "Communication in progress...",
+            "loadingText": "Initializing account for the first time...",
             "invalidGrant": {
                 "header": "Error",
                 "message": "Invalid username or password"
@@ -290,7 +290,8 @@
                 "header": "Error!",
                 "subHeader": "Incorrect data",
                 "message": "This user is already logged in on this device."
-            }
+            },
+            "filterInstitutesText": "Find your institute..."
         },
         "events": {
             "title": "Events",

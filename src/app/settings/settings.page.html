@@ -114,10 +114,13 @@
         slot="end">
       </ion-toggle>
     </ion-item>
-    <ion-item button (click)="this.openUrl('https://coware-apps.github.io/ellenorzo/privacy')">
-      <ion-icon slot="start" name="information-circle"></ion-icon>
-      <ion-label>{{'pages.settings.dataHandling.privacyPolicyName' | translate}}</ion-label>
-    </ion-item>
+    <a style="text-decoration: none;" href="https://arisztokreta.hu/privacy">
+      <ion-item button>
+        <ion-icon slot="start" name="information-circle"></ion-icon>
+        <ion-label>{{'pages.settings.dataHandling.privacyPolicyName' | translate}}</ion-label>
+      </ion-item>
+    </a>
+
 
     <ion-item-divider [hidden]="!this.app.devSettingsEnabled">
       <ion-label>
@@ -156,18 +159,24 @@
         <h1>{{'pages.settings.application.title' | translate}}</h1>
       </ion-label>
     </ion-item-divider>
-    <ion-item button (click)="openUrl('https://github.com/Coware-Apps/ellenorzo/issues/new')">
-      <ion-icon slot="start" name="bug-sharp"></ion-icon>
-      <ion-label>{{'pages.settings.application.reportErrorName' | translate}}</ion-label>
-    </ion-item>
-    <ion-item button (click)="openUrl('https://github.com/Coware-Apps/ellenorzo')">
-      <ion-icon slot="start" name="logo-github"></ion-icon>
-      <ion-label>{{'pages.settings.application.seeSourceCodeName' | translate}}</ion-label>
-    </ion-item>
-    <ion-item button (click)="openUrl('https://documenter.getpostman.com/view/10379752/SzKPULz6')">
-      <ion-icon slot="start" name="cloud-sharp"></ion-icon>
-      <ion-label>{{'pages.settings.application.documentationName' | translate}}</ion-label>
-    </ion-item>
+    <a style="text-decoration: none;" href="https://github.com/Coware-Apps/ellenorzo/issues/new">
+      <ion-item button>
+        <ion-icon slot="start" name="bug-sharp"></ion-icon>
+        <ion-label>{{'pages.settings.application.reportErrorName' | translate}}</ion-label>
+      </ion-item>
+    </a>
+    <a style="text-decoration: none;" href="https://github.com/Coware-Apps/ellenorzo">
+      <ion-item button>
+        <ion-icon slot="start" name="logo-github"></ion-icon>
+        <ion-label>{{'pages.settings.application.seeSourceCodeName' | translate}}</ion-label>
+      </ion-item>
+    </a>
+    <a style="text-decoration: none;" href="https://documenter.getpostman.com/view/10379752/SzKPULz6">
+      <ion-item button>
+        <ion-icon slot="start" name="cloud-sharp"></ion-icon>
+        <ion-label>{{'pages.settings.application.documentationName' | translate}}</ion-label>
+      </ion-item>
+    </a>
     <ion-item button (click)="this.versionClicked()">
       <ion-icon slot="start" name="code-working-sharp"></ion-icon>
       <ion-label slot="start">{{this.app.appV}}</ion-label>

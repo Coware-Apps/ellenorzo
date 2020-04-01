@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ConvertActionBindingResult } from '@angular/compiler/src/compiler_util/expression_converter';
+import { Platform } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -80,25 +81,38 @@ export class FormattedDateService {
   }
 
   getWeekFirst(extraWeeks: number = 0) {
-    let date = new Date();
+    var date = new Date();
     date.setDate(date.getDate() + extraWeeks * 7);
-    date.setDate(date.getDate() - date.getDay() + 1);
-
-    let month = date.getMonth() + 1;
-
-    return (date.getFullYear() + "-" + month + "-" + parseInt(date.toString().split(" ")[2]));
+    var day = date.getDay();
+    let returndate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + (day == 0 ? -6 : 1) - day);
+    let month = returndate.getMonth() + 1;
+    return (returndate.getFullYear() + "-" + month + "-" + parseInt(returndate.toString().split(" ")[2]));
   }
 
   getWeekLast(extraWeeks: number = 0) {
-    let date = new Date();
+    var date = new Date();
     date.setDate(date.getDate() + extraWeeks * 7);
-    date.setDate(date.getDate() + (7 - date.getDay()));
-
-    let month = date.getMonth() + 1;
-
-    return (date.getFullYear() + "-" + month + "-" + parseInt(date.toString().split(" ")[2]));
+    var day = date.getDay();
+    let returndate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + (day == 0 ? 0 : 7) - day);
+    let month = returndate.getMonth() + 1;
+    return (returndate.getFullYear() + "-" + month + "-" + parseInt(returndate.toString().split(" ")[2]));
   }
 
+  getWeekFirstDate(extraWeeks: number = 0) {
+    var date = new Date();
+    date.setDate(date.getDate() + extraWeeks * 7);
+    var day = date.getDay();
+    let returndate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + (day == 0 ? -6 : 1) - day);
+    return returndate;
+  }
+
+  getWeekLastDate(extraWeeks: number = 0) {
+    var date = new Date();
+    date.setDate(date.getDate() + extraWeeks * 7);
+    var day = date.getDay();
+    let returndate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + (day == 0 ? 0 : 7) - day);
+    return returndate;
+  }
   getWeekLastUTC(extraWeeks: number = 0): string {
     //gives back sunday, 23:00 of the current week in UTC string format
     let date = new Date();
@@ -125,7 +139,7 @@ export class FormattedDateService {
     }
   }
 
-  private addZeroToNumberByLength(n: number | string) {
+  public addZeroToNumberByLength(n: number | string) {
     if (n.toString().length < 2) {
       return "0" + n;
     } else {
@@ -134,14 +148,22 @@ export class FormattedDateService {
   }
 
   getTimetableTime(StartTime: Date, EndTime: Date) {
-    let start = new Date(StartTime);
-    let end = new Date(EndTime);
+    let start = this.returnCorrectTime(StartTime);
+    let end = this.returnCorrectTime(EndTime);
     return start.getHours() + ":" + (start.getMinutes() >= 10 ? start.getMinutes() : "0" + start.getMinutes()) + "-" + end.getHours() + ":" + (end.getMinutes() >= 10 ? end.getMinutes() : "0" + end.getMinutes());
   }
 
   getTime(d: Date) {
-    let date = new Date(d);
+    let date = this.returnCorrectTime(d);
     return date.getHours() + ":" + (date.getMinutes() >= 10 ? date.getMinutes() : "0" + date.getMinutes());
+  }
+
+  returnCorrectTime(d: Date) {
+    let date = new Date(d);
+    if (this.plt.is('ios')) {
+      date.setHours(new Date(date.getTime()).getHours() + date.getTimezoneOffset() / 60)
+    }
+    return date;
   }
 
   getWeek(d: Date) {
@@ -151,5 +173,5 @@ export class FormattedDateService {
   }
 
 
-  constructor() { }
+  constructor(private plt: Platform) { }
 }

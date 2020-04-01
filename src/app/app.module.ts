@@ -13,7 +13,6 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { Student } from './_models/student';
 import { HTTP } from '@ionic-native/http/ngx';
 import { Camera } from '@ionic-native/camera/ngx';
-import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { IsDebug } from '@ionic-native/is-debug/ngx';
@@ -53,7 +52,6 @@ export function translateLoaderFactory(http: HttpClient) {
     Student,
     Camera,
     HTTP,
-    InAppBrowser,
     FirebaseX,
     IsDebug,
     LocalNotifications,

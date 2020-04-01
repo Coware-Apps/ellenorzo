@@ -53,6 +53,7 @@ export class User {
      * How often the users datastream requests can be updated
      */
     public allowUpdatesIn = 120000;
+    //public allowUpdatesIn = 10;
 
     //anti-spam
     private lastUpdatedStudent = 0;
@@ -543,6 +544,7 @@ export class User {
                 Events: {},
                 MessageList: {}
             };
+            console.time("[USER - Combined request time (init)]");
             let i = 0;
             (await Promise.all(get.map(function (element) {
                 return this.kreta[`get${element}`].apply(this.kreta, this.fnParams[element]);

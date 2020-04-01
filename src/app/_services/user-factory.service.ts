@@ -35,8 +35,8 @@ export class UserFactoryService {
     return newUser;
   }
 
-  public createWebUser(instituteUrl: string, username: string, password: string): WebUser {
-    let newWebUser = new WebUser(instituteUrl, username, password, this.http);
-    return newWebUser;
-  }
+  // public createWebUser(instituteUrl: string, username: string, password: string): WebUser {
+  //   let newWebUser = new WebUser(instituteUrl, username, password, this.http);
+  //   return newWebUser;
+  // }
 }

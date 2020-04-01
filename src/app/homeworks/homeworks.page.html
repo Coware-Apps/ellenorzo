@@ -16,10 +16,10 @@
       </ion-label>
     </ion-item-divider>
     <div *ngIf="!sans">
-      <ion-card class="wide" *ngFor="let homework of teacherHomeworks">
-        <ion-card-header>
+      <ion-card button class="wide" *ngFor="let homework of teacherHomeworks">
+        <ion-card-header (click)="showInfo(homework)">
           <ion-buttons style="float: right;">
-            <ion-button (click)="showInfo(homework)">
+            <ion-button>
               <ion-icon slot="icon-only" name="information-circle"></ion-icon>
             </ion-button>
           </ion-buttons>
@@ -27,10 +27,10 @@
           <ion-card-subtitle>{{homework.Rogzito}} - {{homework.FeladasDatuma.substring(0,10)}}</ion-card-subtitle>
           <ion-card-subtitle class="deadlineText">{{'pages.homeworks.deadlineText' | translate}}:
             {{homework.Hatarido.substring(0, 10)}}</ion-card-subtitle>
-          <ion-card-title class="selectableText">
-            <div [innerHTML]="homework.Szoveg"></div>
-          </ion-card-title>
         </ion-card-header>
+        <ion-card-content class="selectableText">
+          <div [innerHTML]="homework.Szoveg"></div>
+        </ion-card-content>
       </ion-card>
     </div>
     <div *ngIf="sans">

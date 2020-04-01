@@ -277,7 +277,7 @@
             "instituteName": "Intézmény",
             "loginBtnText": "Bejelentkezés",
             "privacyPolicyText": "A bejelentkezés gombra kattintva elfogadom az Adatkezelési feltételeket",
-            "loadingText": "Kommunikáció folyamatban...",
+            "loadingText": "Fiók adatainak betöltése folyamatban...",
             "invalidGrant": {
                 "header": "Hibás adatok",
                 "message": "A felhasználónév vagy jelszó helytelen!"
@@ -290,7 +290,8 @@
                 "header": "Hibás adatok",
                 "subHeader": "Sikertelen művelet",
                 "message": "Ezzel az azonosítóval már létezik bejelentkezett felhasználó a rendszerben."
-            }
+            },
+            "filterInstitutesText": "Intézmények szűrése..."
         },
         "events": {
             "title": "Faliújság",

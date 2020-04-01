@@ -95,7 +95,6 @@ export class TimetableHomeworksPage implements OnInit {
   }
 
   async goBack() {
-    await this.userManager.currentUser.clearUserCacheByCategory("lesson");
     this.router.navigateByUrl(this.fromRoute);
   }
 
@@ -115,6 +114,7 @@ export class TimetableHomeworksPage implements OnInit {
   }
 
   async addHomework() {
+    await this.userManager.currentUser.clearUserCacheByCategory("lesson");
     console.log('homeworkText', this.homeworkText);
     let loading = await this.loadingCtrl.create({
       message: this.translator.instant('pages.timetable-homeworks.loadingText'),

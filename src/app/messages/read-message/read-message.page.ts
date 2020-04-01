@@ -39,10 +39,6 @@ export class ReadMessagePage implements OnInit {
     this.sans = false;
   }
 
-  goBack() {
-    this.router.navigateByUrl('messages');
-  }
-
   async getFile(id: number, fullName: string) {
     for (let i = 0; i < this.message.uzenet.csatolmanyok.length; i++) {
       if (this.message.uzenet.csatolmanyok[i].azonosito == id) {

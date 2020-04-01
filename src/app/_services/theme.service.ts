@@ -45,30 +45,23 @@ export class ThemeService {
         break;
     }
   }
-
   enableDark() {
     this.removeAll();
     this.renderer.addClass(this.document.body, 'dark-theme');
     this.currentTheme.next("dark");
-    this.statusBar.backgroundColorByHexString("#121212");
-    this.statusBar.styleBlackOpaque();
+    this.styleStatusBarToTheme();
   }
-
   enableMinimalDark() {
     this.removeAll();
     this.renderer.addClass(this.document.body, 'dark-minimal-theme')
     this.currentTheme.next("minimalDark");
-    this.statusBar.backgroundColorByName("black");
-    this.statusBar.styleLightContent();
+    this.styleStatusBarToTheme();
   }
-
   enableLight() {
     this.removeAll();
     this.currentTheme.next("light");
-    this.statusBar.backgroundColorByName("white");
-    this.statusBar.styleDefault();
+    this.styleStatusBarToTheme();
   }
-
   async enableCustom() {
     this.removeAll();
     this.renderer.addClass(this.document.body, 'custom-theme');
@@ -82,29 +75,44 @@ export class ThemeService {
       this.addBodyClass(bd);
     }
     this.changeBackground(await this.storage.get('base64bg'));
-
     //the order of these is important, otherwise it causes lag ^
-    this.statusBar.backgroundColorByName("black");
-    this.statusBar.styleLightContent();
+    this.styleStatusBarToTheme();
   }
-
+  styleStatusBarToTheme() {
+    switch (this.currentTheme.value) {
+      case 'light':
+        this.statusBar.backgroundColorByName("white");
+        this.statusBar.styleDefault();
+        break;
+      case 'dark':
+        this.statusBar.backgroundColorByHexString("#121212");
+        this.statusBar.styleBlackOpaque();
+        break;
+      case 'minimalDark':
+        this.statusBar.backgroundColorByName("black");
+        this.statusBar.styleLightContent();
+        break;
+      case 'custom':
+        this.statusBar.backgroundColorByName("black");
+        this.statusBar.styleLightContent();
+        break;
+      default:
+        break;
+    }
+  }
   changeBackground(url) {
     this.renderer.setStyle(this.document.body, 'background-image', 'url(data:image/jpeg;base64,' + url + ")");
     this.storage.set('base64bg', url);
   }
-
   addBodyStyle(style: string, value: string) {
     this.renderer.setStyle(this.document.body, style, value);
   }
-
   addBodyClass(cls: string) {
     this.renderer.addClass(this.document.body, cls);
   }
   removeBodyClass(cls: string) {
     this.renderer.removeClass(this.document.body, cls);
   }
-
-
   removeBodyStyle(style: string) {
     this.renderer.removeStyle(this.document.body, style);
   }

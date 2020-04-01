@@ -174,29 +174,37 @@
 
   <div *ngIf="sans">
     <ion-list>
-      <div *ngFor="let i of [0, 1, 2, 3, 4, 5, 6]">
-        <ion-card [style.box-shadow]="'0px 0px 7px 3px'">
-          <ion-card-content>
-            <div style="float:right;">
-              <ion-item>
-                <ion-avatar style="float: right; padding-left: 30%;" slot="end">
-                  <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-                </ion-avatar>
-              </ion-item>
-            </div>
-            <ion-label>
-              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-            </ion-label>
-            <ion-label slot="start">
-              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-            </ion-label>
-            <br>
-            <ion-label slot="end">
-              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-            </ion-label>
-          </ion-card-content>
-        </ion-card>
-      </div>
+      <ion-card *ngFor="let i of [0, 1, 2]" [style.box-shadow]="'0px 0px 7px 3px'">
+        <ion-card-content>
+          <ion-label>
+            <ion-skeleton-text animated style="width: 95%"></ion-skeleton-text>
+          </ion-label>
+          <br>
+          <ion-label slot="end">
+            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+          </ion-label>
+          <ion-label slot="end">
+            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+          </ion-label>
+        </ion-card-content>
+      </ion-card>
+      <ion-item-divider>
+        <ion-skeleton-text style="width: 80%"></ion-skeleton-text>
+      </ion-item-divider>
+      <ion-card *ngFor="let i of [0, 1, 2]" [style.box-shadow]="'0px 0px 7px 3px'">
+        <ion-card-content>
+          <ion-label>
+            <ion-skeleton-text animated style="width: 95%"></ion-skeleton-text>
+          </ion-label>
+          <br>
+          <ion-label slot="end">
+            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+          </ion-label>
+          <ion-label slot="end">
+            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
+          </ion-label>
+        </ion-card-content>
+      </ion-card>
     </ion-list>
   </div>
 </ion-content>

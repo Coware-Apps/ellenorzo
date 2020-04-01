@@ -52,7 +52,7 @@ export class AppComponent {
       this.authGuard.activator = true;
       await this.navigate();
       this.splashScreen.hide();
-    this.initializeDelayedConfig();
+      this.initializeDelayedConfig();
     });
   }
 
@@ -176,7 +176,6 @@ export class AppComponent {
   public async userChanged(newUser: userInitData) {
     if (this.userManager.currentUser.id != newUser.id) {
       this.userManager.switchToUser(newUser.id);
-      this.userManager.reloader.next('reload')
     }
     this.menuCtrl.close();
   }

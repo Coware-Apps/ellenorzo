@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { NotificationService } from './notification.service';
+import { DataService } from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,7 @@ export class UserManagerService {
     private app: AppService,
     private router: Router,
     private notificationService: NotificationService,
+    private data: DataService,
   ) {
   }
 
@@ -33,7 +35,7 @@ export class UserManagerService {
     let newUser = this.userFactory.createUser(tokens, institute);
     if (await newUser.fetchUserData()) {
       this.allUsers.push(newUser);
-      this.currentUser = newUser;
+      this.switchToUser(newUser.id);
       console.log('[USER-MANAGER] added user', this.currentUser);
       return true;
     } else {
@@ -71,8 +73,8 @@ export class UserManagerService {
     } else {
       //switching to another user
       if (this.currentUser.id == userId) {
-        this.switchToUser(this.allUsers[this.allUsers.length - 1].id);
-        this.reloader.next('reload');
+        this.data.setData('refreshHome', true) >
+          this.switchToUser(this.allUsers[this.allUsers.length - 1].id);
       }
     }
     await this.app.changeConfig("usersInitData", this.app.usersInitData);
@@ -83,6 +85,7 @@ export class UserManagerService {
     this.allUsers.forEach(user => {
       if (user.id == userId) {
         this.currentUser = user;
+        this.reloader.next('reload');
       }
     });
   }
