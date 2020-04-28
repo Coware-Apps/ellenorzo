@@ -8,7 +8,7 @@ import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsibleStudent } from '../_models/student';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { MenuController } from '@ionic/angular';
@@ -42,6 +42,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   private combinedSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  private unsubscribe$: Subject<void>;
 
   @Input() data: string;
 
@@ -77,7 +78,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   public async ngOnInit() {
-    console.log('ngOnInit called');
     this.dataService.setData('refreshHome', false);
     this.menuCtrl.enable(true);
     this.subscribeToReloader();
@@ -86,10 +86,16 @@ export class HomePage implements OnInit, OnDestroy {
     this.firebase.setScreenName('home');
   }
   ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$, true);
     //optionally refreshing data
     if (this.dataService.getData('refreshHome') == true) {
       this.ngOnInit();
     }
+  }
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
   private async loadData() {
     let currentMonth = new Date().getMonth() + 1;
@@ -150,11 +156,10 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
   ngOnDestroy() {
-    console.log('ngOnDestroy, unsubscribing');
     this.combinedSubscription.unsubscribe();
     this.reloaderSubscription.unsubscribe();
   }
-  async doRefresh(event: any) {
+  async doRefresh($event) {
     this.subscribeToData();
     this.showProgressBar = true;
     let requestsToDo = [];
@@ -164,7 +169,7 @@ export class HomePage implements OnInit, OnDestroy {
       }
     });
     await this.userManager.currentUser.updateCombined(requestsToDo);
-    event.target.complete();
+    $event.target.complete();
   }
   private formatCombined(student: Student, tests: Test[], messages: Message[], events: Event[]): CollapsibleCombined[] {
     let allDataByMonths = [];
@@ -181,7 +186,14 @@ export class HomePage implements OnInit, OnDestroy {
       }
     }
     if (messages[0] != null) {
-      allData = allData.concat(messages);
+      //removing sent messages
+      let toConcat = [];
+      for (let i = 0; i < messages.length; i++) {
+        if (messages[i].tipus && messages[i].tipus.azonosito == 1) {
+          toConcat.push(messages[i]);
+        }
+      }
+      allData = allData.concat(toConcat);
     }
     if (tests[0] != null) {
       allData = allData.concat(tests);
@@ -314,8 +326,7 @@ export class HomePage implements OnInit, OnDestroy {
     if (!message.isElolvasva) {
       await this.userManager.currentUser.setMessageAsRead(message.uzenet.azonosito);
     }
-    this.dataService.setData('messageId', message.azonosito);
-    this.router.navigateByUrl('/messages/read-message');
+    this.router.navigateByUrl(`/messages/read-message?messageId=${message.azonosito}`);
   }
   isRequestEnabled(r: string) {
     let returnVal = false;

@@ -1,4 +1,5 @@
-import { Subject } from 'rxjs';
+import { Subject, Observable, observable, from, defer } from 'rxjs';
+import { mergeMap, } from "rxjs/operators";
 import { Storage } from '@ionic/storage';
 import { Student } from '../_models/student';
 import { Test } from '../_models/test';
@@ -14,6 +15,10 @@ import { AppService } from '../_services/app.service';
 import { NotificationService } from '../_services/notification.service';
 import { PromptService } from '../_services/prompt.service';
 import { Event } from './event';
+import { AdministrationService } from '../_services/administration.service';
+import { MessageListItem, Addressee, AttachmentToSend, AdministrationMessage } from './_administration/message';
+import { AddresseeType } from './_administration/addresseeType';
+import { AddresseeListItem } from './_administration/addresseeListItem';
 export class User {
     //unique data
     public fullName: string;
@@ -66,8 +71,10 @@ export class User {
     private lastUpdatedEventsData: Event[] = null;
     private lastUpdatedCombined = 0;
     private lastUpdatedCombinedData: any = null;
-    private tokens: Token;
+    public tokens: Token;
+    public administrationTokens: Token;
     private lastLoggedIn: number = 0;
+    private lastLoggedInAdministration: number = 0;
     private authDiff: number = 300000;
     private cacheIds: {
         student: string;
@@ -78,6 +85,22 @@ export class User {
         teacherHomeworks: string;
         events: string;
         combined: string;
+        //administration
+        inboxMessageList: string,
+        outboxMessageList: string,
+        deletedMessageList: string;
+        // addresseeTypeList: string;
+        // studentAddresseeGroups: string;
+        // studentAddresseeClasses: string;
+        // parentAddresseeGroups: string;
+        // parentAddresseeClasses: string;
+        // studentAddresseeList: string;
+        // parentAddresseeList: string;
+        // teacherAddresseeList: string;
+        // headTeacherAddresseeList: string;
+        // directorateAddresseeList: string;
+        // adminAddresseeList: string;
+        // szmkAddresseeList: string;
     }
     /**
      * For the combined data requests (it is initalized in `setUserData()`)
@@ -94,6 +117,7 @@ export class User {
         private app: AppService,
         private notificationService: NotificationService,
         private prompt: PromptService,
+        private administrationService: AdministrationService,
     ) {
         this.tokens = tokens;
         this.institute = institute;
@@ -103,15 +127,34 @@ export class User {
     /**
      * Logs in with the users current refresh token if needed (the token's expires_in minus the user's authDiff passes)
      */
-    public async loginWithRefreshToken() {
+    public async loginWithRefreshToken(toApi: 'mobile' | 'administration' = 'mobile') {
         let now = new Date().valueOf();
-        let loggedInFor = (this.tokens.expires_in * 1000) - this.authDiff;
-        if (this.lastLoggedIn + loggedInFor <= now) {
-            console.log(`%c${this.fullName} - Renewing tokens (${now / 1000 - (this.lastLoggedIn + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
-            let newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
+        let loggedInFor = ((toApi == 'mobile' ? this.tokens.expires_in : this.administrationTokens.expires_in) * 1000) - this.authDiff;
+        let lastLoggedIn = toApi == 'mobile' ? this.lastLoggedIn : this.lastLoggedInAdministration;
+
+        if (lastLoggedIn + loggedInFor <= now) {
+            if (toApi == "mobile") {
+                console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (lastLoggedIn + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
+            } else {
+                console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (this.lastLoggedInAdministration + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
+            }
+
+            let newTokens;
+            if (toApi == 'mobile') {
+                newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
+            } else {
+                newTokens = await this.administrationService.renewToken(this.administrationTokens.refresh_token, this.institute);
+            }
+
             if (newTokens != null) {
-                this.tokens = newTokens;
-                this.lastLoggedIn = new Date().valueOf();
+                if (toApi == 'mobile') {
+                    this.tokens = newTokens;
+                    this.lastLoggedIn = new Date().valueOf();
+                } else {
+                    this.administrationTokens = newTokens;
+                    this.lastLoggedInAdministration = new Date().valueOf();
+                }
+
                 //overwriting the tokens of the stored users init data
                 let newUsersInitData = this.app.usersInitData;
                 for (let i = 0; i < newUsersInitData.length; i++) {
@@ -119,6 +162,7 @@ export class User {
                         newUsersInitData[i] = {
                             id: this.id,
                             tokens: this.tokens,
+                            adminstrationTokens: this.administrationTokens,
                             institute: this.institute,
                             fullName: this.fullName,
                             notificationsEnabled: this.notificationsEnabled,
@@ -129,7 +173,11 @@ export class User {
                 await this.app.changeConfig("usersInitData", newUsersInitData);
             }
         } else {
-            console.log(`%c${this.fullName} - Not renewing tokens yet (${(this.lastLoggedIn + loggedInFor - now) / 1000} / ${(this.tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
+            if (toApi == 'mobile') {
+                console.log(`%c${this.fullName} - Not renewing ${toApi} tokens yet (${(this.lastLoggedIn + loggedInFor - now) / 1000} / ${(this.tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
+            } else {
+                console.log(`%c${this.fullName} - Not renewing ${toApi} tokens yet (${(this.lastLoggedInAdministration + loggedInFor - now) / 1000} / ${(this.administrationTokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
+            }
         }
     }
     /**
@@ -139,11 +187,12 @@ export class User {
     public async fetchUserData(): Promise<boolean> {
         let student = await this.kreta.getStudent(this.fDate.getDate("today"), this.fDate.getDate("today"), true, this.tokens, this.institute, '_studentLoginData');
         if (student != null) {
-            this.setUserData(student.Name, student.StudentId, this.notificationsEnabled, this.lastNotificationSetTime);
+            this.setUserData(student.Name, student.StudentId, this.notificationsEnabled, this.lastNotificationSetTime, this.administrationTokens);
             //overwriting the name and id of the users init data
             let newUserInitData: userInitData = {
                 id: this.id,
                 tokens: this.tokens,
+                adminstrationTokens: this.administrationTokens,
                 institute: this.institute,
                 fullName: this.fullName,
                 notificationsEnabled: this.notificationsEnabled,
@@ -174,9 +223,10 @@ export class User {
      * @param notificationsEnabled whether notifications for the user are enabled
      * @param lastNotificationSetTime the last time notifications for this user were set
      */
-    public setUserData(fullName: string, id: number, notificationsEnabled: boolean, lastNotificationSetTime: number) {
+    public setUserData(fullName: string, id: number, notificationsEnabled: boolean, lastNotificationSetTime: number, administrationTokens: Token) {
         this.fullName = fullName;
         this.id = id;
+        this.administrationTokens = administrationTokens;
         this.notificationsEnabled = notificationsEnabled,
             this.lastNotificationSetTime = lastNotificationSetTime,
             this.cacheIds = {
@@ -187,8 +237,33 @@ export class User {
                 studentHomeworks: `${this.id}_studentHomeworkData`,
                 teacherHomeworks: `${this.id}_teacherHomeworkKey`,
                 events: `${this.id}_eventsData`,
-                combined: `${this.id}_combinedData`
+                combined: `${this.id}_combinedData`,
+                inboxMessageList: `${this.id}_aministrationInboxData`,
+                outboxMessageList: `${this.id}_aministrationOutboxData`,
+                deletedMessageList: `${this.id}_administrationDeletedData`,
+                // addresseeTypeList: `${this.id}_addresseeTypeListData`,
+                // studentAddresseeGroups: `${this.id}_studentAddresseeGroupsData`,
+                // studentAddresseeClasses: `${this.id}_studentAddresseeClassesData`,
+                // parentAddresseeGroups: `${this.id}_parentAddresseeGroupsData`,
+                // parentAddresseeClasses: `${this.id}_parentAddresseeClassesData`,
+                // studentAddresseeList: `${this.id}_studentAddresseeListData`,
+                // parentAddresseeList: `${this.id}_parentAddresseeListData`,
+                // teacherAddresseeList: `${this.id}_teacherAddresseeListData`,
+                // headTeacherAddresseeList: `${this.id}_headTeacherAddresseeListData`,
+                // directorateAddresseeList: `${this.id}_directorateAddresseeListData`,
+                // adminAddresseeList: `${this.id}_adminAddresseeListData`,
+                // szmkAddresseeList: `${this.id}_szmkAddresseeListData`,
             }
+    }
+    public resetTokenTime(API: 'mobile' | 'administration') {
+        if (API == "mobile") {
+            this.lastLoggedIn = 0;
+        } else {
+            this.lastLoggedInAdministration = 0;
+        }
+    }
+    public isTokenTimeZero(API: 'mobile' | 'administration') {
+        return API == "mobile" ? this.lastLoggedIn == 0 : this.lastLoggedInAdministration == 0;
     }
     /**
      * Clears all of the cached data that the user had ever stored
@@ -198,6 +273,24 @@ export class User {
             await this.storage.remove(this.cacheIds[key]);
         }
     }
+    public async logOutOfAdministration() {
+        this.administrationTokens = null;
+        let newUserInitData: userInitData = {
+            adminstrationTokens: null,
+            fullName: this.fullName,
+            id: this.id,
+            institute: this.institute,
+            lastNotificationSetTime: this.lastNotificationSetTime,
+            notificationsEnabled: this.notificationsEnabled,
+            tokens: this.tokens,
+        };
+        for (let i = 0; i < this.app.usersInitData.length; i++) {
+            if (this.app.usersInitData[i].id == this.id) {
+                this.app.usersInitData[i] = newUserInitData;
+            }
+        }
+        await this.app.changeConfig('usersInitData', this.app.usersInitData);
+    }
     /**
      * Clears the user's stored cache for a specific category (this will enforce some pages to be reloaded)
      * @param key the name of the category you want to be cleared from the storage
@@ -205,7 +298,8 @@ export class User {
     public async clearUserCacheByCategory(
         key: 'student' | 'tests' | 'messageList' | 'lesson' |
             'studentHomeworks' | 'teacherHomeworks' | 'events' |
-            'combined'
+            'combined' | 'administration.inboxMessageList' |
+            'administration.outboxMessageList' | 'administration.deletedMessageList'
     ) {
         await this.storage.remove(this.cacheIds[key]);
     }
@@ -243,7 +337,7 @@ export class User {
      * Pre-initializes local notifications for 2 weeks (if it hasn't been initialized this week and notifications are enabled on the user)
      */
     public async preInitializeLocalNotifications() {
-        if ((await this.notificationService.getAllNonDismissed()).length < 10) {
+        if (this.notificationsEnabled && (await this.notificationService.getAllNonDismissed()).length < 10) {
             console.log(`[USER->preInitializeLocalNotifications()] pre-initializing notifications for ${this.fullName}`);
             await this.setLocalNotifications(2);
             let newUsersInitData = this.app.usersInitData;
@@ -252,6 +346,7 @@ export class User {
                     newUsersInitData[i] = {
                         id: this.id,
                         tokens: this.tokens,
+                        adminstrationTokens: this.tokens,
                         institute: this.institute,
                         fullName: this.fullName,
                         notificationsEnabled: this.notificationsEnabled,
@@ -670,7 +765,7 @@ export class User {
 
     //#endregion
 
-    //#region async requests
+    //#region other requests
     /**
      * Gets the user's lessons between two dates, optionally uses cache
      * @param fromDate the date from which to get the lessons
@@ -757,6 +852,108 @@ export class User {
         await this.loginWithRefreshToken();
         return this.kreta.getMessageFile(fileId, fileName, fileExtension, this.tokens);
     }
+
+
+    public async logIntoAdministration(username: string, password: string) {
+        let newTokens = await this.administrationService.getToken(username, password, this.institute);
+        if (newTokens) {
+            this.administrationTokens = newTokens;
+            //successfully logged user in to administration
+            return true;
+        } else {
+            //login error
+            return false;
+        }
+    }
+    public isAdministrationRegistered() {
+        return this.administrationTokens != null;
+    }
+    public getMessageList(state: 'inbox' | 'outbox' | 'deleted', forceRefresh: boolean = false) {
+        let returnVal = new Subject<MessageListItem[]>();
+        this.storage.get(this.cacheIds[`${state}MessageList`]).then(cacheData => {
+            if (cacheData != null && !forceRefresh) {
+                returnVal.next(cacheData.data);
+            }
+            this.loginWithRefreshToken('administration').then(tokens => {
+                if (!this.cache.isCacheValid(cacheData) || forceRefresh) {
+                    this.administrationService.getMessageList(state, this.administrationTokens).then(data => {
+                        returnVal.next(data);
+                        this.cache.updateCache(this.cacheIds[`${state}MessageList`], data);
+                        returnVal.complete()
+                    }).catch(error => {
+                        returnVal.error(error);
+                    });
+                } else {
+                    returnVal.complete();
+                }
+            }).catch(error => {
+                returnVal.error(error);
+            });
+        });
+        return returnVal;
+    }
+    public async getMessageAdministration(messageId: number): Promise<AdministrationMessage> {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.getMessage(messageId, this.administrationTokens);
+    }
+    public async binMessage(action: 'put' | 'remove', messageIdList: number[]) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.binMessages(action, messageIdList, this.administrationTokens);
+    }
+    public async deleteMessage(messageIdList: number[]) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.deleteMessages(messageIdList, this.administrationTokens);
+    }
+    public async changeMessageState(newState: 'read' | 'unread', messageIdList: number[]) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.changeMessageState(newState, messageIdList, this.administrationTokens)
+    }
+    public async replyToMessage(
+        messageId: number,
+        targy: string,
+        szoveg: string,
+        attachmentList: AttachmentToSend[],
+    ) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.replyToMessage(messageId, targy, szoveg, attachmentList, this.administrationTokens);
+    }
+    public async sendNewMessage(
+        addresseeList: Addressee[],
+        targy: string,
+        szoveg: string,
+        attachmentList: AttachmentToSend[],
+    ) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.sendNewMessage(addresseeList, targy, szoveg, attachmentList, this.administrationTokens);
+    }
+    public async getAddresseeTypeList(): Promise<AddresseeType[]> {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.getAddresseeTypeList(this.administrationTokens);
+    }
+    public async getAddresseListByCategory(category: 'teachers' | 'headTeachers' | 'directorate' | 'tutelaries' | 'students' | 'admins' | 'szmk'): Promise<AddresseeListItem[]> {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.getAddresseeListByCategory(category, this.administrationTokens);
+    }
+    public async getAddresseeGroups(addresseeType: 'tutelaries' | 'students', groupType: 'classes' | 'groups', ) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.getAddresseeGroups(addresseeType, groupType, this.administrationTokens);
+    }
+    public async getStudentsOrParents(category: 'students' | 'tutelaries', by: 'byGroups' | 'byClasses', groupOrClassId: number) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.getStudentsOrParents(category, by, groupOrClassId, this.administrationTokens);
+    }
+    public async addAttachment(using: 'camera' | 'gallery' | 'file'): Promise<AttachmentToSend> {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.addAttachment(using, this.administrationTokens);
+    }
+    public async removeAttachment(attachmentId: string) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.removeAttachment(attachmentId, this.administrationTokens);
+    }
+    public async getAttachmentThroughAdministration(fileId: number, fileName: string, fileExtension: string) {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.getAttachment(fileId, fileName, fileExtension, this.administrationTokens);
+    }
     //#endregion
 }
 interface LoadedStudent {
@@ -795,6 +992,7 @@ export interface CollapsibleCombined {
 export interface userInitData {
     id: number;
     tokens: Token;
+    adminstrationTokens: Token;
     institute: Institute;
     fullName: string;
     notificationsEnabled: boolean;

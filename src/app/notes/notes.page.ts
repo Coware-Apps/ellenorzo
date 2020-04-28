@@ -5,7 +5,7 @@ import { KretaService } from '../_services/kreta.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 
@@ -21,6 +21,8 @@ export class NotesPage implements OnInit {
   public showProgressBar: boolean;
   private studentSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
+
   constructor(
     public kretaService: KretaService,
     public fDate: FormattedDateService,
@@ -38,8 +40,9 @@ export class NotesPage implements OnInit {
   async ngOnInit() {
     this.firebase.setScreenName('notes');
   }
-
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -49,6 +52,16 @@ export class NotesPage implements OnInit {
         this.loadData();
       }
     });
+  }
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    if (this.studentSubscription != null) {
+      this.studentSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   private async loadData() {
@@ -93,15 +106,6 @@ export class NotesPage implements OnInit {
       }
     }
     return newArray;
-  }
-
-  ionViewWillLeave() {
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
   async getMoreData(note: Note) {

@@ -11,7 +11,11 @@ const routes: Routes = [
   {
     path: 'institute-selector-modal',
     loadChildren: () => import('./institute-selector-modal/institute-selector-modal.module').then( m => m.InstituteSelectorModalPageModule)
+  },  {
+    path: 'error',
+    loadChildren: () => import('./error/error.module').then( m => m.ErrorPageModule)
   }
+
 ];
 
 @NgModule({

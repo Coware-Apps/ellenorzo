@@ -144,7 +144,7 @@
         <ion-col class="bottomCol" *ngFor="let day of getShownDays(days)">
           <ion-button [hidden]="!day.show"
             [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == day.index}"
-            [fill]="this.focused == day.index ? 'solid' : 'outline'" (click)="getData(day.index)">
+            [fill]="this.focused == getShownDayIndex(day.index) ? 'solid' : 'outline'" (click)="getData(day.index)">
             {{day.shortName}}
           </ion-button>
         </ion-col>

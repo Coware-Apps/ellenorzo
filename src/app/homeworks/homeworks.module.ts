@@ -8,6 +8,7 @@ import { HomeworksPageRoutingModule } from './homeworks-routing.module';
 
 import { HomeworksPage } from './homeworks.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     HomeworksPageRoutingModule,
     TranslateModule,
+    ComponentsModule,
   ],
   declarations: [HomeworksPage]
 })
-export class HomeworksPageModule {}
+export class HomeworksPageModule { }

@@ -7,11 +7,12 @@ import { IonSlides, IonSelect } from '@ionic/angular';
 import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
+import { AppService } from '../_services/app.service';
 more(HighCharts);
 
 interface ChartData {
@@ -61,6 +62,7 @@ export class StatisticsPage implements OnInit {
   private evaluations: evaluation[];
   private studentSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
   private mockSelector: selectorEvent;
 
   constructor(
@@ -74,6 +76,7 @@ export class StatisticsPage implements OnInit {
     private firebase: FirebaseX,
     private userManager: UserManagerService,
     private translator: TranslateService,
+    private app: AppService,
   ) {
     this.focused = 0;
     this.mockSelector = { detail: { value: "yearly" } };
@@ -89,6 +92,8 @@ export class StatisticsPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -123,6 +128,8 @@ export class StatisticsPage implements OnInit {
   }
 
   ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
     if (this.studentSubscription != null) {
       this.studentSubscription.unsubscribe();
     }

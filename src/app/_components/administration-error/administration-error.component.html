@@ -1,0 +1,33 @@
+<ion-grid>
+  <ion-row class="ion-text-center ion-align-items-center">
+    <ion-col>
+      <ion-icon [name]="iconName"></ion-icon>
+      <ion-text class="ion-text-center">
+        <h1 *ngIf="error?.customTitleTranslatorKey">{{ error.customTitleTranslatorKey | translate}}</h1>
+        <h1 *ngIf="!error?.customTitleTranslatorKey">{{ 'errors.administration.defaultTitle' | translate}}</h1>
+
+        <p *ngIf="error?.customTextTranslatorKey">{{error.customTextTranslatorKey | translate}}</p>
+        <p *ngIf="!error?.customTextTranslatorKey">{{ 'errors.administration.defaultText' | translate}}</p>
+      </ion-text>
+      <ion-button color="primary" (click)="retry.emit()" *ngIf="buttonText">
+        {{ 'errors.administration.retryText' | translate }}
+      </ion-button>
+
+      <ng-container class="debug-info" *ngIf="this.app.devSettingsEnabled">
+        <ion-button (click)="toggleDebuggingInfo()" color="danger">
+          {{'errors.administration.detailsText' | translate}}
+        </ion-button>
+
+        <div class="debug-info ion-text-left" *ngIf="debuggingShown">
+          <h4>Error emitted by {{error?.queryName}}</h4>
+          <p>
+            <strong>{{ error?.name }}</strong>
+            <br />
+            <em>{{ error?.message }}</em>
+          </p>
+          <pre>{{ error?.stack }}</pre>
+        </div>
+      </ng-container>
+    </ion-col>
+  </ion-row>
+</ion-grid>

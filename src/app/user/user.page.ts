@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Student } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, Subject } from 'rxjs';
 import { UserManagerService } from '../_services/user-manager.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { AppService } from '../_services/app.service';
 
 @Component({
   selector: 'app-user',
@@ -14,13 +15,17 @@ export class UserPage implements OnInit {
   public sans: boolean;
   public showProgressBar: boolean;
   public student: Observable<Student[]>;
+
   private studentSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
+
   constructor(
     public fDate: FormattedDateService,
 
     private firebaseX: FirebaseX,
     private userManager: UserManagerService,
+    private app: AppService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
@@ -31,6 +36,8 @@ export class UserPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -66,6 +73,8 @@ export class UserPage implements OnInit {
   }
 
   ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
     if (this.studentSubscription != null) {
       this.studentSubscription.unsubscribe();
     }

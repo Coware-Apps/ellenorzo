@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { DataService } from './data.service';
+import { AdministrationService } from './administration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class UserManagerService {
     private router: Router,
     private notificationService: NotificationService,
     private data: DataService,
+    private as: AdministrationService,
   ) {
   }
 
@@ -80,6 +82,13 @@ export class UserManagerService {
     await this.app.changeConfig("usersInitData", this.app.usersInitData);
     console.log('[USER-MANAGER] removed a user, new usersInitData', this.app.usersInitData);
   }
+  public async logOutOfAdministration(userId: number) {
+    for (let i = 0; i < this.allUsers.length; i++) {
+      if (userId == this.allUsers[i].id) {
+        await this.allUsers[i].logOutOfAdministration();
+      }
+    }
+  }
   public switchToUser(userId: number) {
     console.log('[USER-MANAGER->switchToUser()] switching to user', userId);
     this.allUsers.forEach(user => {
@@ -92,9 +101,14 @@ export class UserManagerService {
   public createExistingUsers(usersInitData: userInitData[]) {
     this.allUsers = [];
     usersInitData.forEach(userInitData => {
-      console.log('[USER-MANAGER->createExistingUsers()] creating user with userInitData', userInitData);
       let newUser = this.userFactory.createUser(userInitData.tokens, userInitData.institute);
-      newUser.setUserData(userInitData.fullName, userInitData.id, userInitData.notificationsEnabled, userInitData.lastNotificationSetTime);
+      newUser.setUserData(
+        userInitData.fullName,
+        userInitData.id,
+        userInitData.notificationsEnabled,
+        userInitData.lastNotificationSetTime,
+        userInitData.adminstrationTokens,
+      );
       this.allUsers.push(newUser);
     });
   }

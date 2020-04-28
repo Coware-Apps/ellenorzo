@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Lesson } from '../_models/lesson';
-import { Student } from '../_models/student';
+import { Student, SubjectAverage, evaluation } from '../_models/student';
 import { Token, DecodedUser } from '../_models/token';
 import { Storage } from '@ionic/storage';
 import { CacheService } from './cache.service';
@@ -24,6 +24,8 @@ import { File } from '@ionic-native/file/ngx';
 import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 import { stringify } from 'querystring';
+import { WeighedAvgCalcService } from './weighed-avg-calc.service';
+import { KretaInvalidResponseError, KretaInvalidGrantError, KretaNetworkError, KretaTokenError } from '../_exceptions/kreta-exception';
 
 
 
@@ -51,6 +53,7 @@ export class KretaService {
     private file: File,
     private platform: Platform,
     private androidPermissions: AndroidPermissions,
+    private WAC: WeighedAvgCalcService,
   ) {
     this.errorHandler();
   }
@@ -77,6 +80,10 @@ export class KretaService {
   //#region Error handling / prompting
   errorHandler() {
     this.errorStatus.subscribe(error => {
+      if (![-4, -3, -2, -1, 0].includes(error)) {
+        console.log('Request failed on server side, downloading new user-agent');
+        this.app.downloadUserAgent();
+      }
       switch (error) {
 
         case 0:
@@ -127,11 +134,13 @@ export class KretaService {
   //#endregion
 
   //#region KRÉTA->Login
-  public async getToken(username: string, password: string, institute: Institute): Promise<Token | false> {
+  public async getToken(username: string, password: string, institute: Institute): Promise<Token> {
+    let response;
     try {
       const headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': this.app.userAgent,
       };
       const params = {
         'userName': username,
@@ -142,21 +151,11 @@ export class KretaService {
       }
 
       this.prompt.butteredToast("[KRETA->getToken()]");
-      console.log("[KRETA->getToken()] institute", institute);
 
-      let response = await this.http.post(institute.Url + "/idp/api/v1/Token", params, headers);
+      response = await this.http.post(institute.Url + "/idp/api/v1/Token", params, headers);
       console.log('tokenResponse', response);
       let parsedResponse: Token;
-      try {
-        parsedResponse = <Token>JSON.parse(response.data);
-      } catch (error) {
-        this.prompt.presentUniversalAlert(
-          this.translator.instant('services.kreta.invalidJSONResponseAlert.header'),
-          this.translator.instant('services.kreta.invalidJSONResponseAlert.subHeader'),
-          this.translator.instant('services.kreta.invalidJSONResponseAlert.message'),
-        );
-        this.firebase.logError(`[KRETA->getToken()->JSON.parse()]: ` + stringify(error));
-      }
+      parsedResponse = <Token>JSON.parse(response.data);
 
       this.prompt.butteredToast("[KRETA->getToken() result]" + parsedResponse);
       console.log("[KRETA->getToken()] result: ", parsedResponse);
@@ -167,8 +166,15 @@ export class KretaService {
       return parsedResponse;
     } catch (error) {
       console.error("Hiba történt a 'Token' lekérése közben", error);
-      this.firebase.logError(`[KRETA->getToken()->HTTP]: ` + stringify(error));
-      return false;
+      if (![-4, -3, -2, -1, 0].includes(error.status)) {
+        console.log('Request failed on server side, downloading new user-agent');
+        this.app.downloadUserAgent();
+      }
+
+      if (error instanceof SyntaxError) throw new KretaInvalidResponseError('getToken', response);
+      if (error.status && error.status == 401) throw new KretaInvalidGrantError('getToken', error);
+      if (error.status && error.status < 0) throw new KretaNetworkError('getToken');
+      throw new KretaTokenError(error, 'getToken.title', 'getToken.text');
     }
   }
 
@@ -188,7 +194,8 @@ export class KretaService {
       }
 
       const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': this.app.userAgent,
       }
 
       console.log(`[KRETA->renewToken()] renewing tokens with refreshToken`, refresh_token)
@@ -214,6 +221,10 @@ export class KretaService {
     } catch (error) {
       console.error("Hiba a 'Token' lekérése közben: ", error);
       this.firebase.logError(`[KRETA->renewToken()->HTTP]: ` + stringify(error));
+      if (![-4, -3, -2, -1, 0].includes(error)) {
+        console.log('Request failed on server side, downloading new user-agent');
+        this.app.downloadUserAgent();
+      }
       return null;
     }
   }
@@ -221,7 +232,7 @@ export class KretaService {
 
   //#region KRÉTA->GET
   public async getStudent(fromDate: string, toDate: string, forceRefresh: boolean = false, tokens: Token, institute: Institute, cacheId: string): Promise<Student> {
-    let urlPath = '/mapi/api/v1/Student';
+    let urlPath = '/mapi/api/v1/StudentAmi';
     let cacheDataIf: any = false;
     if (!forceRefresh) {
       cacheDataIf = await this.cache.getCacheIf(cacheId);
@@ -239,6 +250,44 @@ export class KretaService {
       try {
         let response = await this.http.get(institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, null, headers);
         let parsedResponse = <Student>JSON.parse(response.data);
+
+        parsedResponse.SubjectAverages = [];
+        let subjectsWithGrades: { subject: string, evaluations: evaluation[] }[] = [];
+        parsedResponse.Evaluations.forEach(e => {
+          let alreadyAdded = false;
+          for (let i = 0; i < subjectsWithGrades.length; i++) {
+            if (subjectsWithGrades[i].subject == e.Subject) {
+              alreadyAdded = true;
+              subjectsWithGrades[i].evaluations.push(e);
+            }
+          }
+          if (!alreadyAdded) {
+            subjectsWithGrades.push({
+              evaluations: [e],
+              subject: e.Subject,
+            });
+          }
+        });
+
+        subjectsWithGrades.forEach(sg => {
+          for (let i = 0; i < sg.evaluations.length; i++) {
+            if (sg.evaluations[i].Form != 'Mark'
+              || sg.evaluations[i].Type != 'MidYear'
+              || sg.evaluations[i].IsAtlagbaBeleszamit == false
+              || sg.evaluations[i].NumberValue == 0
+            ) {
+              sg.evaluations.splice(i, 1);
+            }
+          }
+          if (sg.subject != null && sg.evaluations.length > 0) {
+            parsedResponse.SubjectAverages.push({
+              ClassValue: 0,
+              Difference: 0,
+              Subject: sg.subject,
+              Value: Math.round(this.WAC.average(sg.evaluations) * 100) / 100,
+            });
+          }
+        });
 
         //cache
         //removing old cached data
@@ -274,7 +323,6 @@ export class KretaService {
         'Accept': 'application/json',
         'User-Agent': this.app.userAgent,
       }
-      console.log('User-Agent', this.app.userAgent);
 
       try {
         console.log('[KRETA] Refreshing Lesson...');
@@ -284,7 +332,6 @@ export class KretaService {
         let response = await this.http.get(institute.Url + urlPath + "?fromDate=" + fromDate + "&toDate=" + toDate, null, headers);
         let traceEnd = new Date().valueOf();
         let requestTime = traceEnd - traceStart;
-        console.log('Request time: ', requestTime);
         let storedTimetableTrace: number[] = await this.storage.get('timetableTrace');
         storedTimetableTrace = storedTimetableTrace == null ? [] : storedTimetableTrace;
         storedTimetableTrace.reverse();
@@ -590,6 +637,7 @@ export class KretaService {
         }
 
         let response = await this.http.get("https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/postaladaelemek/sajat", null, headers);
+        console.log('msgList', response);
         let msgList = <Message[]>JSON.parse(response.data)
 
         this.cache.setCache(cacheId, msgList);
@@ -834,31 +882,6 @@ export class KretaService {
 
   //#region KRÉTA->DOWNLOAD
   public async getMessageFile(fileId: number, fileName: string, fileExtension: string, tokens: Token): Promise<string> {
-
-    // try {
-    //   let headers = {
-    //     'Authorization': `Bearer ${tokens.access_token}`,
-    //     'User-Agent': this.app.userAgent,
-    //   }
-    //   let response = await this.http.get(
-    //     `https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/dokumentumok/uzenetek/${fileId}`,
-    //     null,
-    //     headers
-    //   );
-    //   console.log('response', response.data);
-    //   let entry = await this.file.writeFile(
-    //     this.file.externalDataDirectory,
-    //     `${fileName}.${fileExtension}`,
-    //     response.data,
-    //     { replace: true }
-    //   );
-    //   console.log('entry', entry);
-    //   return entry.nativeURL;
-    // } catch (error) {
-    //   console.error('Error trying to get file', error);
-    // }
-
-
     let fileTransfer = this.transfer.create();
     let uri = `https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/dokumentumok/uzenetek/${fileId}`;
     let fullFileName = fileName + '.' + fileExtension;

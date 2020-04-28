@@ -15,9 +15,9 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
-      refreshingSpinner="dots">
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)" slot="fixed"
+    pullFactor="0.8" pullMin="50" pullMax="110">
+    <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
@@ -32,8 +32,8 @@
             <h1>{{item.Subject}}</h1>
           </ion-card-title>
           <ion-card-subtitle [ngStyle]="{'color': color.getContrast()}">
-            {{'pages.averages.classAverageText' | translate}}
-            {{item.ClassValue}}
+            {{'pages.averages.totalGradesText' | translate}}
+            {{getCountingGrades(item.Subject)}}
           </ion-card-subtitle>
         </ion-card-content>
       </ion-card>

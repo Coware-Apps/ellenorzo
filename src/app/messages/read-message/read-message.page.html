@@ -6,40 +6,113 @@
       </ion-buttons>
     </ion-buttons>
     <ion-title>{{'pages.read-message.title' | translate}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button *ngIf="this.pageState == 'loaded' && !this.message.isToroltElem" (click)="binMsg('put')">
+        <ion-icon slot="icon-only" name="trash-bin-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="this.pageState == 'loaded' && this.message.isToroltElem" (click)="binMsg('remove')">
+        <ion-icon slot="icon-only" name="arrow-undo-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="this.pageState == 'loaded' && this.message.isToroltElem" (click)="deleteMsg()">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+      <!-- Only an option if the message isn't set (2) -->
+      <ion-button *ngIf="this.pageState == 'loaded' && this.message.tipus.azonosito != 2" (click)="setAsUnread()">
+        <ion-icon slot="icon-only" name="mail-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-card *ngIf="!this.sans">
-    <ion-card-content>
-      <h2 style="font-weight: bold;">{{'pages.read-message.senderName' | translate}}</h2>
-      <p>{{this.message.uzenet.feladoNev}}</p>
-      <h2 style="font-weight: bold;">{{'pages.read-message.addresseeName' | translate}}</h2>
-      <p *ngFor="let cimzett of this.message.uzenet.cimzettLista">
-        {{cimzett.nev}}
-      </p>
-      <h2 style="font-weight: bold;">{{'pages.read-message.subjectName' | translate}}</h2>
-      <p>{{this.message.uzenet.targy}}</p>
-      <h2 style="font-weight: bold;">{{'pages.read-message.textName' | translate}}</h2>
-      <div class="selectableText" [innerHTML]="message.uzenet.szoveg"></div>
-    </ion-card-content>
-  </ion-card>
-  <ion-list *ngIf="!this.sans && this.message.uzenet.csatolmanyok.length > 0">
-    <ion-item button (click)="getFile(f.azonosito, f.fajlNev)" *ngFor="let f of message.uzenet.csatolmanyok">
-      <ion-icon slot="start" name="attach-outline"></ion-icon>
-      <ion-label>{{f.fajlNev}}</ion-label>
-      <ion-spinner *ngIf="f.loading == true" slot="end" style="float: right" name="crescent"></ion-spinner>
-    </ion-item>
-  </ion-list>
-  <ion-card *ngIf="sans">
-    <ion-card-content>
-      <ion-skeleton-text animated style="width: 10%"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 20%"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 10%"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 20%"></ion-skeleton-text>
-      <ion-skeleton-text animated style="width: 10%"></ion-skeleton-text>
+<ng-container *ngIf="this.pageState == 'login'">
+  <ion-content>
+    <app-re-login (onSuccessfulLogin)="ngOnInit()"></app-re-login>
+  </ion-content>
+</ng-container>
+
+<ng-container *ngIf="this.pageState == 'loaded'">
+  <ion-content>
+    <div class="message-text">
+      <ion-list lines="none" *ngIf="this.message.uzenet.statusz && this.message.uzenet.statusz.azonosito != 2">
+        <ion-item button (click)="showStatusInfo()" color="danger">
+          <ion-icon name="warning" slot="start"></ion-icon>
+          <ion-label>{{'pages.read-message.errorStateName' | translate}}: {{this.message.uzenet.statusz.rovidNev}}
+          </ion-label>
+          <ion-icon slot="end" name="information-circle"></ion-icon>
+        </ion-item>
+      </ion-list>
+      <h3 class="extra-padding subject">{{message.uzenet.targy}}</h3>
+      <div class="ion-item-background">
+        <ion-list id="list" lines="none">
+          <ion-item id="peopleInfo">
+            <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+            <ion-label>
+              <h2>
+                {{message.uzenet.feladoNev}}
+                <small>{{this.fDate.formatDateWithZerosAndDots(message.uzenet.kuldesDatum)}}</small> </h2>
+              <ion-note *ngFor="let a of message.uzenet.cimzettLista">
+                {{'pages.read-message.addresseeName' | translate}}:
+                {{this.getAddresseeString()}}
+              </ion-note>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+        <div class="extra-padding selectableText custom-padding-bottom" [innerHTML]="message.uzenet.szoveg"></div>
+        <ion-list *ngIf="this.message.uzenet.csatolmanyok.length > 0">
+          <ion-item button (click)="getFile(f.azonosito, f.fajlNev)" *ngFor="let f of message.uzenet.csatolmanyok">
+            <ion-icon slot="start" name="attach-outline"></ion-icon>
+            <ion-label>{{f.fajlNev}}</ion-label>
+            <ion-spinner *ngIf="f.loading == true" slot="end" style="float: right" name="crescent"></ion-spinner>
+          </ion-item>
+        </ion-list>
+      </div>
+      <div id="buttons" class="ion-text-center ion-align-self-baseline">
+        <ion-button *ngIf="this.message.tipus.azonosito != 2" (click)="this.replyToMsg()" class="bottomBtns" color="dark" fill="outline">
+          <ion-icon slot="start" name="return-up-back"></ion-icon>
+          {{'pages.read-message.replyBtnText' | translate}}
+        </ion-button>
+        <ion-button (click)="this.forwardMsg()" class="bottomBtns" color="dark" fill="outline">
+          <ion-icon slot="start" name="return-up-forward"></ion-icon>
+          {{'pages.read-message.forwardBtnText' | translate}}
+        </ion-button>
+      </div>
+    </div>
+  </ion-content>
+</ng-container>
+
+<ng-container *ngIf="this.pageState == 'sans'">
+  <ion-content>
+    <div class="message-text">
       <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
       <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-    </ion-card-content>
-  </ion-card>
-</ion-content>
+      <ion-list id="list" lines="none">
+        <ion-item id="peopleInfo">
+          <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+          <ion-label>
+            <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+      <div class="extra-padding ion-item-background" id="skeleton-message-text">
+        <ion-skeleton-text class="padding-top-0" animated style="width: 80"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 80"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 80"></ion-skeleton-text>
+      </div>
+      <div id="buttons" class="ion-text-center ion-align-self-baseline">
+        <ion-button disabled class="bottomBtns" color="dark" fill="outline">
+          <ion-icon slot="start" name="return-up-back"></ion-icon>
+          {{'pages.read-message.replyBtnText' | translate}}
+        </ion-button>
+        <ion-button disabled class="bottomBtns" color="dark" fill="outline">
+          <ion-icon slot="start" name="return-up-forward"></ion-icon>
+          {{'pages.read-message.forwardBtnText' | translate}}
+        </ion-button>
+      </div>
+    </div>
+  </ion-content>
+</ng-container>
+
+<ng-container *ngIf="this.pageState == 'error'">
+  <app-administration-error [error]="this.error"></app-administration-error>
+</ng-container>

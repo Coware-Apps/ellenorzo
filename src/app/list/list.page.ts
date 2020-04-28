@@ -11,8 +11,10 @@ import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { AppService } from '../_services/app.service';
+import { takeUntil } from 'rxjs/operators';
 
 interface day {
   name: string,
@@ -86,7 +88,7 @@ export class ListPage implements OnInit {
       index: 5,
       show: false,
     }];
-  private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
 
   constructor(
     public storage: Storage,
@@ -101,6 +103,7 @@ export class ListPage implements OnInit {
     private prompt: PromptService,
     private menuCtrl: MenuController,
     private translator: TranslateService,
+    private app: AppService,
   ) {
     this.focused = 0;
     this.message = "";
@@ -118,16 +121,22 @@ export class ListPage implements OnInit {
     //firebase
     this.firebase.setScreenName('timetable');
   }
-
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.menuCtrl.enable(true);
     await this.loadData();
-    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
+    this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(value => {
       if (value == 'reload') {
         this.sans = true;
         this.loadData();
       }
+      console.log('TIMETABLE RELOADER');
     });
+  }
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   private async loadData() {
@@ -145,7 +154,6 @@ export class ListPage implements OnInit {
       this.weekLast = new Date(this.fDate.getWeekLastDate());
       this.startingWeekFirst = new Date(this.fDate.getWeekFirstDate(0));
       this.startingWeekLast = new Date(this.fDate.getWeekLastDate(0));
-      this.focused = now.getDay() - 1;
     }
     console.log(this.weekFirst + ' ' + this.weekLast);
 
@@ -157,11 +165,6 @@ export class ListPage implements OnInit {
     );
     this.dataToScreen(this.fDate.formatDate(this.weekFirst), this.fDate.formatDate(this.weekLast));
     this.sans = false;
-    this.slides.slideTo(this.focused);
-  }
-
-  ionViewWillLeave() {
-    this.reloaderSubscription.unsubscribe();
   }
 
   async getMoreData(lesson: Lesson) {
@@ -191,8 +194,33 @@ export class ListPage implements OnInit {
   }
 
   getData(day: number) {
-    this.focused = day;
-    this.slides.slideTo(day);
+    let shownDays = [];
+    this.days.forEach(d => {
+      if (d.show) {
+        shownDays.push(d);
+      }
+    });
+    for (let i = 0; i < shownDays.length; i++) {
+      const element = shownDays[i];
+      if (element.index == day) {
+        this.focused = i;
+        this.slides.slideTo(i);
+      }
+    }
+  }
+  getShownDayIndex(day: number) {
+    let shownDays = [];
+    this.days.forEach(d => {
+      if (d.show) {
+        shownDays.push(d);
+      }
+    });
+    for (let i = 0; i < shownDays.length; i++) {
+      const element = shownDays[i];
+      if (element.index == day) {
+        return i;
+      }
+    }
   }
 
   getStateClass(item: any) {
@@ -273,11 +301,26 @@ export class ListPage implements OnInit {
       day.show = false;
     });
 
+    this.focused = 0;
+    let currentDay = new Date().getDay();
+    let prevDate;
+    let slideTo = 0;
     this.timetable.forEach(lesson => {
       let i = this.getDayName(lesson.StartTime.toString())
+
+      if (prevDate != new Date(lesson.StartTime).getDay()) {
+        if (currentDay == new Date(lesson.StartTime).getDay()) {
+          this.focused = slideTo;
+        }
+        slideTo++;
+      }
+
+      prevDate = new Date(lesson.StartTime).getDay();
       lesson.DayOfWeek = i - 1;
       this.days[i].show = true;
     });
+
+    this.slides.slideTo(this.focused);
 
     this.timetable.sort((a, b) => new Date(a.StartTime).valueOf() - new Date(b.StartTime).valueOf());
   }

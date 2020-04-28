@@ -11,6 +11,7 @@ import { NotificationService } from './notification.service';
 import { PromptService } from './prompt.service';
 import { WebUser } from '../_models/webUser';
 import { HTTP } from '@ionic-native/http/ngx';
+import { AdministrationService } from './administration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,12 +27,24 @@ export class UserFactoryService {
     private notificationSerice: NotificationService,
     private prompt: PromptService,
     private http: HTTP,
+    private administrationService: AdministrationService,
   ) {
 
   }
 
   public createUser(tokens: Token, institute: Institute): User {
-    let newUser = new User(tokens, institute, this.kreta, this.storage, this.fDate, this.cache, this.app, this.notificationSerice, this.prompt);
+    let newUser = new User(
+      tokens,
+      institute,
+      this.kreta,
+      this.storage,
+      this.fDate,
+      this.cache,
+      this.app,
+      this.notificationSerice,
+      this.prompt,
+      this.administrationService,
+    );
     return newUser;
   }
 

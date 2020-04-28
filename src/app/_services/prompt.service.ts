@@ -24,6 +24,115 @@ export class PromptService {
   ) {
 
   }
+  //#region complex prompts
+  /**
+   * Prompts the user to log in again, to unlock the web administration services
+   * @param instituteName The name of the institute of the user (used only for displaying it)
+   * @returns Promise that resolves to `true` if the user completed all the steps and to `false` if not.
+   */
+  async presentAdministrationLoginPrompt(instituteName: string) {
+    let ok = false;
+    const infoAlert = await this.alertCtrl.create({
+      header: 'Bejelentkezés',
+      subHeader: '',
+      message: '<h5>Miért kell újra bejelentkeznem?</h5>' +
+        'Ez egy olyan funkció, amely nem a KRÉTA mobilalkalmazás szervereit használja, hanem a KRÉTA e-ügyintézéshez tartozókat. A v1.1.1 verzió előtt bejelentkezett felhasználóknak újból be kell lépniük, hogy az e-ügyintézés szolgáltatásaihoz hozzáférjenek. Ezt csak egyszer kell megcsinálni, ezt követően a rendszer automatikusan be tud léptetni.' +
+        '<br><h5>Milyen új funkciók állnak majd rendelkezésemre, ha bejelentkezek?</h5>' +
+        '<ul>' +
+        '<li>Üzenetekre válasz</li>' +
+        '<li>Új üzenet írása</li>' +
+        '<li>Csatolmány (kép, fájl stb.) küldése mobilról</li>' +
+        '</ul>' +
+        '<br><h5>A hivatalos alkalmazásban miért nincs ilyen funkció?</h5>' +
+        'A hivatalos alkalmazás jelenleg csak a mobil szerverekkel tud kommunikálni. Ez azt jelenti, hogy abban az alkalmazásban nem lehet üzenetet írni és ilyen módon például beadandó munkát leadni. Az Arisztokréta azonban be tud jelentkeztetni az e-ügyintézés-be is, hogy annak teljes funkcionalitását a mobilodról is használhasd.',
+      buttons: [
+        {
+          text: 'Később',
+          role: 'cancel',
+          cssClass: 'secondary',
+        }, {
+          text: 'Tovább',
+          handler: () => {
+            ok = true;
+          }
+        }
+      ]
+    });
+    const loginAlert = await this.alertCtrl.create({
+      header: 'Bejelentkezés',
+      subHeader: instituteName,
+      inputs: [
+        {
+          name: 'username',
+          type: 'text',
+          placeholder: 'Felhasználónév'
+        },
+        {
+          name: 'password',
+          type: 'password',
+          placeholder: 'Jelszó'
+        },
+      ],
+      buttons: [
+        {
+          text: 'Mégse',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            ok = false;
+          }
+        }, {
+          text: 'Tovább',
+        }
+      ]
+    });
+    await infoAlert.present();
+    await infoAlert.onDidDismiss();
+    if (ok) {
+      await loginAlert.present();
+      let data = (await (loginAlert.onDidDismiss())).data.values;
+      if (ok) {
+        return data;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+  async getTrueOrFalseWithText(header: string, subHeader: string, text: string, type: "cancel-exit" | "yes-no" = "cancel-exit") {
+    let ok = false;
+    const a = await this.alertCtrl.create({
+      header: header,
+      subHeader: subHeader,
+      message: text,
+      buttons: [
+        {
+          text: type == "cancel-exit" ? this.t.instant('services.prompt.cancelBtnText') : this.t.instant('services.prompt.noBtnText'),
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            return false;
+          }
+        }, {
+          text: type == "cancel-exit" ? this.t.instant('services.prompt.exitBtnText') : this.t.instant('services.prompt.yesBtnText'),
+          cssClass: "danger",
+          handler: () => {
+            ok = true;
+          }
+        }
+      ]
+    });
+    await a.present();
+    await a.onDidDismiss();
+    if (ok) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  //#endregion
 
   //#region alerts
   public presentUniversalAlert(header: string, subHeader: string, message: string) {
@@ -195,7 +304,7 @@ export class PromptService {
   public async dismissTopToast() {
     let topToast = await this.toastCtrl.getTop();
     if (topToast != null) {
-      this.dismissToast(topToast.id);
+      this.toastCtrl.dismiss();
     }
   }
   //#endregion

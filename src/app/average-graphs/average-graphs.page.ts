@@ -101,7 +101,7 @@ export class AverageGraphsPage implements OnInit {
   fillStartData() {
     for (let i = 0; i < this.student.Evaluations.length; i++) {
       const element = this.student.Evaluations[i];
-      if (this.subject == element.Subject && element.NumberValue != 0 && element.Form == "Mark" && element.Type == "MidYear") {
+      if (this.subject == element.Subject && element.NumberValue != 0 && element.Form == "Mark" && element.Type == "MidYear" && element.IsAtlagbaBeleszamit) {
         //grades list
         this.grades.push({ grade: element.NumberValue, weight: element.Weight, extraId: 0, FormName: element.FormName, Mode: element.Mode, Date: element.CreatingTime, Theme: element.Theme });
         //line
@@ -394,19 +394,9 @@ export class AverageGraphsPage implements OnInit {
         name: this.translator.instant('graphs.evaluations.gauge.averageText'),
         data: [this.graphData],
         type: undefined,
-        title: this.translator.instant('graphs.evaluations.gauge.averageText'),
-        //color
-        style: {
-          color: this.color.getChartTextColor(),
-        }
-      },
-      {
-        name: this.translator.instant('graphs.evaluations.gauge.classAverageText'),
-        data: [this.classValue],
-        type: undefined,
         dial: {
-          backgroundColor: this.color.getChartSecondarySeriesColor(),
-        },
+          backgroundColor: this.color.getChartSeriesColor(),
+        }
       }],
     });
   }
@@ -456,25 +446,7 @@ export class AverageGraphsPage implements OnInit {
                 color: this.color.getChartTextColor(),
               }
             }
-          },
-          {
-            value: this.classValue,
-            color: this.color.getChartPlotLineColor(1),
-            width: 2,
-            zIndex: 2,
-            dashStyle: "Dot",
-            label: {
-              text: this.translator.instant('graphs.evaluations.line.classAverageText'),
-              //textAlign doesn't work but is needed to use x offset
-              textAlign: 'left',
-              x: 90,
-              //color
-              style: {
-                color: this.color.getChartTextColor(),
-              }
-            }
-          }
-        ]
+          },]
       },
       series: [{
         type: undefined,

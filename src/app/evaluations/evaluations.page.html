@@ -19,9 +19,9 @@
     <ion-select-option *ngFor="let option of selectOptions" value="{{option.id}}">{{option.name}}
     </ion-select-option>
   </ion-select>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
-      refreshingSpinner="dots">
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+    (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
   <ion-list [hidden]="this.selected != item.id" *ngFor="let item of this.selectOptionsWithData | async">

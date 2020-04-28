@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Message } from '../_models/message';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { Router } from '@angular/router';
-import { DataService } from '../_services/data.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, Subject } from 'rxjs';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UserManagerService } from '../_services/user-manager.service';
+import { MenuController } from '@ionic/angular';
+import { AppService } from '../_services/app.service';
 
 @Component({
   selector: 'app-messages',
@@ -19,80 +19,29 @@ export class MessagesPage implements OnInit {
   public messageListSubscription: Subscription;
   public reloaderSubscription: Subscription;
   public inboxEmpty: boolean = false;
+  private willLeaveUnsubscribe$: Subject<void> = new Subject<void>();
   constructor(
     public fDate: FormattedDateService,
-
-    private router: Router,
-    private userManager: UserManagerService,
-    private dataService: DataService,
+    public userManager: UserManagerService,
     private firebaseX: FirebaseX,
+    private menuCtrl: MenuController,
+    private app: AppService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
   }
 
-  async ngOnInit() {
-    this.firebaseX.setScreenName('messages');
-  }
-
-  async ionViewDidEnter() {
-    await this.loadData();
-    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
-      if (value == 'reload') {
-        this.sans = true;
-        this.showProgressBar = true;
-        this.messageListSubscription.unsubscribe();
-        this.loadData();
-      }
-    });
-  }
-
-  private async loadData() {
-    this.messages = new Observable<Message[]>((observer) => {
-      this.messageListSubscription = this.userManager.currentUser.messageList.subscribe(subscriptionData => {
-        if (subscriptionData.type == "skeleton") {
-          this.sans = true;
-          this.showProgressBar = true;
-        } else if (subscriptionData.type == "placeholder") {
-          console.log('[MESSAGES->loadData()] subscriptionData', subscriptionData);
-          subscriptionData.data.sort((a, b) => new Date(b.uzenet.kuldesDatum).valueOf() - new Date(a.uzenet.kuldesDatum).valueOf());
-          observer.next(subscriptionData.data);
-          this.inboxEmpty = subscriptionData.data.length > 0 ? false : true;
-          this.sans = false;
-        } else {
-          subscriptionData.data.sort((a, b) => new Date(b.uzenet.kuldesDatum).valueOf() - new Date(a.uzenet.kuldesDatum).valueOf());
-          observer.next(subscriptionData.data);
-          this.inboxEmpty = subscriptionData.data.length > 0 ? false : true;
-          this.sans = false;
-          this.showProgressBar = false;
-        }
-      });
-    });
-    await this.userManager.currentUser.initializeMessageList();
+  ionViewWillEnter() {
+    this.app.registerHwBackButton(this.willLeaveUnsubscribe$);
   }
 
   ionViewWillLeave() {
-    if (this.messageListSubscription != null) {
-      this.messageListSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
+    this.willLeaveUnsubscribe$.next();
+    this.willLeaveUnsubscribe$.complete();
   }
 
-  async doRefresh(event: any) {
-    this.showProgressBar = true;
-    await this.userManager.currentUser.updateMessageList();
-    event.target.complete();
+  async ngOnInit() {
+    this.firebaseX.setScreenName('messages');
+    this.menuCtrl.enable(true);
   }
-
-  async openMessage(message: Message) {
-    if (!message.isElolvasva) {
-      await this.userManager.currentUser.setMessageAsRead(message.uzenet.azonosito);
-      await this.userManager.currentUser.clearUserCacheByCategory('messageList');
-    }
-    this.dataService.setData('messageId', message.azonosito);
-    this.router.navigateByUrl('/messages/read-message');
-  }
-
 }

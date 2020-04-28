@@ -75,8 +75,8 @@ export class AppComponent {
 
   public async initializeConfig() {
     await this.getAppPages();
-    await this.theme.onInit();
     await this.app.onInit();
+    await this.theme.onInit();
     await this.color.onInit();
     let storedUsersInitData: userInitData[] = await this.storage.get("usersInitData");
     if (storedUsersInitData != null && storedUsersInitData.length > 0) {
@@ -128,7 +128,10 @@ export class AppComponent {
   }
 
   private async getAppPages(): Promise<any> {
+    await this.storage.get("sidemenu")
     let storedPages = await this.storage.get("sidemenu")
+
+
     if (storedPages != null) {
       for (let i = 0; i < storedPages.length; i++) {
         this.appPages[i].show = storedPages[i].show;

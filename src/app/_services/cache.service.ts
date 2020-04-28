@@ -34,7 +34,7 @@ export class CacheService {
     await this.storage.set(key, currentData);
   }
 
-  async isCacheNeeded(cacheData: storedData, cacheTime: number) {
+  isCacheValid(cacheData: storedData, cacheTime: number = 1200000) {
     var date = new Date();
     if (cacheData == null) {
       console.log('%c[CACHE->isCacheNeeded] Cache nonexistent', 'background: #b38484; color: black');
@@ -42,7 +42,7 @@ export class CacheService {
     }
     let storedDate = new Date(cacheData.storedDate).valueOf();
     if (storedDate != 0 && storedDate + cacheTime > date.valueOf()) {
-      console.log('%c[CACHE->isCacheNeeded] Caching', 'background: #86b384; color: black');
+      console.log('%c[CACHE->isCacheNeeded] Cache valid', 'background: #86b384; color: black');
       return true;
     } else {
       console.log('%c[CACHE->isCacheNeeded] Cache outdated', 'background: #b3a684; color: black');
@@ -54,7 +54,7 @@ export class CacheService {
   async getCacheIf(key: string, cacheTime: number = 1200000): Promise<any> { //300000ms = 5min
     //gives back the cache if it exists and if it isn't older than cacheTime
     let cacheItem = await this.storage.get(key);
-    if (await this.isCacheNeeded(cacheItem, cacheTime)) {
+    if (this.isCacheValid(cacheItem, cacheTime)) {
       return cacheItem.data;
     }
     else {
@@ -64,5 +64,10 @@ export class CacheService {
 
   async clearCacheByKey(key: string) {
     this.storage.remove(key)
+  }
+
+  async updateCache(key: string, data) {
+    await this.clearCacheByKey(key);
+    await this.setCache(key, data);
   }
 }

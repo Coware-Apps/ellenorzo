@@ -16,4 +16,6 @@ export class DecodedUser {
     "kreta:school_year_id": number;
     "kreta:tutelary_id": number;
     role: string;
+
+    name?: string;
 }

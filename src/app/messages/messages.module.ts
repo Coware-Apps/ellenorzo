@@ -8,6 +8,7 @@ import { MessagesPageRoutingModule } from './messages-routing.module';
 
 import { MessagesPage } from './messages.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ExitGuard } from '../_guards/exit.guard';
 
 @NgModule({
   imports: [
@@ -17,6 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
     MessagesPageRoutingModule,
     TranslateModule,
   ],
+  providers: [ExitGuard],
   declarations: [MessagesPage]
 })
-export class MessagesPageModule {}
+export class MessagesPageModule { }

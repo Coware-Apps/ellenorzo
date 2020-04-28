@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { AlertController, ModalController, MenuController, LoadingController } from '@ionic/angular';
+import { AlertController, ModalController, MenuController, LoadingController, AnimationController } from '@ionic/angular';
 import { InstituteSelectorModalPage } from './institute-selector-modal/institute-selector-modal.page';
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
@@ -9,6 +9,9 @@ import { UserManagerService } from '../_services/user-manager.service';
 import { AppService } from '../_services/app.service';
 import { PromptService } from '../_services/prompt.service';
 import { TranslateService } from '@ngx-translate/core';
+import { GlobalError } from '../_exceptions/global-exception';
+import { KretaError } from '../_exceptions/kreta-exception';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +23,7 @@ export class LoginPage implements OnInit {
   public user: string = null;
   public pass: string = null;
   public instituteName: string;
+  public kretaError: KretaError;
 
   constructor(
     public modalCtrl: ModalController,
@@ -35,6 +39,8 @@ export class LoginPage implements OnInit {
     private app: AppService,
     private prompt: PromptService,
     private translator: TranslateService,
+    private animationCtrl: AnimationController,
+    @Inject(DOCUMENT) private document: Document,
   ) { }
 
   ngOnInit() {
@@ -66,19 +72,39 @@ export class LoginPage implements OnInit {
       });
       await loading.present();
       await this.storage.set('username', this.user);
-      //TODO remove
-      let tokenResult = await this.kreta.getToken(this.user, this.pass, this.data.getData('institute'));
-      if (tokenResult != false) {
-        //checking if the user exists or not
+
+      try {
+        let tokenResult = await this.kreta.getToken(this.user, this.pass, this.data.getData('institute'));
         if (await this.userManager.addUser(tokenResult, this.data.getData('institute'))) {
           //the user doesn't exist
+
           await this.menuCtrl.enable(true);
           await loading.dismiss();
           this.app.isStudentSelectorReady = true;
           if (this.userManager.allUsers.length > 1) {
             this.data.setData('refreshHome', true);
           }
-          console.log('navigating to home now');
+
+          try {
+            await this.userManager.currentUser.logIntoAdministration(this.user, this.pass);
+          } catch (error) {
+            if (error.promise && error.rejection) error = error.rejection;
+            if (error instanceof GlobalError) this.prompt.errorToast(
+              this.translator.instant('pages.login.administrationLoginError') + ': ' +
+              this.translator.instant(error.customTitleTranslatorKey)
+            );
+          } finally {
+            loading.dismiss();
+          }
+
+          this.kretaError = null;
+          // await this.animationCtrl.create().addElement(
+          //   [this.document.querySelector('#errorInfo'),
+          //   this.document.querySelector('#errorInfoItem')]
+          // )
+          //   .duration(0)
+          //   .to('max-height', '0')
+          //   .play();
           await this.router.navigateByUrl('home');
         } else {
           //the user already exists
@@ -89,14 +115,19 @@ export class LoginPage implements OnInit {
           );
           await loading.dismiss();
         }
-      } else {
-        this.presentAlert(
-          this.translator.instant('pages.login.invalidGrant.header'),
-          this.translator.instant('pages.login.invalidGrant.message')
-        );
-        await loading.dismiss();
+      } catch (error) {
+        this.kretaError = error;
+        // this.animationCtrl.create().addElement(
+        //   [this.document.querySelector('#errorInfo'),
+        //   this.document.querySelector('#errorInfoItem')]
+        // )
+        //   .duration(200)
+        //   .fromTo('max-height', '0px', '100px')
+        //   .play();
+        throw error;
+      } finally {
+        loading.dismiss();
       }
-      //TODO login
     }
   }
 
@@ -110,7 +141,12 @@ export class LoginPage implements OnInit {
       this.instituteName = data.selectedInstitute.Name;
   }
 
-  async presentAlert(header: string, message: string) {
+  getErrorInfo() {
+    this.data.setData('loginError', this.kretaError);
+    this.router.navigateByUrl('login/error?errorDataKey=loginError');
+  }
+
+  private async presentAlert(header: string, message: string) {
     const alert = await this.alertCtrl.create({
       header: header,
       message: message,
@@ -119,6 +155,4 @@ export class LoginPage implements OnInit {
 
     await alert.present();
   }
-
-
 }

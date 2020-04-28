@@ -83,6 +83,7 @@ export class EvaluationsPage implements OnInit {
     data: [],
   }]
   public selectOptionsWithData: Subject<SelectOption[]>
+  public unsubscribe$: Subject<void>;
 
   private student: Student;
   private studentSubscription: Subscription;
@@ -112,6 +113,8 @@ export class EvaluationsPage implements OnInit {
     this.firebase.setScreenName('evaluations');
   }
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$)
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -122,6 +125,17 @@ export class EvaluationsPage implements OnInit {
       }
     });
   }
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    if (this.studentSubscription != null) {
+      this.studentSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
+  }
+
   private async loadData() {
     this.selectOptionsWithData = new Subject<SelectOption[]>();
     this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
@@ -147,15 +161,6 @@ export class EvaluationsPage implements OnInit {
       }
     });
     await this.userManager.currentUser.initializeStudent();
-  }
-
-  ionViewWillLeave() {
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
   openCategorySelector(event: UIEvent) {

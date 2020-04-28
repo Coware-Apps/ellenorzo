@@ -1,0 +1,29 @@
+ion-row {
+    height: 100%;
+}
+
+.ion-icon-large {
+    font-size: 72pt;
+}
+
+ion-button {
+    margin-top: 20px;
+}
+.longText {
+    padding: 2%;
+    h5 {
+        text-align: center;
+        padding-bottom: 2%;
+    }
+    p {
+        text-align: justify;
+        padding-bottom: 4%;
+    }
+    ul {
+        text-align: left;
+        padding-bottom: 4%;
+    }
+}
+.ion-text-color{
+    color: var(--ion-text-color);
+}

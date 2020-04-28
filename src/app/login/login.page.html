@@ -10,6 +10,14 @@
 </ion-header>
 <ion-content>
   <ion-card>
+
+    <ion-list *ngIf="this.kretaError" lines="none" id="errorInfo">
+      <ion-item (click)="this.getErrorInfo()" id="errorInfoItem" button color="danger">
+        <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+        <ion-label>{{'pages.login.errorDetails' | translate}}</ion-label>
+      </ion-item>
+    </ion-list>
+
     <ion-card-header class="login-header">
       <img src="../../assets/img/logo.png" class="logo">
       <h1 class="title">Arisztokréta</h1>

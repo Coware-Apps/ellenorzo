@@ -26,8 +26,9 @@
     <ion-select-option value="monthly">{{'pages.statistics.categorySelector.options.monthly' | translate}}
     </ion-select-option>
   </ion-select>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="Húzd le a frissítéshez" refreshingSpinner="dots">
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+    (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides mode="ios">

@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { Message } from 'src/app/_models/message';
+import { AdministrationMessage } from 'src/app/_models/_administration/message';
 import { DataService } from 'src/app/_services/data.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { UserManagerService } from 'src/app/_services/user-manager.service';
 import { FileOpener } from '@ionic-native/file-opener/ngx';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { FormattedDateService } from 'src/app/_services/formatted-date.service';
+import { PromptService } from 'src/app/_services/prompt.service';
+import { AdministrationError } from 'src/app/_exceptions/administration-exception';
+import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { MenuController } from '@ionic/angular';
+import { File } from '@ionic-native/file/ngx';
 
 @Component({
   selector: 'app-read-message',
@@ -12,31 +19,115 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
   styleUrls: ['./read-message.page.scss'],
 })
 export class ReadMessagePage implements OnInit {
-  public message: Message;
-  public sans: boolean;
+  public messageId: number;
+  public message: AdministrationMessage;
+  public pageState: 'sans' | 'error' | 'loaded' | 'login' = 'sans';
+  public error: AdministrationError;
+
+  private subs: Subscription[] = [];
   constructor(
+    public fDate: FormattedDateService,
     public userManager: UserManagerService,
     public data: DataService,
     private router: Router,
+    private route: ActivatedRoute,
     private FileOpener: FileOpener,
     private firebaseX: FirebaseX,
+    private prompt: PromptService,
+    private translator: TranslateService,
+    private menuCtrl: MenuController,
+    private file: File,
   ) {
-    this.sans = true;
+    this.route.queryParams.subscribe(params => {
+      this.messageId = params.messageId;
+    });
   }
 
-  ngOnInit() {
+  ionViewWillEnter() {
+    this.menuCtrl.enable(false);
+  }
+
+  async ngOnInit() {
     this.firebaseX.setScreenName('read-message');
-  }
-
-  async ionViewDidEnter() {
-    this.sans = true;
-    let messageId = this.data.getData('messageId');
-    this.message = await this.userManager.currentUser.getMessage(messageId);
+    if (!this.userManager.currentUser.isAdministrationRegistered()) {
+      return this.pageState = "login";
+    }
+    this.pageState = 'sans';
+    this.message = await this.userManager.currentUser.getMessageAdministration(this.messageId);
     for (let i = 0; i < this.message.uzenet.csatolmanyok.length; i++) {
       this.message.uzenet.csatolmanyok[i].loading = false;
     }
+    this.pageState = 'loaded';
+  }
 
-    this.sans = false;
+  ngOnDestroy() {
+    this.menuCtrl.enable(true);
+    this.subs.forEach((s, index, object) => {
+      s.unsubscribe();
+      object.splice(index, 1);
+    });
+  }
+
+  getAddresseeString() {
+    return this.message.uzenet.cimzettLista
+      .map(x =>
+        this.userManager.currentUser.id == x.kretaAzonosito
+          ? this.translator.instant('pages.read-message.meText')
+          : x.nev
+      )
+      .join(", ");
+  }
+
+
+  replyToMsg() {
+    this.data.setData('replyData', this.message);
+    this.router.navigateByUrl('messages/new-message?replyDataKey=replyData');
+  }
+  forwardMsg() {
+    this.data.setData('forwardData', this.message);
+    this.router.navigateByUrl('messages/new-message?forwardDataKey=forwardData')
+  }
+  showStatusInfo() {
+    this.prompt.presentUniversalAlert(
+      `Azonosító: ${this.message.azonosito}`,
+      `Státusz: ${this.message.uzenet.statusz.azonosito} (${this.message.uzenet.statusz.leiras})`,
+      `Hibakód: ${this.message.uzenet.hibaCorrellationId}`
+    )
+  }
+  async binMsg(action: 'put' | 'remove') {
+    await this.userManager.currentUser.binMessage(action, [this.message.azonosito]);
+    if (action == 'put') {
+      this.prompt.toast(
+        this.translator.instant('pages.read-message.successfullyBinned'), true
+      );
+      this.ngOnInit();
+    } else {
+      this.prompt.toast(
+        this.translator.instant('pages.read-message.successfullyUnbinned'),
+        true
+      );
+      this.ngOnInit();
+    }
+  }
+  async deleteMsg() {
+    let promptRes = await this.prompt.getTrueOrFalseWithText(
+      this.translator.instant('pages.read-message.confirmDelete.header'),
+      "",
+      this.translator.instant('pages.read-message.confirmDelete.message'),
+      "yes-no"
+    );
+    if (promptRes) {
+      await this.userManager.currentUser.deleteMessage([this.message.azonosito]);
+      this.router.navigateByUrl('messages?forceRefresh=true');
+    }
+  }
+  async setAsUnread() {
+    await this.userManager.currentUser.changeMessageState('unread', [this.message.azonosito]);
+    this.prompt.toast(
+      this.translator.instant('pages.read-message.successfullyUnread'),
+      true
+    );
+    this.router.navigateByUrl('messages?forceRefresh=true');
   }
 
   async getFile(id: number, fullName: string) {
@@ -48,15 +139,14 @@ export class ReadMessagePage implements OnInit {
     const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)]
     let newName = splitAt(fullName.lastIndexOf('.'))(fullName);
     newName[1] = newName[1].slice(1);
-    let filePath = await this.userManager.currentUser.getMessageFile(id, newName[0], newName[1]);
-    this.FileOpener.showOpenWithDialog(filePath, this.types[newName[1]]);
+    let filePath = await this.userManager.currentUser.getAttachmentThroughAdministration(id, newName[0], newName[1]);
+    await this.FileOpener.showOpenWithDialog(filePath, this.types[newName[1]]);
     for (let i = 0; i < this.message.uzenet.csatolmanyok.length; i++) {
       if (this.message.uzenet.csatolmanyok[i].azonosito == id) {
         this.message.uzenet.csatolmanyok[i].loading = false;
       }
     }
   }
-  //Bodging it together, piece by piece
   public types = {
     '3dmf': 'x-world/x-3dmf',
     '3dm': 'x-world/x-3dmf',

@@ -1,42 +1,18 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>{{'pages.messages.title' | translate}}</ion-title>
-    <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
-  </ion-toolbar>
-</ion-header>
+<ion-tabs>
+  <ion-tab-bar [hidden]="!this.userManager.currentUser.isAdministrationRegistered()" slot="bottom">
+    <ion-tab-button tab="inbox">
+      <ion-icon name="file-tray-outline"></ion-icon>
+      <ion-label translate="pages.messages.tabs.inbox"></ion-label>
+    </ion-tab-button>
 
-<ion-content>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
-      refreshingSpinner="dots">
-    </ion-refresher-content>
-  </ion-refresher>
-  <ion-item *ngIf="this.inboxEmpty">
-    <ion-label style="text-align: center">{{'pages.messages.noMessagesText' | translate}}</ion-label>
-  </ion-item>
-  <div *ngFor="let message of this.messages | async">
-    <ion-card button [ngClass]="{'unread': !message.isElolvasva}" (click)="openMessage(message)">
-      <ion-card-header>
-        <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(message.uzenet.kuldesDatum)}} -
-          {{this.fDate.getTime(message.uzenet.kuldesDatum)}}</ion-card-subtitle>
-        <ion-card-title>{{message.uzenet.feladoNev}}</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        {{message.uzenet.targy}}
-      </ion-card-content>
-    </ion-card>
-  </div>
-  <div *ngIf="this.sans">
-    <ion-card *ngFor="let i of [0, 1, 2, 3]">
-      <ion-card-header>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-      </ion-card-header>
-    </ion-card>
-  </div>
-</ion-content>
+    <ion-tab-button tab="outbox">
+      <ion-icon name="paper-plane-outline"></ion-icon>
+      <ion-label translate="pages.messages.tabs.outbox"></ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="deleted">
+      <ion-icon name="trash-bin-outline"></ion-icon>
+      <ion-label translate="pages.messages.tabs.trash"></ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

@@ -3,13 +3,33 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>{{'pages.homeworks.title' | translate}} ({{getHeaderDate()}})</ion-title>
+    <ion-title>{{'pages.homeworks.title' | translate}}</ion-title>
+  </ion-toolbar>
+  <ion-toolbar (swipe)="swipe($event)" class="ion-text-center">
+    <ion-buttons slot="start">
+      <ion-button (click)="extraWeekIndex = extraWeekIndex - 1; this.loadData()">
+        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-label class="ion-text-center">{{fDate.formatDateWithZerosAndDots(fDate.getWeekFirstDate(extraWeekIndex))}} -
+      {{fDate.formatDateWithZerosAndDots(fDate.getWeekLastDate(extraWeekIndex))}}</ion-label>
+    <ion-buttons slot="end">
+      <ion-button (click)="extraWeekIndex = extraWeekIndex + 1; this.loadData()">
+        <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-progress-bar *ngIf="componentState == 'loading'" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item-divider>
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+    (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content>
+    </ion-refresher-content>
+  </ion-refresher>
+  <ion-list [ngClass]="{'ion-no-padding': componentState != 'loaded'}">
+    <!-- <ion-item-divider>
       <ion-label>
         <h1>{{'pages.homeworks.teacherHomeworkName' | translate}}</h1>
         <p *ngIf="!this.sans && teacherHomeworks.length == 0">({{'pages.homeworks.emptyText' | translate}})</p>
@@ -75,31 +95,36 @@
           </ion-card-title>
         </ion-card-header>
       </ion-card>
+    </div> -->
+    <div *ngIf="componentState == 'loaded'">
+      <div *ngFor="let d of homeworkLessons">
+        <ion-item button (click)="d.showAll = !d.showAll">
+          <ion-label>
+            {{d.header}}
+          </ion-label>
+          <ion-icon *ngIf="!d.showAll" slot="start" name="chevron-forward"></ion-icon>
+          <ion-icon *ngIf="d.showAll" slot="start" name="chevron-down"></ion-icon>
+        </ion-item>
+        <div *ngFor="let l of d.data">
+          <ion-item button *ngIf="d.showAll" (click)="openHomeworks(l)">
+            <ion-icon src="../../assets/extraicons/homewarning.svg" slot="start"></ion-icon>
+            <ion-label>
+              <h2>{{l.Subject}}</h2>
+              <ion-note *ngIf="l.Theme">{{l.Theme}}</ion-note>
+            </ion-label>
+          </ion-item>
+        </div>
+      </div>
     </div>
-    <div *ngIf="sans">
-      <ion-card class="wide">
-        <ion-card-header>
-          <ion-buttons style="float: right;">
-            <ion-button>
-              <ion-icon disabled slot="icon-only" name="information-circle"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-          <ion-card-title>
-            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-          </ion-card-title>
-          <ion-card-subtitle>
-            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-          </ion-card-subtitle>
-          <ion-card-subtitle class="deadlineText">
-            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-          </ion-card-subtitle>
-          <ion-card-title>
-            <div>
-              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-            </div>
-          </ion-card-title>
-        </ion-card-header>
-      </ion-card>
+    <div *ngIf="componentState == 'loading'">
+      <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5, 6]">
+        <ion-label>
+          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+          <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
     </div>
   </ion-list>
+  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.homeworks.emptyText" icon="library-outline">
+  </app-empty>
 </ion-content>

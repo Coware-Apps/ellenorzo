@@ -1,0 +1,53 @@
+<div class="selectableText" *ngIf="this.error">
+  <ion-list>
+    <ion-item *ngIf="this.error.customTitleTranslatorKey">
+      <ion-icon name="warning-outline" slot="start"></ion-icon>
+      <ion-label class="ion-text-wrap">{{this.error.customTitleTranslatorKey | translate}}</ion-label>
+    </ion-item>
+    <ion-item *ngIf="this.error.customTextTranslatorKey != null">
+      <ion-icon name="information-circle" slot="start"></ion-icon>
+      <ion-label class="ion-text-wrap">{{this.error.customTextTranslatorKey | translate}}</ion-label>
+    </ion-item>
+    <ion-item *ngIf="this.error.queryName">
+      <ion-icon name="pin-outline" slot="start"></ion-icon>
+      <ion-label class="ion-text-wrap">{{'pages.error.errorSourceText' | translate}}: {{error.queryName}}
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ion-grid *ngIf="this.error.httpErrorObject">
+    <ion-row class="ion-text-center ion-align-items-center">
+      <ion-col>
+        <ion-button fill="outline" class="ion-text-center ion-align-items-center" *ngIf="!this.showMore"
+          (click)="this.showMore = true">
+          <ion-icon slot="start" name="chevron-down"></ion-icon>
+          {{'pages.error.detailsBtnText' | translate}}
+        </ion-button>
+        <ion-button fill="outline" class="ion-text-center ion-align-items-center" *ngIf="this.showMore"
+          (click)="this.showMore = false">
+          <ion-icon slot="start" name="chevron-up"></ion-icon>
+          {{'pages.error.detailsBtnText' | translate}}
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <div *ngIf="this.error.httpErrorObject && this.showMore">
+    <ion-list>
+      <div *ngFor="let key of getKeys(this.error.httpErrorObject)">
+        <ion-item color="primary">
+          <ion-icon name="code-outline" slot="start"></ion-icon>
+          <ion-label>{{stringify(key)}}</ion-label>
+          <ion-buttons slot="end">
+            <ion-button (click)="this.copyText(stringify(this.error.httpErrorObject[key]))">
+              <ion-icon slot="icon-only" name="copy-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+        <ion-item>
+          <ion-label class="ion-text-wrap">{{stringify(this.error.httpErrorObject[key])}}</ion-label>
+        </ion-item>
+      </div>
+    </ion-list>
+  </div>
+</div>

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Note, Absence, evaluation } from '../_models/student';
 import { TranslateService } from '@ngx-translate/core';
+import { Lesson } from '../_models/lesson';
 
 export interface UniversalSortedData {
   index: number;
   header: string;
-  data: any[] | Note[] | Absence[] | evaluation[];
+  data: any[] | Note[] | Absence[] | evaluation[] | Lesson[];
   firstEntryCreatingTime: number;
   showAll: boolean;
 }

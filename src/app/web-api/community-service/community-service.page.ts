@@ -45,7 +45,7 @@ export class CommunityServicePage implements OnInit {
     if (this.webUserManager.user == null) {
       this.needsRegistration = true;
     } else {
-      this.initializeTimer(await this.webUserManager.user.login());
+      //this.initializeTimer(await this.webUserManager.user.login());
       this.loggedIn = true;
       this.comServiceData = await this.webUserManager.user.getCommunityService();
     }
@@ -60,22 +60,22 @@ export class CommunityServicePage implements OnInit {
   async getDisplayData() {
     return await this.webUserManager.user.getCommunityService();
   }
-  private initializeTimer(remainingTime: number): NodeJS.Timer {
-    let startTime = new Date(new Date(remainingTime * 1000).valueOf());
-    let i = 0;
-    let keepGoing = true;
-    let returnVal = setInterval(() => {
-      if (keepGoing) {
-        this.authFor = new Date(startTime.valueOf() - (i * 1000));
-        i++;
-      }
-      if (this.authFor.getMinutes() <= 5) {
-        keepGoing = false;
-        this.authFor.setHours(0, 0, 0, 0);
-      }
-    }, 1000);
-    return returnVal;
-  }
+  // private initializeTimer(remainingTime: number): NodeJS.Timer {
+  //   let startTime = new Date(new Date(remainingTime * 1000).valueOf());
+  //   let i = 0;
+  //   let keepGoing = true;
+  //   let returnVal = setInterval(() => {
+  //     if (keepGoing) {
+  //       this.authFor = new Date(startTime.valueOf() - (i * 1000));
+  //       i++;
+  //     }
+  //     if (this.authFor.getMinutes() <= 5) {
+  //       keepGoing = false;
+  //       this.authFor.setHours(0, 0, 0, 0);
+  //     }
+  //   }, 1000);
+  //   return returnVal;
+  // }
   async showSmartLoginInfo(event: any) {
     let popover = await this.popoverCtrl.create({
       component: WebLoginInfoComponent,

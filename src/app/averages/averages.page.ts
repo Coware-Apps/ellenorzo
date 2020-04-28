@@ -1,19 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Student, SubjectAverage } from '../_models/student';
-import { FormattedDateService } from '../_services/formatted-date.service';
-import { ModalController } from '@ionic/angular';
-import { AverageGraphsPage } from '../average-graphs/average-graphs.page';
 import { ColorService } from '../_services/color.service';
-import { KretaService } from '../_services/kreta.service';
-import { Storage } from '@ionic/storage';
 import { Router } from '@angular/router';
-import { promise } from 'protractor';
 import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Subject } from 'rxjs';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
+import { AppService } from '../_services/app.service';
 
 
 @Component({
@@ -30,17 +25,18 @@ export class AveragesPage implements OnInit {
 
   private studentSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
 
   constructor(
     public color: ColorService,
 
-    private storage: Storage,
     private navRouter: Router,
     private data: DataService,
     private firebase: FirebaseX,
     private userManager: UserManagerService,
     private prompt: PromptService,
     private translator: TranslateService,
+    private app: AppService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
@@ -51,6 +47,8 @@ export class AveragesPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -62,6 +60,17 @@ export class AveragesPage implements OnInit {
     });
   }
 
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    if (this.studentSubscription != null) {
+      this.studentSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
+  }
+
   private async loadData() {
     this.subjectAverages = new Observable<SubjectAverage[]>((observer) => {
       this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
@@ -71,6 +80,7 @@ export class AveragesPage implements OnInit {
         } else if (subscriptionData.type == "placeholder") {
           //there is data in the storage, showing that data until the server responds, disabling skeleton text
           observer.next(subscriptionData.data.SubjectAverages);
+          this.student = subscriptionData.data;
           this.sans = false;
           console.log("got placeholder");
         } else {
@@ -86,15 +96,6 @@ export class AveragesPage implements OnInit {
       });
     });
     await this.userManager.currentUser.initializeStudent();
-  }
-
-  ionViewWillLeave() {
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
   async showModal(subject: string, classValue: number, student: Student) {
@@ -113,6 +114,25 @@ export class AveragesPage implements OnInit {
     await this.userManager.currentUser.updateStudent();
     console.log('got student');
     event.target.complete();
+  }
+
+  getNumOfGrades(subject: string) {
+    let returnVal = 0;
+    this.student.Evaluations.forEach(e => {
+      if (e.Subject == subject) {
+        returnVal++;
+      }
+    });
+    return returnVal;
+  }
+  getCountingGrades(subject: string) {
+    let returnVal = 0;
+    this.student.Evaluations.forEach(e => {
+      if (e.Subject == subject && e.IsAtlagbaBeleszamit == true && e.Form == 'Mark' && e.Type == 'MidYear') {
+        returnVal++;
+      }
+    });
+    return returnVal;
   }
 
   getShadowColor(average: number) {

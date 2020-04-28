@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 
@@ -20,6 +20,7 @@ export class TestsPage implements OnInit {
 
   private testsSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
 
   constructor(
     public fDate: FormattedDateService,
@@ -37,8 +38,9 @@ export class TestsPage implements OnInit {
   async ngOnInit() {
     this.firebase.setScreenName('tests');
   }
-
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -48,6 +50,16 @@ export class TestsPage implements OnInit {
         this.loadData();
       }
     });
+  }
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    if (this.testsSubscription != null) {
+      this.testsSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   private async loadData() {
@@ -68,15 +80,6 @@ export class TestsPage implements OnInit {
       });
     });
     await this.userManager.currentUser.initializeTests()
-  }
-
-  ionViewWillLeave() {
-    if (this.testsSubscription != null) {
-      this.testsSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
   async doRefresh(event: any) {

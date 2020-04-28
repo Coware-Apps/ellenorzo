@@ -14,10 +14,9 @@
 </ion-header>
 
 <ion-content (ionScroll)="ionScroll($event)" scrollEvents="true" #scroll>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content pullingIcon="chevron-down" pullingText="{{'components.refresher.pullingText' | translate}}"
-      refreshingSpinner="dots">
-    </ion-refresher-content>
+  <ion-refresher [disabled]="showProgressBar" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+    (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <ion-fab [hidden]="!a" vertical="top" horizontal="center" slot="fixed">
     <ion-fab-button (click)="scrollToTop()" translucent="true">

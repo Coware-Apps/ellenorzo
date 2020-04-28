@@ -78,7 +78,7 @@ const routes: Routes = [
   },
   {
     path: 'timetable-homeworks',
-    loadChildren: () => import('./list/timetable-homeworks/timetable-homeworks.module').then(m => m.TimetableHomeworksPageModule),
+    loadChildren: () => import('./timetable-homeworks/timetable-homeworks.module').then(m => m.TimetableHomeworksPageModule),
     canActivate: [AuthGuard]
   },
   {

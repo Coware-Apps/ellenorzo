@@ -47,7 +47,9 @@
             "title": "Átlagok",
             "colorBtn": "Színek",
             "classAverageText": "Osztályátlag:",
-            "loadingToastText": "Adatok betöltése folyamatban!"
+            "loadingToastText": "Adatok betöltése folyamatban!",
+            "totalGradesText": "Jegyek száma:",
+            "totalCountingGradesText": "Átlagba beleszámít:"
         },
         "absences": {
             "title": "Mulasztások",
@@ -70,17 +72,65 @@
         },
         "homeworks": {
             "title": "Házi feladatok",
-            "teacherHomeworkName": "Tanár által feladott",
-            "studentHomeworkName": "Tanuló által feladott",
-            "deadlineText": "Határidő",
-            "emptyText": "üres"
+            "emptyText": "Ezen a héten nincsenek házi feladatok"
         },
         "tests": {
             "title": "Számonkérések"
         },
         "messages": {
             "title": "Üzenetek",
-            "noMessagesText": "Nincsenek beérkezett üzenetek"
+            "noMessagesText": "Nincsenek beérkezett üzenetek",
+            "addresseeListEmpty": "Nincs a keresési feltételeknek megfelelő találat",
+            "tabs": {
+                "inbox": "Beérkezett",
+                "outbox": "Elküldött",
+                "trash": "Törölt"
+            }
+        },
+        "new-message": {
+            "title": "Új üzenet",
+            "sendingMessageText": "Üzenet küldése folyamatban...",
+            "fromName": "Feladó",
+            "toName": "Címzett",
+            "addName": "Hozzáadás",
+            "subjectName": "Tárgy",
+            "sentAtName": "Elküldve",
+            "replyName": "Válasz",
+            "msgTextPlaceholder": "Üzenet szövege",
+            "msgSubjectPlaceholder": "Üzenet tárgya",
+            "selectPlaceholder": "Kiválasztás",
+            "piecesName": "db",
+            "messageSentText": "Üzenet sikeresen elküldve",
+            "loadingText": "Adatok betöltése folyamatban",
+            "fillAllFieldsText": "Kérlek töltsd ki a megfelelő mezőket!"
+        },
+        "list-addressees": {
+            "title": "Címzettek",
+            "addresseeTitleName": "Titulus",
+            "emptyText": "Nincsenek kiválasztott címzettek"
+        },
+        "addressee-selector": {
+            "categorySelectPlaceholder": "Válassz kategóriát",
+            "searchPlaceholder": "Keresés",
+            "classSelectPlaceholder": "Osztály",
+            "groupSelectPlaceholder": "Csoport",
+            "categoryErrorText": "A kért adatokat nem sikerült betölteni. Amennyiben a probléma továbbra is fennál kérlek jelezd nekünk.",
+            "piecesName": "db"
+        },
+        "message-list": {
+            "folderEmptyText": "Nem találhatók üzenetek a mappában",
+            "selectedName": "kiválasztva",
+            "searchPlaceholder": "Keresés",
+            "andName": "és",
+            "otherAddresseesText": "további címzett",
+            "loadMoreMessagesText": "Több üzenet betöltése",
+            "successfullyDeletedText": "Sikeresen törölve",
+            "successfullyRestoredText": "Sikeresen visszaállítva",
+            "confirmDelete": {
+                "header": "Üzenet(ek) végleges törlése",
+                "message": "Az üzenet(ek) véglegesen törölve lesz(nek), a folyamat nem vonható vissza. Biztos?"
+            },
+            "successfullyUnread": "Üzenet(ek) sikeresen olvasatlannak jelölve"
         },
         "user": {
             "title": "Személyes adatlap",
@@ -218,7 +268,18 @@
             "senderName": "Feladó",
             "addresseeName": "Címzett(ek)",
             "subjectName": "Tárgy",
-            "textName": "Szöveg"
+            "textName": "Szöveg",
+            "meText": "én",
+            "successfullyBinned": "Üzenet sikeresen törölve",
+            "successfullyUnbinned": "Üzenet visszaállítva",
+            "confirmDelete": {
+                "header": "Üzenet végleges törlése",
+                "message": "Az üzenet véglegesen törölve lesz, a folyamat nem vonható vissza. Biztos?"
+            },
+            "successfullyUnread": "Üzenet olvasatlannak lett jelölve",
+            "errorStateName": "Kiküldés állapota",
+            "replyBtnText": "Válasz",
+            "forwardBtnText": "Továbbítás"
         },
         "bg-settings": {
             "title": "Háttér testreszabása",
@@ -268,6 +329,8 @@
         "user-settings": {
             "title": "Fiókok kezelése",
             "addUserBtnText": "Fiók hozzáadása",
+            "mobileAccountsName": "Mobil fiókok",
+            "administrationAccountsName": "E-ügyintézés fiókok",
             "info": "Több hozzáadott felhasználó esetén a rendszer azok adatait minden oldalon külön jeleníti meg. A fiókok közötti váltás az oldalsó menüben lehetséges a felhasználó nevére kattintva."
         },
         "login": {
@@ -278,6 +341,7 @@
             "loginBtnText": "Bejelentkezés",
             "privacyPolicyText": "A bejelentkezés gombra kattintva elfogadom az Adatkezelési feltételeket",
             "loadingText": "Fiók adatainak betöltése folyamatban...",
+            "administrationLoginError": "Sikertelen bejelentkezés az e-ügyintézés modulba",
             "invalidGrant": {
                 "header": "Hibás adatok",
                 "message": "A felhasználónév vagy jelszó helytelen!"
@@ -291,7 +355,15 @@
                 "subHeader": "Sikertelen művelet",
                 "message": "Ezzel az azonosítóval már létezik bejelentkezett felhasználó a rendszerben."
             },
-            "filterInstitutesText": "Intézmények szűrése..."
+            "filterInstitutesText": "Intézmények szűrése...",
+            "errorDetails": "Kattints ide a hiba pontos leírásáért"
+        },
+        "error": {
+            "title": "Hiba leírása",
+            "detailsBtnText": "Részletek",
+            "errorSourceText": "Forrás",
+            "copiedText": "Szöveg a vágólapra lett másolva",
+            "errorCopyingText": "Nem sikerült a szöveget a vágólapra másolni"
         },
         "events": {
             "title": "Faliújság",
@@ -388,6 +460,34 @@
             "AbsenceName": "Hiányzás",
             "DelayName": "Késés",
             "unit": "p"
+        },
+        "empty": {
+            "text": "Nincs találat"
+        },
+        "re-login": {
+            "onSuccessfulLogin": "Sikeres bejelentkezés!",
+            "header": "Bejelentkezés",
+            "message": "Az e-ügyintézés modul használatához erősítsd meg a felhasználóneved és a jelszavad.",
+            "whyLoginTitle": "Miért kell újra bejelentkeznem?",
+            "whyLoginText": "Ez egy olyan funkció, amely nem a KRÉTA mobilalkalmazás szervereit használja, hanem a KRÉTA e-ügyintézéshez tartozókat. A v1.1.7 verzió előtt bejelentkezett felhasználóknak újból be kell lépniük, hogy az e-ügyintézés szolgáltatásaihoz hozzáférjenek. Ezt csak egyszer kell megcsinálni, ezt követően a rendszer automatikusan be tud léptetni.",
+            "featureTitle": "Milyen új funkciók állnak majd rendelkezésemre, ha bejelentkezek?",
+            "replyFeatureText": "Üzenetekre válasz",
+            "forwardFeatureText": "Üzenetek továbbítása",
+            "newMessageFeatureText": "Új üzenet írása",
+            "attachmentFeatureText": "Csatolmány (kép, dokumentum, fájl stb.) küldése mobilról",
+            "binFeatureText": "Üzenetek lomtárba helyezése, törlése",
+            "stateFeatureText": "Üzenetek olvasottnak/olvasatlannak jelölése",
+            "whatCredentialsTitle": "Milyen adatokkal kell bejelentkeznem?",
+            "whatCredentialsText": "Az e-ügyintézés modul használatához ugyanaz a felhasználónév és jelszó szükséges, amelyekkel a mobilalkalmazásba bejelentkeztünk.",
+            "dataLossTitle": "El fognak veszni a beállításaim vagy adataim?",
+            "dataLossText": "A bejelentkezés csak fel fog oldani új funkciókat, semmilyen adatot nem töröl, és a beállítások is megmaradnak.",
+            "officialAppLacksTitle": "A hivatalos alkalmazásban miért nincs ilyen funkció?",
+            "officialAppLacksText": "A hivatalos alkalmazás jelenleg csak a mobil szerverekkel tud kommunikálni. Ez azt jelenti, hogy abban az alkalmazásban nem lehet üzenetet írni és ilyen módon például beadandó munkát leadni. Az Arisztokréta azonban be tud jelentkeztetni az e-ügyintézés-be is, hogy annak teljes funkcionalitását a mobilodról is használhasd.",
+            "roles": {
+                "Tutelary": "Szülő",
+                "Student": "Tanuló",
+                "Teacher": "Tanár"
+            }
         }
     },
     "graphs": {
@@ -440,6 +540,10 @@
         },
         "prompt": {
             "wrongText": "Hibás szöveg!",
+            "cancelBtnText": "Mégse",
+            "exitBtnText": "Kilépés",
+            "yesBtnText": "Igen",
+            "noBtnText": "Nem",
             "evaluationAlert": {
                 "dateName": "Dátum",
                 "creatingTimeName": "Létrehozva",
@@ -493,6 +597,104 @@
             "substitutionText": "Helyettesítés",
             "nextLessonText": "Következő óra",
             "timeName": "Időpont"
+        }
+    },
+    "common": {
+        "alertText": "Figyelem!",
+        "dataWillBeLost": "A megadott adatok el fognak veszni. Biztosan folytatja?"
+    },
+    "errors": {
+        "administration": {
+            "defaultTitle": "Hiba",
+            "defaultText": "A művelet során hiba történt. Ellenőrizd az internetkapcsolatot majd próbáld újra.",
+            "retryText": "Újrapróbálkozás",
+            "detailsText": "Részletek",
+            "invalid-grant": {
+                "title": "Hibás bejelentkezési adatok",
+                "text": "A megadott felhasználónév vagy jelszó hibás, vagy rossz intézmény lett kiválasztva."
+            },
+            "network": {
+                "title": "Hálózati hiba",
+                "text": "Nem sikerült kapcsolódni az internethez. Ellenőrizd az internetkapcsolatot majd próbáld újra."
+            },
+            "invalid": {
+                "title": "A szerver hibás választ küldött",
+                "text": "A szerver válasza hibás volt. Valószínűleg jelenleg karbantartás alatt van. Próbáld újra később."
+            },
+            "getToken": {
+                "title": "A Tokenek lekérése sikertelen volt.",
+                "text": "Nem sikerült érvényes tokeneket lekérni, a hitelesítés sikertelen volt."
+            },
+            "renewToken": {
+                "title": "A Tokenek frissítése sikertelen volt.",
+                "text": "Nem sikerült érvényes tokeneket lekérni, a hitelesítés sikertelen volt."
+            },
+            "getMessageList": {
+                "title": "Hiba történt az üzenetek betöltése közben",
+                "text": "Az üzenetek listája lekérés sikertelen volt."
+            },
+            "getMessage": {
+                "title": "Hiba történt az üzenet betöltése közben",
+                "text": "Az üzenet adatainak lekérése sikertelen volt."
+            },
+            "binMessages": {
+                "title": "Az üzenet(ek) lomtárba helyezése sikertelen volt",
+                "text": "Hiba történt az üzenet(ek) lomtárba helyezése közben. A művelet sikertelen volt."
+            },
+            "deleteMessages": {
+                "title": "Az üzenet(ek) végleges törlése sikertelen volt.",
+                "text": "Hiba történt az üzenet(ek) végleges törlése közben. A művelet sikertelen volt."
+            },
+            "changeMessageState": {
+                "title": "Az üzenet(ek) állapotát nem sikerült megváltoztatni",
+                "text": "Hiba történt az üzenet(ek) állapotának megváltoztatása közben. A művelet sikertelen volt."
+            },
+            "adresseeLoadingError": {
+                "title": "A címzettek lekérése sikertelen volt.",
+                "text": "Hiba történt a címzettek betöltése közben"
+            },
+            "replyToMessage": {
+                "title": "Válasz nem lett elküldve",
+                "text": "A válasz küldése közben hiba történt."
+            },
+            "sendNewMessage": {
+                "title": "Az üzenet nem lett elküldve",
+                "text": "Hiba történt az üzenet küldése közben."
+            },
+            "addAttachment": {
+                "title": "A csatolmányt nem sikerült feltölteni",
+                "text": "A csatolmány feltöltése sikertelen volt. Kérlek ellenőrizd az internetkapcsolatot vagy válassz másik fájlformátumú fájlt."
+            },
+            "removeAttachment": {
+                "title": "A csatolmány törlése sikertelen volt",
+                "text": "A csatolmány törlése közben hiba történt."
+            },
+            "getAttachment": {
+                "title": "A csatolmány betöltése sikertelen volt",
+                "text": "Nem sikerült betölteni a kívánt csatolmányt. Kérlek ellenőrizd az internetkapcsolatot és próbáld újra."
+            }
+        },
+        "kreta": {
+            "defaultTitle": "Hiba",
+            "defaultText": "A művelet során hiba történt. Ellenőrizd az internetkapcsolatot majd próbáld újra.",
+            "retryText": "Újrapróbálkozás",
+            "detailsText": "Részletek",
+            "invalid-grant": {
+                "title": "Hibás bejelentkezési adatok",
+                "text": "A megadott felhasználónév vagy jelszó hibás, vagy rossz intézmény lett kiválasztva."
+            },
+            "network": {
+                "title": "Hálózati hiba",
+                "text": "Nem sikerült kapcsolódni az internethez. Ellenőrizd az internetkapcsolatot majd próbáld újra."
+            },
+            "invalid": {
+                "title": "A szerver hibás választ küldött",
+                "text": "A szerver válasza hibás volt. Valószínűleg jelenleg karbantartás alatt van. Próbáld újra később."
+            },
+            "getToken": {
+                "title": "A Tokenek lekérése sikertelen volt.",
+                "text": "Nem sikerült érvényes tokeneket lekérni, a hitelesítés sikertelen volt."
+            }
         }
     }
 }

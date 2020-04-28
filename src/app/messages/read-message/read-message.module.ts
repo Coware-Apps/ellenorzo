@@ -8,6 +8,7 @@ import { ReadMessagePageRoutingModule } from './read-message-routing.module';
 
 import { ReadMessagePage } from './read-message.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from 'src/app/_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     ReadMessagePageRoutingModule,
     TranslateModule,
+    ComponentsModule,
   ],
   declarations: [ReadMessagePage]
 })

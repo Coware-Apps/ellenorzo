@@ -6,7 +6,7 @@ import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -37,6 +37,7 @@ export class AbsencesPage implements OnInit {
 
   private studentSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
 
   constructor(
     public fDate: FormattedDateService,
@@ -63,6 +64,8 @@ export class AbsencesPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -72,6 +75,17 @@ export class AbsencesPage implements OnInit {
         this.loadData();
       }
     });
+  }
+
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    if (this.studentSubscription != null) {
+      this.studentSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
   }
 
   private async loadData() {
@@ -95,15 +109,6 @@ export class AbsencesPage implements OnInit {
       });
     });
     await this.userManager.currentUser.initializeStudent();
-  }
-
-  ionViewWillLeave() {
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
   private formatStudent(student: Student): AbsenceGroup[] {

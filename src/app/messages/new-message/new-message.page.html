@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="'messages'"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{'pages.new-message.title' | translate}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="sendMsg()">
+        <ion-icon slot="icon-only" name="send-sharp"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
+</ion-header>
+
+<ion-content>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button>
+      <ion-icon name="attach"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button (click)="this.addAttachment('camera')">
+        <ion-icon name="camera"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="this.addAttachment('gallery')">
+        <ion-icon name="image"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button (click)="this.addAttachment('file')">
+        <ion-icon name="folder"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+  <ion-list>
+
+
+    <ion-item>
+      <ion-label position="floating">{{'pages.new-message.fromName' | translate}}</ion-label>
+      <ion-input [value]="this.getSelfName()" type="text" readonly></ion-input>
+    </ion-item>
+
+    <div class="ion-padding-horizontal custom-padding-vertical">
+      <ion-label translate="pages.new-message.toName" class="recipient-label"></ion-label>
+      <ion-chip outline="true" *ngFor="let a of addresseeList">
+        <ion-label>{{ getName(a) }}</ion-label>
+        <ion-icon class="contrast-color" name="close-circle" (click)="removeAddressee(a)" *ngIf="!prevMsgId"></ion-icon>
+      </ion-chip>
+      <ion-chip color="primary" outline="true" (click)="selectAddressees()" *ngIf="!prevMsgId">
+        <ion-icon name="add-circle"></ion-icon>
+        <ion-label translate="pages.new-message.addName"></ion-label>
+      </ion-chip>
+    </div>
+
+    <ion-item>
+      <ion-label position="floating">{{'pages.new-message.subjectName' | translate}}</ion-label>
+      <ion-input required placeholder="{{'pages.new-message.msgSubjectPlaceholder' | translate}}" [(ngModel)]="subject"
+        type="text">
+      </ion-input>
+    </ion-item>
+
+    <ion-textarea required placeholder="{{'pages.new-message.msgTextPlaceholder' | translate}}" class="message-text"
+      autoGrow="true" [(ngModel)]="text">
+    </ion-textarea>
+
+    <div *ngIf="this.prevMsgText != null" class="message-div selectableText" [innerHTML]="this.prevMsgText"></div>
+
+  </ion-list>
+  <ion-item *ngFor="let a of this.attachmentList">
+    <ion-label>{{a.fajlNev}}</ion-label>
+    <ion-buttons slot="end">
+      <ion-button (click)="deleteAttachment(a)">
+        <ion-icon slot="icon-only" name="trash"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-item>
+</ion-content>

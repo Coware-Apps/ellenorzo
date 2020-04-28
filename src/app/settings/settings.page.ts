@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ThemeService } from '../_services/theme.service';
 import { Storage } from '@ionic/storage';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import { Platform, LoadingController, MenuController } from '@ionic/angular';
+import { LoadingController, MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ColorService } from '../_services/color.service';
 import { AppService } from '../_services/app.service';
@@ -11,6 +11,7 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.page.html',
@@ -35,10 +36,9 @@ export class SettingsPage implements OnInit {
     show: boolean,
     translatorVal?: string;
   }[];
-
-  private width: number;
-  private height: number;
   private devCounter: number;
+
+  public unsubscribe$: Subject<void>;
 
   constructor(
     public app: AppService,
@@ -47,7 +47,6 @@ export class SettingsPage implements OnInit {
     private theme: ThemeService,
     private storage: Storage,
     private camera: Camera,
-    private platform: Platform,
     private router: Router,
     private color: ColorService,
     private firebase: FirebaseX,
@@ -57,10 +56,6 @@ export class SettingsPage implements OnInit {
     private userManager: UserManagerService,
     private loadingCtrl: LoadingController,
   ) {
-    this.platform.ready().then((readySource) => {
-      this.width = platform.width();
-      this.height = platform.height();
-    });
     this.appPages = this.app.appPages;
   }
 
@@ -89,7 +84,14 @@ export class SettingsPage implements OnInit {
   }
 
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.menuCtrl.enable(true);
+  }
+
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   //#region themes

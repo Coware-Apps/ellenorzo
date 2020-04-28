@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, NgZone } from '@angular/core';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import { userInitData } from '../_models/user';
 import { WebUser } from '../_models/webUser';
@@ -8,6 +8,9 @@ import { registerLocaleData } from '@angular/common';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
 import { Platform } from '@ionic/angular';
+import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +32,7 @@ export class AppService {
   public analyticsCollectionEnabled: boolean;
   public devSettingsEnabled: boolean;
   public localNotificationsEnabled: boolean;
-  public userAgent: string;
+  public userAgent: string = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android; 0.0)';
   public usersInitData: userInitData[] = [];
   public webUser: WebUser;
   private _languages = [{
@@ -98,6 +101,9 @@ export class AppService {
     private appVersion: AppVersion,
     private http: HTTP,
     private platform: Platform,
+    private firebase: FirebaseX,
+    private router: Router,
+    private ngZone: NgZone,
   ) {
     this.appPages = [{
       title: 'Főoldal',
@@ -203,7 +209,6 @@ export class AppService {
 
   public async onInit() {
     try {
-      await this.getStockUserAgent();
       let configs = await Promise.all([
         this.appVersion.getVersionNumber(),
         this.storage.get('analyticsCollectionEnabled'),
@@ -217,6 +222,9 @@ export class AppService {
       ]);
       this.appV = configs[0];
       this.analyticsCollectionEnabled = configs[1] == false ? false : true;
+      if (!this.analyticsCollectionEnabled) {
+        this.firebase.setAnalyticsCollectionEnabled(false);
+      }
       this.toastLoggingEnabled = configs[2] == true ? true : false;
       this.devSettingsEnabled = configs[3] == true ? true : false;
       this.localNotificationsEnabled = configs[4] == true ? true : false;
@@ -259,21 +267,37 @@ export class AppService {
     this[configKey] = value;
     await this.storage.set(configKey, JSON.stringify(value));
   }
-  public async getStockUserAgent() {
+  public async downloadUserAgent() {
     //this.userAgent = 'Kreta.Ellenorzo/2.9.8.2020012301 (Android; SM-G950F 0.0)'
     //this.userAgent = 'x.x/0 (Android)'
     //response time about 2000-10000ms per request
     //this.userAgent = 'Dalvik/2.1.0 (Linux; U; Android 9; AM-GADDF Build/PPR1.180610.011)';
-    let userAgent = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android 0.0)';
+    let userAgent = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android; 0.0)';
     try {
       let result = await this.http.get('https://raw.githubusercontent.com/Coware-Apps/ellenorzo/master/docs/config.json', null, null);
       userAgent = JSON.parse(result.data).userAgent;
     } catch (error) {
       console.error("Error trying ot get user agent from server, using local");
     }
-    this.userAgent = userAgent;
-    return userAgent;
+    if (userAgent) {
+      this.userAgent = userAgent;
+      await this.storage.set('userAgent', userAgent);
+    }
+    return this.userAgent;
   }
+  public registerHwBackButton(unsubscribe$: Subject<void>, exit: boolean = false): Subscription {
+    if (this.platform.is("android")) {
+      return this.platform.backButton.pipe(takeUntil(unsubscribe$)).subscribe({
+        next: () => {
+          if (exit) navigator["app"].exitApp();
+          else this.ngZone.run(() => this.router.navigateByUrl("/home"));
+        }
+      });
+    } else {
+      return new Subscription();
+    }
+  }
+
 
   //#region sidemenu
   async hidePage(url: string) {

@@ -229,8 +229,7 @@ export class UserAgentPage implements OnInit {
   }
 
   async resetUA() {
-    this.currentUA = await this.app.getStockUserAgent();
-    this.storage.remove('userAgent');
+    this.currentUA = await this.app.downloadUserAgent();
   }
 
 

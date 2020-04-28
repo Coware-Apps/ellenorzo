@@ -1,0 +1,50 @@
+<ion-grid>
+  <ion-row class="ion-text-center ion-align-items-center">
+    <ion-col>
+      <ion-icon class="ion-icon-large" name="key-outline"></ion-icon>
+      <ion-text class="ion-text-center">
+        <h1 translate="components.re-login.header"></h1>
+        <p translate="components.re-login.message"></p>
+      </ion-text>
+      <ion-chip outline="true">
+        <ion-icon class="ion-text-color" name="person-circle-outline"></ion-icon>
+        <ion-label>{{userManager.currentUser.fullName}} - {{this.role}}</ion-label>
+      </ion-chip>
+      <form (ngSubmit)="onSubmit()">
+        <ion-item>
+          <ion-label position="floating" translate="pages.login.instituteName"></ion-label>
+          <ion-input readonly type="text" [value]="this.userManager.currentUser.institute.Name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating" translate="pages.login.usernameName"></ion-label>
+          <ion-input required type="text" name="username" [(ngModel)]="username"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating" translate="pages.login.passwordName"></ion-label>
+          <ion-input required type="password" name="password" [(ngModel)]="this.password"></ion-input>
+        </ion-item>
+        <ion-button block color="primary" type="submit" shape="round" expand="block"
+          translate="pages.login.loginBtnText"></ion-button>
+      </form>
+      <div class="longText">
+        <h5 translate="components.re-login.whyLoginTitle"></h5>
+        <p translate="components.re-login.whyLoginText"></p>
+        <h5 translate="components.re-login.featureTitle"></h5>
+        <ul>
+          <li translate="components.re-login.replyFeatureText"></li>
+          <li translate="components.re-login.forwardFeatureText"></li>
+          <li translate="components.re-login.newMessageFeatureText"></li>
+          <li translate="components.re-login.attachmentFeatureText"></li>
+          <li translate="components.re-login.binFeatureText"></li>
+          <li translate="components.re-login.stateFeatureText"></li>
+        </ul>
+        <h5 translate="components.re-login.whatCredentialsTitle"></h5>
+        <p translate="components.re-login.whatCredentialsText"></p>
+        <h5 translate="components.re-login.dataLossTitle"></h5>
+        <p translate="components.re-login.dataLossText"></p>
+        <h5 translate="components.re-login.officialAppLacksTitle"></h5>
+        <p translate="components.re-login.officialAppLacksText"></p>
+      </div>
+    </ion-col>
+  </ion-row>
+</ion-grid>

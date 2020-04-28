@@ -7,6 +7,7 @@ import { DataService } from 'src/app/_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { ThemeService } from 'src/app/_services/theme.service';
+import { DiacriticsHelper } from 'src/app/_helpers/diacritics-helper';
 
 @Component({
   selector: 'app-institute-selector-modal',
@@ -25,6 +26,7 @@ export class InstituteSelectorModalPage implements OnInit {
     private firebase: FirebaseX,
     private statusBar: StatusBar,
     private theme: ThemeService,
+    private diacriticsHelper: DiacriticsHelper,
   ) { }
 
   async ngOnInit() {
@@ -36,9 +38,22 @@ export class InstituteSelectorModalPage implements OnInit {
   ngOnDestroy(): void { }
 
   doFilter($event) {
+    const search = this.diacriticsHelper.removeDiacritics(
+      $event.target.value.toLocaleLowerCase()
+    );
+
     if (this.institutes)
-      this.filteredInstitutes = this.institutes
-        .filter(x => x.Name.toLowerCase().includes($event.target.value.toLowerCase()));
+      this.filteredInstitutes = this.institutes.filter(
+        x =>
+          this.diacriticsHelper
+            .removeDiacritics(x.Name.toLocaleLowerCase())
+            .includes(search) ||
+          this.diacriticsHelper
+            .removeDiacritics(x.City.toLocaleLowerCase())
+            .includes(search) ||
+          x.InstituteCode.includes(search)
+      );
+
   }
 
   onSelectionChange(instituteCode: string) {

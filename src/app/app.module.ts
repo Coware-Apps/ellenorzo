@@ -1,5 +1,5 @@
 import { NgModule, ErrorHandler } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
@@ -24,6 +24,11 @@ import { FileTransfer } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 import { FileOpener } from '@ionic-native/file-opener/ngx';
+import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { FilePath } from '@ionic-native/file-path/ngx';
+import { IOSFilePicker } from '@ionic-native/file-picker/ngx';
+import { CustomHammerGestureConfig } from './_configs/HammerGestureConfig';
+import { Clipboard } from '@ionic-native/clipboard/ngx';
 export function translateLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
 }
@@ -58,9 +63,14 @@ export function translateLoaderFactory(http: HttpClient) {
     FileTransfer,
     File,
     AndroidPermissions,
+    FileChooser,
     FileOpener,
+    FilePath,
+    IOSFilePicker,
+    Clipboard,
     { provide: ErrorHandler, useClass: ErrorHandlerService },
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerGestureConfig, }
   ],
   bootstrap: [AppComponent]
 })

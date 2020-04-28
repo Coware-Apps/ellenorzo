@@ -79,6 +79,7 @@
       </ion-label>
     </ion-item-divider>
     <ion-item>
+      <ion-icon slot="start" name="language-outline"></ion-icon>
       <ion-label>{{'pages.settings.language.displayLanguageName' | translate}}</ion-label>
       <ion-select (ionChange)="this.currentLngChanged($event)" [interfaceOptions]="customPopoverOptions"
         interface="popover" [value]="this.app.currentLng">

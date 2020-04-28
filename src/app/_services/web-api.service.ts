@@ -1,13 +1,9 @@
 import { Injectable } from "@angular/core";
 import { HTTP, HTTPResponse } from "@ionic-native/http/ngx";
-import { createHostListener } from '@angular/compiler/src/core';
 import { CommunityService } from '../_models/communityService';
 import { LayoutInformation } from '../_models/layoutInformation';
 import { TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
-import { PromptService } from './prompt.service';
-import { Institute } from '../_models/institute';
-import { Token } from '../_models/token';
 
 @Injectable({
   providedIn: "root",
@@ -18,18 +14,17 @@ export class WebApiService {
   private _instituteUrl: string;
   private _username: string;
   private _password: string;
-  private errorStatus = new BehaviorSubject(0);
+  private _errorStatus = new BehaviorSubject(0);
 
   constructor(
     private _http: HTTP,
     private _translator: TranslateService,
-    private _prompt: PromptService,
   ) {
     this._http.setFollowRedirect(false);
   }
 
   errorHandler() {
-    this.errorStatus.subscribe(error => {
+    this._errorStatus.subscribe(error => {
       switch (error) {
 
         case 0:
@@ -179,50 +174,6 @@ export class WebApiService {
       return response.data;
     } catch (error) {
       console.error("[WEB-API] Error getting login time", error);
-    }
-  }
-  //#endregion
-
-  //#region e-administration
-  public async getAdministrationToken(username: string, password: string, institute: Institute) {
-    try {
-      const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      };
-      const params = {
-        'userName': username,
-        'password': password,
-        'institute_code': institute.InstituteCode,
-        'grant_type': 'password',
-        'client_id': '919e0c1c-76a2-4646-a2fb-7085bbbf3c56'
-      }
-
-      this._prompt.butteredToast("[KRETA->getToken()]");
-      console.log("[KRETA->getToken()] institute", institute);
-
-      let response = await this._http.post(institute.Url + "/idp/api/v1/Token", params, headers);
-      console.log('tokenResponse', response);
-      let parsedResponse: Token;
-      try {
-        parsedResponse = <Token>JSON.parse(response.data);
-      } catch (error) {
-        this._prompt.presentUniversalAlert(
-          this._translator.instant('services.kreta.invalidJSONResponseAlert.header'),
-          this._translator.instant('services.kreta.invalidJSONResponseAlert.subHeader'),
-          this._translator.instant('services.kreta.invalidJSONResponseAlert.message'),
-        );
-      }
-
-      this._prompt.butteredToast("[KRETA->getToken() result]" + parsedResponse);
-      console.log("[KRETA->getToken()] result: ", parsedResponse);
-      this.errorStatus.next(0);
-      return parsedResponse;
-    } catch (error) {
-      console.error("Hiba történt a 'Token' lekérése közben", error);
-      //with behaviorsubject
-      this.errorStatus.next(error.status);
-      return false;
     }
   }
   //#endregion

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { UserManagerService } from '../_services/user-manager.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, Subject } from 'rxjs';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
 import { FormattedDateService } from '../_services/formatted-date.service';
+import { AppService } from '../_services/app.service';
 
 @Component({
   selector: 'app-events',
@@ -18,19 +19,23 @@ export class EventsPage implements OnInit {
 
   private eventsSubscription: Subscription;
   private reloaderSubscription: Subscription;
+  public unsubscribe$: Subject<void>;
+
   constructor(
     public fDate: FormattedDateService,
 
     private userManager: UserManagerService,
     private firebaseX: FirebaseX,
     private collapsifyService: CollapsifyService,
+    private app: AppService,
   ) { }
 
   ngOnInit() {
     this.firebaseX.setScreenName('events');
   }
-
   async ionViewDidEnter() {
+    this.unsubscribe$ = new Subject();
+    this.app.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -41,6 +46,17 @@ export class EventsPage implements OnInit {
       }
     });
   }
+  ionViewWillLeave() {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+    if (this.eventsSubscription != null) {
+      this.eventsSubscription.unsubscribe();
+    }
+    if (this.reloaderSubscription != null) {
+      this.reloaderSubscription.unsubscribe();
+    }
+  }
+
 
   private async loadData() {
     this.eventsByMonth = new Observable<UniversalSortedData[]>((observer) => {
@@ -72,15 +88,6 @@ export class EventsPage implements OnInit {
       });
     });
     await this.userManager.currentUser.initializeEvents()
-  }
-
-  ionViewWillLeave() {
-    if (this.eventsSubscription != null) {
-      this.eventsSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
   async doRefresh(event: any) {

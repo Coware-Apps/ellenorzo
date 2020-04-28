@@ -47,7 +47,9 @@
             "title": "Averages",
             "colorBtn": "Colors",
             "classAverageText": "Class average:",
-            "loadingToastText": "Loading..."
+            "loadingToastText": "Loading...",
+            "totalGradesText": "Total grades:",
+            "totalCountingGradesText": "Counts towards average:"
         },
         "absences": {
             "title": "Absences",
@@ -70,17 +72,65 @@
         },
         "homeworks": {
             "title": "Homeworks",
-            "teacherHomeworkName": "Logged by teachers",
-            "studentHomeworkName": "Logged by students",
-            "deadlineText": "Deadline",
-            "emptyText": "empty"
+            "emptyText": "No homeworks this week"
         },
         "tests": {
             "title": "Tests"
         },
         "messages": {
             "title": "Messages",
-            "noMessagesText": "No messages to show."
+            "noMessagesText": "No messages to show.",
+            "addresseeListEmpty": "No addressees found for the given criteria",
+            "tabs": {
+                "inbox": "Inbox",
+                "outbox": "Sent",
+                "trash": "Trash"
+            }
+        },
+        "new-message": {
+            "title": "New message",
+            "sendingMessageText": "Sending message...",
+            "fromName": "From",
+            "toName": "To",
+            "addName": "Add",
+            "subjectName": "Subject",
+            "sentAtName": "Sent at",
+            "replyName": "Reply",
+            "msgTextPlaceholder": "Compose email",
+            "msgSubjectPlaceholder": "Choose a subject",
+            "selectPlaceholder": "Select",
+            "piecesName": "selected",
+            "messageSentText": "Message sent",
+            "loadingText": "Loading...",
+            "fillAllFieldsText": "Please fill out the required fields!"
+        },
+        "list-addressees": {
+            "title": "Addressees",
+            "addresseeTitleName": "Title",
+            "emptyText": "No addressees selected"
+        },
+        "addressee-selector": {
+            "categorySelectPlaceholder": "Choose a category",
+            "searchPlaceholder": "Search",
+            "classSelectPlaceholder": "Class",
+            "groupSelectPlaceholder": "Group",
+            "categoryErrorText": "Couldn't load the selected category. If the problem persists, please consider contacting us.",
+            "piecesName": "selected"
+        },
+        "message-list": {
+            "folderEmptyText": "No messages in this folder",
+            "selectedName": "selected",
+            "searchPlaceholder": "Search",
+            "andName": "and",
+            "otherAddresseesText": "other addressees",
+            "loadMoreMessagesText": "Load more messages",
+            "successfullyDeletedText": "Successfully deleted",
+            "successfullyRestoredText": "Successfully restored",
+            "confirmDelete": {
+                "header": "Delete message(s)",
+                "message": "The message(s) will be deleted permanently. Are you sure?"
+            },
+            "successfullyUnread": "Message(s) set as unread"
         },
         "user": {
             "title": "Personal data",
@@ -216,9 +266,20 @@
         "read-message": {
             "title": "Message",
             "senderName": "Sender",
-            "addresseeName": "Addressee(s)",
+            "addresseeName": "To",
             "subjectName": "Subject",
-            "textName": "Text"
+            "textName": "Text",
+            "meText": "me",
+            "successfullyBinned": "Message binned",
+            "successfullyUnbinned": "Message restored",
+            "confirmDelete": {
+                "header": "Delete message",
+                "message": "The message will be deleted permanently. Are you sure?"
+            },
+            "successfullyUnread": "Message set as unread",
+            "errorStateName": "State",
+            "replyBtnText": "Reply",
+            "forwardBtnText": "Forward"
         },
         "bg-settings": {
             "title": "Custom background",
@@ -268,6 +329,8 @@
         "user-settings": {
             "title": "Accounts",
             "addUserBtnText": "Add account",
+            "mobileAccountsName": "Mobile API accounts",
+            "administrationAccountsName": "E-ügyintézés accounts",
             "info": "It is possible for multiple users to be logged in at the same time. The app will display their data separately on every page. You can switch between accounts in the side menu of the app by clicking the name of the user."
         },
         "login": {
@@ -278,6 +341,7 @@
             "loginBtnText": "Sign in",
             "privacyPolicyText": "By clicking the sign in button and logging in I accept the Terms of Use and Privacy Policy",
             "loadingText": "Initializing account for the first time...",
+            "administrationLoginError": "Could not login to the administration module",
             "invalidGrant": {
                 "header": "Error",
                 "message": "Invalid username or password"
@@ -291,7 +355,15 @@
                 "subHeader": "Incorrect data",
                 "message": "This user is already logged in on this device."
             },
-            "filterInstitutesText": "Find your institute..."
+            "filterInstitutesText": "Find your institute...",
+            "errorDetails": "Click here to see error details"
+        },
+        "error": {
+            "title": "Error",
+            "detailsBtnText": "Details",
+            "errorSourceText": "At",
+            "copiedText": "Copied to clipboard",
+            "errorCopyingText": "Could not copy to clipboard"
         },
         "events": {
             "title": "Events",
@@ -388,6 +460,34 @@
             "AbsenceName": "Absence",
             "DelayName": "Delay",
             "unit": "min"
+        },
+        "empty": {
+            "text": "No entries found"
+        },
+        "re-login": {
+            "onSuccessfulLogin": "Login successful",
+            "header": "Confirm login",
+            "message": "In order to use the \"E-ügyintézés\" module, you need to confirm your username and password.",
+            "whyLoginTitle": "Why do I have to login again?",
+            "whyLoginText": "This module doesn't use the KRÉTA mobile servers, rather those of the \"KRÉTA E-ügyintézés\" module. If you have logged in before v1.1.7, you will have to login to these servers as well, in order to be authenticated and receive data. You only need to do this once, later, the app will automatically log you in.",
+            "featureTitle": "What functions will be unlocked if I login to this module?",
+            "replyFeatureText": "Reply to messages",
+            "forwardFeatureText": "Forward messages",
+            "newMessageFeatureText": "Send new messages",
+            "attachmentFeatureText": "Send attachments (images, documents, other files) from your mobile device",
+            "binFeatureText": "Delete messages",
+            "stateFeatureText": "Set messages as read/unread",
+            "whatCredentialsTitle": "What credentials should I use to login?",
+            "whatCredentialsText": "The \"KRÉTA E-ügyintézés\" module requires the username and password that you originally logged in to the application with.",
+            "dataLossTitle": "Will my settings or my application data be lost?",
+            "dataLossText": "After logging in, many new features will be unlocked, and no data or settings will be lost.",
+            "officialAppLacksTitle": "Why are these features not in the official app?",
+            "officialAppLacksText": "The official app can currently only communicate with the mobile servers, therefore, with that app you can't access some features that you will unlock after logging in again with this application.",
+            "roles": {
+                "Tutelary": "Tutelary",
+                "Student": "Student",
+                "Teacher": "Teacher"
+            }
         }
     },
     "graphs": {
@@ -440,6 +540,10 @@
         },
         "prompt": {
             "wrongText": "Incorrect text!",
+            "cancelBtnText": "Cancel",
+            "exitBtnText": "Exit",
+            "yesBtnText": "Yes",
+            "noBtnText": "No",
             "evaluationAlert": {
                 "dateName": "Date",
                 "creatingTimeName": "Created",
@@ -493,6 +597,104 @@
             "substitutionText": "Substitution",
             "nextLessonText": "Next lesson",
             "timeName": "At"
+        }
+    },
+    "common": {
+        "alertText": "Confirm exit",
+        "dataWillBeLost": "All unsaved data will be lost. Continue?"
+    },
+    "errors": {
+        "administration": {
+            "defaultTitle": "Error",
+            "defaultText": "An error occured. Please check your connection and try again.",
+            "retryText": "Retry",
+            "detailsText": "Details",
+            "invalid-grant": {
+                "title": "Invalid credentials",
+                "text": "Invalid username or password, or you are trying to log into an incorrect institute."
+            },
+            "network": {
+                "title": "Network error",
+                "text": "There was an error with the network. Please check your connection and try again."
+            },
+            "invalid": {
+                "title": "Invalid response from the server",
+                "text": "The server has sent an invalid response. It is most likely under maintenance. Please try again later."
+            },
+            "getToken": {
+                "title": "Error trying to get Tokens",
+                "text": "There was an error during the token request. Authorization failed."
+            },
+            "renewToken": {
+                "title": "Error trying to renew Tokens",
+                "text": "There was an error during the token request. Authorization failed."
+            },
+            "getMessageList": {
+                "title": "Error trying to get messages",
+                "text": "Due to an error, the messages cannot be loaded."
+            },
+            "getMessage": {
+                "title": "Error trying to get message",
+                "text": "Due to an error, the requested message could not be loaded"
+            },
+            "binMessages": {
+                "title": "Error trying to put the message in the bin",
+                "text": "Due to an error, the request to change the state of the message(s) failed."
+            },
+            "deleteMessages": {
+                "title": "Error trying to permanently delete message",
+                "text": "Due to an error, the request to permanently delete the message(s) failed."
+            },
+            "changeMessageState": {
+                "title": "Error trying to change message state",
+                "text": "Due to an error, the request to change the state of the message(s) failed."
+            },
+            "adresseeLoadingError": {
+                "title": "Error trying to load addressee groups",
+                "text": "Due to an error, the addressee groups cannot be loaded."
+            },
+            "replyToMessage": {
+                "title": "Reply not sent",
+                "text": "Due to an error, the reply could not be sent to the recipient. Please try again later."
+            },
+            "sendNewMessage": {
+                "title": "Message not sent",
+                "text": "Due to an error, the message could not be sent to the recipient. Please try again later."
+            },
+            "addAttachment": {
+                "title": "Attachment could not be added",
+                "text": "The selected attachment could not be added. Please check your connection or try again with a different file."
+            },
+            "removeAttachment": {
+                "title": "Failed to remove attachment",
+                "text": "Attachment could not be removed due to an error."
+            },
+            "getAttachment": {
+                "title": "Attachment could not be loaded",
+                "text": "Failed to load the selected attachments. Please check your connection and try again."
+            }
+        },
+        "kreta": {
+            "defaultTitle": "Error",
+            "defaultText": "An error occured. Please check your connection and try again.",
+            "retryText": "Retry",
+            "detailsText": "Details",
+            "invalid-grant": {
+                "title": "Invalid credentials",
+                "text": "Invalid username or password, or you are trying to log into an incorrect institute."
+            },
+            "network": {
+                "title": "Network error",
+                "text": "There was an error with the network. Please check your connection and try again."
+            },
+            "invalid": {
+                "title": "Invalid response from the server",
+                "text": "The server has sent an invalid response. It is most likely under maintenance. Please try again later."
+            },
+            "getToken": {
+                "title": "Error trying to get Tokens",
+                "text": "There was an error during the token request. Authorization failed."
+            }
         }
     }
 }
