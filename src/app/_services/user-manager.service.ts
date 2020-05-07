@@ -4,11 +4,12 @@ import { UserFactoryService } from './user-factory.service';
 import { Institute } from '../_models/institute';
 import { Token } from '../_models/token';
 import { AppService } from './app.service';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { DataService } from './data.service';
-import { AdministrationService } from './administration.service';
+import { Storage } from '@ionic/storage';
+import { KretaService } from './kreta.service';
+import { MenuController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -20,11 +21,40 @@ export class UserManagerService {
   constructor(
     private userFactory: UserFactoryService,
     private app: AppService,
-    private router: Router,
     private notificationService: NotificationService,
     private data: DataService,
-    private as: AdministrationService,
+    private storage: Storage,
+    private kreta: KretaService,
+    private menuCtrL: MenuController,
   ) {
+  }
+
+  public async onInit() {
+    let storedUsersInitData: userInitData[] = await this.storage.get("usersInitData");
+    if (storedUsersInitData != null && storedUsersInitData.length > 0) {
+      this.createExistingUsers(storedUsersInitData);
+      this.switchToUser(storedUsersInitData[0].id);
+      if (this.app.localNotificationsEnabled) {
+        this.allUsers.forEach(async user => {
+          user.preInitializeLocalNotifications();
+        });
+      }
+      this.app.isStudentSelectorReady = true;
+    } else {
+      //migrating
+      let oldRefreshToken = await this.storage.get('refresh_token');
+      if (oldRefreshToken != null) {
+        let oldInstitute = await this.storage.get('institute');
+        let newTokens = await this.kreta.renewToken(oldRefreshToken, oldInstitute);
+        if (newTokens != null) {
+          await this.addUser(newTokens, oldInstitute);
+          await this.storage.remove('refresh_token');
+          await this.storage.remove('institute');
+          await this.menuCtrL.enable(true);
+          this.app.isStudentSelectorReady = true;
+        }
+      }
+    }
   }
 
   /**
@@ -71,7 +101,7 @@ export class UserManagerService {
       this.app.isStudentSelectorReady = false;
       this.currentUser = null;
       await this.app.clearStorage(true);
-      this.router.navigateByUrl('login');
+      return "login";
     } else {
       //switching to another user
       if (this.currentUser.id == userId) {

@@ -1,12 +1,8 @@
-import { Component, OnInit, getDebugNode, ViewChild } from '@angular/core';
-import { KretaService } from '../_services/kreta.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Student, evaluation } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { ColorService } from '../_services/color.service';
-import { AverageGraphsPage } from '../average-graphs/average-graphs.page';
-import { Storage } from '@ionic/storage';
-import { AlertController, ModalController, IonSelect } from '@ionic/angular';
-import { DomSanitizer } from '@angular/platform-browser';
+import { IonSelect } from '@ionic/angular';
 import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
@@ -16,6 +12,7 @@ import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 interface SelectOption {
   name: string;
@@ -93,6 +90,7 @@ export class EvaluationsPage implements OnInit {
     public fDate: FormattedDateService,
     public app: AppService,
 
+    private hw: HwBackButtonService,
     private color: ColorService,
     private data: DataService,
     private navRouter: Router,
@@ -114,7 +112,7 @@ export class EvaluationsPage implements OnInit {
   }
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$)
+    this.hw.registerHwBackButton(this.unsubscribe$)
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

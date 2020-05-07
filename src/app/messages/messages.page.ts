@@ -5,7 +5,7 @@ import { Subscription, Observable, Subject } from 'rxjs';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UserManagerService } from '../_services/user-manager.service';
 import { MenuController } from '@ionic/angular';
-import { AppService } from '../_services/app.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 @Component({
   selector: 'app-messages',
@@ -23,16 +23,17 @@ export class MessagesPage implements OnInit {
   constructor(
     public fDate: FormattedDateService,
     public userManager: UserManagerService,
+
+    private hw: HwBackButtonService,
     private firebaseX: FirebaseX,
     private menuCtrl: MenuController,
-    private app: AppService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
   }
 
   ionViewWillEnter() {
-    this.app.registerHwBackButton(this.willLeaveUnsubscribe$);
+    this.hw.registerHwBackButton(this.willLeaveUnsubscribe$);
   }
 
   ionViewWillLeave() {

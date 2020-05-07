@@ -11,10 +11,10 @@ import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
-import { Subscription, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { AppService } from '../_services/app.service';
 import { takeUntil } from 'rxjs/operators';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 interface day {
   name: string,
@@ -97,13 +97,13 @@ export class ListPage implements OnInit {
     private navRouter: Router,
     private dataService: DataService,
 
+    private hw: HwBackButtonService,
     private theme: ThemeService,
     private fDate: FormattedDateService,
     private firebase: FirebaseX,
     private prompt: PromptService,
     private menuCtrl: MenuController,
     private translator: TranslateService,
-    private app: AppService,
   ) {
     this.focused = 0;
     this.message = "";
@@ -123,7 +123,7 @@ export class ListPage implements OnInit {
   }
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.menuCtrl.enable(true);
     await this.loadData();
     this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(value => {
@@ -171,16 +171,8 @@ export class ListPage implements OnInit {
     this.prompt.lessonAlert(lesson);
   }
 
-  openHomeworks(TeacherHomeworkId: number, Subject: string, isTHFE: boolean, lessonId: number, CalendarOraType: string, StartTime: Date) {
-    this.dataService.setData('currentLesson', {
-      TeacherHomeworkId: TeacherHomeworkId,
-      Subject: Subject,
-      IsTanuloHaziFeladatEnabled: isTHFE,
-      lessonId: lessonId,
-      CalendarOraType: CalendarOraType,
-      StartTime: StartTime,
-      fromRoute: 'list',
-    });
+  openHomeworks(lesson: Lesson) {
+    this.dataService.setData('currentLesson', lesson);
     this.navRouter.navigateByUrl('/timetable-homeworks?id=currentLesson');
   }
 

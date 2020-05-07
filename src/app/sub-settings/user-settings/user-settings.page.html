@@ -19,7 +19,7 @@
           (click)="resetTokenTime('mobile', user.id)">
           <ion-icon color="warning" slot="icon-only" name="stopwatch-outline"></ion-icon>
         </ion-button>
-        <ion-button (click)="this.userManager.removeUser(user.id)">
+        <ion-button (click)="this.removeUser(user.id)">
           <ion-icon slot="icon-only" color="danger" name="close-outline"></ion-icon>
         </ion-button>
       </ion-buttons>

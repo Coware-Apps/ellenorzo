@@ -1,32 +1,37 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { AuthGuardService as AuthGuard } from './_services/auth-guard.service';
+import { NavigationGuard } from './_guards/navigation.guard';
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: '/home?startup=true',
+    pathMatch: 'full',
+  },
+  {
     path: 'home',
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'list',
     loadChildren: () => import('./list/list.module').then(m => m.ListPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'monthly-average',
     loadChildren: () => import('./monthly-average/monthly-average.module').then(m => m.MonthlyAveragePageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'statistics',
     loadChildren: () => import('./statistics/statistics.module').then(m => m.StatisticsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'graphs',
     loadChildren: () => import('./graphs/graphs.module').then(m => m.GraphsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'settings',
@@ -39,97 +44,93 @@ const routes: Routes = [
   {
     path: 'averages',
     loadChildren: () => import('./averages/averages.module').then(m => m.AveragesPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'average-graphs',
     loadChildren: () => import('./average-graphs/average-graphs.module').then(m => m.AverageGraphsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'absences',
     loadChildren: () => import('./absences/absences.module').then(m => m.AbsencesPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'notes',
     loadChildren: () => import('./notes/notes.module').then(m => m.NotesPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'color-picker',
     loadChildren: () => import('./color-picker/color-picker.module').then(m => m.ColorPickerPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'bg-settings',
     loadChildren: () => import('./sub-settings/bg-settings/bg-settings.module').then(m => m.BgSettingsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'homeworks',
     loadChildren: () => import('./homeworks/homeworks.module').then(m => m.HomeworksPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'hide-page-settings',
     loadChildren: () => import('./sub-settings/hide-page-settings/hide-page-settings.module').then(m => m.HidePageSettingsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'timetable-homeworks',
     loadChildren: () => import('./timetable-homeworks/timetable-homeworks.module').then(m => m.TimetableHomeworksPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'tests',
     loadChildren: () => import('./tests/tests.module').then(m => m.TestsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'evaluations',
     loadChildren: () => import('./evaluations/evaluations.module').then(m => m.EvaluationsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'user',
     loadChildren: () => import('./user/user.module').then(m => m.UserPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'user-agent',
     loadChildren: () => import('./sub-settings/user-agent/user-agent.module').then(m => m.UserAgentPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'messages',
     loadChildren: () => import('./messages/messages.module').then(m => m.MessagesPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'community-service',
     loadChildren: () => import('./web-api/community-service/community-service.module').then(m => m.CommunityServicePageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'user-settings',
     loadChildren: () => import('./sub-settings/user-settings/user-settings.module').then(m => m.UserSettingsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'notification-settings',
     loadChildren: () => import('./sub-settings/notification-settings/notification-settings.module').then(m => m.NotificationSettingsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   },
   {
     path: 'events',
     loadChildren: () => import('./events/events.module').then(m => m.EventsPageModule),
-    canActivate: [AuthGuard]
+    canActivate: [NavigationGuard]
   }
-
-
-
-
 ];
 
 @NgModule({

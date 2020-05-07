@@ -25,7 +25,7 @@ import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ng
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 import { stringify } from 'querystring';
 import { WeighedAvgCalcService } from './weighed-avg-calc.service';
-import { KretaInvalidResponseError, KretaInvalidGrantError, KretaNetworkError, KretaTokenError } from '../_exceptions/kreta-exception';
+import { KretaInvalidResponseError, KretaInvalidGrantError, KretaNetworkError, KretaTokenError, KretaHttpError } from '../_exceptions/kreta-exception';
 
 
 
@@ -80,10 +80,12 @@ export class KretaService {
   //#region Error handling / prompting
   errorHandler() {
     this.errorStatus.subscribe(error => {
-      if (![-4, -3, -2, -1, 0].includes(error)) {
-        console.log('Request failed on server side, downloading new user-agent');
+
+      //acquiring new User-Agent on any error
+      if (error != 0) {
         this.app.downloadUserAgent();
       }
+
       switch (error) {
 
         case 0:
@@ -166,10 +168,7 @@ export class KretaService {
       return parsedResponse;
     } catch (error) {
       console.error("Hiba történt a 'Token' lekérése közben", error);
-      if (![-4, -3, -2, -1, 0].includes(error.status)) {
-        console.log('Request failed on server side, downloading new user-agent');
-        this.app.downloadUserAgent();
-      }
+      this.app.downloadUserAgent();
 
       if (error instanceof SyntaxError) throw new KretaInvalidResponseError('getToken', response);
       if (error.status && error.status == 401) throw new KretaInvalidGrantError('getToken', error);
@@ -221,10 +220,7 @@ export class KretaService {
     } catch (error) {
       console.error("Hiba a 'Token' lekérése közben: ", error);
       this.firebase.logError(`[KRETA->renewToken()->HTTP]: ` + stringify(error));
-      if (![-4, -3, -2, -1, 0].includes(error)) {
-        console.log('Request failed on server side, downloading new user-agent');
-        this.app.downloadUserAgent();
-      }
+      this.app.downloadUserAgent();
       return null;
     }
   }
@@ -239,7 +235,6 @@ export class KretaService {
     }
 
     if (cacheDataIf == false) {
-      console.log("[KRETA] Refreshing Student...");
       this.prompt.butteredToast('[KRETA] Refreshing Student...');
       let headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -247,6 +242,7 @@ export class KretaService {
         'Authorization': 'Bearer ' + tokens.access_token,
         'User-Agent': this.app.userAgent,
       }
+      console.log('STUDENT HEADERS', headers);
       try {
         let response = await this.http.get(institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, null, headers);
         let parsedResponse = <Student>JSON.parse(response.data);
@@ -529,6 +525,36 @@ export class KretaService {
     }
   }
 
+  public async changeHomeworkState(done: boolean, teacherHomeworkId: number, tokens: Token, institute: Institute) {
+    let response;
+    try {
+      console.log(`[KRETA->changeHomeworkState()] Changing homework state to ${done}`)
+      const headers = {
+        Authorization: `Bearer ${tokens.access_token}`,
+        'User-Agent': this.app.userAgent,
+        Accept: 'application/json'
+      }
+      const params = {
+        TanarHaziFeladatId: teacherHomeworkId,
+        IsMegoldva: done
+      }
+
+      this.http.setDataSerializer('json');
+
+      response = await this.http.post(`${institute.Url}/mapi/api/v1/HaziFeladat/Megoldva`, params, headers);
+
+    } catch (error) {
+      console.error(error);
+      this.errorStatus.next(error.status);
+      if (error instanceof SyntaxError) throw new KretaInvalidResponseError('changeHomeworkState', response);
+      if (error.status && error.status == 401) throw new KretaInvalidGrantError('changeHomeworkState', error);
+      if (error.status && error.status < 0) throw new KretaNetworkError('getToken');
+      throw new KretaHttpError('changeHomeworkState', response, 'changeHomeworkState.title', 'changeHomeworkState.text')
+    } finally {
+      this.http.setDataSerializer('urlencoded');
+    }
+  }
+
   public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false, tokens: Token, institute: Institute, cacheId: string): Promise<Test[]> {
     let cacheDataIf: any = false;
     if (!forceRefresh) {
@@ -753,6 +779,8 @@ export class KretaService {
 
     try {
       console.log('[KRETA] Adding Student homework');
+      console.log('PARAMS', params);
+      console.log('HEADERS', headers);
       this.prompt.butteredToast('[KRETA] Adding Student homework');
 
       let response = await this.http.post(institute.Url + '/mapi/api/v1/HaziFeladat/CreateTanuloHaziFeladat/', params, headers);

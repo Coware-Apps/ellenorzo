@@ -27,6 +27,7 @@ export class TeacherHomework {
     Szoveg: string;
     TanitasiOraid: number;
     Tantargy: string;
+    IsMegoldva?: boolean;
 }
 export class HomeworkResponse {
     //when a homework is posted, the server spits this back

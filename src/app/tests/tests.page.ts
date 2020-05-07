@@ -5,6 +5,7 @@ import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.
 import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 
 @Component({
@@ -29,6 +30,7 @@ export class TestsPage implements OnInit {
     private firebase: FirebaseX,
     private collapsifyService: CollapsifyService,
     private userManager: UserManagerService,
+    private hw: HwBackButtonService,
   ) {
     this.monthsName = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
     this.sans = true;
@@ -40,7 +42,7 @@ export class TestsPage implements OnInit {
   }
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

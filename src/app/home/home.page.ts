@@ -1,5 +1,4 @@
-import { Student, evaluation } from '../_models/student';
-import { Token } from '../_models/token';
+import { Student } from '../_models/student';
 import { Router } from '@angular/router';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { KretaService } from '../_services/kreta.service';
@@ -17,6 +16,7 @@ import { CollapsibleCombined } from '../_models/user';
 import { Test } from '../_models/test';
 import { Message } from '../_models/message';
 import { DataService } from '../_services/data.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 @Component({
   selector: 'app-home',
@@ -61,6 +61,7 @@ export class HomePage implements OnInit, OnDestroy {
     public student: Student,
     public app: AppService,
 
+    private hw: HwBackButtonService,
     private navRouter: Router,
     private color: ColorService,
     private firebase: FirebaseX,
@@ -87,7 +88,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
   ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$, true);
+    this.hw.registerHwBackButton(this.unsubscribe$, true);
     //optionally refreshing data
     if (this.dataService.getData('refreshHome') == true) {
       this.ngOnInit();

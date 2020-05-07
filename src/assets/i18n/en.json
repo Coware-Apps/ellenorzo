@@ -72,7 +72,9 @@
         },
         "homeworks": {
             "title": "Homeworks",
-            "emptyText": "No homeworks this week"
+            "emptyText": "No homeworks this week",
+            "completedHiddenText": "Completed homeworks are hidden",
+            "allCompletedText": "All homeworks are completed!"
         },
         "tests": {
             "title": "Tests"
@@ -251,12 +253,14 @@
                 "studentName": "Student",
                 "addName": "Add"
             },
-            "noHomeworksText": "No homeworks to show",
+            "noHomeworksText": "No homeworks in this category",
             "loadingText": "Communication in progress...",
             "textareaPlaceholder": "Enter the text of the new homework here...",
             "successfullyAddedToastText": "Successfully added homework!",
             "checkFieldAlertText": "Invalid text! Please check the text field and try again!",
-            "successfullyDeletedToastText": "Successfully deleted homework!"
+            "successfullyDeletedToastText": "Successfully deleted homework!",
+            "completedText": "Completed",
+            "cannotAddHomeworkText": "Cannot add homework to this lesson."
         },
         "graphs": {
             "title": "Specific statistics",
@@ -302,7 +306,8 @@
             "scheduledNotifications": {
                 "header": "Scheduled notifications",
                 "subHeader": "Developer tool"
-            }
+            },
+            "cancelAllText": "Cancel currently scheduled"
         },
         "user-agent": {
             "title": "User-Agent LAB (beta)",
@@ -410,13 +415,13 @@
             "December"
         ],
         "dayNames": [
+            "Sunday",
             "Monday",
             "Tuesday",
             "Wednesday",
             "Thursday",
             "Friday",
-            "Saturday",
-            "Sunday"
+            "Saturday"
         ],
         "days": {
             "monday": {
@@ -569,7 +574,8 @@
             "lessonAlert": {
                 "timeName": "Time",
                 "groupName": "Group",
-                "classRoomName": "Classroom"
+                "classRoomName": "Classroom",
+                "topicName": "Topic"
             },
             "teacherHomeworkAlert": {
                 "lessonCountName": "Count of the lesson",
@@ -694,6 +700,10 @@
             "getToken": {
                 "title": "Error trying to get Tokens",
                 "text": "There was an error during the token request. Authorization failed."
+            },
+            "changeHomeworkState": {
+                "title": "An error occured, couldn't change homework state",
+                "text": "There was an error during the request. The state of the homework(s) was not changed"
             }
         }
     }

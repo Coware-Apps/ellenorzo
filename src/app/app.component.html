@@ -19,7 +19,7 @@
             <ion-icon *ngIf="this.showAppPages" slot="end" name="caret-down"></ion-icon>
           </ion-item>
           <div *ngIf="this.showAppPages">
-            <ion-menu-toggle (ionWillOpen)="checkConfig()" auto-hide="false" *ngFor="let p of appPages">
+            <ion-menu-toggle (ionWillOpen)="checkConfig()" auto-hide="false" *ngFor="let p of app.appPages">
               <ion-item [hidden]="!p.show" [routerDirection]="'root'" [routerLink]="[p.url]">
                 <ion-icon slot="start" [name]="p.icon" [src]="p.src"></ion-icon>
                 <ion-label>

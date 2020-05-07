@@ -1,11 +1,11 @@
-import { NgModule, ErrorHandler } from '@angular/core';
+import { NgModule, ErrorHandler, APP_INITIALIZER, INJECTOR, Inject } from '@angular/core';
 import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
-import { RouteReuseStrategy } from '@angular/router';
+import { RouteReuseStrategy, Router } from '@angular/router';
 
-import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { IonicModule, IonicRouteStrategy, MenuController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { IonicStorageModule } from '@ionic/storage';
+import { IonicStorageModule, Storage } from '@ionic/storage';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -29,8 +29,30 @@ import { FilePath } from '@ionic-native/file-path/ngx';
 import { IOSFilePicker } from '@ionic-native/file-picker/ngx';
 import { CustomHammerGestureConfig } from './_configs/HammerGestureConfig';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
+import { UserManagerService } from './_services/user-manager.service';
+import { AppService } from './_services/app.service';
+import { ThemeService } from './_services/theme.service';
+import { ColorService } from './_services/color.service';
+import { NotificationService } from './_services/notification.service';
 export function translateLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
+}
+export function initializeApp(
+  AppService: AppService,
+  UserManagerService: UserManagerService,
+  ThemeService: ThemeService,
+  ColorService: ColorService,
+  NotificationService: NotificationService,
+) {
+  return async (): Promise<any> => {
+    return Promise.all([
+      AppService.onInit(),
+      ThemeService.onInit(),
+      ColorService.onInit(),
+      NotificationService.onInit(),
+      UserManagerService.onInit(),
+    ]);
+  };
 }
 @NgModule({
   declarations: [AppComponent],
@@ -40,7 +62,9 @@ export function translateLoaderFactory(http: HttpClient) {
     IonicModule.forRoot(),
     HttpClientModule,
     AppRoutingModule,
-    IonicStorageModule.forRoot(),
+    IonicStorageModule.forRoot({
+      driverOrder: ['indexeddb', 'sqlite', 'websql'],
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -68,6 +92,12 @@ export function translateLoaderFactory(http: HttpClient) {
     FilePath,
     IOSFilePicker,
     Clipboard,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeApp,
+      deps: [AppService, ThemeService, ColorService, NotificationService, UserManagerService],
+      multi: true,
+    },
     { provide: ErrorHandler, useClass: ErrorHandlerService },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerGestureConfig, }

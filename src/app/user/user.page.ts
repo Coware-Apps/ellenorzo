@@ -4,7 +4,7 @@ import { FormattedDateService } from '../_services/formatted-date.service';
 import { Subscription, Observable, Subject } from 'rxjs';
 import { UserManagerService } from '../_services/user-manager.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { AppService } from '../_services/app.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 @Component({
   selector: 'app-user',
@@ -25,7 +25,7 @@ export class UserPage implements OnInit {
 
     private firebaseX: FirebaseX,
     private userManager: UserManagerService,
-    private app: AppService,
+    private hw: HwBackButtonService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
@@ -37,7 +37,7 @@ export class UserPage implements OnInit {
 
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

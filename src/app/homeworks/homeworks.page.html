@@ -4,22 +4,31 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>{{'pages.homeworks.title' | translate}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="filterChanged()">
+        <ion-icon *ngIf="!this.app.doHomeworkFilter" slot="start" name="funnel-outline"></ion-icon>
+        <ion-icon *ngIf="this.app.doHomeworkFilter" slot="start" name="funnel"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar (swipe)="swipe($event)" class="ion-text-center">
     <ion-buttons slot="start">
-      <ion-button (click)="extraWeekIndex = extraWeekIndex - 1; this.loadData()">
+      <ion-button [disabled]="this.componentState == 'loading'"
+        (click)="extraWeekIndex = extraWeekIndex - 1; this.loadData()">
         <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-label class="ion-text-center">{{fDate.formatDateWithZerosAndDots(fDate.getWeekFirstDate(extraWeekIndex))}} -
       {{fDate.formatDateWithZerosAndDots(fDate.getWeekLastDate(extraWeekIndex))}}</ion-label>
     <ion-buttons slot="end">
-      <ion-button (click)="extraWeekIndex = extraWeekIndex + 1; this.loadData()">
+      <ion-button [disabled]="this.componentState == 'loading'"
+        (click)="extraWeekIndex = extraWeekIndex + 1; this.loadData()">
         <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-progress-bar *ngIf="componentState == 'loading'" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
+
+  <ion-progress-bar *ngIf="componentState == 'loading'" type="indeterminate"></ion-progress-bar>
 </ion-header>
 
 <ion-content>
@@ -28,92 +37,32 @@
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
-  <ion-list [ngClass]="{'ion-no-padding': componentState != 'loaded'}">
-    <!-- <ion-item-divider>
-      <ion-label>
-        <h1>{{'pages.homeworks.teacherHomeworkName' | translate}}</h1>
-        <p *ngIf="!this.sans && teacherHomeworks.length == 0">({{'pages.homeworks.emptyText' | translate}})</p>
-      </ion-label>
+  <ion-list [ngClass]="{'ion-no-padding': componentState != 'loaded' || app.doHomeworkFilter}">
+    <ion-item-divider *ngIf="app.doHomeworkFilter" class="ion-no-margin ion-no-padding">
+      <ion-label style="margin: auto">{{'pages.homeworks.completedHiddenText' | translate}}</ion-label>
     </ion-item-divider>
-    <div *ngIf="!sans">
-      <ion-card button class="wide" *ngFor="let homework of teacherHomeworks">
-        <ion-card-header (click)="showInfo(homework)">
-          <ion-buttons style="float: right;">
-            <ion-button>
-              <ion-icon slot="icon-only" name="information-circle"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-          <ion-card-title>{{homework.Tantargy}}</ion-card-title>
-          <ion-card-subtitle>{{homework.Rogzito}} - {{homework.FeladasDatuma.substring(0,10)}}</ion-card-subtitle>
-          <ion-card-subtitle class="deadlineText">{{'pages.homeworks.deadlineText' | translate}}:
-            {{homework.Hatarido.substring(0, 10)}}</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content class="selectableText">
-          <div [innerHTML]="homework.Szoveg"></div>
-        </ion-card-content>
-      </ion-card>
-    </div>
-    <div *ngIf="sans">
-      <ion-card class="wide">
-        <ion-card-header>
-          <ion-buttons style="float: right;">
-            <ion-button>
-              <ion-icon disabled slot="icon-only" name="information-circle"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-          <ion-card-title>
-            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-          </ion-card-title>
-          <ion-card-subtitle>
-            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-          </ion-card-subtitle>
-          <ion-card-subtitle class="deadlineText">
-            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-          </ion-card-subtitle>
-          <ion-card-title>
-            <div>
-              <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-            </div>
-          </ion-card-title>
-        </ion-card-header>
-      </ion-card>
-    </div>
-
-    <ion-item-divider>
-      <ion-label>
-        <h1>{{'pages.homeworks.studentHomeworkName' | translate}}</h1>
-        <p *ngIf="!this.sans && studentHomeworks.length == 0">({{'pages.homeworks.emptyText' | translate}})</p>
-      </ion-label>
-    </ion-item-divider>
-    <div>
-      <ion-card *ngFor="let homework of studentHomeworks">
-        <ion-card-header>
-          <ion-card-subtitle class="subtitles">{{homework.TanuloNev}} - {{homework.FeladasDatuma.substring(0,10)}}
-          </ion-card-subtitle>
-          <ion-card-title [ngClass]="{'linethrough': homework.TanuloAltalTorolt}">
-            {{homework.FeladatSzovege}}
-          </ion-card-title>
-        </ion-card-header>
-      </ion-card>
-    </div> -->
     <div *ngIf="componentState == 'loaded'">
       <div *ngFor="let d of homeworkLessons">
-        <ion-item button (click)="d.showAll = !d.showAll">
-          <ion-label>
-            {{d.header}}
-          </ion-label>
-          <ion-icon *ngIf="!d.showAll" slot="start" name="chevron-forward"></ion-icon>
-          <ion-icon *ngIf="d.showAll" slot="start" name="chevron-down"></ion-icon>
-        </ion-item>
-        <div *ngFor="let l of d.data">
-          <ion-item button *ngIf="d.showAll" (click)="openHomeworks(l)">
-            <ion-icon src="../../assets/extraicons/homewarning.svg" slot="start"></ion-icon>
+        <ion-item-group *ngIf="showGroup(d.data)">
+          <ion-item-divider>
             <ion-label>
-              <h2>{{l.Subject}}</h2>
-              <ion-note *ngIf="l.Theme">{{l.Theme}}</ion-note>
+              {{d.header}}
             </ion-label>
-          </ion-item>
-        </div>
+          </ion-item-divider>
+          <div *ngFor="let l of d.data">
+            <ion-item button *ngIf="d.showAll && !(l.IsHaziFeladatMegoldva && app.doHomeworkFilter)"
+              (click)="openHomeworks(l)">
+              <ion-icon *ngIf="!l.IsHaziFeladatMegoldva" src="../../assets/extraicons/homewarning.svg" slot="start">
+              </ion-icon>
+              <ion-icon style="color: green" *ngIf="l.IsHaziFeladatMegoldva" name="checkmark-done" slot="start">
+              </ion-icon>
+              <ion-label>
+                <h2>{{l.Subject}}</h2>
+                <ion-note *ngIf="l.Theme">{{l.Theme}}</ion-note>
+              </ion-label>
+            </ion-item>
+          </div>
+        </ion-item-group>
       </div>
     </div>
     <div *ngIf="componentState == 'loading'">
@@ -126,5 +75,8 @@
     </div>
   </ion-list>
   <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.homeworks.emptyText" icon="library-outline">
+  </app-empty>
+  <app-empty *ngIf="showCompletedComponent() && componentState != 'empty'"
+    translatorKey="pages.homeworks.allCompletedText" icon="happy-outline">
   </app-empty>
 </ion-content>

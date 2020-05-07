@@ -31,4 +31,5 @@ export class Lesson {
     Homework?: string;
     CalendarOraType?: string;
     Theme?: string;
+    IsHaziFeladatMegoldva: boolean;
 }

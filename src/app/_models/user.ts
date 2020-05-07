@@ -102,6 +102,7 @@ export class User {
         // adminAddresseeList: string;
         // szmkAddresseeList: string;
     }
+    private loginInProgress: boolean = false;
     /**
      * For the combined data requests (it is initalized in `setUserData()`)
      */
@@ -133,45 +134,7 @@ export class User {
         let lastLoggedIn = toApi == 'mobile' ? this.lastLoggedIn : this.lastLoggedInAdministration;
 
         if (lastLoggedIn + loggedInFor <= now) {
-            if (toApi == "mobile") {
-                console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (lastLoggedIn + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
-            } else {
-                console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (this.lastLoggedInAdministration + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
-            }
-
-            let newTokens;
-            if (toApi == 'mobile') {
-                newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
-            } else {
-                newTokens = await this.administrationService.renewToken(this.administrationTokens.refresh_token, this.institute);
-            }
-
-            if (newTokens != null) {
-                if (toApi == 'mobile') {
-                    this.tokens = newTokens;
-                    this.lastLoggedIn = new Date().valueOf();
-                } else {
-                    this.administrationTokens = newTokens;
-                    this.lastLoggedInAdministration = new Date().valueOf();
-                }
-
-                //overwriting the tokens of the stored users init data
-                let newUsersInitData = this.app.usersInitData;
-                for (let i = 0; i < newUsersInitData.length; i++) {
-                    if (newUsersInitData[i].id == this.id) {
-                        newUsersInitData[i] = {
-                            id: this.id,
-                            tokens: this.tokens,
-                            adminstrationTokens: this.administrationTokens,
-                            institute: this.institute,
-                            fullName: this.fullName,
-                            notificationsEnabled: this.notificationsEnabled,
-                            lastNotificationSetTime: this.lastNotificationSetTime,
-                        }
-                    }
-                }
-                await this.app.changeConfig("usersInitData", newUsersInitData);
-            }
+            await this.acquireRefreshToken(toApi, now, lastLoggedIn, loggedInFor);
         } else {
             if (toApi == 'mobile') {
                 console.log(`%c${this.fullName} - Not renewing ${toApi} tokens yet (${(this.lastLoggedIn + loggedInFor - now) / 1000} / ${(this.tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
@@ -179,6 +142,65 @@ export class User {
                 console.log(`%c${this.fullName} - Not renewing ${toApi} tokens yet (${(this.lastLoggedInAdministration + loggedInFor - now) / 1000} / ${(this.administrationTokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
             }
         }
+    }
+    private async acquireRefreshToken(toApi: 'mobile' | 'administration' = 'mobile', now: number, lastLoggedIn: number, loggedInFor: number) {
+
+        if (this.loginInProgress) {
+            while (this.loginInProgress) await this.delay(20);
+            return this.loginWithRefreshToken();
+        }
+
+        this.loginInProgress = true;
+
+
+        if (toApi == "mobile") {
+            console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (lastLoggedIn + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
+        } else {
+            console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (this.lastLoggedInAdministration + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
+        }
+
+        let newTokens;
+        if (toApi == 'mobile') {
+            newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
+        } else {
+            try {
+                newTokens = await this.administrationService.renewToken(this.administrationTokens.refresh_token, this.institute);
+            } catch (error) {
+                this.loginInProgress = false;
+                throw error;
+            }
+        }
+
+        if (newTokens != null) {
+            if (toApi == 'mobile') {
+                this.tokens = newTokens;
+                this.lastLoggedIn = new Date().valueOf();
+            } else {
+                this.administrationTokens = newTokens;
+                this.lastLoggedInAdministration = new Date().valueOf();
+            }
+
+            //overwriting the tokens of the stored users init data
+            let newUsersInitData = this.app.usersInitData;
+            for (let i = 0; i < newUsersInitData.length; i++) {
+                if (newUsersInitData[i].id == this.id) {
+                    newUsersInitData[i] = {
+                        id: this.id,
+                        tokens: this.tokens,
+                        adminstrationTokens: this.administrationTokens,
+                        institute: this.institute,
+                        fullName: this.fullName,
+                        notificationsEnabled: this.notificationsEnabled,
+                        lastNotificationSetTime: this.lastNotificationSetTime,
+                    }
+                }
+            }
+            await this.app.changeConfig("usersInitData", newUsersInitData);
+        }
+        this.loginInProgress = false;
+    }
+    private delay(timer: number): Promise<void> {
+        return new Promise(resolve => setTimeout(() => resolve(), timer));
     }
     /**
      * Fills the users missing data (fullName, id etc - with a getStudent request) of a user that doesn't yet exist
@@ -801,6 +823,12 @@ export class User {
         await this.loginWithRefreshToken();
         return await this.kreta.getTeacherHomeworks(fromDate, toDate, homeworkId, this.tokens, this.institute, this.cacheIds.teacherHomeworks);
     }
+
+    public async changeHomeworkState(done: boolean, teacherHomeworkId: number) {
+        await this.loginWithRefreshToken();
+        await this.kreta.changeHomeworkState(done, teacherHomeworkId, this.tokens, this.institute);
+    }
+
     /**
      * Gets a full message with the whole text
      * @param messageId

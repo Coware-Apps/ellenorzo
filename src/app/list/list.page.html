@@ -25,8 +25,7 @@
               <ion-buttons [hidden]="hideHomeworkBtn(item.StartTime)"
                 *ngIf="item.IsTanuloHaziFeladatEnabled || item.TeacherHomeworkId != null" class="homeworksBtn"
                 slot="end">
-                <ion-button
-                  (click)="openHomeworks(item.TeacherHomeworkId, item.Subject, item.IsTanuloHaziFeladatEnabled, item.LessonId, item.CalendarOraType, item.StartTime); $event.stopPropagation();">
+                <ion-button (click)="openHomeworks(item); $event.stopPropagation();">
                   <ion-icon *ngIf="item.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
                   <ion-icon *ngIf="item.TeacherHomeworkId != null" color="warning" slot="icon-only"
                     src="/assets/extraicons/homewarning.svg"></ion-icon>
@@ -35,6 +34,7 @@
 
               <ion-label class="ion-text-wrap">
                 <h2 slot="start">{{item.Count == -1 ? '+' : item.Count}}. {{item.Subject}}</h2>
+                <p class="ion-text-nowrap">{{item.Theme}}</p>
               </ion-label>
 
               <ion-label class="middleLabel">

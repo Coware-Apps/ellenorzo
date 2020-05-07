@@ -4,7 +4,7 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { Subscription, Observable, Subject } from 'rxjs';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { AppService } from '../_services/app.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 @Component({
   selector: 'app-events',
@@ -24,10 +24,10 @@ export class EventsPage implements OnInit {
   constructor(
     public fDate: FormattedDateService,
 
+    private hw: HwBackButtonService,
     private userManager: UserManagerService,
     private firebaseX: FirebaseX,
     private collapsifyService: CollapsifyService,
-    private app: AppService,
   ) { }
 
   ngOnInit() {
@@ -35,7 +35,7 @@ export class EventsPage implements OnInit {
   }
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

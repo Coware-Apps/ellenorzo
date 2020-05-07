@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { KretaService } from '../_services/kreta.service';
 import { TeacherHomework, StudentHomework } from '../_models/homework';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
-import { Subscription, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { takeUntil } from 'rxjs/operators';
 import { Lesson } from '../_models/lesson';
@@ -13,6 +12,7 @@ import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.
 import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
 import 'hammerjs';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 @Component({
   selector: 'app-homeworks',
@@ -29,11 +29,12 @@ export class HomeworksPage implements OnInit, OnDestroy {
 
   constructor(
     public fDate: FormattedDateService,
+    public app: AppService,
 
+    private hw: HwBackButtonService,
     private userManager: UserManagerService,
     private firebase: FirebaseX,
     private prompt: PromptService,
-    private app: AppService,
     private collapsyfyService: CollapsifyService,
     private dataService: DataService,
     private router: Router,
@@ -42,7 +43,7 @@ export class HomeworksPage implements OnInit, OnDestroy {
   async ngOnInit() {
     this.firebase.setScreenName('homeworks');
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(value => {
       if (value == 'reload') {
@@ -87,6 +88,8 @@ export class HomeworksPage implements OnInit, OnDestroy {
     $event.target.complete();
   }
   swipe(event) {
+    if (this.componentState == 'loading') return;
+
     if (event.direction === 2) {
       //swiped left, needs to load page to the right
       this.extraWeekIndex++;
@@ -96,5 +99,30 @@ export class HomeworksPage implements OnInit, OnDestroy {
       this.extraWeekIndex--;
       this.loadData();
     }
+  }
+  async filterChanged() {
+    await this.app.changeConfig('doHomeworkFilter', !this.app.doHomeworkFilter);
+  }
+  showGroup(data: Lesson[] | any) {
+    let returnVal = false;
+    data.forEach(l => {
+      if (!l.IsHaziFeladatMegoldva) {
+        returnVal = true;
+      }
+    });
+
+    if (!this.app.doHomeworkFilter) returnVal = true;
+
+    return returnVal;
+  }
+  showCompletedComponent() {
+    let show = true;
+    this.homeworkLessons.forEach(usd => {
+      if (this.showGroup(usd.data)) {
+        show = false;
+      }
+    });
+
+    return show;
   }
 }

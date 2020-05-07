@@ -72,7 +72,9 @@
         },
         "homeworks": {
             "title": "Házi feladatok",
-            "emptyText": "Ezen a héten nincsenek házi feladatok"
+            "emptyText": "Ezen a héten nincsenek házi feladatok",
+            "completedHiddenText": "Kész házi feladatok elrejtve",
+            "allCompletedText": "Minden házi feladat elkészítve!"
         },
         "tests": {
             "title": "Számonkérések"
@@ -251,12 +253,14 @@
                 "studentName": "Diák",
                 "addName": "Hozzáadás"
             },
-            "noHomeworksText": "Nincsenek rögzített házi feladatok",
+            "noHomeworksText": "Ebben a kategóriában nincsenek rögzített házi feladatok",
             "loadingText": "Kommunikáció folyamatban...",
             "textareaPlaceholder": "A házi feladat szövegét ide írd...",
             "successfullyAddedToastText": "A házi feladatot sikeresen hozzáadtuk!",
             "checkFieldAlertText": "Kérlek ellenőrizd, hogy kitöltötted-e a házi feladat szövege mezőt!",
-            "successfullyDeletedToastText": "Házi feladat sikeresen törölve!"
+            "successfullyDeletedToastText": "Házi feladat sikeresen törölve!",
+            "completedText": "Kész",
+            "cannotAddHomeworkText": "Ehhez az órához nem lehet házi feladatot hozzáadni."
         },
         "graphs": {
             "title": "Részletes statisztika",
@@ -302,7 +306,8 @@
             "scheduledNotifications": {
                 "header": "Időzített értesítések",
                 "subHeader": "Fejlesztői funkció"
-            }
+            },
+            "cancelAllText": "Időzített értesítések törlése"
         },
         "user-agent": {
             "title": "User-Agent LAB (beta)",
@@ -410,13 +415,13 @@
             "December"
         ],
         "dayNames": [
+            "Vasárnap",
             "Hétfő",
             "Kedd",
             "Szerda",
             "Csütörtök",
             "Péntek",
-            "Szombat",
-            "Vasárnap"
+            "Szombat"
         ],
         "days": {
             "monday": {
@@ -569,7 +574,8 @@
             "lessonAlert": {
                 "timeName": "Időpont",
                 "groupName": "Csoport",
-                "classRoomName": "Terem"
+                "classRoomName": "Terem",
+                "topicName": "Téma"
             },
             "teacherHomeworkAlert": {
                 "lessonCountName": "Óra száma",
@@ -694,6 +700,10 @@
             "getToken": {
                 "title": "A Tokenek lekérése sikertelen volt.",
                 "text": "Nem sikerült érvényes tokeneket lekérni, a hitelesítés sikertelen volt."
+            },
+            "changeHomeworkState": {
+                "title": "Nem sikerült a házi feladat státuszát megváltoztatni",
+                "text": "Hiba történt a lekérés közben."
             }
         }
     }

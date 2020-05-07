@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Lesson } from '../_models/lesson';
 import { TranslateService } from '@ngx-translate/core';
 import { Platform } from '@ionic/angular';
+import { AppService } from './app.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,17 +16,20 @@ export class NotificationService {
   constructor(
     private fDate: FormattedDateService,
     private localNotifications: LocalNotifications,
-    private router: Router,
     private translator: TranslateService,
-    private plt: Platform,
   ) { }
 
+  public async onInit() {
+    this.subscribeToLocalNotifications();
+  }
+
   public subscribeToLocalNotifications() {
-    this.localNotifications.on("click").subscribe(res => {
-      if (res.data != undefined) {
-        this.router.navigate([res.data.navigateToUrl]);
-      }
-    });
+    // Can inject it into the app initializer this way...
+    // this.localNotifications.on("click").subscribe(res => {
+    //   if (res.data) {
+    //     this.router.navigate([res.data.navigateToUrl]);
+    //   }
+    // });
   }
 
   public setLocalNotifications(lessons: Lesson[]) {

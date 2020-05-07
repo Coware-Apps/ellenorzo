@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { Storage } from '@ionic/storage';
 import { userInitData } from '../_models/user';
@@ -7,10 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { registerLocaleData } from '@angular/common';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
-import { Platform } from '@ionic/angular';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { takeUntil } from 'rxjs/operators';
-import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -25,14 +22,112 @@ export class AppService {
     src?: string;
     show: boolean,
     translatorVal?: string,
-  }[];
+  }[] = [{
+    title: 'Főoldal',
+    url: '/home',
+    icon: 'home-outline',
+    show: true,
+    translatorVal: 'pages.home.title'
+  },
+  {
+    title: 'Értékelések',
+    url: '/evaluations',
+    icon: 'school-outline',
+    show: true,
+    translatorVal: 'pages.evaluations.title'
+  },
+  {
+    title: 'Órarend',
+    url: '/list',
+    icon: 'list-outline',
+    show: true,
+    translatorVal: 'pages.list.title'
+  },
+  {
+    title: 'Statisztika',
+    url: '/statistics',
+    icon: 'analytics-outline',
+    show: true,
+    translatorVal: 'pages.statistics.title'
+  },
+  {
+    title: 'Átlagok',
+    url: '/averages',
+    icon: 'bar-chart-outline',
+    show: true,
+    translatorVal: 'pages.averages.title'
+  },
+  {
+    title: 'Mulasztások',
+    url: '/absences',
+    icon: 'calendar-outline',
+    show: true,
+    translatorVal: 'pages.absences.title'
+  },
+  {
+    title: 'Feljegyzések',
+    url: '/notes',
+    icon: 'document-text-outline',
+    show: true,
+    translatorVal: 'pages.notes.title'
+  },
+  {
+    title: 'Faliújság',
+    url: '/events',
+    icon: 'document-attach-outline',
+    show: true,
+    translatorVal: 'pages.events.title'
+  },
+  {
+    title: 'Házi feladatok',
+    url: '/homeworks',
+    icon: '',
+    show: true,
+    src: "/assets/extraicons/homewarning.svg",
+    translatorVal: 'pages.homeworks.title'
+  },
+  {
+    title: 'Számonkérések',
+    url: '/tests',
+    icon: '',
+    show: true,
+    src: "/assets/extraicons/test.svg",
+    translatorVal: 'pages.tests.title'
+  },
+  {
+    title: 'Üzenetek',
+    url: '/messages',
+    icon: 'chatbox-outline',
+    show: true,
+    translatorVal: 'pages.messages.title'
+  },
+  // {
+  // title: 'Közösségi szolgálat',
+  // url: '/community-service',
+  // icon: 'body-outline',
+  // show: true,
+  // },
+  {
+    title: 'Adatlap',
+    url: '/user',
+    icon: 'person-circle-outline',
+    show: true,
+    translatorVal: 'pages.user.title'
+  },
+  {
+    title: 'Beállítások',
+    url: '/settings',
+    icon: 'settings-outline',
+    show: true,
+    translatorVal: 'pages.settings.title'
+  }];
+
   public isStudentSelectorReady = false;
-  public toastLoggingEnabled: boolean;
-  public appV: string;
+  public toastLoggingEnabled: boolean = false;
   public analyticsCollectionEnabled: boolean;
   public devSettingsEnabled: boolean;
   public localNotificationsEnabled: boolean;
-  public userAgent: string = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android; 0.0)';
+  public userAgent: string = 'Kreta.Ellenorzo/2.9.11.2020033003 (Android; SM-G950F 0.0)';
   public usersInitData: userInitData[] = [];
   public webUser: WebUser;
   private _languages = [{
@@ -95,122 +190,33 @@ export class AppService {
     this._homeRequests = n;
     this.storage.set('homeRequests', n);
   }
+  private _doHomeworkFilter: boolean = false;
+  public get doHomeworkFilter() {
+    return this._doHomeworkFilter;
+  }
+  public set doHomeworkFilter(n) {
+    this._doHomeworkFilter = n;
+    this.storage.set('doHomeworkFilter', n);
+  }
+  private _defaultPage: string = "/home";
+  public get defaultPage() {
+    return this._defaultPage
+  }
+  public set defaultPage(n: string) {
+    this._defaultPage = n;
+    this.storage.set('defaultPage', n);
+  }
   constructor(
     private storage: Storage,
     private translator: TranslateService,
     private appVersion: AppVersion,
     private http: HTTP,
-    private platform: Platform,
     private firebase: FirebaseX,
-    private router: Router,
-    private ngZone: NgZone,
-  ) {
-    this.appPages = [{
-      title: 'Főoldal',
-      url: '/home',
-      icon: 'home-outline',
-      show: true,
-      translatorVal: 'pages.home.title'
-    },
-    {
-      title: 'Értékelések',
-      url: '/evaluations',
-      icon: 'school-outline',
-      show: true,
-      translatorVal: 'pages.evaluations.title'
-    },
-    {
-      title: 'Órarend',
-      url: '/list',
-      icon: 'list-outline',
-      show: true,
-      translatorVal: 'pages.list.title'
-    },
-    {
-      title: 'Statisztika',
-      url: '/statistics',
-      icon: 'analytics-outline',
-      show: true,
-      translatorVal: 'pages.statistics.title'
-    },
-    {
-      title: 'Átlagok',
-      url: '/averages',
-      icon: 'bar-chart-outline',
-      show: true,
-      translatorVal: 'pages.averages.title'
-    },
-    {
-      title: 'Mulasztások',
-      url: '/absences',
-      icon: 'calendar-outline',
-      show: true,
-      translatorVal: 'pages.absences.title'
-    },
-    {
-      title: 'Feljegyzések',
-      url: '/notes',
-      icon: 'document-text-outline',
-      show: true,
-      translatorVal: 'pages.notes.title'
-    },
-    {
-      title: 'Faliújság',
-      url: '/events',
-      icon: 'document-attach-outline',
-      show: true,
-      translatorVal: 'pages.events.title'
-    },
-    {
-      title: 'Házi feladatok',
-      url: '/homeworks',
-      icon: '',
-      show: true,
-      src: "/assets/extraicons/homewarning.svg",
-      translatorVal: 'pages.homeworks.title'
-    },
-    {
-      title: 'Számonkérések',
-      url: '/tests',
-      icon: '',
-      show: true,
-      src: "/assets/extraicons/test.svg",
-      translatorVal: 'pages.tests.title'
-    },
-    {
-      title: 'Üzenetek',
-      url: '/messages',
-      icon: 'chatbox-outline',
-      show: true,
-      translatorVal: 'pages.messages.title'
-    },
-    // {
-    // title: 'Közösségi szolgálat',
-    // url: '/community-service',
-    // icon: 'body-outline',
-    // show: true,
-    // },
-    {
-      title: 'Adatlap',
-      url: '/user',
-      icon: 'person-circle-outline',
-      show: true,
-      translatorVal: 'pages.user.title'
-    },
-    {
-      title: 'Beállítások',
-      url: '/settings',
-      icon: 'settings-outline',
-      show: true,
-      translatorVal: 'pages.settings.title'
-    }];
-    this.toastLoggingEnabled = false;
-  }
+  ) { }
 
   public async onInit() {
     try {
       let configs = await Promise.all([
-        this.appVersion.getVersionNumber(),
         this.storage.get('analyticsCollectionEnabled'),
         this.storage.get('toastLoggingEnabled'),
         this.storage.get('devSettingsEnabled'),
@@ -219,25 +225,28 @@ export class AppService {
         this.storage.get('userAgent'),
         this.storage.get('language'),
         this.storage.get('homeRequests'),
+        this.storage.get('doHomeworkFilter'),
+        this.storage.get("sidemenu"),
+        this.storage.get("usersInitData"),
+        this.storage.get("defaultPage"),
       ]);
-      this.appV = configs[0];
-      this.analyticsCollectionEnabled = configs[1] == false ? false : true;
+      this.analyticsCollectionEnabled = configs[0] == false ? false : true;
       if (!this.analyticsCollectionEnabled) {
         this.firebase.setAnalyticsCollectionEnabled(false);
       }
-      this.toastLoggingEnabled = configs[2] == true ? true : false;
-      this.devSettingsEnabled = configs[3] == true ? true : false;
-      this.localNotificationsEnabled = configs[4] == true ? true : false;
-      let storedWebApiRegistration = configs[5];
+      this.toastLoggingEnabled = configs[1] == true ? true : false;
+      this.devSettingsEnabled = configs[2] == true ? true : false;
+      this.localNotificationsEnabled = configs[3] == true ? true : false;
+      let storedWebApiRegistration = configs[4];
       if (storedWebApiRegistration != null) {
         this.webUser = JSON.parse(storedWebApiRegistration);
       };
-      let storedUA = configs[6];
+      let storedUA = configs[5];
       if (storedUA != null) {
         this.userAgent = storedUA;
       }
-      if (configs[7] != null) {
-        this.currentLng = configs[7];
+      if (configs[6] != null) {
+        this.currentLng = configs[6];
       } else {
         let browserLang = this.translator.getBrowserLang();
         this.languages.forEach(l => {
@@ -247,15 +256,24 @@ export class AppService {
         });
       }
 
-      if (configs[8] != null) {
-        for (let i = 0; i < configs[8].length; i++) {
-          if (configs[8][i].id == this._homeRequests[i].id) {
-            this._homeRequests[i].show = configs[8][i].show;
+      if (configs[7] != null) {
+        for (let i = 0; i < configs[7].length; i++) {
+          if (configs[7][i].id == this._homeRequests[i].id) {
+            this._homeRequests[i].show = configs[7][i].show;
           }
         }
       }
+
+      this._doHomeworkFilter = configs[8] != null ? configs[8] : this._doHomeworkFilter;
+
+      this.getAppPages(configs[9]);
+
+      this.usersInitData = configs[10] ? configs[10] : [];
+
+      this._defaultPage = configs[11] ? configs[11] : this._defaultPage;
+
     } catch (error) {
-      console.error('Error initializing app');
+      console.error('Error initializing app', error);
     }
   }
 
@@ -268,11 +286,14 @@ export class AppService {
     await this.storage.set(configKey, JSON.stringify(value));
   }
   public async downloadUserAgent() {
+    console.log('Downloading new User-Agent...')
     //this.userAgent = 'Kreta.Ellenorzo/2.9.8.2020012301 (Android; SM-G950F 0.0)'
     //this.userAgent = 'x.x/0 (Android)'
     //response time about 2000-10000ms per request
     //this.userAgent = 'Dalvik/2.1.0 (Linux; U; Android 9; AM-GADDF Build/PPR1.180610.011)';
-    let userAgent = 'Kreta.Ellenorzo/2.9.9.2020022101 (Android; 0.0)';
+    let rndString = Math.random().toString(36).substring(2, 9).toUpperCase();
+    let userAgent = `Kreta.Ellenorzo/2.9.11.2020033003 (Android; SM-G950F 0.0)`;
+
     try {
       let result = await this.http.get('https://raw.githubusercontent.com/Coware-Apps/ellenorzo/master/docs/config.json', null, null);
       userAgent = JSON.parse(result.data).userAgent;
@@ -280,24 +301,24 @@ export class AppService {
       console.error("Error trying ot get user agent from server, using local");
     }
     if (userAgent) {
+      userAgent = userAgent.replace("SM-G950F", rndString)
+      console.log('Your brand new useragent is', userAgent);
       this.userAgent = userAgent;
       await this.storage.set('userAgent', userAgent);
     }
     return this.userAgent;
   }
-  public registerHwBackButton(unsubscribe$: Subject<void>, exit: boolean = false): Subscription {
-    if (this.platform.is("android")) {
-      return this.platform.backButton.pipe(takeUntil(unsubscribe$)).subscribe({
-        next: () => {
-          if (exit) navigator["app"].exitApp();
-          else this.ngZone.run(() => this.router.navigateByUrl("/home"));
-        }
-      });
-    } else {
-      return new Subscription();
+  private getAppPages(storedPages) {
+    if (storedPages != null) {
+      for (let i = 0; i < storedPages.length; i++) {
+        this.appPages[i].show = storedPages[i].show;
+      }
     }
+    return this.appPages;
   }
-
+  public getAppVersion() {
+    return this.appVersion.getVersionNumber();
+  }
 
   //#region sidemenu
   async hidePage(url: string) {

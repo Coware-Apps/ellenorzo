@@ -8,7 +8,7 @@ import { Observable, Subscription, Subject } from 'rxjs';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
-import { AppService } from '../_services/app.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 
 @Component({
@@ -30,13 +30,13 @@ export class AveragesPage implements OnInit {
   constructor(
     public color: ColorService,
 
+    private hw: HwBackButtonService,
     private navRouter: Router,
     private data: DataService,
     private firebase: FirebaseX,
     private userManager: UserManagerService,
     private prompt: PromptService,
     private translator: TranslateService,
-    private app: AppService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
@@ -48,7 +48,7 @@ export class AveragesPage implements OnInit {
 
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

@@ -21,7 +21,6 @@ export class ThemeService {
   }
 
   public async onInit() {
-    this.statusBar.overlaysWebView(false);
     let storedTheme = await this.storage.get("theme");
     if (storedTheme == null) {
       this.storage.set("theme", "light");

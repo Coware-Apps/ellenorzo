@@ -13,6 +13,7 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
 import { AppService } from '../_services/app.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 more(HighCharts);
 
 interface ChartData {
@@ -69,6 +70,7 @@ export class StatisticsPage implements OnInit {
     public student: Student,
     public wAC: WeighedAvgCalcService,
 
+    private hw: HwBackButtonService,
     private storage: Storage,
     private dataService: DataService,
     private navRouter: Router,
@@ -76,7 +78,6 @@ export class StatisticsPage implements OnInit {
     private firebase: FirebaseX,
     private userManager: UserManagerService,
     private translator: TranslateService,
-    private app: AppService,
   ) {
     this.focused = 0;
     this.mockSelector = { detail: { value: "yearly" } };
@@ -93,7 +94,7 @@ export class StatisticsPage implements OnInit {
 
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

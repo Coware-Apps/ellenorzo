@@ -8,6 +8,7 @@ import { TimetableHomeworksPageRoutingModule } from './timetable-homeworks-routi
 
 import { TimetableHomeworksPage } from './timetable-homeworks.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     TimetableHomeworksPageRoutingModule,
     TranslateModule,
+    ComponentsModule
   ],
   declarations: [TimetableHomeworksPage]
 })

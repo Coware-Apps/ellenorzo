@@ -93,6 +93,10 @@ export class NotificationSettingsPage implements OnInit {
     await alert.present();
   }
 
+  async cancelAllNotifications() {
+    await this.notificationService.cancelAllNotifications();
+  }
+
 
   // async testNotification() {
   //   let lessons = await this.userManager.currentUser.getLesson(this.fDate.getWeekFirst(), this.fDate.getWeekLast(1), true);

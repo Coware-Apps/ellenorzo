@@ -8,6 +8,7 @@ import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.
 import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 @Component({
   selector: 'app-notes',
@@ -28,6 +29,7 @@ export class NotesPage implements OnInit {
     public fDate: FormattedDateService,
     public app: AppService,
 
+    private hw: HwBackButtonService,
     private userManager: UserManagerService,
     private firebase: FirebaseX,
     private prompt: PromptService,
@@ -42,7 +44,7 @@ export class NotesPage implements OnInit {
   }
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

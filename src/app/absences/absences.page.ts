@@ -10,6 +10,7 @@ import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 
 interface AbsenceGroup {
   data: UniversalSortedData[];
@@ -43,6 +44,7 @@ export class AbsencesPage implements OnInit {
     public fDate: FormattedDateService,
     public app: AppService,
 
+    private hw: HwBackButtonService,
     private alertCtrl: AlertController,
     private color: ColorService,
     private firebase: FirebaseX,
@@ -65,7 +67,7 @@ export class AbsencesPage implements OnInit {
 
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {

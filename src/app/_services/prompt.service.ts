@@ -208,25 +208,32 @@ export class PromptService {
   }
   public noteAlert(note: Note) {
     let seen = note.SeenByTutelaryUTC == null ? `nem` : note.SeenByTutelaryUTC.substring(0, 10);
+    let body = this.formatAlertBody([
+      { title: this.t.instant('services.prompt.noteAlert.typeName'), text: note.Type },
+      { title: this.t.instant('services.prompt.noteAlert.creatingTimeName'), text: note.CreatingTime.substring(0, 10) },
+      { title: this.t.instant('services.prompt.noteAlert.seenByTutelaryName'), text: seen },
+      { title: this.t.instant('services.prompt.noteAlert.contentName'), text: note.Content },
+    ])
     this.presentAlert(
       note.Title,
       note.Teacher,
-      `<ul>` +
-      `<li>${this.t.instant('services.prompt.noteAlert.typeName')}: ${note.Type}</li>` +
-      `<li>${this.t.instant('services.prompt.noteAlert.creatingTimeName')}: ${note.CreatingTime.substring(0, 10)}</li>` +
-      `<li>${this.t.instant('services.prompt.noteAlert.seenByTutelaryName')}: ${seen}</li></ul>` +
-      `${this.t.instant('services.prompt.noteAlert.contentName')}: ${note.Content}`,
+      body,
       this.color.getPopUpClass(),
     );
   }
   public lessonAlert(lesson: Lesson) {
+    let bodyBase = [
+      { title: this.t.instant('services.prompt.lessonAlert.timeName'), text: this.getTime(lesson.StartTime, lesson.EndTime) },
+      { title: this.t.instant('services.prompt.lessonAlert.groupName'), text: lesson.ClassGroup },
+      { title: this.t.instant('services.prompt.lessonAlert.classRoomName'), text: lesson.ClassRoom },
+    ];
+    if (lesson.Theme) {
+      bodyBase.push({ title: this.t.instant('services.prompt.lessonAlert.topicName'), text: lesson.Theme });
+    }
     this.presentAlert(
       lesson.Subject,
       lesson.Teacher,
-      `<ul>` +
-      `<li>${this.t.instant('services.prompt.lessonAlert.timeName')}: ${this.getTime(lesson.StartTime, lesson.EndTime)}</li>` +
-      `<li>${this.t.instant('services.prompt.lessonAlert.groupName')}: ${lesson.ClassGroup}</li>` +
-      `<li>${this.t.instant('services.prompt.lessonAlert.classRoomName')}: ${lesson.ClassRoom}</li></ul>`,
+      this.formatAlertBody(bodyBase),
       this.color.getPopUpClass(),
     );
   }

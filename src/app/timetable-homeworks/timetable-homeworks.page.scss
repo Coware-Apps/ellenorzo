@@ -2,9 +2,15 @@
     width: 95%;
     display: block;
 }
+.max-height {
+    height: 100%;
+}
 .subtitles {
     text-align: left;
 }
 .linethrough {
     text-decoration: line-through;
+}
+#checkmarkIcon {
+    transition: color 0.3s;
 }

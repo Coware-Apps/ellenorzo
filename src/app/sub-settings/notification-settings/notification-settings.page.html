@@ -29,6 +29,10 @@
       <ion-icon slot="start" name="list-circle-sharp"></ion-icon>
       <ion-label>{{'pages.notification-settings.currentlyScheduledText' | translate}}</ion-label>
     </ion-item>
+    <ion-item button (click)="this.cancelAllNotifications()" *ngIf="this.app.devSettingsEnabled">
+      <ion-icon slot="start" name="close-sharp"></ion-icon>
+      <ion-label>{{'pages.notification-settings.cancelAllText' | translate}}</ion-label>
+    </ion-item>
   </ion-list>
   <ion-list mode="md" lines="none">
     <ion-item>

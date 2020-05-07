@@ -12,6 +12,7 @@ import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
+import { HwBackButtonService } from '../_services/hw-back-button.service';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.page.html',
@@ -29,6 +30,7 @@ export class SettingsPage implements OnInit {
 
   public currentTheme: string;
   public defaultPage: string;
+  public appV: string;
   public appPages: {
     title: string,
     url: string,
@@ -43,6 +45,7 @@ export class SettingsPage implements OnInit {
   constructor(
     public app: AppService,
 
+    private hw: HwBackButtonService,
     private kreta: KretaService,
     private theme: ThemeService,
     private storage: Storage,
@@ -80,12 +83,14 @@ export class SettingsPage implements OnInit {
     //#endregion
     this.devCounter = this.app.devSettingsEnabled ? 9 : 0;
 
+    this.appV = await this.app.getAppVersion();
+
     this.firebase.setScreenName('settings');
   }
 
   async ionViewDidEnter() {
     this.unsubscribe$ = new Subject();
-    this.app.registerHwBackButton(this.unsubscribe$);
+    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.menuCtrl.enable(true);
   }
 

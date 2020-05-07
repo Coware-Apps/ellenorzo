@@ -44,4 +44,11 @@ export class UserSettingsPage implements OnInit {
     });
     return rVal;
   }
+
+  async removeUser(userId) {
+    let res = await this.userManager.removeUser(userId)
+    if (res == "login") {
+      this.router.navigateByUrl("login");
+    }
+  }
 }
