@@ -20,12 +20,12 @@ export class WeighedAvgCalcService {
     this.sumOfWeighedGrades = 0;
     this.weightSum = 0;
     for (let i = 0; i < evaluations.length; i++) {
-      if (evaluations[i].Form == "Mark" && evaluations[i].Type == "MidYear") {
+      if (evaluations[i].Form == "Mark" && evaluations[i].Type == "MidYear" && evaluations[i].IsAtlagbaBeleszamit && evaluations[i].NumberValue) {
         this.sumOfWeighedGrades += evaluations[i].NumberValue * (parseInt(evaluations[i].Weight.split("%")[0]));
         this.weightSum += parseInt(evaluations[i].Weight.split("%")[0]);
       }
     }
-    return this.sumOfWeighedGrades/this.weightSum;
+    return this.sumOfWeighedGrades / this.weightSum;
   }
 
   averageNumWeight(data: numWeight[]) {
@@ -35,6 +35,6 @@ export class WeighedAvgCalcService {
       this.sumOfWeighedGrades += data[i].numVal * (parseInt(data[i].weight.split("%")[0]));
       this.weightSum += parseInt(data[i].weight.split("%")[0]);
     }
-    return this.sumOfWeighedGrades/this.weightSum;
+    return this.sumOfWeighedGrades / this.weightSum;
   }
 }

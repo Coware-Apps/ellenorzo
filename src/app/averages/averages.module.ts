@@ -9,6 +9,7 @@ import { AveragesPageRoutingModule } from './averages-routing.module';
 import { AveragesPage } from './averages.page';
 import { AverageGraphsPageModule } from '../average-graphs/average-graphs.module';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 
 @NgModule({
@@ -19,9 +20,10 @@ import { TranslateModule } from '@ngx-translate/core';
     AveragesPageRoutingModule,
     AverageGraphsPageModule,
     TranslateModule,
+    ComponentsModule,
   ],
   declarations: [
     AveragesPage,
   ]
 })
-export class AveragesPageModule {}
+export class AveragesPageModule { }

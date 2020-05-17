@@ -213,6 +213,10 @@ export class SettingsPage implements OnInit {
     this.router.navigateByUrl('notification-settings');
   }
 
+  openHomeSettings() {
+    this.router.navigateByUrl('home-settings');
+  }
+
   async versionClicked() {
     this.devCounter++;
 

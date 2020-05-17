@@ -61,4 +61,9 @@ export class AppComponent {
   public async menuClosed() {
     this.showAppPages = true;
   }
+  async showUserInfo(userId: number) {
+    this.userManager.switchToUser(userId);
+    this.menuCtrl.close();
+    this.router.navigateByUrl('/user');
+  }
 }

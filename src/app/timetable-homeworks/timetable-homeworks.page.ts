@@ -50,10 +50,8 @@ export class TimetableHomeworksPage implements OnInit {
 
       if (this.lesson.TeacherHomeworkId != null) {
         this.teacherHomeworks = await this.userManager.currentUser.getTeacherHomeworks(null, null, +this.lesson.TeacherHomeworkId);
-        console.log('this.teacherHomeworks', this.teacherHomeworks);
         if (this.lesson.IsTanuloHaziFeladatEnabled == true) {
           this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, +this.lesson.TeacherHomeworkId);
-          console.log('this.studentHomeworks', this.studentHomeworks);
         }
       }
       this.sans = false;
@@ -101,9 +99,7 @@ export class TimetableHomeworksPage implements OnInit {
     if (this.homeworkText != null) {
       //"2020. 01. 17. 0:00:00" TODO
       let sTBefore = this.lesson.StartTime;
-      console.log('startTime before: ', sTBefore);
       let StartTime = this.fDate.formatDateKRETA(new Date(this.lesson.StartTime));
-      console.log('startTime: ', StartTime);
 
       let lesson = {
         teacherHomeworkId: this.lesson.TeacherHomeworkId,

@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -16,25 +16,22 @@
   </ion-refresher>
   <ion-list>
     <div *ngFor="let monthlyData of this.testsByMonth | async">
-      <ion-item button (click)="monthlyData.showAll = monthlyData.showAll ? false : true">
-        <ion-label>{{monthlyData.header}}</ion-label>
-        <ion-icon *ngIf="!monthlyData.showAll" slot="start" name="chevron-forward"></ion-icon>
-        <ion-icon *ngIf="monthlyData.showAll" slot="start" name="chevron-down"></ion-icon>
-      </ion-item>
+
+      <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
+        <ion-item-divider lines="full" button (click)="monthlyData.showAll = monthlyData.showAll ? false : true">
+          <ion-label>{{monthlyData.header}}</ion-label>
+          <ion-buttons slot="end">
+            <ion-button>
+              <ion-icon *ngIf="!monthlyData.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
+              <ion-icon *ngIf="monthlyData.showAll" slot="icon-only" name="chevron-down"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item-divider>
+        <ion-ripple-effect type="bounded"></ion-ripple-effect>
+      </div>
+
       <div *ngIf="monthlyData.showAll">
-        <ion-card *ngFor="let test of monthlyData.data">
-          <ion-card-header>
-            <ion-card-title class="selectableText">
-              {{test.SzamonkeresMegnevezese == '' ? '-' : test.SzamonkeresMegnevezese}}</ion-card-title>
-            <ion-card-subtitle>{{test.Tanar}} - {{this.fDate.formatDateWithZerosAndDots(test.Datum)}}
-              ({{test.HetNapja}})
-            </ion-card-subtitle>
-            <ion-card-subtitle>{{test.SzamonkeresModja}}</ion-card-subtitle>
-          </ion-card-header>
-          <ion-card-content class="subject">
-            <h2>{{test.Tantargy}}</h2>
-          </ion-card-content>
-        </ion-card>
+        <app-test *ngFor="let test of monthlyData.data" [test]="test"></app-test>
       </div>
     </div>
   </ion-list>

@@ -15,7 +15,6 @@ import {
 } from "src/app/_models/_administration/addresseeListItem";
 import { ThemeService } from "src/app/_services/theme.service";
 import { AddresseeGroup } from "src/app/_models/_administration/adresseeGroup";
-import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { TranslateService } from "@ngx-translate/core";
 import { DiacriticsHelper } from "src/app/_helpers/diacritics-helper";
 
@@ -150,13 +149,11 @@ export class AddresseeSelectorPage implements OnInit {
     private dataService: DataService,
     private router: Router,
     private theme: ThemeService,
-    private statusBar: StatusBar,
     private translator: TranslateService,
     private diacriticsHelper: DiacriticsHelper
   ) { }
 
   async ngOnInit() {
-    this.statusBar.backgroundColorByHexString("#3880ff");
     this.addresseeTypes = await this.usermanager.currentUser.getAddresseeTypeList();
     if (this.addresseeTypes[0] != null) {
       this.currentCategory = this.addresseeTypes[0].kod;
@@ -165,7 +162,6 @@ export class AddresseeSelectorPage implements OnInit {
     this.sans = false;
   }
   ionViewDidEnter() {
-    this.statusBar.backgroundColorByHexString("#3880ff");
     if (this.dataService.getData("currentAddresseeList") != null) {
       this.finalAddresseeList = this.dataService.getData(
         "currentAddresseeList"
@@ -189,9 +185,6 @@ export class AddresseeSelectorPage implements OnInit {
         this.filteredAddresseeList = this.displayAddresseeList;
       }
     }
-  }
-  ionViewWillLeave() {
-    this.theme.styleStatusBarToTheme();
   }
   async categoryChanged(event) {
     let toCategory = event.detail.value;

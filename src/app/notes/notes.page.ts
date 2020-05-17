@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Note } from '../_models/student';
+import { Note, Student } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { KretaService } from '../_services/kreta.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
@@ -9,6 +9,8 @@ import { Observable, Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { Event } from '../_models/event';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-notes',
@@ -17,12 +19,11 @@ import { HwBackButtonService } from '../_services/hw-back-button.service';
 })
 export class NotesPage implements OnInit {
 
-  public sans: boolean;
-  public collapsifiedData: Observable<UniversalSortedData[]>;
-  public showProgressBar: boolean;
-  private studentSubscription: Subscription;
-  private reloaderSubscription: Subscription;
+  public collapsifiedData: UniversalSortedData[];
   public unsubscribe$: Subject<void>;
+  public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
+
+  private reloaderSubscription: Subscription;
 
   constructor(
     public kretaService: KretaService,
@@ -35,8 +36,6 @@ export class NotesPage implements OnInit {
     private prompt: PromptService,
     private collapsifyService: CollapsifyService,
   ) {
-    this.sans = true;
-    this.showProgressBar = true;
   }
 
   async ngOnInit() {
@@ -48,9 +47,6 @@ export class NotesPage implements OnInit {
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
-        this.sans = true;
-        this.showProgressBar = true;
-        this.studentSubscription.unsubscribe();
         this.loadData();
       }
     });
@@ -58,64 +54,66 @@ export class NotesPage implements OnInit {
   ionViewWillLeave() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
     if (this.reloaderSubscription != null) {
       this.reloaderSubscription.unsubscribe();
     }
   }
 
-  private async loadData() {
-    this.collapsifiedData = new Observable<UniversalSortedData[]>((observer) => {
-      this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
-        if (subscriptionData.type == "skeleton") {
-          //there is no data in the storage, showing skeleton text until the server responds
-          this.sans = true;
-          this.showProgressBar = true;
-        } else if (subscriptionData.type == "placeholder") {
-          //there is data in the storage, showing that data until the server responds, disabling skeleton text
-          observer.next(this.collapsifyService.collapsifyByMonths(this.filterCoronaText(subscriptionData.data.Notes), "CreatingTime"));
-          this.sans = false;
-          this.showProgressBar = true;
-        } else {
-          //the server has now responded, disabling progress bar and skeleton text if it's still there
-          observer.next(this.collapsifyService.collapsifyByMonths(this.filterCoronaText(subscriptionData.data.Notes), "CreatingTime"));
-          this.showProgressBar = false;
-          this.sans = false;
+  private async loadData(forceRefresh = false, event?) {
+    this.userManager.currentUser.getAsyncAsObservableWithCache<any[]>(
+      [
+        {
+          name: "getStudent",
+          cacheKey: "student",
+          params: [null, null, true]
+        },
+        {
+          name: "getEvents",
+          cacheKey: "events",
+          params: []
         }
-      });
-    });
-    await this.userManager.currentUser.initializeStudent();
-  }
+      ],
+      forceRefresh,
+    )
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(
+        {
+          next: d => {
+            if (d[0] && d[0].Notes && d[1]) {
+              this.collapsifiedData = this.collapsifyService.collapsifyByMonths([...d[0].Notes, ...d[1]], "Date", "Date");
+              this.componentState = "loadedProgress";
+            }
+          },
+          complete: () => {
+            if (event) event.target.complete();
+            if (this.collapsifiedData.length == 0) {
+              this.componentState = 'empty';
+            } else {
+              this.componentState = 'loaded';
+            }
+          },
+          error: (error) => {
+            console.error(error);
+            //this.error = error;
+            // if (this.collapsifiedData.length == 0) {
+            //   this.componentState = "error";
+            //   if (event) event.target.complete()
+            //   error.isHandled = true;
+            // } else {
+            this.componentState = "loaded";
+            if (event) event.target.complete()
+            // }
 
-  filterCoronaText(noteArray: Note[]) {
-    let newArray = [];
-    let hasCoronaBeenAdded = false;
-    for (let i = 0; i < noteArray.length; i++) {
-      let element = noteArray[i];
-      //CORONA text quick fix
-      if (
-        element.Title == "Koronavírus tájékoztató" &&
-        this.fDate.formatDate(new Date(element.CreatingTime)) == "2020-3-11"
-      ) {
-        if (!hasCoronaBeenAdded) {
-          newArray.push(element);
-          hasCoronaBeenAdded = true;
+            throw error;
+          }
         }
-      } else {
-        newArray.push(element);
-      }
-    }
-    return newArray;
+      );
   }
-
   async getMoreData(note: Note) {
     this.prompt.noteAlert(note);
   }
-  async doRefresh(event: any) {
-    this.showProgressBar = true;
-    await this.userManager.currentUser.updateStudent();
-    event.target.complete();
+  doRefresh(event: any) {
+    this.componentState == 'loadedProgress';
+    this.loadData(true, event);
   }
 }

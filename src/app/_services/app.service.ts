@@ -8,6 +8,7 @@ import { registerLocaleData } from '@angular/common';
 import { AppVersion } from '@ionic-native/app-version/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
+import { File } from '@ionic-native/file/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -71,13 +72,13 @@ export class AppService {
     show: true,
     translatorVal: 'pages.notes.title'
   },
-  {
-    title: 'Faliújság',
-    url: '/events',
-    icon: 'document-attach-outline',
-    show: true,
-    translatorVal: 'pages.events.title'
-  },
+  // {
+  //   title: 'Faliújság',
+  //   url: '/events',
+  //   icon: 'document-attach-outline',
+  //   show: true,
+  //   translatorVal: 'pages.events.title'
+  // },
   {
     title: 'Házi feladatok',
     url: '/homeworks',
@@ -102,18 +103,12 @@ export class AppService {
     translatorVal: 'pages.messages.title'
   },
   // {
-  // title: 'Közösségi szolgálat',
-  // url: '/community-service',
-  // icon: 'body-outline',
-  // show: true,
+  //   title: 'Adatlap',
+  //   url: '/user',
+  //   icon: 'person-circle-outline',
+  //   show: true,
+  //   translatorVal: 'pages.user.title'
   // },
-  {
-    title: 'Adatlap',
-    url: '/user',
-    icon: 'person-circle-outline',
-    show: true,
-    translatorVal: 'pages.user.title'
-  },
   {
     title: 'Beállítások',
     url: '/settings',
@@ -157,9 +152,11 @@ export class AppService {
     {
       id: 0,
       requestName: "Student",
-      impactName: 'magas',
+      impactName: 'közepes',
       icon: "home-outline",
       show: true,
+      defaultParams: [null, null, true],
+      cacheKey: 'student',
     },
     {
       id: 1,
@@ -167,13 +164,17 @@ export class AppService {
       impactName: 'alacsony',
       src: "/assets/extraicons/test.svg",
       show: true,
+      defaultParams: [null, null, true],
+      cacheKey: 'tests',
     },
     {
       id: 2,
-      requestName: "MessageList",
+      requestName: "MessageListMobile",
       impactName: 'alacsony',
       icon: "chatbox-outline",
       show: true,
+      defaultParams: [true],
+      cacheKey: 'messageList',
     },
     {
       id: 3,
@@ -181,6 +182,8 @@ export class AppService {
       impactName: 'közepes',
       icon: "document-attach-outline",
       show: false,
+      defaultParams: [],
+      cacheKey: 'events',
     }
   ]
   public get homeRequests() {
@@ -212,6 +215,7 @@ export class AppService {
     private appVersion: AppVersion,
     private http: HTTP,
     private firebase: FirebaseX,
+    private file: File,
   ) { }
 
   public async onInit() {
@@ -229,6 +233,7 @@ export class AppService {
         this.storage.get("sidemenu"),
         this.storage.get("usersInitData"),
         this.storage.get("defaultPage"),
+        this.storage.get("lastClearedCacheStorage"),
       ]);
       this.analyticsCollectionEnabled = configs[0] == false ? false : true;
       if (!this.analyticsCollectionEnabled) {
@@ -272,6 +277,13 @@ export class AppService {
 
       this._defaultPage = configs[11] ? configs[11] : this._defaultPage;
 
+      //clearing storage cache after 1 week
+      if (!configs[12] || (configs[12] && new Date().valueOf() > configs[12] + 604800000)) {
+        console.log('Clearing cache storage');
+        this.clearAttachmentCache();
+        this.storage.set("lastClearedCacheStorage", new Date().valueOf());
+      }
+
     } catch (error) {
       console.error('Error initializing app', error);
     }
@@ -311,13 +323,29 @@ export class AppService {
   private getAppPages(storedPages) {
     if (storedPages != null) {
       for (let i = 0; i < storedPages.length; i++) {
-        this.appPages[i].show = storedPages[i].show;
+        for (let j = 0; j < this.appPages.length; j++) {
+          if (storedPages[i].url == this.appPages[j].url) {
+            this.appPages[j].show = storedPages[i].show;
+          }
+        }
       }
     }
     return this.appPages;
   }
   public getAppVersion() {
     return this.appVersion.getVersionNumber();
+  }
+  public clearAttachmentCache(): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      this.file
+        .getDirectory(
+          await this.file.resolveDirectoryUrl(this.file.cacheDirectory),
+          "msgattachment",
+          { create: false }
+        )
+        .then(messageCacheDir => messageCacheDir.removeRecursively(resolve, reject))
+        .catch(resolve);
+    });
   }
 
   //#region sidemenu

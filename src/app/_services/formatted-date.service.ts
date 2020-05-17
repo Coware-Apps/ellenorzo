@@ -77,7 +77,7 @@ export class FormattedDateService {
     //Because this shit gives back a value from 0-11
     month = date.getMonth() + 1;
 
-    return (this.addZeroToNumberByLength(date.getFullYear()) + "." + this.addZeroToNumberByLength(month) + "." + this.addZeroToNumberByLength(dateStringSplitted[2]));
+    return (this.addZeroToNumberByLength(date.getFullYear()) + ". " + this.addZeroToNumberByLength(month) + ". " + this.addZeroToNumberByLength(dateStringSplitted[2]) + ".");
   }
 
   getWeekFirst(extraWeeks: number = 0) {

@@ -40,6 +40,16 @@ export class AdministrationTokenError extends AdministrationHttpError {
         super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
     }
 }
+export class AdministrationRenewTokenError extends AdministrationHttpError {
+    constructor(
+        httpErrorObject: HTTPResponse,
+
+        customTitleTranslatorKey?: string,
+        customTextTranslatorKey?: string
+    ) {
+        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
+    }
+}
 export class AdministrationFileError extends AdministrationHttpError {
     fileName: string;
 

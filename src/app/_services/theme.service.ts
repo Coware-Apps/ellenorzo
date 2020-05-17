@@ -80,6 +80,28 @@ export class ThemeService {
   styleStatusBarToTheme() {
     switch (this.currentTheme.value) {
       case 'light':
+        this.statusBar.backgroundColorByHexString('#fee94a');
+        this.statusBar.styleDefault();
+        break;
+      case 'dark':
+        this.statusBar.backgroundColorByHexString('#fee94a');
+        this.statusBar.styleDefault();
+        break;
+      case 'minimalDark':
+        this.statusBar.backgroundColorByName("black");
+        this.statusBar.styleBlackOpaque();
+        break;
+      case 'custom':
+        this.statusBar.backgroundColorByName("black");
+        this.statusBar.styleLightContent();
+        break;
+      default:
+        break;
+    }
+  }
+  styleStatusBarToBlend() {
+    switch (this.currentTheme.value) {
+      case 'light':
         this.statusBar.backgroundColorByName("white");
         this.statusBar.styleDefault();
         break;

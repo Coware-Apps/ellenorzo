@@ -5,4 +5,6 @@ export class Event {
     Title: string;
     Content: string;
     SeenByTutelaryUTC: Date;
+
+    opened?: boolean;
 }

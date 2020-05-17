@@ -24,15 +24,10 @@ import { HwBackButtonService } from '../_services/hw-back-button.service';
   styleUrls: ['home.page.scss']
 })
 export class HomePage implements OnInit, OnDestroy {
-  public monthlyAverage: any;
-  public sans: boolean = true;
-  public thisMonth: number;
   public monthNames: string[];
-  public showingMonth: number;
-  public allData: Array<any>;
-  public showProgressBar: boolean;
-  public formattedCombined: Observable<CollapsibleCombined[]>;
+  public formattedCombined: CollapsibleCombined[];
   public isEmpty: boolean = false;
+  public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
 
   //categories
   showEvaluations: boolean = true;
@@ -40,9 +35,8 @@ export class HomePage implements OnInit, OnDestroy {
   showDocs: boolean = true;
   showMessages: boolean = true;
 
-  private combinedSubscription: Subscription;
-  private reloaderSubscription: Subscription;
   private unsubscribe$: Subject<void>;
+  private reloaderSubscription: Subscription;
 
   @Input() data: string;
 
@@ -68,141 +62,108 @@ export class HomePage implements OnInit, OnDestroy {
     private prompt: PromptService,
     private menuCtrl: MenuController,
     private translator: TranslateService,
-    private dataService: DataService,
     private router: Router,
   ) {
-    this.allData = [];
-    this.thisMonth = new Date().getMonth();
     this.monthNames = this.translator.instant("dates.monthNames");
-    this.sans = true;
-    this.showProgressBar = true;
   }
 
-  public async ngOnInit() {
-    this.dataService.setData('refreshHome', false);
-    this.menuCtrl.enable(true);
-    this.subscribeToReloader();
-    this.subscribeToData();
-    await this.loadData();
+  public ngOnInit() {
+    this.reloaderSubscription = this.userManager.reloader.subscribe(val => {
+      if (val == 'reload') {
+        this.formattedCombined = null;
+        this.componentState = 'loading';
+        this.loadData();
+      }
+    });
     this.firebase.setScreenName('home');
+    this.loadData(false, null);
   }
-  ionViewDidEnter() {
+  ionViewWillEnter() {
+    this.menuCtrl.enable(true);
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$, true);
-    //optionally refreshing data
-    if (this.dataService.getData('refreshHome') == true) {
-      this.ngOnInit();
-    }
   }
   ionViewWillLeave() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }
-  private async loadData() {
-    let currentMonth = new Date().getMonth() + 1;
-    //the month to show (on init it is the current month)
-    this.showingMonth = currentMonth;
-    let requestsToDo = [];
-    this.app.homeRequests.forEach(r => {
-      if (r.show == true) {
-        requestsToDo.push(r.requestName);
-      }
-    });
-    this.userManager.currentUser.initializeCombined(requestsToDo);
+  ngOnDestroy(): void {
+    if (this.reloaderSubscription) this.reloaderSubscription.unsubscribe();
   }
-  private subscribeToData() {
-    if (this.combinedSubscription == null || this.combinedSubscription.closed) {
-      this.formattedCombined = new Observable<CollapsibleCombined[]>((observer) => {
-        this.combinedSubscription = this.userManager.currentUser.combined.subscribe(subscriptionData => {
-          if (subscriptionData.type == "skeleton") {
-            this.sans = true;
-            this.showProgressBar = true;
-            //there is no data in the storage, showing skeleton text until the server responds
-          } else if (subscriptionData.type == "placeholder") {
-            //there is data in the storage, showing that data until the server responds, disabling skeleton text
-            observer.next(this.formatCombined(
-              subscriptionData.Student,
-              subscriptionData.Tests,
-              subscriptionData.MessageList,
-              subscriptionData.Events
-            ));
-            this.sans = false;
-            this.showProgressBar = true;
-          } else {
-            //the server has now responded, disabling progress bar and skeleton text if it's still there
-            observer.next(this.formatCombined(
-              subscriptionData.Student,
-              subscriptionData.Tests,
-              subscriptionData.MessageList,
-              subscriptionData.Events
-            ));
-            this.showProgressBar = false;
-            this.sans = false;
-          }
-        });
-      });
-    }
-  }
-  private subscribeToReloader() {
-    if (this.reloaderSubscription == null || this.reloaderSubscription.closed) {
-      this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
-        if (value == 'reload') {
-          this.sans = true;
-          this.showProgressBar = true;
-          this.combinedSubscription.unsubscribe();
-          this.subscribeToData();
-          this.loadData();
-        }
-      });
-    }
-  }
-  ngOnDestroy() {
-    this.combinedSubscription.unsubscribe();
-    this.reloaderSubscription.unsubscribe();
-  }
-  async doRefresh($event) {
-    this.subscribeToData();
-    this.showProgressBar = true;
-    let requestsToDo = [];
-    this.app.homeRequests.forEach(r => {
-      if (r.show == true) {
-        requestsToDo.push(r.requestName);
-      }
-    });
-    await this.userManager.currentUser.updateCombined(requestsToDo);
-    $event.target.complete();
-  }
-  private formatCombined(student: Student, tests: Test[], messages: Message[], events: Event[]): CollapsibleCombined[] {
-    let allDataByMonths = [];
-    let allData = [];
-    if (student != null) {
-      if (student.Evaluations != null) {
-        allData = allData.concat(student.Evaluations);
-      }
-      if (student.Absences != null) {
-        allData = allData.concat(student.Absences);
-      }
-      if (student.Notes != null) {
-        allData = allData.concat(student.Notes);
-      }
-    }
-    if (messages[0] != null) {
-      //removing sent messages
-      let toConcat = [];
-      for (let i = 0; i < messages.length; i++) {
-        if (messages[i].tipus && messages[i].tipus.azonosito == 1) {
-          toConcat.push(messages[i]);
-        }
-      }
-      allData = allData.concat(toConcat);
-    }
-    if (tests[0] != null) {
-      allData = allData.concat(tests);
-    }
-    if (events[0] != null) {
-      allData = allData.concat(events);
-    }
 
+  loadData(forceRefresh: boolean = false, event?) {
+    let requestsToDo = [];
+
+    this.app.homeRequests.forEach(r => {
+      if (r.show) {
+        requestsToDo.push({
+          name: `get${r.requestName}`,
+          cacheKey: r.cacheKey,
+          params: r.defaultParams,
+        })
+      }
+    })
+
+    this.userManager.currentUser.getAsyncAsObservableWithCache<[]>(
+      requestsToDo,
+      forceRefresh
+    ).subscribe(
+      {
+        next: d => {
+          if (d && d.length > 0) {
+            this.formattedCombined = this.formatCombined(d);
+            this.componentState = 'loadedProgress';
+          }
+        },
+        complete: () => {
+          if (event) event.target.complete();
+
+          let empty = true;
+          this.formattedCombined.forEach(e => {
+            if (e.data.length > 0) empty = false;
+          });
+          this.componentState = empty ? 'empty' : 'loaded'
+        },
+        error: (error) => {
+          console.error(error);
+
+          if (event) event.target.complete();
+
+          let empty = true;
+          this.formattedCombined.forEach(e => {
+            if (e.data.length > 0) empty = false;
+          });
+          this.componentState = empty ? 'empty' : 'error'
+
+          throw error;
+        }
+      }
+    )
+  }
+
+  async doRefresh(event) {
+    this.componentState = 'loadedProgress';
+    this.loadData(true, event);
+  }
+  private formatCombined(input: any[]): CollapsibleCombined[] {
+
+    let allDataByMonths = [];
+
+    let allData = [];
+
+    input.forEach((e, i) => {
+      if (e.StudentId) {
+        if (e.Evaluations) allData = allData.concat(e.Evaluations);
+        if (e.Absences) allData = allData.concat(e.Absences);
+        if (e.Notes) allData = allData.concat(e.Notes);
+      } else if (e[0] && e[0].azonosito) {
+        e.forEach(m => {
+          if (m.tipus && m.tipus.azonosito == 1) allData.push(m)
+        });
+      } else {
+        if (e) allData = allData.concat(e);
+      }
+    });
     if (allData[0] != null) {
       let months: number[] = [];
       for (let i = 0; i < allData.length; i++) {
@@ -243,10 +204,8 @@ export class HomePage implements OnInit, OnDestroy {
         }
       }
 
-      this.isEmpty = false;
       return allDataByMonths;
     } else {
-      this.isEmpty = true;
       return [];
     }
   }
@@ -275,39 +234,6 @@ export class HomePage implements OnInit, OnDestroy {
       this.prompt.noteAlert(item);
     } else if (item.EvaluationId != null) {
       this.prompt.evaluationAlert(item);
-    }
-  }
-  getShadowColor(numberValue: number, form: string) {
-    if (form == "Mark") {
-      switch (numberValue) {
-        case 5:
-          return this.color.cardColors.fiveColor;
-        case 4:
-          return this.color.cardColors.fourColor;
-        case 3:
-          return this.color.cardColors.threeColor;
-        case 2:
-          return this.color.cardColors.twoColor;
-        case 1:
-          return this.color.cardColors.oneColor;
-
-        default:
-          return this.color.cardColors.noneColor
-      }
-    } else if (form == 'Percent') {
-      if (numberValue < 50) {
-        return this.color.cardColors.oneColor;
-      } else if (numberValue < 60 && numberValue >= 50) {
-        return this.color.cardColors.twoColor;
-      } else if (numberValue < 70 && numberValue >= 60) {
-        return this.color.cardColors.threeColor;
-      } else if (numberValue < 80 && numberValue >= 70) {
-        return this.color.cardColors.fourColor;
-      } else if (numberValue >= 80) {
-        return this.color.cardColors.fiveColor;
-      }
-    } else {
-      return this.color.cardColors.noneColor
     }
   }
   themeIf(theme: string) {
@@ -357,5 +283,13 @@ export class HomePage implements OnInit, OnDestroy {
     return text.replace(urlRegex, function (url) {
       return `<a href="${url}">${url}</a>`;
     });
+  }
+  areAllRequestsEnabled() {
+    let returnVal = true;
+    this.app.homeRequests.forEach(r => {
+      if (!r.show) returnVal = false;
+    });
+
+    return returnVal;
   }
 }

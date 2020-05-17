@@ -8,12 +8,12 @@ import { Storage } from '@ionic/storage';
 export class ColorService {
 
   public cardColors = {
-    fiveColor: "#00CC66",
-    fourColor: "#FFFF66",
-    threeColor: "#FF9933",
-    twoColor: "#663300",
-    oneColor: "#FF0000",
-    noneColor: "#9933FF",
+    fiveColor: "#64dd17",
+    fourColor: "#ffeb3b",
+    threeColor: "#ffa000",
+    twoColor: "#e65100",
+    oneColor: "#d50000",
+    noneColor: "#7e57c2",
   };
   private currentTheme: string;
   constructor(

@@ -59,7 +59,8 @@ export class User {
      */
     public allowUpdatesIn = 120000;
     //public allowUpdatesIn = 10;
-
+    public lastLoggedIn: number = 0;
+    public lastLoggedInAdministration: number = 0;
     //anti-spam
     private lastUpdatedStudent = 0;
     private lastUpdatedStudentData: Student = null;
@@ -73,8 +74,6 @@ export class User {
     private lastUpdatedCombinedData: any = null;
     public tokens: Token;
     public administrationTokens: Token;
-    private lastLoggedIn: number = 0;
-    private lastLoggedInAdministration: number = 0;
     private authDiff: number = 300000;
     private cacheIds: {
         student: string;
@@ -385,6 +384,69 @@ export class User {
     private async showAntiSpamToast(requestName: string, timeLeft: number) {
         //deprecated for now, it is just annoying to the user
         //this.prompt.toast(`${requestName} frissítése technikai okokból 30 másodpercenként lehetséges. (${Math.round(timeLeft / 1000)} / ${this.allowUpdatesIn / 1000})`, true)
+    }
+    public getAsyncAsObservableWithCache<T>(
+        asyncFns: {
+            name: string,
+            cacheKey: string,
+            params: any[],
+        }[],
+        forceRefresh: boolean = false,
+        skipCache: boolean = false,
+    ): Observable<T> {
+
+        asyncFns.forEach(fn => {
+            if (!this[fn.name]) throw new Error(`The user class has no declared function '${fn.name}()'. Check your spelling or declare it manually.`)
+            if (!this.cacheIds[fn.cacheKey]) throw new Error(`The user class contains no cacheId called '${fn.name}'. Check your spelling or add it to the cacheIds object.`)
+        })
+
+        let returnVal = new Subject<T | any>();
+        Promise.all(
+            asyncFns.map(c => {
+                return this.storage.get(this.cacheIds[c.cacheKey]);
+            })
+        ).then(cacheData => {
+            let allCacheData = [];
+
+            cacheData.forEach(currentCacheData => {
+                if (currentCacheData) {
+                    allCacheData.push(currentCacheData.data);
+                }
+            });
+
+            if (!skipCache) returnVal.next(allCacheData);
+
+            let isCacheValid = true;
+            cacheData.forEach(currentCacheData => {
+                if (!this.cache.isCacheValid(currentCacheData)) isCacheValid = false;
+            });
+
+            if (!isCacheValid || forceRefresh) {
+
+                Promise.all(
+                    asyncFns.map(asyncFn => {
+                        return this[asyncFn.name].apply(this, asyncFn.params);
+                    })
+                ).then(res => {
+
+                    let d = [];
+                    res.forEach((e, i) => {
+                        if (e) {
+                            d.push(e);
+                            if (!skipCache) this.cache.setCache(this.cacheIds[asyncFns[i].cacheKey], e);
+                        }
+                    });
+
+                    returnVal.next(d);
+                    returnVal.complete();
+                }).catch(error => {
+                    returnVal.error(error);
+                });
+            } else {
+                returnVal.complete();
+            }
+        });
+        return returnVal.asObservable();
     }
     //#region student
     /**
@@ -801,6 +863,22 @@ export class User {
         //await this.updateLocalNotifications(lessons); (deprecated for now)
         return lessons;
     }
+    public async getStudent(fromDate: string, toDate: string, forceRefresh: boolean = false) {
+        await this.loginWithRefreshToken();
+        return this.kreta.getStudent(fromDate, toDate, forceRefresh, this.tokens, this.institute, this.cacheIds.student);
+    }
+    public async getEvents(): Promise<Event[]> {
+        await this.loginWithRefreshToken();
+        return this.kreta.getEvents(this.tokens, this.institute);
+    }
+    public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false): Promise<Test[]> {
+        await this.loginWithRefreshToken();
+        return this.kreta.getTests(fromDate, toDate, forceRefresh, this.tokens, this.institute, this.cacheIds.tests)
+    }
+    public async getMessageListMobile(forceRefresh: boolean) {
+        await this.loginWithRefreshToken();
+        return this.kreta.getMessageList(forceRefresh, this.tokens, this.cacheIds.messageList);
+    }
     /**
      * Gets the user's student homeworks between two dates or by a homeworkId
      * @param fromDate the date from which to get the student homeworks
@@ -886,6 +964,8 @@ export class User {
         let newTokens = await this.administrationService.getToken(username, password, this.institute);
         if (newTokens) {
             this.administrationTokens = newTokens;
+            this.app.usersInitData.find(u => u.id == this.id).adminstrationTokens = newTokens;
+            await this.app.changeConfig(`usersInitData`, this.app.usersInitData);
             //successfully logged user in to administration
             return true;
         } else {
@@ -978,9 +1058,9 @@ export class User {
         await this.loginWithRefreshToken('administration');
         return this.administrationService.removeAttachment(attachmentId, this.administrationTokens);
     }
-    public async getAttachmentThroughAdministration(fileId: number, fileName: string, fileExtension: string) {
+    public async getAttachmentThroughAdministration(fileId: number, fileName: string) {
         await this.loginWithRefreshToken('administration');
-        return this.administrationService.getAttachment(fileId, fileName, fileExtension, this.administrationTokens);
+        return this.administrationService.getAttachment(fileId, fileName, this.administrationTokens);
     }
     //#endregion
 }
@@ -1012,7 +1092,7 @@ export interface CollapsibleCombined {
     firstEntryCreatingTime: number;
     showEvaluations: boolean;
     showAbsences: boolean;
-    //events will be categorized under notes
+    //events, notes and tests will be categorized under docs
     showDocs: boolean;
     showMessages: boolean;
     showAll: boolean;

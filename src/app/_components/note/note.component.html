@@ -1,0 +1,18 @@
+<ion-card button>
+  <ion-card-header (click)="getMoreData(note)">
+    <ion-icon class="categoryIcon" name="document-text-outline"></ion-icon>
+    <ion-card-subtitle>{{note.Teacher}} - {{this.fDate.formatDateWithZerosAndDots(note.CreatingTime)}}
+    </ion-card-subtitle>
+    <ion-card-title>{{note.Title}}</ion-card-title>
+  </ion-card-header>
+  <hr>
+  <div (click)="note.opened = !note.opened">
+    <ion-card-content *ngIf="!note.opened" class="selectableText">
+      {{getLongItemText(note.Content)}}
+      <p style="text-decoration: underline; text-align: center;">{{isOpenableNeeded(note.Content)}}</p>
+    </ion-card-content>
+    <ion-card-content *ngIf="note.opened" class="selectableText">
+      {{note.Content}}
+    </ion-card-content>
+  </div>
+</ion-card>

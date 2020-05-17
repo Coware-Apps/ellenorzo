@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="settings"></ion-back-button>
     </ion-buttons>
@@ -13,13 +13,13 @@
       <ion-label>{{'pages.user-settings.mobileAccountsName' | translate}}</ion-label>
     </ion-item-divider>
 
-    <ion-item *ngFor="let user of this.userManager.allUsers">
+    <ion-item button *ngFor="let user of this.userManager.allUsers" (click)="showUserInfo(user.id)">
       <ion-buttons slot="end">
         <ion-button *ngIf="this.app.devSettingsEnabled" [disabled]="this.isTokenTimeZero('mobile', user.id)"
-          (click)="resetTokenTime('mobile', user.id)">
+          (click)="resetTokenTime('mobile', user.id); $event.stopPropagation()">
           <ion-icon color="warning" slot="icon-only" name="stopwatch-outline"></ion-icon>
         </ion-button>
-        <ion-button (click)="this.removeUser(user.id)">
+        <ion-button (click)="this.removeUser(user.id); $event.stopPropagation()">
           <ion-icon slot="icon-only" color="danger" name="close-outline"></ion-icon>
         </ion-button>
       </ion-buttons>

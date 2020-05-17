@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-buttons slot="start">
         <ion-back-button defaultHref="messages"></ion-back-button>
@@ -61,13 +61,14 @@
         <ion-list *ngIf="this.message.uzenet.csatolmanyok.length > 0">
           <ion-item button (click)="getFile(f.azonosito, f.fajlNev)" *ngFor="let f of message.uzenet.csatolmanyok">
             <ion-icon slot="start" name="attach-outline"></ion-icon>
-            <ion-label>{{f.fajlNev}}</ion-label>
+            <ion-label class="ion-text-wrap">{{f.fajlNev}}</ion-label>
             <ion-spinner *ngIf="f.loading == true" slot="end" style="float: right" name="crescent"></ion-spinner>
           </ion-item>
         </ion-list>
       </div>
       <div id="buttons" class="ion-text-center ion-align-self-baseline">
-        <ion-button *ngIf="this.message.tipus.azonosito != 2" (click)="this.replyToMsg()" class="bottomBtns" color="dark" fill="outline">
+        <ion-button *ngIf="this.message.tipus.azonosito != 2" (click)="this.replyToMsg()" class="bottomBtns"
+          color="dark" fill="outline">
           <ion-icon slot="start" name="return-up-back"></ion-icon>
           {{'pages.read-message.replyBtnText' | translate}}
         </ion-button>

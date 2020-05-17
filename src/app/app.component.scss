@@ -2,6 +2,7 @@
   padding: 5px;
   text-align: center;
   position: relative;
+  color: var(--ion-color-brand-contrast);
 }
 #logo {
   width: 20%;
@@ -17,4 +18,7 @@
   height: 0;
   //by default there is an annoying 0.55px (what) line here
   --border-width: 0 0 0px;
+}
+.background-brand {
+  background-color: var(--ion-color-brand);
 }

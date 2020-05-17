@@ -4,12 +4,11 @@ import { PromptService } from './prompt.service';
 import { Institute } from '../_models/institute';
 import { Token } from '../_models/token';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { stringify } from 'querystring';
 import { MessageListItem, Addressee, AttachmentToSend, AdministrationMessage } from '../_models/_administration/message';
 import { AddresseeType } from '../_models/_administration/addresseeType';
-import { FileTransfer, FileUploadOptions } from '@ionic-native/file-transfer/ngx';
+import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { Platform } from '@ionic/angular';
-import { File } from '@ionic-native/file/ngx';
+import { File, FileEntry } from '@ionic-native/file/ngx';
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
 import { AddresseeListItem, ParentAddresseeListItem, StudentAddresseeListItem } from '../_models/_administration/addresseeListItem';
@@ -18,7 +17,7 @@ import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { IOSFilePicker } from '@ionic-native/file-picker/ngx';
-import { AdministrationHttpError, AdministrationInvalidResponseError, AdministrationTokenError, AdministrationFileError, AdministrationError, AdministrationNetworkError, AdministrationInvalidGrantErorr } from '../_exceptions/administration-exception';
+import { AdministrationHttpError, AdministrationInvalidResponseError, AdministrationTokenError, AdministrationFileError, AdministrationError, AdministrationNetworkError, AdministrationInvalidGrantErorr, AdministrationRenewTokenError } from '../_exceptions/administration-exception';
 
 @Injectable({
   providedIn: 'root'
@@ -138,9 +137,7 @@ export class AdministrationService {
         'institute_code': institute.InstituteCode,
         'client_id': 'kozelkep-js-web'
       }
-      console.log(`[WEB->renewToken()] renewing tokens with refreshToken`, refresh_token)
-      console.log(`params`, params);
-      console.log(`headers`, headers);
+
       let response = await this._http.post("https://idp.e-kreta.hu/connect/Token", params, headers);
 
       let parsedResponse: Token;
@@ -149,11 +146,10 @@ export class AdministrationService {
       return parsedResponse;
     } catch (error) {
       console.error("Hiba a 'Token' lekérése közben: ", error);
-      this._firebase.logError(`[WEB->renewToken()->HTTP]: ` + stringify(error));
 
       if (error instanceof SyntaxError) throw new AdministrationInvalidResponseError('renewToken');
       if (error.status && error.status < 0) throw new AdministrationNetworkError('renewToken');
-      throw new AdministrationTokenError(error, 'renewToken.title', 'renewToken.text');
+      throw new AdministrationRenewTokenError(error, 'renewToken.title', 'renewToken.text');
     }
   }
   /**
@@ -601,51 +597,71 @@ export class AdministrationService {
   /**
    * Gets an attachment from the final attachment storage. Use this for existing messages.
    * @param fileId The id of the file to get from the server
-   * @param fileName The name of the file to get form the server (used to save the file)
-   * @param fileExtension The extension of the file to get from the server
+   * @param fileName The name of the file to get from the server (used to save the file), include extensions!
    * @param tokens `Token` used for authentication
    */
-  public async getAttachment(fileId: number, fileName: string, fileExtension: string, tokens: Token): Promise<string> {
-    let fileTransfer = this._transfer.create();
-    let uri = `${this._host}${this._endpoints.finalAttachmentStorage}/${fileId}`;
-    let fullFileName = fileName + '.' + fileExtension;
+  public async getAttachment(fileId: number, fileName: string, tokens: Token): Promise<FileEntry> {
+    const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)];
+    const newName = splitAt(fileName.lastIndexOf("."))(fileName);
+    newName[1] = newName[1].slice(1);
+
+    const name = newName[0] + "_" + fileId + "." + newName[1];
+
+    await this.getPermission();
+
+    const messageCacheDir = await this._file.getDirectory(
+      await this._file.resolveDirectoryUrl(this._file.cacheDirectory),
+      "msgattachment",
+      { create: true }
+    );
+
+    const fileExists = await this._file
+      .checkFile(messageCacheDir.toInternalURL(), name)
+      .catch(() => false);
+    if (fileExists) {
+      console.log("File exists in cache");
+      const fileEntry = await this._file
+        .getFile(messageCacheDir, name, {
+          create: false,
+        })
+        .catch(() => null);
+
+      if (fileEntry) return fileEntry;
+    }
+
+    const fileTransfer: FileTransferObject = this._transfer.create();
+    let fileEntry: FileEntry;
+
     try {
-      let url;
-      await this._platform.ready().then(async x => {
-        let entry = await fileTransfer.download(
-          uri,
-          await this.getDownloadPath() + fullFileName,
-          false,
-          {
-            headers: {
-              "Authorization": `Bearer ${tokens.access_token}`,
-              "User-Agent": this._userAgent,
-            }
+      fileEntry = await fileTransfer.download(
+        `${this._host}${this._endpoints.finalAttachmentStorage}/${fileId}`,
+        messageCacheDir.toInternalURL() + name,
+        undefined,
+        {
+          headers: {
+            "Authorization": `Bearer ${tokens.access_token}`,
+            "User-Agent": this._userAgent,
           }
-        )
-        url = entry.nativeURL;
-      });
-      return url;
+        }
+      );
     } catch (error) {
-      console.error('Error trying to get file', error);
-      this._firebase.logError(`[KRETA->getMessageFile()]: ` + stringify(error));
       if (error.status && error.status < 0) throw new AdministrationNetworkError('getAttachment()');
       throw new AdministrationFileError('getAttachment()', error, fileName, 'getAttachment.title', 'getAttachment.text');
     }
+
+    return fileEntry;
   }
-  protected async getDownloadPath() {
+  protected async getPermission() {
     if (this._platform.is('ios')) {
-      return this._file.documentsDirectory;
+      return;
     }
 
     await this._androidPermissions.checkPermission(this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE).then(
       result => {
         if (!result.hasPermission) {
-          this._androidPermissions.requestPermission(this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE);
+          return this._androidPermissions.requestPermission(this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE);
         }
       }
     );
-
-    return this._file.cacheDirectory;
   }
 }

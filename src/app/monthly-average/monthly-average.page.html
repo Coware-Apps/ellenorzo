@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
@@ -11,7 +11,9 @@
   <ion-card>
     <ion-card-header>
       <div id="container" style="display: block;"></div>
-      <ion-card-title><h1>Átlag: {{this.average}}</h1></ion-card-title>
+      <ion-card-title>
+        <h1>Átlag: {{this.average}}</h1>
+      </ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list>
@@ -19,13 +21,13 @@
           <ion-label>Jegy</ion-label>
           <ion-label>Súly</ion-label>
         </ion-item>
-        <ion-item  *ngFor="let item of this.monthlySubjectData" (click)="getMoreData(item)"
-        [ngStyle]="{'color': ((item.Weight == '100%') ? 'black' : ((item.Weight == '50%') ? 'green' : ((item.Weight == '150%') ? '#d1ab00' : ((item.Weight == '200%' ? 'red' : 'pink')))) )}">
-        <h1>{{item.NumberValue}}</h1>
-        <ion-label class="item-note" slot="end">
-          <h1>{{item.Weight}}</h1>
-        </ion-label>
-      </ion-item>
+        <ion-item *ngFor="let item of this.monthlySubjectData" (click)="getMoreData(item)"
+          [ngStyle]="{'color': ((item.Weight == '100%') ? 'black' : ((item.Weight == '50%') ? 'green' : ((item.Weight == '150%') ? '#d1ab00' : ((item.Weight == '200%' ? 'red' : 'pink')))) )}">
+          <h1>{{item.NumberValue}}</h1>
+          <ion-label class="item-note" slot="end">
+            <h1>{{item.Weight}}</h1>
+          </ion-label>
+        </ion-item>
       </ion-list>
     </ion-card-content>
   </ion-card>

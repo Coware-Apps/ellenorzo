@@ -26,6 +26,18 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 :root {
+  .ion-color-brand {
+    --ion-color-base: var(--ion-color-brand);
+    --ion-color-base-rgb: var(--ion-color-brand-rgb);
+    --ion-color-contrast: var(--ion-color-brand-contrast);
+    --ion-color-contrast-rgb: var(--ion-color-brand-contrast-rgb);
+    --ion-color-shade: var(--ion-color-brand-shade);
+    --ion-color-tint: var(--ion-color-brand-tint);
+  }
+  //ion-card-header normal color, need it for evaluation component categoryIcon
+  //maybe find out a better way sometime yes?
+  --ion-color-step-550: #737373;
+
   .dark-theme {
     .darkToast {
       --ion-item-background: transparent;
@@ -66,6 +78,15 @@
     ion-fab-list ion-fab-button {
       --background: #656565;
       --color: white;
+    }
+
+    .ion-color-brand {
+      --ion-color-base: var(--ion-color-brand);
+      --ion-color-base-rgb: var(--ion-color-brand-rgb);
+      --ion-color-contrast: var(--ion-color-brand-contrast);
+      --ion-color-contrast-rgb: var(--ion-color-brand-contrast-rgb);
+      --ion-color-shade: var(--ion-color-brand-shade);
+      --ion-color-tint: var(--ion-color-brand-tint);
     }
   }
   .dark-minimal-theme {
@@ -113,6 +134,14 @@
     --ion-color-step-850: #dbdbdb;
     --ion-color-step-900: #e7e7e7;
     --ion-color-step-950: #f3f3f3;
+
+    /**le variables**/
+    --ion-color-brand: black;
+    --ion-color-brand-rgb: black;
+    --ion-color-brand-contrast: #ffffff;
+    --ion-color-brand-contrast-rgb: black;
+    --ion-color-brand-shade: black;
+    --ion-color-brand-tint: black;
   }
   .custom-theme {
     ion-fab-list ion-fab-button {
@@ -177,6 +206,14 @@
     --ion-color-step-850: #dbdbdb;
     --ion-color-step-900: #e7e7e7;
     --ion-color-step-950: #f3f3f3;
+
+    /**le variables**/
+    --ion-color-brand: rgba(0, 0, 0, 0.432);
+    --ion-color-brand-rgb: rgba(0, 0, 0, 0.432);
+    --ion-color-brand-contrast: #ffffff;
+    --ion-color-brand-contrast-rgb: rgba(0, 0, 0, 0.432);
+    --ion-color-brand-shade: rgba(0, 0, 0, 0.432);
+    --ion-color-brand-tint: rgba(0, 0, 0, 0.432);
   }
   //custom theme backdrop settings
   .custom-theme.bd-25 {
@@ -184,24 +221,52 @@
     ion-toolbar {
       --background: rgba(0, 0, 0, 0.5);
     }
+    /**le variables**/
+    --ion-color-brand: rgba(0, 0, 0, 0.5);
+    --ion-color-brand-rgb: rgba(0, 0, 0, 0.5);
+    --ion-color-brand-contrast: #ffffff;
+    --ion-color-brand-contrast-rgb: rgba(0, 0, 0, 0.5);
+    --ion-color-brand-shade: rgba(0, 0, 0, 0.5);
+    --ion-color-brand-tint: rgba(0, 0, 0, 0.5);
   }
   .custom-theme.bd-50 {
     --ion-background-color: rgba(0, 0, 0, 0.6);
     ion-toolbar {
       --background: rgba(0, 0, 0, 0.6);
     }
+    /**le variables**/
+    --ion-color-brand: rgba(0, 0, 0, 0.6);
+    --ion-color-brand-rgb: rgba(0, 0, 0, 0.6);
+    --ion-color-brand-contrast: #ffffff;
+    --ion-color-brand-contrast-rgb: rgba(0, 0, 0, 0.6);
+    --ion-color-brand-shade: rgba(0, 0, 0, 0.6);
+    --ion-color-brand-tint: rgba(0, 0, 0, 0.6);
   }
   .custom-theme.bd-75 {
     --ion-background-color: rgba(0, 0, 0, 0.7);
     ion-toolbar {
       --background: rgba(0, 0, 0, 0.7);
     }
+    /**le variables**/
+    --ion-color-brand: rgba(0, 0, 0, 0.7);
+    --ion-color-brand-rgb: rgba(0, 0, 0, 0.7);
+    --ion-color-brand-contrast: #ffffff;
+    --ion-color-brand-contrast-rgb: rgba(0, 0, 0, 0.7);
+    --ion-color-brand-shade: rgba(0, 0, 0, 0.7);
+    --ion-color-brand-tint: rgba(0, 0, 0, 0.7);
   }
   .custom-theme.bd-100 {
     --ion-background-color: rgba(0, 0, 0, 0.8);
     ion-toolbar {
       --background: rgba(0, 0, 0, 0.8);
     }
+    /**le variables**/
+    --ion-color-brand: rgba(0, 0, 0, 0.8);
+    --ion-color-brand-rgb: rgba(0, 0, 0, 0.8);
+    --ion-color-brand-contrast: #ffffff;
+    --ion-color-brand-contrast-rgb: rgba(0, 0, 0, 0.8);
+    --ion-color-brand-shade: rgba(0, 0, 0, 0.8);
+    --ion-color-brand-tint: rgba(0, 0, 0, 0.8);
   }
 
   //mostly for the popup messages

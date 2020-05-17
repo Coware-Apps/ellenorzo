@@ -242,7 +242,6 @@ export class KretaService {
         'Authorization': 'Bearer ' + tokens.access_token,
         'User-Agent': this.app.userAgent,
       }
-      console.log('STUDENT HEADERS', headers);
       try {
         let response = await this.http.get(institute.Url + urlPath + '?fromDate=' + fromDate + '&toDate=' + toDate, null, headers);
         let parsedResponse = <Student>JSON.parse(response.data);
@@ -663,7 +662,6 @@ export class KretaService {
         }
 
         let response = await this.http.get("https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/postaladaelemek/sajat", null, headers);
-        console.log('msgList', response);
         let msgList = <Message[]>JSON.parse(response.data)
 
         this.cache.setCache(cacheId, msgList);
@@ -715,14 +713,9 @@ export class KretaService {
 
       this.http.setDataSerializer("json");
 
-      console.log(consoleText + " params: ", params);
-      console.log(consoleText + " headers: ", headers);
-
-
       let response = await this.http.post("https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/kommunikacio/uzenetek/olvasott", params, headers);
 
       let res = response;
-      console.log('res', res);
     } catch (error) {
       console.error(consoleText, error);
       this.firebase.logError(`[KRETA->setMessageAsRead()]: ` + stringify(error));
@@ -779,8 +772,6 @@ export class KretaService {
 
     try {
       console.log('[KRETA] Adding Student homework');
-      console.log('PARAMS', params);
-      console.log('HEADERS', headers);
       this.prompt.butteredToast('[KRETA] Adding Student homework');
 
       let response = await this.http.post(institute.Url + '/mapi/api/v1/HaziFeladat/CreateTanuloHaziFeladat/', params, headers);
@@ -821,7 +812,6 @@ export class KretaService {
   //#region Push-notifications (deprecated)
   public async getFcmToken(): Promise<string> {
     let currentToken = await this.firebase.getToken();
-    console.log('FMC TOKEN', currentToken);
     return currentToken;
   }
 
@@ -927,7 +917,6 @@ export class KretaService {
             }
           }
         )
-        console.log('entry', entry);
         url = entry.nativeURL;
       });
       return url;

@@ -1,15 +1,9 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>{{'pages.averages.title' | translate}}</ion-title>
-    <ion-buttons slot="end" *ngIf="!sans">
-      <ion-button (click)="showPicker()">
-        <ion-icon slot="start" name="color-palette"></ion-icon>
-        {{'pages.averages.colorBtn' | translate}}
-      </ion-button>
-    </ion-buttons>
     <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
   </ion-toolbar>
 </ion-header>
@@ -21,23 +15,9 @@
     </ion-refresher-content>
   </ion-refresher>
   <ion-list>
-    <div *ngFor="let item of this.subjectAverages | async">
-      <ion-card button [style.box-shadow]="'0px 0px 7px 3px ' + getShadowColor(item.Value)" *ngIf="item.Value != 0"
-        (click)="showModal(item.Subject, item.ClassValue, item)">
-        <ion-card-content>
-          <div style="float: right;">
-            <h1 [ngStyle]="{'color': color.getContrast()}">{{item.Value}}</h1>
-          </div>
-          <ion-card-title>
-            <h1>{{item.Subject}}</h1>
-          </ion-card-title>
-          <ion-card-subtitle [ngStyle]="{'color': color.getContrast()}">
-            {{'pages.averages.totalGradesText' | translate}}
-            {{getCountingGrades(item.Subject)}}
-          </ion-card-subtitle>
-        </ion-card-content>
-      </ion-card>
-    </div>
+    <app-average *ngFor="let item of this.subjectAverages | async"
+      (click)="this.showModal(item.Subject, item.ClassValue, item)" [subjectAverage]="item"
+      [totalGrades]="getCountingGrades(item.Subject)"></app-average>
   </ion-list>
 
   <div *ngIf="sans">

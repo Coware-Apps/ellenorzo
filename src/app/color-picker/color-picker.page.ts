@@ -27,6 +27,7 @@ export class ColorPickerPage implements OnInit {
   public noneColor: string;
   public focused: number;
   public title: string;
+  public mockEvaluations = [];
 
   constructor(
     public colorService: ColorService,
@@ -44,6 +45,19 @@ export class ColorPickerPage implements OnInit {
   }
 
   async ngOnInit() {
+    [5, 4, 3, 2, 1, 0].forEach(i => {
+      this.mockEvaluations.push(
+        {
+          Subject: this.translator.instant('pages.color-picker.evaluationCard.placeholderSubject'),
+          Teacher: this.translator.instant('pages.color-picker.evaluationCard.placeholderTeacher'),
+          Theme: this.translator.instant('pages.color-picker.evaluationCard.placeholderTheme'),
+          Form: "Mark",
+          NumberValue: i,
+          Date: new Date(946684800),
+          CreatingTime: new Date(946684800)
+        }
+      )
+    });
     this.menuCtrl.enable(false);
     let a;
     let color = (a = await this.storage.get('cardColor')) != null ? a : "&&&&&";
@@ -250,4 +264,21 @@ export class ColorPickerPage implements OnInit {
         break;
     }
   }
+
+  getContrast50(hexcolor: string) {
+    hexcolor = hexcolor.substring(1);
+    var r = parseInt(hexcolor.substr(0, 2), 16);
+    var g = parseInt(hexcolor.substr(2, 2), 16);
+    var b = parseInt(hexcolor.substr(4, 2), 16);
+    var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? 'black' : 'white';
+  }
+
+  styleEval() {
+    return {
+      'background-color': this.color,
+      'color': this.getContrast50(this.color)
+    }
+  }
 }
+

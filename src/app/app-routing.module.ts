@@ -127,10 +127,14 @@ const routes: Routes = [
     canActivate: [NavigationGuard]
   },
   {
-    path: 'events',
-    loadChildren: () => import('./events/events.module').then(m => m.EventsPageModule),
+    path: 'home-settings',
+    loadChildren: () => import('./sub-settings/home-settings/home-settings.module').then(m => m.HomeSettingsPageModule),
     canActivate: [NavigationGuard]
+  },  {
+    path: 'login-administration',
+    loadChildren: () => import('./login-administration/login-administration.module').then( m => m.LoginAdministrationPageModule)
   }
+
 ];
 
 @NgModule({

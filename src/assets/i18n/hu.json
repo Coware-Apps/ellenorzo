@@ -5,7 +5,9 @@
             "colorBtn": "Színek",
             "readMoreText": "Tovább...",
             "noDataText": "Nincsenek rögzített adatok.",
-            "filterText": "Szűrés"
+            "filterText": "Szűrés",
+            "emptyText": "Nincsenek bejegyzések",
+            "someComponentsDisabledText": "Bizonyos komponensek nincsenek megjelenítve"
         },
         "evaluations": {
             "title": "Értékelések",
@@ -22,7 +24,8 @@
         "list": {
             "title": "Órarend",
             "canceled": "Elmarad",
-            "substitutes": "Helyettesít"
+            "substitutes": "Helyettesít",
+            "emptyText": "Ezen a héten nincsenek rögzített órák"
         },
         "statistics": {
             "title": "Statisztikák",
@@ -171,7 +174,8 @@
             "pages": {
                 "title": "Oldalak",
                 "startingPageName": "Kezdőlap",
-                "hidePagesName": "Oldalak elrejtése"
+                "hidePagesName": "Oldalak elrejtése",
+                "homeSettingsName": "Főoldal testreszabása"
             },
             "language": {
                 "title": "Nyelv",
@@ -218,7 +222,8 @@
             "selectionZoneText": "Koppints egy értékre, hogy az általad választott színt beállítsd!",
             "evaluationCard": {
                 "placeholderSubject": "Tantárgy",
-                "placeholderTeacher": "Tanár"
+                "placeholderTeacher": "Tanár",
+                "placeholderTheme": "Értékelés témája"
             },
             "averageCard": {
                 "placeholderSubject": "Tantárgy",
@@ -283,7 +288,11 @@
             "successfullyUnread": "Üzenet olvasatlannak lett jelölve",
             "errorStateName": "Kiküldés állapota",
             "replyBtnText": "Válasz",
-            "forwardBtnText": "Továbbítás"
+            "forwardBtnText": "Továbbítás",
+            "cannotOpenFile": {
+                "title": "A fájlt nem sikerült megnyitni",
+                "text": "Ellenőrizd, hogy van-e program telepítve, ami meg tud nyitni ilyen kiterjesztésű fájlt!"
+            }
         },
         "bg-settings": {
             "title": "Háttér testreszabása",
@@ -380,14 +389,14 @@
             "Student": {
                 "title": "Tanuló adatai",
                 "description": "Értékelések, mulasztások, feljegyzések",
-                "impactName": "lassú"
+                "impactName": "közepes"
             },
             "Tests": {
                 "title": "Számonkérések",
                 "description": "Tanárok által bejelentett számonkérések",
                 "impactName": "gyors"
             },
-            "MessageList": {
+            "MessageListMobile": {
                 "title": "Üzenetek",
                 "description": "Beérkezett üzenetek",
                 "impactName": "gyors"
@@ -397,6 +406,9 @@
                 "description": "Faliújságon szereplő elemek",
                 "impactName": "közepes"
             }
+        },
+        "login-administration": {
+            "title": "Bejelentkezés"
         }
     },
     "dates": {
@@ -415,41 +427,41 @@
             "December"
         ],
         "dayNames": [
-            "Vasárnap",
-            "Hétfő",
-            "Kedd",
-            "Szerda",
-            "Csütörtök",
-            "Péntek",
-            "Szombat"
+            "vasárnap",
+            "hétfő",
+            "kedd",
+            "szerda",
+            "csütörtök",
+            "péntek",
+            "szombat"
         ],
         "days": {
             "monday": {
-                "name": "Hétfő",
+                "name": "hétfő",
                 "shortName": "Hé"
             },
             "tuesday": {
-                "name": "Kedd",
+                "name": "kedd",
                 "shortName": "Ke"
             },
             "wednesday": {
-                "name": "Szerda",
+                "name": "szerda",
                 "shortName": "Sz"
             },
             "thursday": {
-                "name": "Csütörtök",
+                "name": "csütörtök",
                 "shortName": "Cs"
             },
             "friday": {
-                "name": "Péntek",
+                "name": "péntek",
                 "shortName": "Pé"
             },
             "saturday": {
-                "name": "Szombat",
+                "name": "szombat",
                 "shortName": "Sz"
             },
             "sunday": {
-                "name": "Vasárnap",
+                "name": "vasárnap",
                 "shortName": "Va"
             }
         }
@@ -549,6 +561,7 @@
             "exitBtnText": "Kilépés",
             "yesBtnText": "Igen",
             "noBtnText": "Nem",
+            "moreBtnText": "Részletek",
             "evaluationAlert": {
                 "dateName": "Dátum",
                 "creatingTimeName": "Létrehozva",
@@ -596,6 +609,11 @@
                 "instituteTagName": "Intézmény neve",
                 "loggingTimeName": "Rögzítve",
                 "noteName": "Megjegyzés"
+            },
+            "administrationLoginExpired": {
+                "title": "A KRÉTA kijelentkeztetett",
+                "text": "A szerver kijelentkeztetett. Kérjük, jelentkezz be újra az e-üzenetek modulba.",
+                "loginBtnText": "Bejelentkezés"
             }
         },
         "notification": {

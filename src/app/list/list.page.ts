@@ -1,27 +1,19 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Token } from '../_models/token';
 import { Storage } from '@ionic/storage';
 import { Lesson } from '../_models/lesson';
 import { ThemeService } from '../_services/theme.service';
 import { AlertController, IonSlides, MenuController } from '@ionic/angular';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
 import { DataService } from '../_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { UserManagerService } from '../_services/user-manager.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { takeUntil } from 'rxjs/operators';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
 
-interface day {
-  name: string,
-  shortName: string,
-  index: number,
-  show: boolean,
-}
 @Component({
   selector: 'app-list',
   templateUrl: 'list.page.html',
@@ -31,63 +23,61 @@ export class ListPage implements OnInit {
 
   @ViewChild('slides', { static: true }) slides: IonSlides;
 
-  public timetable: Lesson[];
-  public tokens: Token;
-  public whichDay: string = "today";
-  public showingDay: string;
-  public sans: boolean = true;
-  public focused: number;
-  public currentDate: Date;
-  public weekToFrom: string;
-  public message;
   public unfocusFooterButton: boolean;
-  weekFirst: Date;
-  weekLast: Date;
-  startingWeekFirst: Date;
-  startingWeekLast: Date;
-  public days: day[] = [
+  public days = [
     {
       name: this.translator.instant('dates.days.sunday.name'),
       shortName: this.translator.instant('dates.days.sunday.shortName'),
+      data: [],
       index: 6,
-      show: false,
+      dayIndex: 0,
     },
     {
       name: this.translator.instant('dates.days.monday.name'),
       shortName: this.translator.instant('dates.days.monday.shortName'),
+      data: [],
       index: 0,
-      show: false,
+      dayIndex: 1,
     },
     {
       name: this.translator.instant('dates.days.tuesday.name'),
       shortName: this.translator.instant('dates.days.tuesday.shortName'),
+      data: [],
       index: 1,
-      show: false,
+      dayIndex: 2,
     },
     {
       name: this.translator.instant('dates.days.wednesday.name'),
       shortName: this.translator.instant('dates.days.wednesday.shortName'),
+      data: [],
       index: 2,
-      show: false,
+      dayIndex: 3,
     },
     {
       name: this.translator.instant('dates.days.thursday.name'),
       shortName: this.translator.instant('dates.days.thursday.shortName'),
+      data: [],
       index: 3,
-      show: false,
+      dayIndex: 4,
     },
     {
       name: this.translator.instant('dates.days.friday.name'),
       shortName: this.translator.instant('dates.days.friday.shortName'),
+      data: [],
       index: 4,
-      show: false,
+      dayIndex: 5,
     },
     {
       name: this.translator.instant('dates.days.saturday.name'),
       shortName: this.translator.instant('dates.days.saturday.shortName'),
+      data: [],
       index: 5,
-      show: false,
+      dayIndex: 6,
     }];
+  public focused: number = 0;
+  public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
+  public extraWeekIndex: number = 0;
+
   public unsubscribe$: Subject<void>;
 
   constructor(
@@ -105,9 +95,6 @@ export class ListPage implements OnInit {
     private menuCtrl: MenuController,
     private translator: TranslateService,
   ) {
-    this.focused = 0;
-    this.message = "";
-
     this.theme.currentTheme.subscribe(theme => {
       if (theme == "light") {
         this.unfocusFooterButton = false;
@@ -120,18 +107,18 @@ export class ListPage implements OnInit {
   async ngOnInit() {
     //firebase
     this.firebase.setScreenName('timetable');
+    this.loadData(false, null, "current");
   }
   async ionViewDidEnter() {
+    await this.menuCtrl.enable(true);
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
-    await this.menuCtrl.enable(true);
-    await this.loadData();
+
     this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(value => {
       if (value == 'reload') {
-        this.sans = true;
+        this.componentState = 'loading';
         this.loadData();
       }
-      console.log('TIMETABLE RELOADER');
     });
   }
   ionViewWillLeave() {
@@ -139,36 +126,91 @@ export class ListPage implements OnInit {
     this.unsubscribe$.complete();
   }
 
-  private async loadData() {
-    let now = new Date();
-    //getting the first day and last day to show
-    let today = now.getDay();
-    if (today == 0 || today == 6) {
-      this.weekFirst = new Date(this.fDate.getWeekFirstDate(1));
-      this.weekLast = new Date(this.fDate.getWeekLastDate(1));
-      this.startingWeekFirst = new Date(this.fDate.getWeekFirstDate(1));
-      this.startingWeekLast = new Date(this.fDate.getWeekLastDate(1));
-      this.focused = 0;
-    } else {
-      this.weekFirst = new Date(this.fDate.getWeekFirstDate());
-      this.weekLast = new Date(this.fDate.getWeekLastDate());
-      this.startingWeekFirst = new Date(this.fDate.getWeekFirstDate(0));
-      this.startingWeekLast = new Date(this.fDate.getWeekLastDate(0));
-    }
-    console.log(this.weekFirst + ' ' + this.weekLast);
+  loadData(forceRefresh: boolean = false, event?, slideRequest?: "first" | "current") {
+    this.userManager.currentUser.getAsyncAsObservableWithCache([
+      {
+        name: "getLesson",
+        cacheKey: "lesson",
+        params: [
+          this.fDate.getWeekFirst(this.extraWeekIndex),
+          this.fDate.getWeekLast(this.extraWeekIndex),
+          true
+        ]
+      }
+    ],
+      this.extraWeekIndex != 0 || forceRefresh,
+      this.extraWeekIndex != 0
+    ).subscribe(
+      {
+        next: d => {
+          if (d[0]) {
+            this.displayData(d[0], slideRequest);
+            this.componentState = "loadedProgress";
+          } else {
+            if (this.extraWeekIndex != 0) {
+              this.days.map(d => d.data = []);
+            }
+          }
+        },
+        complete: () => {
+          if (event) event.target.complete();
 
-    this.sans = true;
-    //getting the timetable data from the server
-    this.timetable = await this.userManager.currentUser.getLesson(
-      this.fDate.formatDate(this.weekFirst),
-      this.fDate.formatDate(this.weekLast)
-    );
-    this.dataToScreen(this.fDate.formatDate(this.weekFirst), this.fDate.formatDate(this.weekLast));
-    this.sans = false;
+          let empty = true;
+          this.days.forEach(d => {
+            if (d.data && d.data.length > 0) {
+              empty = false;
+            }
+          });
+          this.componentState = empty ? 'empty' : 'loaded'
+        },
+        error: (error) => {
+          console.error(error);
+
+          if (event) event.target.complete();
+
+          let empty = true;
+          this.days.forEach(d => {
+            if (d.data && d.data.length > 0) {
+              empty = false;
+            }
+          });
+
+          if (empty) {
+            this.days.map(d => d.data = []);
+          }
+          this.componentState = empty ? 'empty' : 'error'
+
+          throw error;
+        }
+      }
+    )
   }
 
-  async getMoreData(lesson: Lesson) {
-    this.prompt.lessonAlert(lesson);
+  displayData(timetable: Lesson[], slideRequest: "first" | "current") {
+    this.days.map(d => d.data = []);
+    this.days.sort((a, b) => a.dayIndex - b.dayIndex);
+
+    timetable.forEach(l => {
+      let d = new Date(l.StartTime).getDay();
+      this.days[d].data.push(l);
+    });
+
+
+    if (slideRequest == 'first') {
+      this.slides.slideTo(0);
+      this.focused = 0;
+    } else if (slideRequest == "current") {
+      let displayDays = this.getDisplayDays();
+      let slideTo = displayDays.findIndex(d => d.dayIndex == new Date().getDay());
+      this.focused = slideTo;
+
+      if (slideTo > -1) {
+        this.slides.slideTo(slideTo);
+      } else {
+        this.slides.slideTo(0)
+        this.focused = 0;
+      }
+    }
   }
 
   openHomeworks(lesson: Lesson) {
@@ -176,43 +218,13 @@ export class ListPage implements OnInit {
     this.navRouter.navigateByUrl('/timetable-homeworks?id=currentLesson');
   }
 
-  getTime(StartTime: Date, EndTime: Date) {
-    let formatted = this.fDate.getTime(StartTime) + '-' + this.fDate.getTime(EndTime);
-    return formatted;
+  doRefresh(event) {
+    this.componentState = 'loadedProgress';
+    this.loadData(true, event);
   }
 
   async ionSlideWillChange() {
     this.focused = await this.slides.getActiveIndex();
-  }
-
-  getData(day: number) {
-    let shownDays = [];
-    this.days.forEach(d => {
-      if (d.show) {
-        shownDays.push(d);
-      }
-    });
-    for (let i = 0; i < shownDays.length; i++) {
-      const element = shownDays[i];
-      if (element.index == day) {
-        this.focused = i;
-        this.slides.slideTo(i);
-      }
-    }
-  }
-  getShownDayIndex(day: number) {
-    let shownDays = [];
-    this.days.forEach(d => {
-      if (d.show) {
-        shownDays.push(d);
-      }
-    });
-    for (let i = 0; i < shownDays.length; i++) {
-      const element = shownDays[i];
-      if (element.index == day) {
-        return i;
-      }
-    }
   }
 
   getStateClass(item: any) {
@@ -223,117 +235,32 @@ export class ListPage implements OnInit {
     };
   }
 
-  getDayName(date: string) {
-    let d = new Date(date);
-    return d.getDay();
-  }
-
   async getNextWeek() {
-    this.sans = true;
-    this.weekFirst.setDate(this.weekFirst.getDate() + 7);
-    this.weekLast.setDate(this.weekLast.getDate() + 7);
-    if (this.fDate.formatDate(this.weekFirst) != this.fDate.formatDate(this.startingWeekFirst)) {
-      //not caching extra weeks (timetable requests are pretty quick, and there is an issue with the storage overfill on ionic :(  )
-      this.timetable = await this.userManager.currentUser.getLesson(
-        this.fDate.formatDate(this.weekFirst),
-        this.fDate.formatDate(this.weekLast),
-        true
-      );
-    } else {
-      this.timetable = await this.userManager.currentUser.getLesson(
-        this.fDate.formatDate(this.weekFirst),
-        this.fDate.formatDate(this.weekLast),
-      );
-    }
-
-    this.dataToScreen(
-      this.fDate.formatDate(this.weekFirst),
-      this.fDate.formatDate(this.weekLast),
-    );
-    this.focused = 0;
-    this.slides.slideTo(this.focused);
-    this.sans = false;
+    this.componentState = 'loading';
+    this.extraWeekIndex++;
+    this.loadData(true, null, "first");
   }
 
   async getPrevWeek() {
-    this.sans = true;
-    this.weekFirst.setDate(this.weekFirst.getDate() - 7);
-    this.weekLast.setDate(this.weekLast.getDate() - 7);
-    if (this.fDate.formatDate(this.weekFirst) != this.fDate.formatDate(this.startingWeekFirst)) {
-      //not caching extra weeks (timetable requests are pretty quick, and there is an issue with the storage overfill on ionic :(  )
-      this.timetable = await this.userManager.currentUser.getLesson(
-        this.fDate.formatDate(this.weekFirst),
-        this.fDate.formatDate(this.weekLast),
-        true
-      );
-    } else {
-      this.timetable = await this.userManager.currentUser.getLesson(
-        this.fDate.formatDate(this.weekFirst),
-        this.fDate.formatDate(this.weekLast),
-      );
-    }
-
-    this.dataToScreen(
-      this.fDate.formatDate(this.weekFirst),
-      this.fDate.formatDate(this.weekLast),
-    );
-    this.focused = 0;
-    this.slides.slideTo(this.focused);
-    this.sans = false;
+    this.componentState = 'loading';
+    this.extraWeekIndex--;
+    this.loadData(true, null, "first");
   }
 
-  dataToScreen(weekFirst: string, weekLast: string) {
-    //getting the date that is shown in brackets in the header
-    this.weekToFrom = this.fDate.addZeroToNumberByLength(
-      weekFirst.split('-')[1]) + '.' +
-      this.fDate.addZeroToNumberByLength(weekFirst.split('-')[2]) + "-" +
-      this.fDate.addZeroToNumberByLength(weekLast.split('-')[1]) + '.' +
-      this.fDate.addZeroToNumberByLength(weekLast.split('-')[2]);
-    this.days.forEach(day => {
-      day.show = false;
-    });
+  getHeaderString() {
+    let first = this.fDate.getWeekFirstDate(this.extraWeekIndex);
+    let last = this.fDate.getWeekLastDate(this.extraWeekIndex);
 
-    this.focused = 0;
-    let currentDay = new Date().getDay();
-    let prevDate;
-    let slideTo = 0;
-    this.timetable.forEach(lesson => {
-      let i = this.getDayName(lesson.StartTime.toString())
-
-      if (prevDate != new Date(lesson.StartTime).getDay()) {
-        if (currentDay == new Date(lesson.StartTime).getDay()) {
-          this.focused = slideTo;
-        }
-        slideTo++;
-      }
-
-      prevDate = new Date(lesson.StartTime).getDay();
-      lesson.DayOfWeek = i - 1;
-      this.days[i].show = true;
-    });
-
-    this.slides.slideTo(this.focused);
-
-    this.timetable.sort((a, b) => new Date(a.StartTime).valueOf() - new Date(b.StartTime).valueOf());
+    let r =
+      `${this.fDate.addZeroToNumberByLength(first.getMonth() + 1)}. ${this.fDate.addZeroToNumberByLength(first.toString().split(" ")[2])}.` +
+      " - " +
+      `${this.fDate.addZeroToNumberByLength(last.getMonth() + 1)}. ${this.fDate.addZeroToNumberByLength(last.toString().split(" ")[2])}.`
+    return r;
   }
 
-  hideHomeworkBtn(startTime: Date) {
-    if (new Date(startTime).valueOf() > new Date().valueOf()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  getShownDays(days: day[]) {
-    let returnDays: day[] = [];
-
-    days.forEach(day => {
-      if (day.show) {
-        returnDays.push(day);
-      }
-    });
-
-    return returnDays;
+  getDisplayDays() {
+    let r = this.days;
+    return r.sort((a, b) => a.index - b.index)
+      .filter(x => x.data.length > 0);
   }
 }

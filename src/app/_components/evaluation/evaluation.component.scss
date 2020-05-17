@@ -1,0 +1,74 @@
+.evaluationCard {
+    --color: var(--color);
+    border-radius: 10px;
+    margin: 10px;
+}
+
+#evaluation-col-numberValue {
+    text-align: center;
+    font-size: 3rem !important;
+    font-weight: bold;
+    padding-right: 1%;
+    padding-left: 1%;
+    padding-top: 3%;
+    padding-bottom: 2%;
+    // border-right-style: groove;
+    // border-right-width: 3px;
+}
+#evaluation-col-date {
+    padding-bottom: 3%;
+    // border-right-style: groove;
+    // border-right-width: 3px;
+}
+#evaluation-text-date {
+    font-weight: 380;
+}
+#evaluation-strong-date {
+    font-weight: 700;
+}
+#evaluation-small-weight {
+    font-size: large;
+    font-weight: 300;
+    padding-left: 3%;
+}
+.categoryIcon {
+    float: right;
+    font-size: xx-large;
+    padding-right: 16px;
+    padding-top: 16px;
+    color: var(--ion-color-step-550);
+}
+.contrast-color {
+    color: var(--ion-text-color);
+}
+#evaluation-subject {
+    margin-left: 4%;
+    margin-bottom: 0px;
+    font-weight: 450;
+    margin-right: 50px;
+
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#evaluation-subject-compact {
+    margin-left: 4%;
+    margin-bottom: 0px;
+    font-weight: 450;
+
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#evaluation-theme {
+    margin-left: 4%;
+    margin-top: 0px;
+    color: var(--ion-color-step-550);
+
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#ion-teacher-chip {
+    --background: var(--ion-item-background);
+}

@@ -32,7 +32,6 @@ export class ErrorDetailComponent implements OnInit {
       this.clipboard.copy(stringify(this.error) + (this.error.httpErrorObject ? `&HTTPError=${stringify(this.error.httpErrorObject)}"` : ''));
       this.prompt.toast(this.translator.instant('pages.error.copiedText'), true);
     } catch (error) {
-
       this.prompt.toast(this.translator.instant('pages.error.errorCopyingText'), true);
     }
   }
@@ -47,14 +46,16 @@ export class ErrorDetailComponent implements OnInit {
   }
 
   getKeys(o: any) {
-    return Object.keys(o);
+    let keys = Object.keys(o);
+    if (keys.length == 0) keys = Object.getOwnPropertyNames(o);
+    return keys;
   }
   stringify(a) {
     if (a instanceof Object) {
       return stringify(a);
-    } else if (typeof(a) === "string") {
+    } else if (typeof (a) === "string") {
       return a;
-    } else if (typeof(a) == "number") { 
+    } else if (typeof (a) == "number") {
       return a.toString();
     }
   }

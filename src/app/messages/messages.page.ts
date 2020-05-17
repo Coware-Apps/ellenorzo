@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { Message } from '../_models/message';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { Subscription, Observable, Subject } from 'rxjs';
@@ -6,6 +6,8 @@ import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UserManagerService } from '../_services/user-manager.service';
 import { MenuController } from '@ionic/angular';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { takeUntil } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-messages',
@@ -19,7 +21,7 @@ export class MessagesPage implements OnInit {
   public messageListSubscription: Subscription;
   public reloaderSubscription: Subscription;
   public inboxEmpty: boolean = false;
-  private willLeaveUnsubscribe$: Subject<void> = new Subject<void>();
+  private willLeaveUnsubscribe$: Subject<void>;
   constructor(
     public fDate: FormattedDateService,
     public userManager: UserManagerService,
@@ -27,12 +29,25 @@ export class MessagesPage implements OnInit {
     private hw: HwBackButtonService,
     private firebaseX: FirebaseX,
     private menuCtrl: MenuController,
+    private router: Router,
+    private ngZone: NgZone,
   ) {
     this.sans = true;
     this.showProgressBar = true;
   }
 
   ionViewWillEnter() {
+    this.willLeaveUnsubscribe$ = new Subject<void>();
+    this.userManager.reloader.pipe(takeUntil(this.willLeaveUnsubscribe$)).subscribe(r => {
+      if (r == 'reload') {
+        if (!this.userManager.currentUser.administrationTokens) {
+          this.ngZone.run(() => this.router.navigateByUrl('login-administration'));
+        }
+      }
+    })
+    if (!this.userManager.currentUser.administrationTokens) {
+      this.ngZone.run(() => this.router.navigateByUrl('login-administration'));
+    }
     this.hw.registerHwBackButton(this.willLeaveUnsubscribe$);
   }
 

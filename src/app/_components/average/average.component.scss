@@ -1,0 +1,72 @@
+.evaluationCard {
+    --color: var(--color);
+    border-radius: 10px;
+}
+.center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+#evaluation-col-numberValue {
+    text-align: center;
+    font-size: 2.3rem !important;
+    font-weight: bold;
+}
+#evaluation-col-date {
+    padding-bottom: 3%;
+}
+#evaluation-text-date {
+    font-weight: 380;
+}
+#evaluation-strong-date {
+    font-weight: 700;
+}
+#evaluation-small-weight {
+    font-size: large;
+    font-weight: 300;
+    padding-left: 3%;
+}
+.categoryIcon {
+    float: right;
+    font-size: xx-large;
+    padding-right: 16px;
+    padding-top: 16px;
+    color: var(--ion-color-step-550);
+}
+.contrast-color {
+    color: var(--ion-text-color);
+}
+#evaluation-subject {
+    margin-left: 4%;
+    margin-bottom: 0px;
+    font-weight: 450;
+    margin-right: 50px;
+
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#evaluation-subject-compact {
+    margin-left: 4%;
+    margin-bottom: 0px;
+    font-weight: 450;
+
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#evaluation-theme {
+    margin-left: 4%;
+    margin-top: 0px;
+    color: var(--ion-color-step-550);
+
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#ion-teacher-chip {
+    --background: var(--ion-item-background);
+}

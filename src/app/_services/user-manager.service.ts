@@ -105,8 +105,7 @@ export class UserManagerService {
     } else {
       //switching to another user
       if (this.currentUser.id == userId) {
-        this.data.setData('refreshHome', true) >
-          this.switchToUser(this.allUsers[this.allUsers.length - 1].id);
+        this.switchToUser(this.allUsers[this.allUsers.length - 1].id);
       }
     }
     await this.app.changeConfig("usersInitData", this.app.usersInitData);

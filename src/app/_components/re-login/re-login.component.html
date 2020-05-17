@@ -21,12 +21,13 @@
         </ion-item>
         <ion-item>
           <ion-label position="floating" translate="pages.login.passwordName"></ion-label>
-          <ion-input required type="password" name="password" [(ngModel)]="this.password"></ion-input>
+          <ion-input required type="password" name="password" [(ngModel)]="password"></ion-input>
         </ion-item>
-        <ion-button block color="primary" type="submit" shape="round" expand="block"
-          translate="pages.login.loginBtnText"></ion-button>
+        <ion-button [disabled]="!password || !username" color="primary" type="submit" expand="block"
+          translate="pages.login.loginBtnText">
+        </ion-button>
       </form>
-      <div class="longText">
+      <!-- <div class="longText">
         <h5 translate="components.re-login.whyLoginTitle"></h5>
         <p translate="components.re-login.whyLoginText"></p>
         <h5 translate="components.re-login.featureTitle"></h5>
@@ -44,7 +45,7 @@
         <p translate="components.re-login.dataLossText"></p>
         <h5 translate="components.re-login.officialAppLacksTitle"></h5>
         <p translate="components.re-login.officialAppLacksText"></p>
-      </div>
+      </div> -->
     </ion-col>
   </ion-row>
 </ion-grid>

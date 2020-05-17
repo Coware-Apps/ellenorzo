@@ -1,65 +1,34 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <div *ngIf="!sans">
-      <ion-title>
-        {{'pages.list.title' | translate}} ({{weekToFrom}})
-      </ion-title>
-    </div>
-    <div *ngIf="sans">
-      <ion-skeleton-text style="width: 33%"></ion-skeleton-text>
-    </div>
+    <ion-title>
+      {{'pages.list.title' | translate}} ({{getHeaderString()}})
+    </ion-title>
+    <ion-progress-bar *ngIf="componentState == 'loading' || componentState == 'loadedProgress'" type="indeterminate">
+    </ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+    (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content>
+    </ion-refresher-content>
+  </ion-refresher>
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
-    <ion-slide *ngFor="let day of getShownDays(days)">
-      <ion-list>
-        <div *ngIf="!sans">
-          <div *ngFor="let item of this.timetable">
-            <ion-item (click)="getMoreData(item)" button *ngIf="item.DayOfWeek == day.index"
-              [ngClass]="getStateClass(item)" slot="start">
-              <ion-buttons [hidden]="hideHomeworkBtn(item.StartTime)"
-                *ngIf="item.IsTanuloHaziFeladatEnabled || item.TeacherHomeworkId != null" class="homeworksBtn"
-                slot="end">
-                <ion-button (click)="openHomeworks(item); $event.stopPropagation();">
-                  <ion-icon *ngIf="item.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
-                  <ion-icon *ngIf="item.TeacherHomeworkId != null" color="warning" slot="icon-only"
-                    src="/assets/extraicons/homewarning.svg"></ion-icon>
-                </ion-button>
-              </ion-buttons>
-
-              <ion-label class="ion-text-wrap">
-                <h2 slot="start">{{item.Count == -1 ? '+' : item.Count}}. {{item.Subject}}</h2>
-                <p class="ion-text-nowrap">{{item.Theme}}</p>
-              </ion-label>
-
-              <ion-label class="middleLabel">
-                <div *ngIf="item.DeputyTeacher == ''; then thenBlock else elseBlock"></div>
-                <ng-template #thenBlock>
-                  <div *ngIf="item.StateName == 'Elmaradt tanóra'; then canceledBlock else notCanceledBlock"></div>
-                  <ng-template #canceledBlock>{{'pages.list.canceled' | translate}}</ng-template>
-                  <ng-template #notCanceledBlock>
-                    <p>{{item.ClassRoom}}</p>
-                    <p>{{getTime(item.StartTime, item.EndTime)}}</p>
-                  </ng-template>
-                </ng-template>
-                <ng-template #elseBlock>
-                  <p>{{'pages.list.substitutes' | translate}}:</p>
-                  <p>{{item.DeputyTeacher}}</p>
-                </ng-template>
-              </ion-label>
-            </ion-item>
-          </div>
-        </div>
+    <ion-slide *ngFor="let day of getDisplayDays()">
+      <ion-list *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
+        <app-lesson *ngFor="let l of day.data" [lesson]="l" (homeworkClick)="this.openHomeworks(l)"></app-lesson>
       </ion-list>
     </ion-slide>
   </ion-slides>
 
-  <div *ngIf="sans">
+  <app-empty *ngIf="componentState == 'empty' || componentState == 'error'" translatorKey="pages.list.emptyText"
+    icon="calendar-outline"></app-empty>
+
+  <div *ngIf="this.componentState == 'loading'">
     <ion-list>
       <ion-item-divider>
         <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
@@ -136,21 +105,20 @@
     <ion-buttons class="justify-content-center align-items-center" style="height: 100%; flex-direction: column">
       <ion-row>
         <ion-col class="bottomCol back">
-          <ion-button class="footerButton" [disabled]="sans" (click)="getPrevWeek()">
+          <ion-button class="footerButton" [disabled]="this.componentState == 'loading'" (click)="getPrevWeek()">
             <ion-icon name="arrow-back-circle-sharp"></ion-icon>
           </ion-button>
         </ion-col>
 
-        <ion-col class="bottomCol" *ngFor="let day of getShownDays(days)">
-          <ion-button [hidden]="!day.show"
-            [ngClass]="{'cTfooterButton': unfocusFooterButton && this.focused == day.index}"
-            [fill]="this.focused == getShownDayIndex(day.index) ? 'solid' : 'outline'" (click)="getData(day.index)">
+        <ion-col class="bottomCol" *ngFor="let day of getDisplayDays(); let i = index">
+          <ion-button *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'"
+            [fill]="i == this.focused ? 'outline' : 'clear'" (click)="slides.slideTo(i)">
             {{day.shortName}}
           </ion-button>
         </ion-col>
 
         <ion-col class="bottomCol forward">
-          <ion-button [disabled]="sans" (click)="getNextWeek()">
+          <ion-button [disabled]="componentState == 'loading'" (click)="getNextWeek()">
             <ion-icon name="arrow-forward-circle-sharp"></ion-icon>
           </ion-button>
         </ion-col>

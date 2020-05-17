@@ -5,7 +5,9 @@
             "colorBtn": "Colors",
             "readMoreText": "More...",
             "noDataText": "No data to show.",
-            "filterText": "Filter"
+            "filterText": "Filter",
+            "emptyText": "No data to show",
+            "someComponentsDisabledText": "Some components are excluded from this list"
         },
         "evaluations": {
             "title": "Evaluations",
@@ -22,7 +24,8 @@
         "list": {
             "title": "Timetable",
             "canceled": "Canceled",
-            "substitutes": "Substitute"
+            "substitutes": "Substitute",
+            "emptyText": "You have no lessons this week"
         },
         "statistics": {
             "title": "Statistics",
@@ -171,7 +174,8 @@
             "pages": {
                 "title": "Pages",
                 "startingPageName": "Main page",
-                "hidePagesName": "Hide pages"
+                "hidePagesName": "Hide pages",
+                "homeSettingsName": "Customize home page"
             },
             "language": {
                 "title": "Language",
@@ -218,7 +222,8 @@
             "selectionZoneText": "Tap a value to set a color of your choice!",
             "evaluationCard": {
                 "placeholderSubject": "Subject",
-                "placeholderTeacher": "Teacher"
+                "placeholderTeacher": "Teacher",
+                "placeholderTheme": "Topic"
             },
             "averageCard": {
                 "placeholderSubject": "Subject",
@@ -283,7 +288,11 @@
             "successfullyUnread": "Message set as unread",
             "errorStateName": "State",
             "replyBtnText": "Reply",
-            "forwardBtnText": "Forward"
+            "forwardBtnText": "Forward",
+            "cannotOpenFile": {
+                "title": "The file could not be opened",
+                "text": "Check if you have a program installed that can open this type of file and try again!"
+            }
         },
         "bg-settings": {
             "title": "Custom background",
@@ -380,14 +389,14 @@
             "Student": {
                 "title": "Basic data",
                 "description": "Evaluations, absences, notes",
-                "impactName": "slow"
+                "impactName": "medium"
             },
             "Tests": {
                 "title": "Tests",
                 "description": "Tests logged by teachers",
                 "impactName": "fast"
             },
-            "MessageList": {
+            "MessageListMobile": {
                 "title": "Messages",
                 "description": "Inbox messages",
                 "impactName": "fast"
@@ -397,6 +406,9 @@
                 "description": "Items on the events board",
                 "impactName": "medium"
             }
+        },
+        "login-administration": {
+            "title": "Login"
         }
     },
     "dates": {
@@ -549,6 +561,7 @@
             "exitBtnText": "Exit",
             "yesBtnText": "Yes",
             "noBtnText": "No",
+            "moreBtnText": "Details",
             "evaluationAlert": {
                 "dateName": "Date",
                 "creatingTimeName": "Created",
@@ -596,6 +609,11 @@
                 "instituteTagName": "Name of the institute",
                 "loggingTimeName": "Logged at",
                 "noteName": "Note"
+            },
+            "administrationLoginExpired": {
+                "title": "KRÉTA logged you out",
+                "text": "The server ended your login session. Please log in to the messages module again.",
+                "loginBtnText": "Login"
             }
         },
         "notification": {

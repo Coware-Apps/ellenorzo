@@ -179,11 +179,7 @@ export class EvaluationsPage implements OnInit {
           option.data = this.collapsify.collapsifyByNames(this.getMidYearEvaluations(evaluations), 'Subject', 'CreatingTime');
           option.data.sort((x, y) => x.index - y.index);
           let optionData = option.data;
-          optionData.forEach(collapsibleGroup => {
-            if (collapsibleGroup.index != 0 && collapsibleGroup.index != 1) {
-              collapsibleGroup.showAll = false;
-            };
-          });
+          optionData.map(collapsibleGroup => collapsibleGroup.showAll = false);
           option.data = optionData;
           break;
         case 'byDate':

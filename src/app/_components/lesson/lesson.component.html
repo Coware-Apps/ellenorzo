@@ -1,0 +1,29 @@
+<ion-item (click)="getMoreData(lesson)" button [ngClass]="getStateClass()" slot="start">
+  <ion-buttons [hidden]="hideHomeworkBtn()"
+    *ngIf="lesson.IsTanuloHaziFeladatEnabled || lesson.TeacherHomeworkId != null" class="homeworksBtn" slot="end">
+    <ion-button (click)="homeworkClick.emit(); $event.stopPropagation();">
+      <ion-icon *ngIf="lesson.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
+      <ion-icon *ngIf="lesson.TeacherHomeworkId != null" color="warning" slot="icon-only"
+        src="/assets/extraicons/homewarning.svg"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+
+  <ion-label class="ion-text-wrap">
+    <h2 slot="start">{{lesson.Count == -1 ? '+' : lesson.Count}}. {{lesson.Subject}}</h2>
+    <p class="ion-text-nowrap">{{lesson.Theme}}</p>
+  </ion-label>
+
+  <ion-label class="middleLabel ion-text-right">
+    <div *ngIf="lesson.DeputyTeacher == ''">
+      <div *ngIf="lesson.StateName == 'Elmaradt tanóra'">{{'pages.list.canceled' | translate}}</div>
+      <div *ngIf="lesson.StateName != 'Elmaradt tanóra'">
+        <p>{{lesson.ClassRoom}}</p>
+        <p>{{getTime()}}</p>
+      </div>
+    </div>
+    <div *ngIf="lesson.DeputyTeacher != ''">
+      <p>{{'pages.list.substitutes' | translate}}:</p>
+      <p>{{lesson.DeputyTeacher}}</p>
+    </div>
+  </ion-label>
+</ion-item>

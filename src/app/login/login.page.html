@@ -1,15 +1,13 @@
 <ion-header *ngIf="this.userManager.allUsers.length > 0">
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
-      <ion-button (click)="this.router.navigateByUrl('/user-settings')">
-        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
-      </ion-button>
+      <ion-back-button defaultHref="home"></ion-back-button>
     </ion-buttons>
     <ion-title>{{'pages.login.title' | translate}}</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <ion-card>
+  <div id="background">
 
     <ion-list *ngIf="this.kretaError" lines="none" id="errorInfo">
       <ion-item (click)="this.getErrorInfo()" id="errorInfoItem" button color="danger">
@@ -43,17 +41,13 @@
         <ion-input (click)="getInstitute()" [(ngModel)]="instituteName" name="selectedInstitute"
           aria-label="Válasszon intézményt!" required readonly></ion-input>
       </ion-item>
-      <ion-button class="loginBtn" color="primary" expand="full"
-        [fill]='this.user != null && this.pass != null && this.instituteName != null ? "solid" : "outline"'
-        shape="round" (click)="login()">
+      <ion-button [disabled]="!this.user || !this.pass || !this.instituteName" class="loginBtn" color="primary"
+        expand="full" fill="solid" (click)="login()">
         {{'pages.login.loginBtnText' | translate}}
       </ion-button>
       <p class="dataProt">{{'pages.login.privacyPolicyText' | translate}} (<a
           href="https://arisztokreta.hu/privacy">https://arisztokreta.hu/privacy</a>).
       </p>
     </ion-card-content>
-  </ion-card>
-
-
-
+  </div>
 </ion-content>

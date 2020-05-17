@@ -51,4 +51,8 @@ export class UserSettingsPage implements OnInit {
       this.router.navigateByUrl("login");
     }
   }
+  async showUserInfo(userId: number) {
+    this.userManager.switchToUser(userId);
+    this.router.navigateByUrl('/user');
+  }
 }

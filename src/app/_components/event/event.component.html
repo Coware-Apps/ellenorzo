@@ -1,0 +1,17 @@
+<ion-card button>
+  <ion-card-header>
+    <ion-icon class="categoryIcon" name="document-attach-outline"></ion-icon>
+    <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(event.Date)}}</ion-card-subtitle>
+    <ion-card-title>{{event.Title}}</ion-card-title>
+  </ion-card-header>
+  <hr>
+  <div (click)="event.opened = !event.opened">
+    <ion-card-content *ngIf="!event.opened" class="selectableText">
+      {{getLongItemText(event.Content)}}
+      <p style="text-decoration: underline; text-align: center;">{{isOpenableNeeded(event.Content)}}</p>
+    </ion-card-content>
+    <ion-card-content *ngIf="event.opened" class="selectableText">
+      {{event.Content}}
+    </ion-card-content>
+  </div>
+</ion-card>

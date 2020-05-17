@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar *ngIf="this.selectedMessages.length == 0">
+  <ion-toolbar *ngIf="this.selectedMessages.length == 0" color="brand">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -12,7 +12,7 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="this.selectedMessages.length > 0">
+  <ion-toolbar *ngIf="this.selectedMessages.length > 0" color="brand">
     <ion-buttons slot="start">
       <ion-button (click)="this.unselectAll()">
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
@@ -40,6 +40,8 @@
       inputmode="search" type="search" (ionChange)="onSearchChange($event)" (ionCancel)="toggleSearchbar(false)"
       [debounce]="250" showCancelButton="250">
     </ion-searchbar>
+    <ion-progress-bar *ngIf="componentState == 'loadedProgress'" type="indeterminate" color="primary">
+    </ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 <ion-content (swipe)="swipe($event)">
@@ -55,9 +57,6 @@
   </ion-fab>
 
   <ng-container *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
-    <ion-progress-bar *ngIf="componentState == 'loadedProgress'" type="indeterminate" color="primary">
-    </ion-progress-bar>
-
     <ion-list>
       <ion-item *ngFor="let m of displayedMessages" (press)="selectOrUnselectMsg(m)" (click)="msgClicked(m)"
         class="message" [class.unread]="!m.isElolvasva" button>
@@ -161,8 +160,6 @@
       </ion-item>
     </ion-list>
   </ng-container>
-
-  <app-re-login (onSuccessfulLogin)="ionViewWillEnter()" *ngIf="componentState == 'login'"></app-re-login>
 
   <ng-container *ngIf="componentState == 'error'">
     <app-administration-error [error]="this.error" (retry)="this.loadMessages()"></app-administration-error>

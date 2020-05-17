@@ -2,11 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { KretaService } from 'src/app/_services/kreta.service';
 import { ModalController } from '@ionic/angular';
 import { Institute } from 'src/app/_models/institute';
-import { Storage } from '@ionic/storage';
 import { DataService } from 'src/app/_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { ThemeService } from 'src/app/_services/theme.service';
 import { DiacriticsHelper } from 'src/app/_helpers/diacritics-helper';
 
 @Component({
@@ -24,13 +21,10 @@ export class InstituteSelectorModalPage implements OnInit {
     private modalController: ModalController,
     private data: DataService,
     private firebase: FirebaseX,
-    private statusBar: StatusBar,
-    private theme: ThemeService,
     private diacriticsHelper: DiacriticsHelper,
   ) { }
 
   async ngOnInit() {
-    this.statusBar.backgroundColorByHexString("#3880ff");
     this.institutes = await this.kreta.getInstituteList();
     this.filteredInstitutes = this.institutes;
     this.firebase.setScreenName('institute-selector-modal');
@@ -59,7 +53,6 @@ export class InstituteSelectorModalPage implements OnInit {
   onSelectionChange(instituteCode: string) {
     const selected = this.institutes.find(x => x.InstituteCode == instituteCode);
     this.data.setData("institute", selected);
-    this.theme.styleStatusBarToTheme();
     this.modalController.dismiss({ selectedInstitute: selected });
   }
 }

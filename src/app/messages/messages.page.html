@@ -1,5 +1,5 @@
 <ion-tabs>
-  <ion-tab-bar [hidden]="!this.userManager.currentUser.isAdministrationRegistered()" slot="bottom">
+  <ion-tab-bar [hidden]="!this.userManager.currentUser.administrationTokens" slot="bottom">
     <ion-tab-button tab="inbox">
       <ion-icon name="file-tray-outline"></ion-icon>
       <ion-label translate="pages.messages.tabs.inbox"></ion-label>

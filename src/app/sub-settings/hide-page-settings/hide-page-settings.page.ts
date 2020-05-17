@@ -38,6 +38,7 @@ export class HidePageSettingsPage implements OnInit {
   async ionViewDidEnter() {
     this.appPages = this.app.appPages;
     let storedPages = await this.storage.get('sidemenu');
+    console.time('loops')
     if (storedPages != null) {
       for (let i = 0; i < storedPages.length; i++) {
         for (let j = 0; j < this.appPages.length; j++) {
@@ -47,6 +48,7 @@ export class HidePageSettingsPage implements OnInit {
         }
       }
     }
+    console.timeEnd('loops')
     console.log('pages', this.appPages);
     this.loaded = true;
   }

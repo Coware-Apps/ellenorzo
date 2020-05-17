@@ -88,7 +88,7 @@ export class CollapsifyService {
 
       //2019-01-01 ---> 2019.01.01 (dayOfWeek)
       let dayOfWeek = this.dayNames[new Date(date).getDay()];
-      date = (date.replace('-', '.').replace('-', '.') + ' (' + dayOfWeek + ')');
+      date = (date.replace('-', '. ').replace('-', '. ') + '. (' + dayOfWeek + ')');
 
       sortedData.push({
         index: i,

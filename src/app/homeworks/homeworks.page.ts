@@ -24,7 +24,7 @@ export class HomeworksPage implements OnInit, OnDestroy {
   public studentHomeworks: StudentHomework[] = [];
   public homeworkLessons: UniversalSortedData[] = [];
   public extraWeekIndex: number = 0;
-  public componentState: 'loading' | 'loaded' | 'empty' = 'loading';
+  public componentState: 'loading' | 'loaded' | 'empty' | 'loadedProgress' | 'error' = 'loading';
   public unsubscribe$: Subject<void>;
 
   constructor(
@@ -44,7 +44,7 @@ export class HomeworksPage implements OnInit, OnDestroy {
     this.firebase.setScreenName('homeworks');
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
-    await this.loadData();
+    this.loadData();
     this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(value => {
       if (value == 'reload') {
         this.loadData();
@@ -57,24 +57,62 @@ export class HomeworksPage implements OnInit, OnDestroy {
     this.unsubscribe$.complete();
   }
 
-  async loadData(forceRefresh: boolean = false) {
-    this.componentState = 'loading';
-    let tt = await this.userManager.currentUser.getLesson(
-      this.fDate.getWeekFirst(this.extraWeekIndex),
-      this.fDate.getWeekLast(this.extraWeekIndex),
-      this.extraWeekIndex == 0 ? forceRefresh : true
-    );
-    this.homeworkLessons = (
-      this.collapsyfyService.collapsifyByDates(
-        tt.filter(hl => hl.TeacherHomeworkId != null),
-        "StartTime",
-        "StartTime"
-      )
-    ).map(usd => {
-      usd.showAll = true;
-      return usd;
-    });
-    this.componentState = this.homeworkLessons.length == 0 ? 'empty' : 'loaded';
+  async loadData(forceRefresh: boolean = false, event?) {
+    this.userManager.currentUser.getAsyncAsObservableWithCache([
+      {
+        name: "getLesson",
+        cacheKey: "lesson",
+        params: [
+          this.fDate.getWeekFirst(this.extraWeekIndex),
+          this.fDate.getWeekLast(this.extraWeekIndex),
+          true
+        ]
+      }
+    ],
+      this.extraWeekIndex != 0 || forceRefresh,
+      this.extraWeekIndex != 0
+    ).subscribe(
+      {
+        next: d => {
+          if (d[0]) {
+            this.homeworkLessons = (
+              this.collapsyfyService.collapsifyByDates(
+                d[0].filter(hl => hl.TeacherHomeworkId != null),
+                "StartTime",
+                "StartTime"
+              )
+            ).map(usd => {
+              usd.showAll = true;
+              return usd;
+            });
+            this.componentState = "loadedProgress";
+          } else {
+            if (this.extraWeekIndex != 0) {
+              this.homeworkLessons = [];
+              this.componentState = 'error'
+            }
+          }
+        },
+        complete: () => {
+          if (event) event.target.complete();
+
+          let empty = true;
+          this.homeworkLessons.forEach(hl => {
+            if (hl.data && hl.data.length > 0) {
+              empty = false;
+            }
+          });
+          this.componentState = empty ? 'empty' : 'loaded'
+        },
+        error: (error) => {
+          console.error(error);
+
+          if (event) event.target.complete();
+
+          throw error;
+        }
+      }
+    )
   }
   showInfo(teacherHomework: TeacherHomework) {
     this.prompt.teacherHomeworkAlert(teacherHomework, teacherHomework.Tantargy);
@@ -84,21 +122,28 @@ export class HomeworksPage implements OnInit, OnDestroy {
     this.router.navigateByUrl('/timetable-homeworks?id=currentLesson');
   }
   async doRefresh($event) {
-    await this.loadData(true);
-    $event.target.complete();
+    this.loadData(true, $event);
   }
   swipe(event) {
     if (this.componentState == 'loading') return;
 
     if (event.direction === 2) {
       //swiped left, needs to load page to the right
-      this.extraWeekIndex++;
-      this.loadData();
+      this.getNextWeek();
     } else {
       //swiped right, needs to load page to the left
-      this.extraWeekIndex--;
-      this.loadData();
+      this.getPrevWeek();
     }
+  }
+  getNextWeek() {
+    this.componentState = 'loading';
+    this.extraWeekIndex++;
+    this.loadData(true, null);
+  }
+  getPrevWeek() {
+    this.componentState = 'loading';
+    this.extraWeekIndex--;
+    this.loadData(true, null);
   }
   async filterChanged() {
     await this.app.changeConfig('doHomeworkFilter', !this.app.doHomeworkFilter);
@@ -122,6 +167,8 @@ export class HomeworksPage implements OnInit, OnDestroy {
         show = false;
       }
     });
+
+    if (this.componentState == 'loading') show = false;
 
     return show;
   }

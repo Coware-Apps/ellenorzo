@@ -16,10 +16,13 @@ steps:
   inputs:
     command: 'install'
 
-- task: IonicCommand@1
+- task: CmdLine@2
   inputs:
-    ionicCommand: 'cordova build android'
-    ionicArgs: '--prod --release'
+    script: 'sudo npm install -g @ionic/cli cordova' 
+
+- task: CmdLine@2
+  inputs:
+    script: 'ionic cordova build android --prod --release' 
 
 - task: AndroidSigning@3
   inputs:

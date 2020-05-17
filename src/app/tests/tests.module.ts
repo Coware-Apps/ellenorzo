@@ -8,6 +8,7 @@ import { TestsPageRoutingModule } from './tests-routing.module';
 
 import { TestsPage } from './tests.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     TestsPageRoutingModule,
     TranslateModule,
+    ComponentsModule,
   ],
   declarations: [TestsPage]
 })
-export class TestsPageModule {}
+export class TestsPageModule { }

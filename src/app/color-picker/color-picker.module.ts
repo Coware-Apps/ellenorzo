@@ -8,6 +8,7 @@ import { ColorPickerPageRoutingModule } from './color-picker-routing.module';
 
 import { ColorPickerPage } from './color-picker.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     ColorPickerPageRoutingModule,
     TranslateModule,
+    ComponentsModule,
   ],
   declarations: [ColorPickerPage]
 })

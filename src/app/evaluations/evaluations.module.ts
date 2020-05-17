@@ -10,6 +10,7 @@ import { EvaluationsPage } from './evaluations.page';
 
 import { AverageGraphsPageModule } from '../average-graphs/average-graphs.module';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 @NgModule({
   imports: [
     CommonModule,
@@ -18,6 +19,7 @@ import { TranslateModule } from '@ngx-translate/core';
     EvaluationsPageRoutingModule,
     AverageGraphsPageModule,
     TranslateModule,
+    ComponentsModule
   ],
   declarations: [EvaluationsPage]
 })

@@ -1,15 +1,12 @@
 ion-card-header {
-    padding-top: 0px;
-    padding-bottom: 0px;
-    margin-bottom: 0px;
-    margin-top: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+ion-card-content {
+  div > h1 {
+    font-size: 3rem !important;
+    font-weight: bold;
   }
-  ion-card {
-    margin-bottom: 20px;
-  }
-  ion-card-content {
-    div>h1 {
-      font-size:3rem !important; 
-      font-weight: bold;
-    }
-  }
+}

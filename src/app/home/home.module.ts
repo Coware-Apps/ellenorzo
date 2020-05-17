@@ -7,6 +7,7 @@ import { HomePageRoutingModule } from './home-routing.module';
 import { HomePage } from './home.page';
 import { ColorPickerPageModule } from '../color-picker/color-picker.module';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
     HomePageRoutingModule,
     ColorPickerPageModule,
     TranslateModule,
+    ComponentsModule
   ],
   declarations: [
     HomePage

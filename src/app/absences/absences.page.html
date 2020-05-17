@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -30,31 +30,24 @@
           <ion-label>{{'pages.absences.justificationText' | translate: {type: absenceGroup.fullName} }}</ion-label>
         </ion-item>
         <div *ngFor="let item of absenceGroup.data">
-          <ion-item button (click)="item.showAll = item.showAll ? false : true">
-            <ion-label>
-              <h1>{{item.header}}</h1>
-            </ion-label>
-            <ion-icon *ngIf="!item.showAll" slot="start" name="chevron-forward"></ion-icon>
-            <ion-icon *ngIf="item.showAll" slot="start" name="chevron-down"></ion-icon>
-          </ion-item>
+
+          <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
+            <ion-item-divider lines="full" button (click)="item.showAll = item.showAll ? false : true">
+              <ion-label>
+                {{item.header}}
+              </ion-label>
+              <ion-buttons slot="end">
+                <ion-button>
+                  <ion-icon *ngIf="!item.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
+                  <ion-icon *ngIf="item.showAll" slot="icon-only" name="chevron-down"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+            </ion-item-divider>
+            <ion-ripple-effect type="bounded"></ion-ripple-effect>
+          </div>
+
           <div *ngFor="let absence of item.data">
-            <ion-item button *ngIf="item.showAll" (click)="getMoreData(absence)">
-              <ion-icon *ngIf="absenceGroup.name == 'justified'" slot="start" name="checkmark-done" class="green"
-                size="large"></ion-icon>
-              <ion-icon *ngIf="absenceGroup.name == 'beJustified'" slot="start" name="warning" class="yellow"
-                size="large"></ion-icon>
-              <ion-icon *ngIf="absenceGroup.name == 'unJustified'" slot="start" name="close" class="red" size="large">
-              </ion-icon>
-              <ion-label class="ion-text-wrap">
-                {{absence.Subject}}<br>
-                {{'components.absence.' + absence.Type + 'Name' | translate}}
-                <p *ngIf="absence.Type == 'Delay'">
-                  ({{absence.DelayTimeMinutes}}{{'components.absence.unit' | translate}}.)</p>
-              </ion-label>
-              <ion-label class="ion-text-wrap">
-                {{absence.Teacher}}
-              </ion-label>
-            </ion-item>
+            <app-absence *ngIf="item.showAll" [absence]="absence"></app-absence>
           </div>
         </div>
       </ion-list>

@@ -8,6 +8,10 @@ import { TeacherHomework } from '../_models/homework';
 import { AppService } from './app.service';
 import { CommunityServiceData } from '../_models/communityService';
 import { TranslateService } from '@ngx-translate/core';
+import { GlobalError } from '../_exceptions/global-exception';
+import { KretaHttpError } from '../_exceptions/kreta-exception';
+import { AdministrationHttpError } from '../_exceptions/administration-exception';
+import { stringify } from 'querystring';
 
 @Injectable({
   providedIn: 'root'
@@ -137,6 +141,27 @@ export class PromptService {
   //#region alerts
   public presentUniversalAlert(header: string, subHeader: string, message: string) {
     this.presentAlert(header, subHeader, message, this.color.getPopUpClass());
+  }
+  presentUniversalErrorAlert(error: GlobalError | any) {
+    let toFormat: { title: string, text: string }[] = [];
+
+    if (error.queryName) toFormat.push({ title: "Source", text: error.queryName });
+    if (error.httpErrorObject && typeof (error.httpErrorObject) == 'object') {
+
+      let keys = Object.keys(error.httpErrorObject);
+      if (keys.length == 0) keys = Object.getOwnPropertyNames(error.httpErrorObject);
+
+      keys.forEach(k => {
+        toFormat.push({ title: this.stringify(k), text: this.stringify(error.httpErrorObject[k]) })
+      });
+    }
+
+    this.presentAlert(
+      error.customTitleTranslatorKey ? this.t.instant(error.customTitleTranslatorKey) : "Error",
+      error.customTextTranslatorKey ? this.t.instant(error.customTextTranslatorKey) : null,
+      this.formatAlertBody(toFormat),
+      this.color.getPopUpClass()
+    )
   }
   public missingTextAlert(text: string) {
     this.presentAlert(
@@ -293,6 +318,56 @@ export class PromptService {
   public errorToast(errorText: string) {
     this.presentToast(errorText, true);
   }
+  public async errorDetailToast(error: GlobalError) {
+    const toast = await this.toastCtrl.create({
+      message: this.t.instant(error.customTitleTranslatorKey),
+      position: 'bottom',
+      duration: 10000,
+      buttons: [
+        {
+          text: this.t.instant('services.prompt.moreBtnText'),
+          handler: () => {
+            this.presentUniversalErrorAlert(error);
+          }
+        }, {
+          text: 'OK',
+          role: 'cancel',
+        }
+      ]
+    });
+    toast.present();
+  }
+  public async showDetailedToast(header: string, message: string, duration: number = 10000) {
+    let t = await this.toastCtrl.create({
+      header: header,
+      message: message,
+      duration: duration,
+      buttons: [{
+        role: 'cancel',
+        text: 'OK'
+      }]
+    })
+    await t.present();
+  }
+  public async administrationLoginExpiredToast() {
+    let loginAct = false;
+    let t = await this.toastCtrl.create({
+      header: this.t.instant('services.prompt.administrationLoginExpired.title'),
+      message: this.t.instant('services.prompt.administrationLoginExpired.text'),
+      duration: 3000,
+      buttons: [{
+        text: this.t.instant('services.prompt.administrationLoginExpired.loginBtnText'),
+        handler: () => {
+          loginAct = true;
+        }
+      }]
+    });
+
+    await this.dismissTopToast();
+    await t.present();
+    await t.onWillDismiss();
+    return loginAct;
+  }
   public butteredToast(butter: string) {
     //sorry, couldn't resist (only shows a toast message if the app.service->toastLogging is set to true)
     if (this.app.toastLoggingEnabled) {
@@ -311,7 +386,7 @@ export class PromptService {
   public async dismissTopToast() {
     let topToast = await this.toastCtrl.getTop();
     if (topToast != null) {
-      this.toastCtrl.dismiss();
+      topToast.dismiss();
     }
   }
   //#endregion
@@ -360,6 +435,15 @@ export class PromptService {
     let start = new Date(StartTime);
     let end = new Date(EndTime);
     return start.getHours() + `:` + (start.getMinutes() >= 10 ? start.getMinutes() : `0` + start.getMinutes()) + `-` + end.getHours() + `:` + (end.getMinutes() >= 10 ? end.getMinutes() : `0` + end.getMinutes());
+  }
+  private stringify(a) {
+    if (a instanceof Object) {
+      return stringify(a);
+    } else if (typeof (a) === "string") {
+      return a;
+    } else if (typeof (a) == "number") {
+      return a.toString();
+    }
   }
   //#endregion
 }

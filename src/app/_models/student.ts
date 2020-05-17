@@ -86,6 +86,9 @@ export interface Note {
     //Again, why are there 2 and what's the difference
     Date: string;
     CreatingTime: string;
+
+    //not from the server
+    opened?: boolean;
 }
 export interface FormTeacherTemplate {
     TeacherId: number;

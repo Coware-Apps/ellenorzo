@@ -10,7 +10,6 @@ import { TranslateService } from '@ngx-translate/core';
 import "hammerjs";
 import { MenuController } from '@ionic/angular';
 import { takeUntil } from 'rxjs/operators';
-import { AppService } from 'src/app/_services/app.service';
 import { DiacriticsHelper } from 'src/app/_helpers/diacritics-helper';
 
 @Component({
@@ -47,7 +46,6 @@ export class MessageListPage implements OnDestroy, OnInit {
     private prompt: PromptService,
     private translator: TranslateService,
     private menuCtrl: MenuController,
-    private app: AppService,
     private diacriticsHelper: DiacriticsHelper,
   ) {
   }
@@ -88,9 +86,6 @@ export class MessageListPage implements OnDestroy, OnInit {
   }
 
   async initPage() {
-    if (!this.userManager.currentUser.isAdministrationRegistered()) {
-      return this.componentState = "login";
-    }
     await this.loadMessages();
   }
 

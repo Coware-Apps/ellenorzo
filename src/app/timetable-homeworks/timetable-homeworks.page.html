@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-buttons slot="start">
         <ion-back-button defaultHref="homeworks"></ion-back-button>
@@ -23,13 +23,13 @@
   <ion-slides class="max-height" (ionSlideWillChange)="ionSlideWillChange()" #slides>
     <!-- Teacher Homeworks -->
     <ion-slide *ngIf="this.lesson.TeacherHomeworkId != null" class="wide">
-      <div class="max-height" *ngIf="!sans">
+      <div style="overflow-y: scroll;" class="max-height" *ngIf="!sans">
 
         <app-empty *ngIf="teacherHomeworks.length == 0 || areAllTeacherHomeworksEmpty()"
           translatorKey="pages.timetable-homeworks.noHomeworksText" icon="library-outline">
         </app-empty>
 
-        <ion-card button [hidden]="homework.Szoveg == ''" class=" wide" *ngFor="let homework of teacherHomeworks">
+        <ion-card [hidden]="homework.Szoveg == ''" class=" wide" *ngFor="let homework of teacherHomeworks">
           <ion-card-header (click)="showInfo(homework)">
             <ion-buttons style="float: right;">
               <ion-button>
@@ -79,7 +79,7 @@
     <!-- Student Homeworks -->
     <ion-slide class="wide" *ngIf="this.lesson.TeacherHomeworkId != null && lesson.IsTanuloHaziFeladatEnabled == true">
 
-      <div *ngIf="!sans" class="max-height">
+      <div *ngIf="!sans" style="overflow-y: scroll;" class="max-height">
         <ion-card class="wide" *ngFor="let homework of studentHomeworks">
           <ion-card-header>
             <ion-buttons *ngIf="!homework.TanuloAltalTorolt" style="float: right;">

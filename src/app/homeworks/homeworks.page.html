@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -11,24 +11,22 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar (swipe)="swipe($event)" class="ion-text-center">
+  <ion-toolbar color="brand" (swipe)="swipe($event)" class="ion-text-center">
     <ion-buttons slot="start">
-      <ion-button [disabled]="this.componentState == 'loading'"
-        (click)="extraWeekIndex = extraWeekIndex - 1; this.loadData()">
+      <ion-button [disabled]="this.componentState == 'loading'" (click)="this.getPrevWeek()">
         <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-label class="ion-text-center">{{fDate.formatDateWithZerosAndDots(fDate.getWeekFirstDate(extraWeekIndex))}} -
       {{fDate.formatDateWithZerosAndDots(fDate.getWeekLastDate(extraWeekIndex))}}</ion-label>
     <ion-buttons slot="end">
-      <ion-button [disabled]="this.componentState == 'loading'"
-        (click)="extraWeekIndex = extraWeekIndex + 1; this.loadData()">
+      <ion-button [disabled]="this.componentState == 'loading'" (click)="this.getNextWeek()">
         <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
       </ion-button>
     </ion-buttons>
+    <ion-progress-bar *ngIf="componentState == 'loading' || componentState == 'loadedProgress'" type="indeterminate">
+    </ion-progress-bar>
   </ion-toolbar>
-
-  <ion-progress-bar *ngIf="componentState == 'loading'" type="indeterminate"></ion-progress-bar>
 </ion-header>
 
 <ion-content>
@@ -41,7 +39,7 @@
     <ion-item-divider *ngIf="app.doHomeworkFilter" class="ion-no-margin ion-no-padding">
       <ion-label style="margin: auto">{{'pages.homeworks.completedHiddenText' | translate}}</ion-label>
     </ion-item-divider>
-    <div *ngIf="componentState == 'loaded'">
+    <div *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
       <div *ngFor="let d of homeworkLessons">
         <ion-item-group *ngIf="showGroup(d.data)">
           <ion-item-divider>

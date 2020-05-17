@@ -18,14 +18,12 @@ export class UserPage implements OnInit {
 
   private studentSubscription: Subscription;
   private reloaderSubscription: Subscription;
-  public unsubscribe$: Subject<void>;
 
   constructor(
     public fDate: FormattedDateService,
 
     private firebaseX: FirebaseX,
     private userManager: UserManagerService,
-    private hw: HwBackButtonService,
   ) {
     this.sans = true;
     this.showProgressBar = true;
@@ -36,8 +34,6 @@ export class UserPage implements OnInit {
   }
 
   async ionViewDidEnter() {
-    this.unsubscribe$ = new Subject();
-    this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
     this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
       if (value == 'reload') {
@@ -73,8 +69,6 @@ export class UserPage implements OnInit {
   }
 
   ionViewWillLeave() {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
     if (this.studentSubscription != null) {
       this.studentSubscription.unsubscribe();
     }

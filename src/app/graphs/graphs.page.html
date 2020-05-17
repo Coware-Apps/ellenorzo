@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="brand">
     <ion-buttons *ngIf="lineColumnButtons" slot="end">
       <ion-button [fill]="active == 'line' ? 'solid' : 'clear'" (click)="chartSwitch('line')">
         <ion-icon slot="icon-only" name="analytics"></ion-icon>
@@ -9,7 +9,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="statistics" ></ion-back-button>
+      <ion-back-button defaultHref="statistics"></ion-back-button>
     </ion-buttons>
     <ion-title>{{'pages.graphs.title' | translate}}</ion-title>
   </ion-toolbar>

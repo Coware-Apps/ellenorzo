@@ -12,6 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { GlobalError } from '../_exceptions/global-exception';
 import { KretaError } from '../_exceptions/kreta-exception';
 import { DOCUMENT } from '@angular/common';
+import { ThemeService } from '../_services/theme.service';
 
 @Component({
   selector: 'app-login',
@@ -39,6 +40,8 @@ export class LoginPage implements OnInit {
     private app: AppService,
     private prompt: PromptService,
     private translator: TranslateService,
+    private theme: ThemeService,
+
     private animationCtrl: AnimationController,
     @Inject(DOCUMENT) private document: Document,
   ) { }
@@ -48,12 +51,15 @@ export class LoginPage implements OnInit {
   }
 
   ionViewDidEnter() {
+    if (this.userManager.allUsers.length == 0) this.theme.styleStatusBarToBlend();
+
     this.pass = null;
     this.user = null;
     this.instituteName = null;
   }
 
   ionViewWillLeave() {
+    this.theme.styleStatusBarToTheme();
     this.menuCtrl.enable(true);
   }
 
@@ -81,9 +87,6 @@ export class LoginPage implements OnInit {
           await this.menuCtrl.enable(true);
           await loading.dismiss();
           this.app.isStudentSelectorReady = true;
-          if (this.userManager.allUsers.length > 1) {
-            this.data.setData('refreshHome', true);
-          }
 
           try {
             await this.userManager.currentUser.logIntoAdministration(this.user, this.pass);
@@ -136,9 +139,12 @@ export class LoginPage implements OnInit {
       component: InstituteSelectorModalPage
     });
     await modal.present();
+
+    this.theme.styleStatusBarToTheme();
     const { data } = await modal.onWillDismiss();
     if (data && data.selectedInstitute)
       this.instituteName = data.selectedInstitute.Name;
+    if (this.userManager.allUsers.length == 0) this.theme.styleStatusBarToBlend();
   }
 
   getErrorInfo() {

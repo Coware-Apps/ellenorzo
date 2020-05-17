@@ -1,0 +1,13 @@
+<ion-item button (click)="getMoreData(absence)">
+  <ion-icon slot="start"
+    [name]="absence.JustificationState == 'Justified' ? 'checkmark-done' : absence.JustificationState == 'BeJustified' ? 'warning' : 'close'"
+    [ngStyle]="{'color': getColor(absence)}" size="large"></ion-icon>
+  <ion-label class="ion-text-wrap">
+    {{absence.Subject}}<br>
+    {{'components.absence.' + absence.Type + 'Name' | translate}}
+    <p *ngIf="absence.Type == 'Delay'">({{absence.DelayTimeMinutes}}{{'components.absence.unit' | translate}}.)</p>
+  </ion-label>
+  <ion-label class="ion-text-wrap">
+    {{absence.Teacher}}
+  </ion-label>
+</ion-item>

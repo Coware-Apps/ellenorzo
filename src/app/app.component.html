@@ -1,23 +1,27 @@
 <ion-app>
   <ion-split-pane contentId="main-content">
     <ion-menu (ionDidClose)="menuClosed()" contentId="main-content" type="overlay">
-      <ion-header>
-        <ion-toolbar id="emptyToolbar">
+      <ion-header color="brand" class="ion-no-border">
+        <ion-toolbar color="brand" id="emptyToolbar">
         </ion-toolbar>
       </ion-header>
       <ion-content>
-        <ion-list>
-          <div id="logoDiv">
-            <img *ngIf="this.theme.currentTheme.value != 'light'" id="logo" src="../assets/img/logo_white.png">
-            <img *ngIf="this.theme.currentTheme.value == 'light'" id="logo" src="../assets/img/logo_black.png">
-            <ion-title id="title">Arisztokréta</ion-title>
+        <ion-list class="ion-no-padding">
+          <div class="background-brand" id="logoDiv">
+            <img *ngIf="this.theme.currentTheme.value != 'light' && theme.currentTheme.value != 'dark'" id="logo"
+              src="../assets/img/logo_white.png">
+            <img *ngIf="this.theme.currentTheme.value == 'light' || theme.currentTheme.value == 'dark'" id="logo"
+              src="../assets/img/logo_black.png">
+            <ion-title color="brand-contrast" id="title">Arisztokréta</ion-title>
           </div>
-          <ion-item *ngIf="this.app.isStudentSelectorReady" button (click)="this.showAppPages = !this.showAppPages">
-            <ion-icon slot="start" name="person-sharp"></ion-icon>
+
+          <ion-item lines="full" color="brand" *ngIf="this.app.isStudentSelectorReady" button
+            (click)="this.showAppPages = !this.showAppPages">
             <ion-label>{{this.userManager.currentUser.fullName}}</ion-label>
             <ion-icon *ngIf="!this.showAppPages" slot="end" name="caret-up"></ion-icon>
             <ion-icon *ngIf="this.showAppPages" slot="end" name="caret-down"></ion-icon>
           </ion-item>
+
           <div *ngIf="this.showAppPages">
             <ion-menu-toggle (ionWillOpen)="checkConfig()" auto-hide="false" *ngFor="let p of app.appPages">
               <ion-item [hidden]="!p.show" [routerDirection]="'root'" [routerLink]="[p.url]">
@@ -32,9 +36,11 @@
         <ion-list *ngIf="!this.showAppPages && this.app.isStudentSelectorReady">
           <div *ngFor="let user of this.userManager.allUsers">
             <ion-item button (click)="userChanged(user)">
-              <ion-icon *ngIf="this.userManager.currentUser.id != user.id" slot="start" name="person-outline">
+              <ion-icon (click)="showUserInfo(user.id); $event.stopPropagation()"
+                *ngIf="this.userManager.currentUser.id != user.id" slot="start" name="person-outline">
               </ion-icon>
-              <ion-icon *ngIf="this.userManager.currentUser.id == user.id" slot="start" name="person-sharp"></ion-icon>
+              <ion-icon (click)="showUserInfo(user.id); $event.stopPropagation()"
+                *ngIf="this.userManager.currentUser.id == user.id" slot="start" name="person-sharp"></ion-icon>
               <ion-label>
                 <h2>{{user.fullName}}</h2>
                 <ion-note>{{user.institute.Name}}</ion-note>
