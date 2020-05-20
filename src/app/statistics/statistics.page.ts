@@ -1,19 +1,19 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Student, evaluation } from '../_models/student';
-import { Storage } from '@ionic/storage';
 import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
 import { IonSlides, IonSelect } from '@ionic/angular';
 import { WeighedAvgCalcService } from '../_services/weighed-avg-calc.service';
 import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
-import { Subscription, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
-import { AppService } from '../_services/app.service';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { takeUntil } from 'rxjs/operators';
+import { KretaError } from '../_exceptions/kreta-exception';
 more(HighCharts);
 
 interface ChartData {
@@ -44,12 +44,11 @@ export class StatisticsPage implements OnInit {
   };
 
   @ViewChild('slides', { static: true }) slides: IonSlides;
-  @ViewChild('categorySelector', null) categorySelector: IonSelect;
+  @ViewChild('categorySelector') categorySelector: IonSelect;
 
-  public sans: boolean;
+  public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
   public focused: number;
   //how many graphs are we showing
-  public howMany: number;
   public lineData: ChartData[];
   public columnData: ChartData[];
   public pieData: ChartData[];
@@ -58,11 +57,9 @@ export class StatisticsPage implements OnInit {
   //we literate through this when printing data
   public dataArray: number[];
   public selected: string;
-  public showProgressBar: boolean;
+  public error: KretaError;
 
   private evaluations: evaluation[];
-  private studentSubscription: Subscription;
-  private reloaderSubscription: Subscription;
   public unsubscribe$: Subject<void>;
   private mockSelector: selectorEvent;
 
@@ -71,7 +68,6 @@ export class StatisticsPage implements OnInit {
     public wAC: WeighedAvgCalcService,
 
     private hw: HwBackButtonService,
-    private storage: Storage,
     private dataService: DataService,
     private navRouter: Router,
     private color: ColorService,
@@ -85,58 +81,78 @@ export class StatisticsPage implements OnInit {
     this.dataArray = [0];
     this.showGraphs = false;
     this.selected = "yearly";
-    this.showProgressBar = true;
   }
 
   async ngOnInit() {
     this.firebase.setScreenName('statistics');
   }
 
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
-    await this.loadData();
-    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
-      if (value == 'reload') {
-        this.sans = true;
-        this.showProgressBar = true;
-        this.studentSubscription.unsubscribe();
+    this.userManager.reloader.subscribe(val => {
+      if (val == 'reload') {
+        this.componentState = 'loading';
         this.loadData();
       }
     });
+    this.loadData();
   }
-  private async loadData() {
-    this.sans = true;
-    this.showProgressBar = true;
-    this.selected = "yearly";
-    this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
-      if (subscriptionData.type == "skeleton") {
-        //there is no data in the storage, showing skeleton text until the server responds
-      } else if (subscriptionData.type == "placeholder") {
-        //there is data in the storage, showing that data until the server responds, disabling skeleton text
-        this.evaluations = subscriptionData.data.Evaluations;
-        this.selectorChanged(this.mockSelector, true, true);
-        this.sans = false;
-      } else {
-        //the server has now responded, disabling progress bar and skeleton text if it's still there
-        this.evaluations = subscriptionData.data.Evaluations;
-        this.selectorChanged(this.mockSelector, true, true);
-        this.showProgressBar = false;
-        this.sans = false;
+
+  loadData(forceRefresh: boolean = false, event?) {
+    this.userManager.currentUser.getAsyncAsObservableWithCache<[Student]>(
+      [{
+        name: "getStudent",
+        cacheKey: "student",
+        params: [null, null, true]
+      }],
+      forceRefresh
+    ).pipe(takeUntil(this.unsubscribe$)).subscribe(
+      {
+        next: d => {
+          this.student = d[0];
+          if (d[0] && d[0].Evaluations) {
+            this.evaluations = d[0].Evaluations;
+            this.selectorChanged(this.mockSelector, true, true);
+          }
+        },
+        complete: () => {
+          if (event) event.target.complete();
+
+          this.setComponentState();
+        },
+        error: (error) => {
+          console.error(error);
+          this.error = error;
+
+          if (event) event.target.complete();
+
+
+          if (!this.student || !this.student.Evaluations || this.student.Evaluations.length == 0) {
+            this.componentState = 'error';
+            error.isHandled = true;
+          } else {
+            this.componentState = 'loaded'
+          }
+          throw error;
+        }
       }
-    });
-    await this.userManager.currentUser.initializeStudent();
+    )
+  }
+
+  private setComponentState() {
+    if (!this.student || !this.student.Evaluations) {
+      this.componentState = 'error'
+    } else if (this.student.Evaluations.length == 0) {
+      this.componentState = 'empty'
+    } else {
+      this.componentState = 'loaded'
+    }
   }
 
   ionViewWillLeave() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
   async ionSlideWillChange() {
@@ -156,10 +172,13 @@ export class StatisticsPage implements OnInit {
     }
   }
 
-  async doRefresh(event: any) {
-    this.showProgressBar = true;
-    await this.userManager.currentUser.updateStudent();
-    event.target.complete();
+  async doRefresh(event?) {
+    if (this.componentState == 'error') {
+      this.componentState = 'loading';
+    } else {
+      this.componentState = 'loadedProgress';
+    }
+    this.loadData(true, event);
   }
 
   //help for migration
@@ -270,22 +289,6 @@ export class StatisticsPage implements OnInit {
       }
       this.showGraphs = true;
     }
-  }
-
-  //migrating from graphs
-
-  groupBy(list, keyGetter) {
-    const map = new Map();
-    list.forEach((item) => {
-      const key = keyGetter(item);
-      const collection = map.get(key);
-      if (!collection) {
-        map.set(key, [item]);
-      } else {
-        collection.push(item);
-      }
-    });
-    return map;
   }
 
   showLine(lineData: ChartData[]) {

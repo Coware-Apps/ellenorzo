@@ -13,6 +13,7 @@ import { DataService } from '../_services/data.service';
 import { Router } from '@angular/router';
 import 'hammerjs';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { KretaError } from '../_exceptions/kreta-exception';
 
 @Component({
   selector: 'app-homeworks',
@@ -26,6 +27,7 @@ export class HomeworksPage implements OnInit, OnDestroy {
   public extraWeekIndex: number = 0;
   public componentState: 'loading' | 'loaded' | 'empty' | 'loadedProgress' | 'error' = 'loading';
   public unsubscribe$: Subject<void>;
+  public error: KretaError;
 
   constructor(
     public fDate: FormattedDateService,
@@ -96,18 +98,21 @@ export class HomeworksPage implements OnInit, OnDestroy {
         complete: () => {
           if (event) event.target.complete();
 
-          let empty = true;
-          this.homeworkLessons.forEach(hl => {
-            if (hl.data && hl.data.length > 0) {
-              empty = false;
-            }
-          });
-          this.componentState = empty ? 'empty' : 'loaded'
+          this.componentState = this.homeworkLessons
+            .findIndex(d => d.data && d.data.length > 0) == -1 ? 'empty' : 'loaded'
         },
         error: (error) => {
-          console.error(error);
+          console.error('ON PAGE', error);
+          this.error = error;
 
           if (event) event.target.complete();
+
+          if (this.homeworkLessons.findIndex(d => d.data && d.data.length > 0) == -1) {
+            this.componentState = 'error';
+            error.isHandled = true;
+          } else {
+            this.componentState = 'loaded'
+          }
 
           throw error;
         }
@@ -121,8 +126,13 @@ export class HomeworksPage implements OnInit, OnDestroy {
     this.dataService.setData('currentLesson', lesson);
     this.router.navigateByUrl('/timetable-homeworks?id=currentLesson');
   }
-  async doRefresh($event) {
-    this.loadData(true, $event);
+  async doRefresh(event?) {
+    if (this.componentState == 'error') {
+      this.componentState = 'loading';
+    } else {
+      this.componentState = 'loadedProgress';
+    }
+    this.loadData(true, event);
   }
   swipe(event) {
     if (this.componentState == 'loading') return;
@@ -161,15 +171,8 @@ export class HomeworksPage implements OnInit, OnDestroy {
     return returnVal;
   }
   showCompletedComponent() {
-    let show = true;
-    this.homeworkLessons.forEach(usd => {
-      if (this.showGroup(usd.data)) {
-        show = false;
-      }
-    });
+    if (this.componentState != 'loaded' && this.componentState != 'loadedProgress') return false;
 
-    if (this.componentState == 'loading') show = false;
-
-    return show;
+    return (this.homeworkLessons && this.homeworkLessons.length > 0 && this.homeworkLessons.findIndex(hl => this.showGroup(hl.data)) == -1);
   }
 }

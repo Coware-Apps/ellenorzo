@@ -30,6 +30,7 @@ export class UserManagerService {
   }
 
   public async onInit() {
+    console.time('USERMANAGER-WHOLE');
     let storedUsersInitData: userInitData[] = await this.storage.get("usersInitData");
     if (storedUsersInitData != null && storedUsersInitData.length > 0) {
       this.createExistingUsers(storedUsersInitData);
@@ -55,6 +56,7 @@ export class UserManagerService {
         }
       }
     }
+    console.timeEnd('USERMANAGER-WHOLE');
   }
 
   /**

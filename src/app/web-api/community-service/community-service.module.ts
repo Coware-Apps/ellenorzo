@@ -19,6 +19,5 @@ import { WebLoginInfoComponent } from 'src/app/_components/web-login-info/web-lo
     InstituteSelectorModalPageModule,
   ],
   declarations: [CommunityServicePage],
-  entryComponents: [WebLoginInfoComponent]
 })
 export class CommunityServicePageModule { }

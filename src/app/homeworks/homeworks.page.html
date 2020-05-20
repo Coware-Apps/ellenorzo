@@ -30,15 +30,19 @@
 </ion-header>
 
 <ion-content>
+
   <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
     (ionRefresh)="doRefresh($event)">
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
+
+  <!-- DISPLAYING DATA -->
   <ion-list [ngClass]="{'ion-no-padding': componentState != 'loaded' || app.doHomeworkFilter}">
     <ion-item-divider *ngIf="app.doHomeworkFilter" class="ion-no-margin ion-no-padding">
       <ion-label style="margin: auto">{{'pages.homeworks.completedHiddenText' | translate}}</ion-label>
     </ion-item-divider>
+
     <div *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
       <div *ngFor="let d of homeworkLessons">
         <ion-item-group *ngIf="showGroup(d.data)">
@@ -63,6 +67,7 @@
         </ion-item-group>
       </div>
     </div>
+
     <div *ngIf="componentState == 'loading'">
       <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5, 6]">
         <ion-label>
@@ -72,9 +77,16 @@
       </ion-item>
     </div>
   </ion-list>
+
+  <!-- EMPTY -->
   <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.homeworks.emptyText" icon="library-outline">
   </app-empty>
-  <app-empty *ngIf="showCompletedComponent() && componentState != 'empty'"
-    translatorKey="pages.homeworks.allCompletedText" icon="happy-outline">
+
+  <!-- ALL COMPLETED -->
+  <app-empty *ngIf="showCompletedComponent()" translatorKey="pages.homeworks.allCompletedText" icon="happy-outline">
   </app-empty>
+
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>

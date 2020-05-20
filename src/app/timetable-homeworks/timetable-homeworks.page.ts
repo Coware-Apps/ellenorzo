@@ -18,12 +18,13 @@ import { JwtDecodeHelper } from '../_helpers/jwt-decode-helper';
 export class TimetableHomeworksPage implements OnInit {
 
   @ViewChild('slides', { static: true }) slides: IonSlides;
+
   public focused: number;
   public sans: boolean;
-  public homeworkText: string;
+  public homeworkText: string = "";
   public lesson: Lesson;
-  public teacherHomeworks: TeacherHomework[];
-  public studentHomeworks: StudentHomework[];
+  public teacherHomeworks: TeacherHomework[] = [];
+  public studentHomeworks: StudentHomework[] = [];
 
   constructor(
     private actRoute: ActivatedRoute,
@@ -48,15 +49,25 @@ export class TimetableHomeworksPage implements OnInit {
 
       this.lesson = this.data.getData(id);
 
-      if (this.lesson.TeacherHomeworkId != null) {
+      if (this.lesson.TeacherHomeworkId) {
         this.teacherHomeworks = await this.userManager.currentUser.getTeacherHomeworks(null, null, +this.lesson.TeacherHomeworkId);
-        if (this.lesson.IsTanuloHaziFeladatEnabled == true) {
+
+        if (
+          this.lesson.IsTanuloHaziFeladatEnabled == true &&
+          this.isStudent()
+        ) {
           this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, +this.lesson.TeacherHomeworkId);
         }
       }
       this.sans = false;
     });
     this.firebase.setScreenName('timetable-homeworks');
+  }
+  isStudent() {
+    return this.jwtHelper.decodeToken(this.userManager.currentUser.tokens.access_token).role == 'Student';
+  }
+  ionViewWillEnter() {
+    this.slides.update();
   }
   async ionViewWillLeave() {
     await this.menuCtrl.enable(true)
@@ -96,44 +107,41 @@ export class TimetableHomeworksPage implements OnInit {
     });
     loading.present();
 
-    if (this.homeworkText != null) {
-      //"2020. 01. 17. 0:00:00" TODO
-      let sTBefore = this.lesson.StartTime;
-      let StartTime = this.fDate.formatDateKRETA(new Date(this.lesson.StartTime));
+    try {
+      if (this.homeworkText != null && this.homeworkText != '') {
+        //"2020. 01. 17. 0:00:00" TODO
+        let sTBefore = this.lesson.StartTime;
+        let StartTime = this.fDate.formatDateKRETA(new Date(this.lesson.StartTime));
 
-      let lesson = {
-        teacherHomeworkId: this.lesson.TeacherHomeworkId,
-        Subject: this.lesson.Subject,
-        IsTanuloHaziFeladatEnabled: this.lesson.IsTanuloHaziFeladatEnabled,
-        lessonId: this.lesson.LessonId,
-        CalendarOraType: this.lesson.CalendarOraType,
-        StartTime: StartTime,
-      }
-
-      try {
-        let homeworkResponse: HomeworkResponse;
-        if ((homeworkResponse = await this.userManager.currentUser.addStudentHomework(lesson, this.homeworkText)).HozzaadottTanuloHaziFeladatId != null) {
-          this.prompt.toast(this.translator.instant('pages.timetable-homeworks.successfullyAddedToastText'), true);
-          this.homeworkText = null;
-          this.sans = true;
-
-          //this.teacherHomeworkId = homeworkResponse.TanarHaziFeladatId;
-
-          this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, +this.lesson.TeacherHomeworkId);
-          this.focused = 1;
-
-          //this.isTHFE = true;
-
-          this.sans = false;
+        let lesson = {
+          teacherHomeworkId: this.lesson.TeacherHomeworkId,
+          Subject: this.lesson.Subject,
+          IsTanuloHaziFeladatEnabled: this.lesson.IsTanuloHaziFeladatEnabled,
+          lessonId: this.lesson.LessonId,
+          CalendarOraType: this.lesson.CalendarOraType,
+          StartTime: StartTime,
         }
-      } catch (error) {
-        console.error(error);
-      }
 
-    } else {
-      this.prompt.missingTextAlert(this.translator.instant('pages.timetable-homeworks.checkFieldAlertText'));
+        console.log('homeworkText', this.homeworkText);
+
+        await this.userManager.currentUser.addStudentHomework(lesson, this.homeworkText);
+
+        this.prompt.toast(this.translator.instant('pages.timetable-homeworks.successfullyAddedToastText'), true);
+        this.homeworkText = null;
+        this.sans = true;
+
+        this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, +this.lesson.TeacherHomeworkId);
+
+        this.sans = false;
+
+      } else {
+        this.prompt.missingTextAlert(this.translator.instant('pages.timetable-homeworks.checkFieldAlertText'));
+      }
+    } catch (error) {
+      throw error;
+    } finally {
+      loading.dismiss();
     }
-    loading.dismiss();
   }
   async deleteHomework(id: number) {
     let loading = await this.loadingCtrl.create({
@@ -142,23 +150,20 @@ export class TimetableHomeworksPage implements OnInit {
     });
     loading.present();
     try {
-      if (await this.userManager.currentUser.deleteStudentHomework(id)) {
-        this.prompt.toast(this.translator.instant('pages.timetable-homeworks.successfullyDeletedToastText'), true);
-        this.sans = true;
-        this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, +this.lesson.TeacherHomeworkId);
-        this.sans = false;
-      };
+      await this.userManager.currentUser.deleteStudentHomework(id);
+      this.prompt.toast(this.translator.instant('pages.timetable-homeworks.successfullyDeletedToastText'), true);
+      this.sans = true;
+      this.studentHomeworks = await this.userManager.currentUser.getStudentHomeworks(null, null, +this.lesson.TeacherHomeworkId);
+      this.sans = false;
     } catch (error) {
       console.error(error);
+      throw error;
+    } finally {
+      loading.dismiss();
     }
-    loading.dismiss();
   }
   async changeState() {
-    try {
-      await this.userManager.currentUser.changeHomeworkState(this.lesson.IsHaziFeladatMegoldva, +this.lesson.TeacherHomeworkId);
-    } catch (error) {
-      throw error;
-    }
+    await this.userManager.currentUser.changeHomeworkState(this.lesson.IsHaziFeladatMegoldva, +this.lesson.TeacherHomeworkId);
   }
   showCompletedBar() {
     return this.lesson.TeacherHomeworkId && this.jwtHelper.decodeToken(this.userManager.currentUser.tokens.access_token).role == 'Student';

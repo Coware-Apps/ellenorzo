@@ -9,28 +9,33 @@
       </ion-button>
     </ion-buttons>
     <ion-title>{{'pages.absences.title' | translate}} - {{title}}</ion-title>
-    <ion-progress-bar type="indeterminate" [hidden]='!showProgressBar'></ion-progress-bar>
+    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
+    </ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content (ionScroll)="ionScroll($event)" scrollEvents="true" #scroll>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
     (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
+    <ion-refresher-content>
+    </ion-refresher-content>
   </ion-refresher>
+
   <ion-fab [hidden]="!a" vertical="top" horizontal="center" slot="fixed">
     <ion-fab-button (click)="scrollToTop()" translucent="true">
       <ion-icon name="arrow-up"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
-    <ion-slide *ngFor="let absenceGroup of this.allAbsences | async">
+    <ion-slide *ngFor="let absenceGroup of this.allAbsences">
       <ion-list>
-        <ion-item *ngIf="absenceGroup.empty && this.sans == false" style="text-align: center;">
+
+        <ion-item *ngIf="!absenceGroup.data || absenceGroup.data.length == 0" style="text-align: center;">
           <ion-label>{{'pages.absences.justificationText' | translate: {type: absenceGroup.fullName} }}</ion-label>
         </ion-item>
-        <div *ngFor="let item of absenceGroup.data">
 
+        <div *ngFor="let item of absenceGroup.data">
           <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
             <ion-item-divider lines="full" button (click)="item.showAll = item.showAll ? false : true">
               <ion-label>
@@ -54,7 +59,8 @@
     </ion-slide>
   </ion-slides>
 
-  <ion-list *ngIf="sans">
+  <!-- EMPTY -->
+  <ion-list *ngIf="componentState == 'loading'">
     <ion-item-divider>
       <ion-skeleton-text style="width: 30%" animated></ion-skeleton-text>
     </ion-item-divider>
@@ -71,17 +77,23 @@
       </ion-label>
     </ion-item>
   </ion-list>
+
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
+
 </ion-content>
+
 <ion-footer>
   <ion-toolbar>
     <ion-segment [value]="this.focused" (ionChange)="getData($event)">
-      <ion-segment-button [disabled]="sans" value="0">
+      <ion-segment-button [disabled]="componentState == 'loading'" value="0">
         <ion-icon name="checkmark-done"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="1">
+      <ion-segment-button [disabled]="componentState == 'loading'" value="1">
         <ion-icon name="warning"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="2">
+      <ion-segment-button [disabled]="componentState == 'loading'" value="2">
         <ion-icon name="close"></ion-icon>
       </ion-segment-button>
     </ion-segment>

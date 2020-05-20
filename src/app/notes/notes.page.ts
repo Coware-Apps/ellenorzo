@@ -11,6 +11,7 @@ import { UserManagerService } from '../_services/user-manager.service';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
 import { Event } from '../_models/event';
 import { takeUntil } from 'rxjs/operators';
+import { KretaError } from '../_exceptions/kreta-exception';
 
 @Component({
   selector: 'app-notes',
@@ -22,6 +23,7 @@ export class NotesPage implements OnInit {
   public collapsifiedData: UniversalSortedData[];
   public unsubscribe$: Subject<void>;
   public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
+  public error: KretaError;
 
   private reloaderSubscription: Subscription;
 
@@ -41,7 +43,7 @@ export class NotesPage implements OnInit {
   async ngOnInit() {
     this.firebase.setScreenName('notes');
   }
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
     await this.loadData();
@@ -94,15 +96,16 @@ export class NotesPage implements OnInit {
           },
           error: (error) => {
             console.error(error);
-            //this.error = error;
-            // if (this.collapsifiedData.length == 0) {
-            //   this.componentState = "error";
-            //   if (event) event.target.complete()
-            //   error.isHandled = true;
-            // } else {
-            this.componentState = "loaded";
+            this.error = error;
+
             if (event) event.target.complete()
-            // }
+
+            if (!this.collapsifiedData) {
+              this.componentState = "error";
+              error.isHandled = true;
+            } else {
+              this.componentState = "loaded";
+            }
 
             throw error;
           }
@@ -112,8 +115,12 @@ export class NotesPage implements OnInit {
   async getMoreData(note: Note) {
     this.prompt.noteAlert(note);
   }
-  doRefresh(event: any) {
-    this.componentState == 'loadedProgress';
+  doRefresh(event?: any) {
+    if (this.componentState == 'error') {
+      this.componentState = 'loading';
+    } else {
+      this.componentState = 'loadedProgress';
+    }
     this.loadData(true, event);
   }
 }

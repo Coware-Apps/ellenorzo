@@ -1,12 +1,22 @@
 <ion-header>
   <ion-toolbar color="brand">
     <ion-searchbar placeholder="{{'pages.login.filterInstitutesText' | translate}}" (ionInput)="doFilter($event)"
-      [disabled]="!institutes"></ion-searchbar>
+      [disabled]="componentState != 'loaded'"></ion-searchbar>
+    <ion-progress-bar *ngIf="componentState == 'loading'" type="indeterminate">
+    </ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-virtual-scroll [items]="filteredInstitutes" *ngIf="filteredInstitutes" approxItemHeight="63px">
+
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+    (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content>
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <!-- DISPLAYING DATA -->
+  <ion-virtual-scroll [items]="filteredInstitutes" *ngIf="componentState == 'loaded'" approxItemHeight="63px">
     <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
       <ion-label>
         <h3>{{i.Name}}</h3>
@@ -15,9 +25,8 @@
     </ion-item>
   </ion-virtual-scroll>
 
-  <ion-list *ngIf="!filteredInstitutes">
-    <ion-progress-bar type="indeterminate" color="warning"></ion-progress-bar>
-
+  <!-- SKELETON -->
+  <ion-list *ngIf="componentState == 'loading'">
     <ion-item>
       <ion-label>
         <ion-skeleton-text width="80%" animated></ion-skeleton-text>
@@ -67,4 +76,8 @@
       </ion-label>
     </ion-item>
   </ion-list>
+
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>

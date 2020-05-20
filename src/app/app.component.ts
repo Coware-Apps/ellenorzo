@@ -23,22 +23,26 @@ export class AppComponent {
     public userManager: UserManagerService,
     public theme: ThemeService,
     public app: AppService,
-
-    private platform: Platform,
-    private splashScreen: SplashScreen,
     private router: Router,
     private storage: Storage,
     private menuCtrl: MenuController,
+    private plt: Platform,
+    private splashScreen: SplashScreen,
   ) {
     this.initializeApp();
   }
 
-  async initializeApp() {
-    this.platform.ready().then(async () => {
-      this.splashScreen.hide();
-    });
+  initializeApp() {
+    if (this.userManager.allUsers && this.userManager.allUsers.length > 0) {
+      this.router.navigateByUrl(this.app.defaultPage).then(() => {
+        this.splashScreen.hide();
+      })
+    } else {
+      this.router.navigateByUrl('/login').then(() => {
+        this.splashScreen.hide();
+      })
+    }
   }
-
   checkConfig() {
     this.app.updated.subscribe(async state => {
       if (state == "updated") {

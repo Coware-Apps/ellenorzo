@@ -25,7 +25,7 @@ import { FileTransfer, FileTransferObject } from '@ionic-native/file-transfer/ng
 import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
 import { stringify } from 'querystring';
 import { WeighedAvgCalcService } from './weighed-avg-calc.service';
-import { KretaInvalidResponseError, KretaInvalidGrantError, KretaNetworkError, KretaTokenError, KretaHttpError } from '../_exceptions/kreta-exception';
+import { KretaInvalidResponseError, KretaInvalidGrantError, KretaNetworkError, KretaTokenError, KretaHttpError, KretaRenewTokenError } from '../_exceptions/kreta-exception';
 
 
 
@@ -133,6 +133,13 @@ export class KretaService {
       }
     })
   }
+  protected basicErrorHandler(queryName: string, error, customTitleTranslatorKey?: string, customTextTranslatorKey?: string) {
+    if (error instanceof SyntaxError) throw new KretaInvalidResponseError(queryName);
+    if (error.status && error.status < 0) throw new KretaNetworkError(queryName);
+    if (error.status && error.status == 401) throw new KretaInvalidGrantError(queryName, error);
+
+    throw new KretaHttpError(queryName, error, customTitleTranslatorKey, customTextTranslatorKey)
+  }
   //#endregion
 
   //#region KRÉTA->Login
@@ -155,12 +162,10 @@ export class KretaService {
       this.prompt.butteredToast("[KRETA->getToken()]");
 
       response = await this.http.post(institute.Url + "/idp/api/v1/Token", params, headers);
-      console.log('tokenResponse', response);
       let parsedResponse: Token;
       parsedResponse = <Token>JSON.parse(response.data);
 
       this.prompt.butteredToast("[KRETA->getToken() result]" + parsedResponse);
-      console.log("[KRETA->getToken()] result: ", parsedResponse);
       //success
       this.decoded_user = this.jwtDecoder.decodeToken(parsedResponse.access_token);
       this.initializeFirebase(this.decoded_user["kreta:institute_user_id"]);
@@ -168,9 +173,7 @@ export class KretaService {
       return parsedResponse;
     } catch (error) {
       console.error("Hiba történt a 'Token' lekérése közben", error);
-      this.app.downloadUserAgent();
-
-      if (error instanceof SyntaxError) throw new KretaInvalidResponseError('getToken', response);
+      if (error instanceof SyntaxError) throw new KretaInvalidResponseError('getToken');
       if (error.status && error.status == 401) throw new KretaInvalidGrantError('getToken', error);
       if (error.status && error.status < 0) throw new KretaNetworkError('getToken');
       throw new KretaTokenError(error, 'getToken.title', 'getToken.text');
@@ -197,31 +200,19 @@ export class KretaService {
         'User-Agent': this.app.userAgent,
       }
 
-      console.log(`[KRETA->renewToken()] renewing tokens with refreshToken`, refresh_token)
-
       let response = await this.http.post(institute.Url + "/idp/api/v1/Token", params, headers);
 
       let parsedResponse: Token;
-      try {
-        parsedResponse = <Token>JSON.parse(response.data);
-      } catch (error) {
-        this.prompt.presentUniversalAlert(
-          this.translator.instant('services.kreta.invalidJSONResponseAlert.header'),
-          this.translator.instant('services.kreta.invalidJSONResponseAlert.subHeader'),
-          this.translator.instant('services.kreta.invalidJSONResponseAlert.message'),
-        );
-        this.firebase.logError(`[KRETA->renewToken()->JSON.parse()]: ` + stringify(error));
-      }
+      parsedResponse = <Token>JSON.parse(response.data);
 
       this.decoded_user = this.jwtDecoder.decodeToken(parsedResponse.access_token);
       this.initializeFirebase(this.decoded_user["kreta:institute_user_id"]);
       this.errorStatus.next(0);
       return parsedResponse;
     } catch (error) {
-      console.error("Hiba a 'Token' lekérése közben: ", error);
-      this.firebase.logError(`[KRETA->renewToken()->HTTP]: ` + stringify(error));
-      this.app.downloadUserAgent();
-      return null;
+      if (error instanceof SyntaxError) throw new KretaInvalidResponseError('renewToken');
+      if (error.status && error.status < 0) throw new KretaNetworkError('renewToken');
+      throw new KretaRenewTokenError(error, 'renewToken.title', 'renewToken.text');
     }
   }
   //#endregion
@@ -292,9 +283,8 @@ export class KretaService {
         return parsedResponse;
       }
       catch (error) {
+        this.basicErrorHandler('getStudent()', error, 'getStudent.title', 'getStudent.text');
         console.error("Hiba a tanuló lekérdezése közben", error);
-        this.firebase.logError(`[KRETA->getStudent()]: ` + stringify(error));
-        this.errorStatus.next(await error.status);
       }
     } else {
       return <Student>cacheDataIf;
@@ -308,7 +298,6 @@ export class KretaService {
 
     if (skipCache) {
       cacheDataIf = false;
-      console.log("[KRETA] Skipping cache");
       this.prompt.butteredToast('[KRETA] Skipping cache');
     }
 
@@ -320,7 +309,6 @@ export class KretaService {
       }
 
       try {
-        console.log('[KRETA] Refreshing Lesson...');
         this.prompt.butteredToast('[KRETA] Refreshing Lesson...');
 
         let traceStart = new Date().valueOf();
@@ -345,8 +333,7 @@ export class KretaService {
         return responseData;
       } catch (error) {
         console.error("Hiba történt a 'Lesson' lekérése közben: ", error);
-        this.firebase.logError(`[KRETA->getLesson()]: ` + stringify(error));
-        this.errorStatus.next(await error.status);
+        this.basicErrorHandler('getLesson()', error, 'getLesson.title', 'getLesson.text');
       }
     } else {
       return <Lesson[]>cacheDataIf;
@@ -388,7 +375,6 @@ export class KretaService {
         }
 
         try {
-          console.log('[KRETA] Refreshing Student Homeworks (' + homeworkIds.length + ')...');
           this.prompt.butteredToast('[KRETA] Refreshing Student Homeworks (' + homeworkIds.length + ')...');
 
           homeworkIds.forEach(async currentHomeworkId => {
@@ -410,8 +396,7 @@ export class KretaService {
           return homeworks;
         } catch (error) {
           console.error("Hiba történt a 'TanuloHaziFeladat' lekérése közben: ", error);
-          this.firebase.logError(`[KRETA->getStudentHomeworks()]: ` + stringify(error));
-          this.errorStatus.next(await error.status);
+          this.basicErrorHandler('getStudentHomeworks()', error, 'getStudentHomeworks.title', 'getStudentHomeworks.text');
         }
       } else {
         return cacheDataIf;
@@ -425,7 +410,6 @@ export class KretaService {
       }
 
       try {
-        console.log('[KRETA] Getting Student Homework by id (' + homeworkId + ')...');
         this.prompt.butteredToast('[KRETA] Getting Student Homework by id (' + homeworkId + ')...');
 
         let response = await this.http.get(institute.Url + "/mapi/api/v1/HaziFeladat/TanuloHaziFeladatLista/" + homeworkId, null, headers);
@@ -434,8 +418,7 @@ export class KretaService {
         return homeworks;
       } catch (error) {
         console.error("Hiba történt a 'TanuloHaziFeladat' lekérése közben: ", error);
-        this.firebase.logError(`[KRETA->getStudentHomeworks()]: ` + stringify(error));
-        this.errorStatus.next(await error.status);
+        this.basicErrorHandler('getStudentHomeworks()', error, 'getStudentHomeworks.title', 'getStudentHomeworks.text');
       }
     }
   }
@@ -469,7 +452,6 @@ export class KretaService {
         }
 
         try {
-          console.log('[KRETA] Refreshing Teacher Homeworks (' + homeworkIds.length + ')...');
           this.prompt.butteredToast('[KRETA] Refreshing Teacher Homeworks (' + homeworkIds.length + ')...');
 
           homeworkIds.forEach(async homeworkId => {
@@ -488,8 +470,7 @@ export class KretaService {
           return homeworks;
         } catch (error) {
           console.error("Hiba történt a 'TanarHaziFeladat' lekérése közben: ", error);
-          this.firebase.logError(`[KRETA->getTeacherHomeworks()]: ` + stringify(error));
-          this.errorStatus.next(await error.status);
+          this.basicErrorHandler('getTeacherHomeworks()', error, 'getTeacherHomeworks.title', 'getTeacherHomeworks.text');
         }
       } else {
         return cacheDataIf;
@@ -503,7 +484,6 @@ export class KretaService {
       }
 
       try {
-        console.log('[KRETA] Getting Teacher Homework by id (' + homeworkId + ')...');
         this.prompt.butteredToast('[KRETA] Getting Teacher Homework by id (' + homeworkId + ')...');
 
         let response = await this.http.get(institute.Url + "/mapi/api/v1/HaziFeladat/TanarHaziFeladat/" + homeworkId, null, headers);
@@ -518,8 +498,7 @@ export class KretaService {
         return homeworks;
       } catch (error) {
         console.error("Hiba történt a 'TanarHaziFeladat' lekérése közben: ", error);
-        this.firebase.logError(`[KRETA->getTeacherHomeworks()]: ` + stringify(error));
-        this.errorStatus.next(await error.status);
+        this.basicErrorHandler('getTeacherHomeworks()', error, 'getTeacherHomeworks.title', 'getTeacherHomeworks.text');
       }
     }
   }
@@ -527,7 +506,6 @@ export class KretaService {
   public async changeHomeworkState(done: boolean, teacherHomeworkId: number, tokens: Token, institute: Institute) {
     let response;
     try {
-      console.log(`[KRETA->changeHomeworkState()] Changing homework state to ${done}`)
       const headers = {
         Authorization: `Bearer ${tokens.access_token}`,
         'User-Agent': this.app.userAgent,
@@ -544,20 +522,16 @@ export class KretaService {
 
     } catch (error) {
       console.error(error);
-      this.errorStatus.next(error.status);
-      if (error instanceof SyntaxError) throw new KretaInvalidResponseError('changeHomeworkState', response);
-      if (error.status && error.status == 401) throw new KretaInvalidGrantError('changeHomeworkState', error);
-      if (error.status && error.status < 0) throw new KretaNetworkError('getToken');
-      throw new KretaHttpError('changeHomeworkState', response, 'changeHomeworkState.title', 'changeHomeworkState.text')
+      this.basicErrorHandler('getTeacherHomeworks()', error, 'getTeacherHomeworks.title', 'getTeacherHomeworks.text');
     } finally {
       this.http.setDataSerializer('urlencoded');
     }
   }
 
-  public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false, tokens: Token, institute: Institute, cacheId: string): Promise<Test[]> {
+  public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false, skipCache: boolean = false, tokens: Token, institute: Institute, cacheId: string): Promise<Test[]> {
     let cacheDataIf: any = false;
-    if (!forceRefresh) {
-      let cacheDataIf = await this.cache.getCacheIf(cacheId);
+    if (!forceRefresh && !skipCache) {
+      cacheDataIf = await this.cache.getCacheIf(cacheId);
     }
 
     if (cacheDataIf == false) {
@@ -571,7 +545,6 @@ export class KretaService {
       toDate = toDate || "";
 
       try {
-        console.log('[KRETA] Refreshing Tests...');
         this.prompt.butteredToast('[KRETA] Refreshing Tests...');
 
         let response = await this.http.get(institute.Url + "/mapi/api/v1/BejelentettSzamonkeresAmi?fromDate=" + fromDate + "&toDate=" + toDate, null, headers);
@@ -580,14 +553,15 @@ export class KretaService {
 
         //cache
         //removing old cached data
-        this.cache.clearCacheByKey(cacheId);
-        await this.cache.setCache(cacheId, responseData);
+        if (!skipCache) {
+          this.cache.clearCacheByKey(cacheId);
+          await this.cache.setCache(cacheId, responseData);
+        }
 
         return responseData;
       } catch (error) {
         console.error("Hiba történt a 'Számonkérések' lekérése közben: ", error);
-        this.firebase.logError(`[KRETA->getTests()]: ` + stringify(error));
-        this.errorStatus.next(await error.status);
+        this.basicErrorHandler('getTests()', error, 'getTests.title', 'getTests.text');
       }
     } else {
       return <Test[]>cacheDataIf;
@@ -606,8 +580,7 @@ export class KretaService {
       return responseData;
     } catch (error) {
       console.error("An error occured during the Events request", error);
-      this.firebase.logError(`[KRETA->getEvents()]: ` + stringify(error));
-      this.errorStatus.next(error.status)
+      this.basicErrorHandler('getEvents()', error, 'getEvents.title', 'getEvents.text');
     }
   }
 
@@ -617,7 +590,6 @@ export class KretaService {
 
     if (cacheDataIf == false) {
       try {
-        console.log("[KRETA] Refreshing institute list");
         this.prompt.butteredToast('[KRETA] Refreshing institute list');
         const headers = {
           'apiKey': '7856d350-1fda-45f5-822d-e1a2f3f1acf0',
@@ -639,8 +611,7 @@ export class KretaService {
       }
       catch (error) {
         console.error('Error getting institute list', error),
-          this.firebase.logError(`[KRETA->getInstituteList()]: ` + stringify(error));
-        this.errorStatus.next(error.status);
+          this.basicErrorHandler('getInstituteList()', error, 'getInstituteList.title', 'getInstituteList.text');
       }
     } else {
       return <Institute[]>cacheDataIf;
@@ -668,9 +639,7 @@ export class KretaService {
         return msgList;
       } catch (error) {
         console.error(error);
-        this.firebase.logError(`[KRETA->getMessageList()]: ` + stringify(error));
-        //this.prompt.presentUniversalAlert("Üzenet a fejlesztőtől", "KRÉTA szerver oldali limitáció", "A krétások nemrég elkezdtek valamit fejleszteni az e-üzenetek API-n. A hivatalos appban sem működik (csak ott nem mutat hibaüzenetet sem, egyszerűen nem frissíti az üzenetek listáját...) Szándékomban áll jelezni feléjük, hogy a funkcióra a felhasználóknak szüksége van és igyekezni kéne a javítással. Üdv. 3niXboi")
-        this.errorStatus.next(error.status);
+        this.basicErrorHandler('getMessageList()', error, 'getMessageList.title', 'getMessageList.text');
       }
     } else {
       return <Message[]>cacheDataIf;
@@ -690,8 +659,7 @@ export class KretaService {
       return msg;
     } catch (error) {
       console.error('Error trying to get message', error);
-      this.firebase.logError(`[KRETA->getMessage()]: ` + stringify(error));
-      this.errorStatus.next(error.status);
+      this.basicErrorHandler('getMessage()', error, 'getMessage.title', 'getMessage.text');
     }
   }
 
@@ -718,32 +686,9 @@ export class KretaService {
       let res = response;
     } catch (error) {
       console.error(consoleText, error);
-      this.firebase.logError(`[KRETA->setMessageAsRead()]: ` + stringify(error));
-      this.errorStatus.next(error.status);
+      this.basicErrorHandler('setMessageAsRead()', error, 'setMessageAsRead.title', 'setMessageAsRead.text');
     } finally {
       this.http.setDataSerializer("urlencoded");
-    }
-  }
-
-  public async getMobileVersionInfo(): Promise<MobileVersionInfo> {
-    try {
-      let response = await this.http.get('https://kretamobile.blob.core.windows.net/configuration/EllenorzoMobilVersionInfo.json', null, null);
-      return <MobileVersionInfo>JSON.parse(response.data);
-    } catch (error) {
-      this.errorStatus.next(error.status);
-      this.firebase.logError(`[KRETA->getMobileVersionInfo()]: ` + stringify(error));
-    }
-  }
-
-  public async getKretaLink(): Promise<string> {
-    //it returns 4 links (DEV, TEST, UAT, PROD), I'm only catching the PROD one
-
-    try {
-      let response = await this.http.get('https://kretamobile.blob.core.windows.net/configuration/ConfigurationDescriptor.json', null, null);
-      return JSON.parse(response.data).GlobalMobileApiUrlPROD;
-    } catch (error) {
-      this.errorStatus.next(error.status);
-      this.firebase.logError(`[KRETA->getKretaLink()]: ` + stringify(error));
     }
   }
   //#endregion
@@ -771,7 +716,6 @@ export class KretaService {
     }
 
     try {
-      console.log('[KRETA] Adding Student homework');
       this.prompt.butteredToast('[KRETA] Adding Student homework');
 
       let response = await this.http.post(institute.Url + '/mapi/api/v1/HaziFeladat/CreateTanuloHaziFeladat/', params, headers);
@@ -779,8 +723,7 @@ export class KretaService {
       return <HomeworkResponse>JSON.parse(response.data);
     } catch (error) {
       console.error("Hiba történt a Tanuló házi feladat hozzáadása közben: ", error);
-      this.firebase.logError(`[KRETA->addStudentHomework()]: ` + stringify(error));
-      this.errorStatus.next(await error.status);
+      this.basicErrorHandler('addStudentHomework()', error, 'addStudentHomework.title', 'addStudentHomework.text');
     }
   }
   //#endregion
@@ -789,7 +732,6 @@ export class KretaService {
   public async deleteStudentHomework(id: number, tokens: Token, institute: Institute): Promise<boolean> {
     //the id isn't the TeacherHomeworkId, rather the id you get from getStudentHomeworks()
     try {
-      console.log('[KRETA] Deleting student homework (' + id + ')');
       this.prompt.butteredToast('[KRETA] Deleting student homework (' + id + ')');
       const headers = {
         'Accept': 'application/json',
@@ -802,9 +744,7 @@ export class KretaService {
       return true;
     } catch (error) {
       console.error("Hiba történt a Tanuló házi feladat törlése közben: ", error);
-      this.firebase.logError(`[KRETA->deleteStudentHomework()]: ` + stringify(error));
-      this.errorStatus.next(await error.status);
-      return false;
+      this.basicErrorHandler('deleteStudentHomework()', error, 'deleteStudentHomework.title', 'deleteStudentHomework.text');
     }
   }
   //#endregion
@@ -836,12 +776,9 @@ export class KretaService {
         'Handle': await this.getFcmToken(),
       }
 
-      console.log('Student refreshed, waiting for push response');
-
       let httpResponse = await this.http.post('https://kretaglobalmobileapi2.ekreta.hu/api/v2/Registration', params, headers);
 
       this.registrationId = <string>JSON.parse(httpResponse.data).registrationId;
-      console.log('Registered, id: ', this.registrationId);
       return this.registrationId;
     } catch (error) {
       console.error('Hiba történt a feliratkozás közben', error);
@@ -881,7 +818,6 @@ export class KretaService {
     }
 
     try {
-      console.log('[KRETA] Refreshing Lesson...');
       this.prompt.butteredToast('[KRETA] Refreshing Lesson...');
 
       let traceStart = new Date().valueOf();
@@ -891,14 +827,12 @@ export class KretaService {
       return (traceEnd - traceStart);
     } catch (error) {
       console.error("Hiba történt a 'Lesson LAB' lekérése közben: ", error);
-      this.firebase.logError(`[KRETA->getLessonLAB()]: ` + stringify(error));
-      this.errorStatus.next(await error.status);
-      return 0;
+      this.basicErrorHandler('getLessonLAB()', error, 'getLessonLAB.title', 'getLessonLAB.text');
     }
   }
   //#endregion
 
-  //#region KRÉTA->DOWNLOAD
+  //#region KRÉTA->DOWNLOAD (deprecated due to administration API)
   public async getMessageFile(fileId: number, fileName: string, fileExtension: string, tokens: Token): Promise<string> {
     let fileTransfer = this.transfer.create();
     let uri = `https://eugyintezes.e-kreta.hu/integration-kretamobile-api/v1/dokumentumok/uzenetek/${fileId}`;
@@ -926,6 +860,7 @@ export class KretaService {
       this.prompt.toast(this.translator.instant('services.kreta.cantDownloadText', { fileName: fullFileName }), true);
     }
   }
+  //(deprecated due to administration API)
   public async getDownloadPath() {
     if (this.platform.is('ios')) {
       return this.file.documentsDirectory;

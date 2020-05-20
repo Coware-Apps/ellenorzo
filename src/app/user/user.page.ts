@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Student } from '../_models/student';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { Subscription, Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { UserManagerService } from '../_services/user-manager.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
-import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user',
@@ -12,12 +12,10 @@ import { HwBackButtonService } from '../_services/hw-back-button.service';
   styleUrls: ['./user.page.scss'],
 })
 export class UserPage implements OnInit {
-  public sans: boolean;
-  public showProgressBar: boolean;
-  public student: Observable<Student[]>;
 
-  private studentSubscription: Subscription;
-  private reloaderSubscription: Subscription;
+  public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
+  public student: Student;
+  public unsubscribe$: Subject<void>;
 
   constructor(
     public fDate: FormattedDateService,
@@ -25,62 +23,61 @@ export class UserPage implements OnInit {
     private firebaseX: FirebaseX,
     private userManager: UserManagerService,
   ) {
-    this.sans = true;
-    this.showProgressBar = true;
   }
 
   async ngOnInit() {
     this.firebaseX.setScreenName('user');
   }
 
-  async ionViewDidEnter() {
-    await this.loadData();
-    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
-      if (value == 'reload') {
-        this.sans = true;
-        this.showProgressBar = true;
-        this.studentSubscription.unsubscribe();
+  async ionViewWillEnter() {
+    this.unsubscribe$ = new Subject();
+    this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(val => {
+      if (val == 'reload') {
+        this.componentState = 'loading';
         this.loadData();
       }
     });
+    this.loadData();
   }
 
-  private async loadData() {
-    this.student = new Observable<Student[]>((observer) => {
-      this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
-        if (subscriptionData.type == "skeleton") {
-          this.sans = true;
-          this.showProgressBar = true;
-          //there is no data in the storage, showing skeleton text until the server responds
-        } else if (subscriptionData.type == "placeholder") {
-          //there is data in the storage, showing that data until the server responds, disabling skeleton text
-          observer.next([subscriptionData.data]);
-          this.sans = false;
-          this.showProgressBar = true;
-        } else {
-          //the server has now responded, disabling progress bar and skeleton text if it's still there
-          observer.next([subscriptionData.data]);
-          this.showProgressBar = false;
-          this.sans = false;
+  private loadData(forceRefresh: boolean = false, event?) {
+    this.userManager.currentUser.getAsyncAsObservableWithCache<[Student]>(
+      [{
+        name: "getStudent",
+        cacheKey: "student",
+        params: [null, null, true]
+      }],
+      forceRefresh
+    ).pipe(takeUntil(this.unsubscribe$)).subscribe(
+      {
+        next: d => {
+          this.student = d[0];
+        },
+        complete: () => {
+          if (event) event.target.complete();
+
+          this.componentState = this.student ? 'loaded' : 'empty'
+        },
+        error: (error) => {
+          console.error(error);
+
+          if (event) event.target.complete();
+
+          this.componentState = this.student ? 'loaded' : 'error'
+
+          throw error;
         }
-      });
-    });
-    await this.userManager.currentUser.initializeStudent();
+      }
+    )
   }
 
   ionViewWillLeave() {
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
-  async doRefresh(event: any) {
-    this.showProgressBar = true;
-    await this.userManager.currentUser.updateStudent();
-    event.target.complete();
+  async doRefresh(event?) {
+    this.componentState = 'loadedProgress';
+    this.loadData(true, event);
   }
-
 }

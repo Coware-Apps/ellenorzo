@@ -9,8 +9,6 @@ import { AppService } from './app.service';
 import { CommunityServiceData } from '../_models/communityService';
 import { TranslateService } from '@ngx-translate/core';
 import { GlobalError } from '../_exceptions/global-exception';
-import { KretaHttpError } from '../_exceptions/kreta-exception';
-import { AdministrationHttpError } from '../_exceptions/administration-exception';
 import { stringify } from 'querystring';
 
 @Injectable({
@@ -336,6 +334,29 @@ export class PromptService {
       ]
     });
     toast.present();
+  }
+  public async fileOpenErrorToast(header: string, message: string, fileError: any) {
+    let errorText = fileError instanceof Object ? this.getKeys(fileError).map(k => stringify(fileError[k])).join('||') : this.stringify(fileError);
+    const toast = await this.toastCtrl.create({
+      message: message,
+      header: header,
+      position: 'bottom',
+      duration: 10000,
+      buttons: [
+        {
+          text: this.t.instant('services.prompt.moreBtnText'),
+          handler: () => {
+            this.presentUniversalErrorAlert(errorText);
+          }
+        },
+      ]
+    });
+    toast.present();
+  }
+  getKeys(o: any) {
+    let keys = Object.keys(o);
+    if (keys.length == 0) keys = Object.getOwnPropertyNames(o);
+    return keys;
   }
   public async showDetailedToast(header: string, message: string, duration: number = 10000) {
     let t = await this.toastCtrl.create({

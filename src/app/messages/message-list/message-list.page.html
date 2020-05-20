@@ -35,7 +35,7 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar *ngIf="this.searchbarEnabled">
+  <ion-toolbar *ngIf="this.searchbarEnabled" color="brand">
     <ion-searchbar class="slide-top" placeholder="{{'pages.message-list.searchPlaceholder' | translate}}" animated
       inputmode="search" type="search" (ionChange)="onSearchChange($event)" (ionCancel)="toggleSearchbar(false)"
       [debounce]="250" showCancelButton="250">

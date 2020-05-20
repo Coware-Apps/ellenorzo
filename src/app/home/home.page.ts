@@ -7,16 +7,15 @@ import { ColorService } from '../_services/color.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsibleStudent } from '../_models/student';
-import { Observable, Subscription, Subject } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { MenuController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { CollapsibleCombined } from '../_models/user';
-import { Test } from '../_models/test';
 import { Message } from '../_models/message';
-import { DataService } from '../_services/data.service';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { KretaError } from '../_exceptions/kreta-exception';
 
 @Component({
   selector: 'app-home',
@@ -28,6 +27,7 @@ export class HomePage implements OnInit, OnDestroy {
   public formattedCombined: CollapsibleCombined[];
   public isEmpty: boolean = false;
   public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
+  public error: KretaError;
 
   //categories
   showEvaluations: boolean = true;
@@ -67,7 +67,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.monthNames = this.translator.instant("dates.monthNames");
   }
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.reloaderSubscription = this.userManager.reloader.subscribe(val => {
       if (val == 'reload') {
         this.formattedCombined = null;
@@ -119,21 +119,28 @@ export class HomePage implements OnInit, OnDestroy {
           if (event) event.target.complete();
 
           let empty = true;
-          this.formattedCombined.forEach(e => {
+          if (this.formattedCombined) this.formattedCombined.forEach(e => {
             if (e.data.length > 0) empty = false;
           });
           this.componentState = empty ? 'empty' : 'loaded'
         },
         error: (error) => {
           console.error(error);
+          this.error = error;
 
           if (event) event.target.complete();
 
           let empty = true;
-          this.formattedCombined.forEach(e => {
+          if (this.formattedCombined) this.formattedCombined.forEach(e => {
             if (e.data.length > 0) empty = false;
           });
-          this.componentState = empty ? 'empty' : 'error'
+
+          if (empty) {
+            this.componentState = 'error';
+            error.isHandled = true;
+          } else {
+            this.componentState = 'loaded'
+          }
 
           throw error;
         }
@@ -141,8 +148,12 @@ export class HomePage implements OnInit, OnDestroy {
     )
   }
 
-  async doRefresh(event) {
-    this.componentState = 'loadedProgress';
+  async doRefresh(event?) {
+    if (this.componentState == 'error') {
+      this.componentState = 'loading';
+    } else {
+      this.componentState = 'loadedProgress';
+    }
     this.loadData(true, event);
   }
   private formatCombined(input: any[]): CollapsibleCombined[] {

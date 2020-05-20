@@ -5,6 +5,9 @@ import { PromptService } from './prompt.service';
 import { UserManagerService } from './user-manager.service';
 import * as StackTrace from "stacktrace-js";
 import { AdministrationRenewTokenError } from '../_exceptions/administration-exception';
+import { AppService } from './app.service';
+import { KretaError } from '../_exceptions/kreta-exception';
+import { environment } from 'src/environments/environment.prod';
 
 @Injectable({
     providedIn: "root",
@@ -14,11 +17,14 @@ export class ErrorHandlerService extends ErrorHandler {
         private firebase: FirebaseX,
         private prompt: PromptService,
         private userManager: UserManagerService,
+        private app: AppService,
     ) {
         super();
     }
 
     async handleError(error: any): Promise<void> {
+        if (error instanceof KretaError) this.app.downloadUserAgent();
+
         //zone.js wrapping issue fix
         if (error.promise && error.rejection) error = error.rejection;
 
@@ -31,7 +37,7 @@ export class ErrorHandlerService extends ErrorHandler {
         //adding token debug info
         const errorReportString = this.appendAuthDebugToError(error);
 
-        this.firebase.logError(errorReportString, stackframes);
+        if (environment.production) this.firebase.logError(errorReportString, stackframes);
 
         if (error instanceof AdministrationRenewTokenError && error.httpErrorObject && error.httpErrorObject.status == 400) {
             if (await this.prompt.administrationLoginExpiredToast()) {

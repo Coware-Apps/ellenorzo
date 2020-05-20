@@ -4,23 +4,30 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>{{'pages.averages.title' | translate}}</ion-title>
-    <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
+    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
+    </ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" (ionRefresh)="doRefresh($event)" slot="fixed"
-    pullFactor="0.8" pullMin="50" pullMax="110">
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+    (ionRefresh)="doRefresh($event)">
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
-  <ion-list>
-    <app-average *ngFor="let item of this.subjectAverages | async"
-      (click)="this.showModal(item.Subject, item.ClassValue, item)" [subjectAverage]="item"
-      [totalGrades]="getCountingGrades(item.Subject)"></app-average>
+
+  <!-- DISPLAYING DATA -->
+  <ion-list *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
+    <app-average *ngFor="let item of this.subjectAverages" (click)="this.showModal(item.Subject, item.ClassValue)"
+      [subjectAverage]="item" [totalGrades]="getCountingGrades(item.Subject)"></app-average>
   </ion-list>
 
-  <div *ngIf="sans">
+  <!-- EMPTY -->
+  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.averages.emptyText" icon="bar-chart-outline">
+  </app-empty>
+
+  <!-- SKELETON -->
+  <div *ngIf="componentState == 'loading'">
     <ion-list>
       <ion-card *ngFor="let item of [0, 1, 2, 3, 4, 5, 6]">
         <ion-card-header>
@@ -37,4 +44,8 @@
       </ion-card>
     </ion-list>
   </div>
+
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>

@@ -160,21 +160,8 @@
         (click)="changeColor(e.NumberValue)">
       </app-evaluation>
     </ion-slide>
-    <ion-slide class="wide">
-      <ion-card class="averages" *ngFor="let number of [5, 4, 3, 2, 1]" (click)="changeColor(number)"
-        [style.box-shadow]="'0px 0px 7px 3px ' + returnColor(number)">
-        <ion-card-content class="averages">
-          <div style="float: right;">
-            <h1 [ngStyle]="{'color': colorService.getContrast()}">{{number}}</h1>
-          </div>
-          <ion-card-title>
-            <h1 class="tl">{{'pages.color-picker.averageCard.placeholderSubject' | translate}}</h1>
-          </ion-card-title>
-          <ion-card-subtitle [ngStyle]="{'color': colorService.getContrast()}" class="tl">
-            {{'pages.averages.totalGradesText' | translate}} 10
-          </ion-card-subtitle>
-        </ion-card-content>
-      </ion-card>
+    <ion-slide style="text-align: left;" class="wide">
+      <app-average *ngFor="let avg of this.mockAverages" [totalGrades]="10" [subjectAverage]="avg"></app-average>
     </ion-slide>
     <ion-slide class="wide">
       <ion-card class="wide">

@@ -109,4 +109,8 @@
   <!-- EMPTY -->
   <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.home.emptyText" icon="book-outline">
   </app-empty>
+
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>

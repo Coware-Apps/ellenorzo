@@ -52,7 +52,8 @@
             "classAverageText": "Class average:",
             "loadingToastText": "Loading...",
             "totalGradesText": "Total grades:",
-            "totalCountingGradesText": "Counts towards average:"
+            "totalCountingGradesText": "Counts towards average:",
+            "emptyText": "The list of averages is empty"
         },
         "absences": {
             "title": "Absences",
@@ -71,7 +72,8 @@
             }
         },
         "notes": {
-            "title": "Notes"
+            "title": "Notes",
+            "emptyText": "No notes to show"
         },
         "homeworks": {
             "title": "Homeworks",
@@ -80,7 +82,8 @@
             "allCompletedText": "All homeworks are completed!"
         },
         "tests": {
-            "title": "Tests"
+            "title": "Tests",
+            "emptyText": "No tests to show"
         },
         "messages": {
             "title": "Messages",
@@ -639,7 +642,7 @@
             },
             "network": {
                 "title": "Network error",
-                "text": "There was an error with the network. Please check your connection and try again."
+                "text": "There was an error when trying to connect to the servers. Please check your connection and try again."
             },
             "invalid": {
                 "title": "Invalid response from the server",
@@ -709,7 +712,7 @@
             },
             "network": {
                 "title": "Network error",
-                "text": "There was an error with the network. Please check your connection and try again."
+                "text": "There was an error when trying to connect to the servers. Please check your connection and try again."
             },
             "invalid": {
                 "title": "Invalid response from the server",
@@ -719,9 +722,65 @@
                 "title": "Error trying to get Tokens",
                 "text": "There was an error during the token request. Authorization failed."
             },
+            "renewToken": {
+                "title": "Error trying to renew Tokens",
+                "text": "There was an error during the token request. Authorization failed."
+            },
             "changeHomeworkState": {
                 "title": "An error occured, couldn't change homework state",
                 "text": "There was an error during the request. The state of the homework(s) was not changed"
+            },
+            "getStudent": {
+                "title": "Error trying to load core information",
+                "text": "There was an error during the Student request. Please try again later."
+            },
+            "getLesson": {
+                "title": "Error trying to load timetable",
+                "text": "The timetable could not be loaded at this time. Please try again later."
+            },
+            "getStudentHomeworks": {
+                "title": "Error trying to load student homeworks",
+                "text": "Could not load homeworks added by students. Please try again later."
+            },
+            "getTeacherHomeworks": {
+                "title": "Error trying to load teacher homeworks",
+                "text": "Could not load homeworks added by teachers. Please try again later."
+            },
+            "getTests": {
+                "title": "Error trying to load tests",
+                "text": "There was an error during the Tests request. Please try again later."
+            },
+            "getEvents": {
+                "title": "Error trying to load events",
+                "text": "Events could not be loaded due to an exception during the request. Please try again later."
+            },
+            "getInstituteList": {
+                "title": "Error trying to load institutes",
+                "text": "The institute list could not be loaded due to an error. Please try again later."
+            },
+            "getMessageList": {
+                "title": "Error trying to load message list (mobile API)",
+                "text": "Please try checking your messages on the 'Messages' tab (we use a different API there)."
+            },
+            "getMessage": {
+                "title": "Error trying to load message (mobile API)",
+                "text": "Could not load queried message due to an error."
+            },
+            "setMessageAsRead": {
+                "title": "Error trying to set message as read",
+                "text": "Could not change message state due to an error with the request."
+            },
+            "addStudentHomework": {
+                "title": "Error trying to add homework",
+                "text": "The homework has not been added due to an error with the request."
+            },
+            "deleteStudentHomework": {
+                "title": "Error trying to delete homework",
+                "text": "The homework has not been deleted due to an error with the request."
+            },
+            "getLessonLAB": {
+                "title": "There was an error with the LAB requests",
+                "text": "Could not load data due to an error with the lesson LAB requests."
             }
         }
     }

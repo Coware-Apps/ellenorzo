@@ -50,7 +50,7 @@ export class LoginPage implements OnInit {
     this.menuCtrl.enable(false);
   }
 
-  ionViewDidEnter() {
+  ionViewWillEnter() {
     if (this.userManager.allUsers.length == 0) this.theme.styleStatusBarToBlend();
 
     this.pass = null;

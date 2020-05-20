@@ -28,50 +28,9 @@ export class User {
     //functional data
     public notificationsEnabled: boolean = false;
     public lastNotificationSetTime: number = 0;
-    //request subjects (pages that require datastreams should subscribe to these)
-    /**
-    * A subject that returns a loadedMessageList object 3 times upon init (skeleton->placeholder->final) and on updates (final)
-    * @requires `initializeMessageList()`         
-    */
-    public messageList = new Subject<LoadedMessageList>();
-    /**
-    * A subject that returns a loadedStudent object 3 times upon init (skeleton->placeholder->final) and on updates (final)
-    * @requires `initializeStudent()`
-    */
-    public student = new Subject<LoadedStudent>();
-    /**
-    * A subject that returns a loadedTests object 3 times upon init (skeleton->placeholder->final) and on updates (final)
-    * @requires `initializeTests()`
-    */
-    public tests = new Subject<LoadedTests>();
-    /**
-    * A subject that returns a LoadedEvents object 3 times upon init (skeleton->placeholder->final) and on updates (final)
-    * @requires `initializeEvents()`
-    */
-    public events = new Subject<LoadedEvents>();
-    /**
-    * A subject that returns a combined data object 3 times upon init (skeleton->placeholder->final) and on updates (final)
-    * @requires `initializeCombined()`
-    */
-    public combined = new Subject<LoadedCombined>();
-    /**
-     * How often the users datastream requests can be updated
-     */
-    public allowUpdatesIn = 120000;
     //public allowUpdatesIn = 10;
     public lastLoggedIn: number = 0;
     public lastLoggedInAdministration: number = 0;
-    //anti-spam
-    private lastUpdatedStudent = 0;
-    private lastUpdatedStudentData: Student = null;
-    private lastUpdatedMessageList = 0;
-    private lastUpdatedMessageListData: Message[] = null;
-    private lastUpdatedTests = 0;
-    private lastUpdatedTestsData: Test[] = null;
-    private lastUpdatedEvents = 0;
-    private lastUpdatedEventsData: Event[] = null;
-    private lastUpdatedCombined = 0;
-    private lastUpdatedCombinedData: any = null;
     public tokens: Token;
     public administrationTokens: Token;
     private authDiff: number = 300000;
@@ -102,10 +61,6 @@ export class User {
         // szmkAddresseeList: string;
     }
     private loginInProgress: boolean = false;
-    /**
-     * For the combined data requests (it is initalized in `setUserData()`)
-     */
-    private fnParams = {};
 
     constructor(
         tokens: Token,
@@ -160,7 +115,12 @@ export class User {
 
         let newTokens;
         if (toApi == 'mobile') {
-            newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
+            try {
+                newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
+            } catch (error) {
+                this.loginInProgress = false;
+                throw error;
+            }
         } else {
             try {
                 newTokens = await this.administrationService.renewToken(this.administrationTokens.refresh_token, this.institute);
@@ -380,11 +340,6 @@ export class User {
     }
     //#endregion
 
-    //#region datastream requests
-    private async showAntiSpamToast(requestName: string, timeLeft: number) {
-        //deprecated for now, it is just annoying to the user
-        //this.prompt.toast(`${requestName} frissítése technikai okokból 30 másodpercenként lehetséges. (${Math.round(timeLeft / 1000)} / ${this.allowUpdatesIn / 1000})`, true)
-    }
     public getAsyncAsObservableWithCache<T>(
         asyncFns: {
             name: string,
@@ -422,12 +377,23 @@ export class User {
             });
 
             if (!isCacheValid || forceRefresh) {
+                const d1 = new Date().valueOf();
 
                 Promise.all(
                     asyncFns.map(asyncFn => {
                         return this[asyncFn.name].apply(this, asyncFn.params);
                     })
                 ).then(res => {
+                    console.log(
+                        `%c[USER] ✓ Performed ${
+                        asyncFns.length
+                        } request${
+                        asyncFns.length > 1 ? 's' : ''
+                        } in ${
+                        Math.round((new Date().valueOf() - d1) * 1000) / 1000
+                        }ms`,
+                        'color: #2196f3'
+                    )
 
                     let d = [];
                     res.forEach((e, i) => {
@@ -440,6 +406,16 @@ export class User {
                     returnVal.next(d);
                     returnVal.complete();
                 }).catch(error => {
+                    console.log(
+                        `%c[USER] X Failed to perform ${
+                        asyncFns.length
+                        } request${
+                        asyncFns.length > 1 ? 's' : ''
+                        } in ${
+                        Math.round((new Date().valueOf() - d1) * 1000) / 1000
+                        }ms`,
+                        'color: #ff5131'
+                    )
                     returnVal.error(error);
                 });
             } else {
@@ -448,406 +424,6 @@ export class User {
         });
         return returnVal.asObservable();
     }
-    //#region student
-    /**
-    * Initializes the user's student subject
-    */
-    async initializeStudent() {
-        let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.student);
-        if (cacheDataIf == false) {
-            let storedStudent = await this.storage.get(this.cacheIds.student);
-            if (storedStudent != null) {
-                this.student.next({
-                    data: storedStudent.data,
-                    type: "placeholder",
-                });
-            } else {
-                this.student.next({
-                    data: null,
-                    type: "skeleton",
-                });
-            }
-            await this.loginWithRefreshToken();
-            let refreshedStudent = await this.kreta.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"), true, this.tokens, this.institute, this.cacheIds.student);
-            this.student.next({
-                data: refreshedStudent,
-                type: "final",
-            });
-            this.lastUpdatedStudent = new Date().valueOf();
-            this.lastUpdatedStudentData = refreshedStudent;
-        } else {
-            this.student.next({
-                data: <Student>cacheDataIf,
-                type: "final",
-            });
-            this.lastUpdatedStudentData = <Student>cacheDataIf;
-        }
-    }
-
-    /**
-    * Updates the user's student subject with data that it gets from the API
-    */
-    public async updateStudent() {
-        let now = new Date().valueOf();
-        if (this.lastUpdatedStudent + this.allowUpdatesIn < now) {
-            await this.loginWithRefreshToken();
-            let updatedStudent = await this.kreta.getStudent(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"), true, this.tokens, this.institute, this.cacheIds.student);
-            this.student.next({
-                data: updatedStudent,
-                type: "final",
-            });
-            this.lastUpdatedStudentData = updatedStudent;
-            this.lastUpdatedStudent = now;
-        } else {
-            this.showAntiSpamToast('A tanuló adatainak', now - this.lastUpdatedStudent);
-            this.student.next({
-                data: this.lastUpdatedStudentData,
-                type: "final",
-            });
-        }
-    }
-    //#endregion
-
-    //#region tests
-    /**
-    * Initializes the user's tests subject
-    */
-    async initializeTests() {
-        let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.tests);
-        if (cacheDataIf == false) {
-            let storedTests = await this.storage.get(this.cacheIds.tests);
-            if (storedTests != null) {
-                this.tests.next({
-                    data: storedTests.data,
-                    type: "placeholder",
-                });
-            } else {
-                this.tests.next({
-                    data: null,
-                    type: "skeleton",
-                });
-            }
-            await this.loginWithRefreshToken();
-            let refreshedTests = await this.kreta.getTests(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"), true, this.tokens, this.institute, this.cacheIds.tests);
-            this.tests.next({
-                data: refreshedTests,
-                type: "final",
-            });
-            this.lastUpdatedTests = new Date().valueOf();
-            this.lastUpdatedTestsData = refreshedTests;
-        } else {
-            this.tests.next({
-                data: <Test[]>cacheDataIf,
-                type: "final",
-            });
-            this.lastUpdatedTestsData = <Test[]>cacheDataIf;
-        }
-    }
-
-    /**
-     * Updates the user's tests subject with data that it gets from the API
-     */
-    public async updateTests() {
-        let now = new Date().valueOf();
-        if (this.lastUpdatedTests + this.allowUpdatesIn < now) {
-            await this.loginWithRefreshToken();
-            let updatedTests = await this.kreta.getTests(this.fDate.getDate("thisYearBegin"), this.fDate.getDate("today"), true, this.tokens, this.institute, this.cacheIds.tests);
-            this.tests.next({
-                data: updatedTests,
-                type: "final",
-            });
-            this.lastUpdatedTestsData = updatedTests;
-            this.lastUpdatedTests = now;
-        } else {
-            this.showAntiSpamToast('A bejelentett számonkérések', now - this.lastUpdatedTests)
-            this.tests.next({
-                data: this.lastUpdatedTestsData,
-                type: "final",
-            });
-        }
-    }
-    //#endregion
-
-    //#region messageList
-    /**
-     * Initializes the user's messageList subject
-     */
-    async initializeMessageList() {
-        let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.messageList);
-        if (cacheDataIf == false) {
-            let storedMessageList = await this.storage.get(this.cacheIds.messageList);
-            if (storedMessageList != null) {
-                this.messageList.next({
-                    data: storedMessageList.data,
-                    type: "placeholder",
-                });
-            } else {
-                this.messageList.next({
-                    data: null,
-                    type: "skeleton",
-                });
-            }
-            await this.loginWithRefreshToken();
-            let refreshedMessageList = await this.kreta.getMessageList(true, this.tokens, this.cacheIds.messageList);
-            this.messageList.next({
-                data: refreshedMessageList,
-                type: "final",
-            });
-            this.lastUpdatedMessageList = new Date().valueOf();
-            this.lastUpdatedMessageListData = refreshedMessageList;
-        } else {
-            this.messageList.next({
-                data: <Message[]>cacheDataIf,
-                type: "final",
-            });
-            this.lastUpdatedMessageListData = <Message[]>cacheDataIf;
-        }
-    }
-
-    /**
-     * Updates the user's messageList subject with data that it gets from the API
-     */
-    public async updateMessageList() {
-        let now = new Date().valueOf();
-        if (this.lastUpdatedMessageList + this.allowUpdatesIn < now) {
-            await this.loginWithRefreshToken();
-            let updatedMessageList = await this.kreta.getMessageList(true, this.tokens, this.cacheIds.messageList);
-            this.messageList.next({
-                data: updatedMessageList,
-                type: "final",
-            });
-            this.lastUpdatedMessageListData = updatedMessageList;
-            this.lastUpdatedMessageList = now;
-        } else {
-            this.showAntiSpamToast('Az üzenetek listájának ', now - this.lastUpdatedMessageList)
-            this.messageList.next({
-                data: this.lastUpdatedMessageListData,
-                type: "final",
-            });
-        }
-    }
-    //#endregion
-
-    //#region events
-    /**
-    * Initializes the user's events subject
-    */
-    async initializeEvents() {
-        let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.events);
-        if (cacheDataIf == false) {
-            let storedEvents = await this.storage.get(this.cacheIds.events);
-            if (storedEvents != null) {
-                this.events.next({
-                    data: storedEvents.data,
-                    type: "placeholder",
-                });
-            } else {
-                this.events.next({
-                    data: null,
-                    type: "skeleton",
-                });
-            }
-            await this.loginWithRefreshToken();
-            let refreshedEvents = await this.kreta.getEvents(this.tokens, this.institute);
-            this.events.next({
-                data: refreshedEvents,
-                type: "final",
-            });
-
-            this.lastUpdatedEvents = new Date().valueOf();
-            this.lastUpdatedEventsData = refreshedEvents;
-        } else {
-            this.events.next({
-                data: <Event[]>cacheDataIf,
-                type: "final",
-            });
-            this.lastUpdatedEventsData = <Event[]>cacheDataIf;
-        }
-    }
-
-    /**
-    * Updates the user's events subject with data that it gets from the API
-    */
-    public async updateEvents() {
-        let now = new Date().valueOf();
-        if (this.lastUpdatedEvents + this.allowUpdatesIn < now) {
-            await this.loginWithRefreshToken();
-            let updatedEvents = await this.kreta.getEvents(this.tokens, this.institute);
-            this.events.next({
-                data: updatedEvents,
-                type: "final",
-            });
-            this.lastUpdatedEventsData = updatedEvents;
-            this.lastUpdatedEvents = now;
-        } else {
-            this.showAntiSpamToast('A faliújság', now - this.lastUpdatedEvents);
-            this.events.next({
-                data: this.lastUpdatedEventsData,
-                type: "final",
-            });
-        }
-    }
-    //#endregion
-
-    //#region combined
-    /**
-    * Initializes the user's combined subject
-    */
-    public async initializeCombined(get: Array<'Student' | 'Tests' | 'Events' | 'MessageList'>) {
-        let cacheDataIf = await this.cache.getCacheIf(this.cacheIds.combined);
-        if (cacheDataIf == false) {
-            let storedCombined = await this.storage.get(this.cacheIds.combined);
-            if (storedCombined != null) {
-                this.combined.next({
-                    Student: storedCombined.data.Student,
-                    Tests: storedCombined.data.Tests,
-                    Events: storedCombined.data.Events,
-                    MessageList: storedCombined.data.MessageList,
-                    type: "placeholder",
-                });
-            } else {
-                this.combined.next({
-                    Student: null,
-                    Tests: null,
-                    Events: null,
-                    MessageList: null,
-                    type: "skeleton",
-                });
-            }
-
-            await this.loginWithRefreshToken();
-            this.setCombinedParams();
-            let refreshedCombined = {
-                Student: {},
-                Tests: {},
-                Events: {},
-                MessageList: {}
-            };
-            console.time("[USER - Combined request time (init)]");
-            let i = 0;
-            (await Promise.all(get.map(function (element) {
-                return this.kreta[`get${element}`].apply(this.kreta, this.fnParams[element]);
-            }.bind(this)))).forEach(res => {
-                refreshedCombined[get[i]] = res;
-                i++;
-            });
-            console.timeEnd("[USER - Combined request time (init)]");
-            if (
-                refreshedCombined.Student != null &&
-                refreshedCombined.Events != null &&
-                refreshedCombined.MessageList != null &&
-                refreshedCombined.Tests != null
-            ) {
-                this.combined.next({
-                    //The server only ever sends back 1 student / user
-                    Student: refreshedCombined.Student,
-                    Tests: refreshedCombined.Tests,
-                    Events: refreshedCombined.Events,
-                    MessageList: refreshedCombined.MessageList,
-                    type: "final",
-                });
-                await this.cache.setCache(this.cacheIds.combined, refreshedCombined);
-                this.lastUpdatedCombined = new Date().valueOf();
-                this.lastUpdatedCombinedData = refreshedCombined;
-            }
-        } else {
-            this.combined.next({
-                Student: cacheDataIf.Student,
-                Tests: cacheDataIf.Tests,
-                Events: cacheDataIf.Events,
-                MessageList: cacheDataIf.MessageList,
-                type: "final",
-            });
-            this.lastUpdatedCombinedData = cacheDataIf;
-        }
-    }
-    /**
-    * Updates the user's combined subject with data that it gets from the API
-    */
-    public async updateCombined(get: Array<'Student' | 'Tests' | 'Events' | 'MessageList'>) {
-        let now = new Date().valueOf();
-        if (this.lastUpdatedCombined + this.allowUpdatesIn < now) {
-            await this.loginWithRefreshToken();
-            this.setCombinedParams();
-            let updatedCombined = {
-                Student: {},
-                Tests: {},
-                Events: {},
-                MessageList: {}
-            };
-            console.time("[USER - Combined request time (update)]");
-            let i = 0;
-            (await Promise.all(get.map(function (element) {
-                return this.kreta[`get${element}`].apply(this.kreta, this.fnParams[element]);
-            }.bind(this)))).forEach(res => {
-                updatedCombined[get[i]] = res;
-                i++;
-            });
-            console.timeEnd("[USER - Combined request time (update)]");
-
-            if (
-                updatedCombined.Student != null &&
-                updatedCombined.Events != null &&
-                updatedCombined.MessageList != null &&
-                updatedCombined.Tests != null
-            ) {
-                this.combined.next({
-                    Student: updatedCombined.Student,
-                    Tests: updatedCombined.Tests,
-                    Events: updatedCombined.Events,
-                    MessageList: updatedCombined.MessageList,
-                    type: "final",
-                });
-                await this.cache.setCache(this.cacheIds.combined, updatedCombined);
-                this.lastUpdatedCombined = now;
-                this.lastUpdatedCombinedData = updatedCombined;
-            }
-        } else {
-            this.showAntiSpamToast('A főoldal', now - this.lastUpdatedCombined);
-            this.combined.next({
-                Student: this.lastUpdatedCombinedData.Student,
-                Tests: this.lastUpdatedCombinedData.Tests,
-                Events: this.lastUpdatedCombinedData.Events,
-                MessageList: this.lastUpdatedCombinedData.MessageList,
-                type: "final",
-            });
-        }
-    }
-    /**
-     * Initializes the parameters for the combined requests. If you add requests, you must add their parameters here.
-     */
-    protected setCombinedParams() {
-        this.fnParams = {
-            "Student": [
-                null,
-                null,
-                true,
-                this.tokens,
-                this.institute,
-                this.cacheIds.student,
-            ],
-            "Tests": [
-                null,
-                null,
-                true,
-                this.tokens,
-                this.institute,
-                this.cacheIds.tests,
-            ],
-            "Events": [
-                this.tokens,
-                this.institute,
-            ],
-            "MessageList": [
-                true,
-                this.tokens,
-                this.cacheIds.messageList
-            ],
-        }
-    }
-    //#endregion
-
-    //#endregion
 
     //#region other requests
     /**
@@ -871,9 +447,9 @@ export class User {
         await this.loginWithRefreshToken();
         return this.kreta.getEvents(this.tokens, this.institute);
     }
-    public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false): Promise<Test[]> {
+    public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false, skipCache: boolean = false): Promise<Test[]> {
         await this.loginWithRefreshToken();
-        return this.kreta.getTests(fromDate, toDate, forceRefresh, this.tokens, this.institute, this.cacheIds.tests)
+        return this.kreta.getTests(fromDate, toDate, forceRefresh, skipCache, this.tokens, this.institute, this.cacheIds.tests)
     }
     public async getMessageListMobile(forceRefresh: boolean) {
         await this.loginWithRefreshToken();
@@ -901,12 +477,10 @@ export class User {
         await this.loginWithRefreshToken();
         return await this.kreta.getTeacherHomeworks(fromDate, toDate, homeworkId, this.tokens, this.institute, this.cacheIds.teacherHomeworks);
     }
-
     public async changeHomeworkState(done: boolean, teacherHomeworkId: number) {
         await this.loginWithRefreshToken();
         await this.kreta.changeHomeworkState(done, teacherHomeworkId, this.tokens, this.institute);
     }
-
     /**
      * Gets a full message with the whole text
      * @param messageId
@@ -976,29 +550,9 @@ export class User {
     public isAdministrationRegistered() {
         return this.administrationTokens != null;
     }
-    public getMessageList(state: 'inbox' | 'outbox' | 'deleted', forceRefresh: boolean = false) {
-        let returnVal = new Subject<MessageListItem[]>();
-        this.storage.get(this.cacheIds[`${state}MessageList`]).then(cacheData => {
-            if (cacheData != null && !forceRefresh) {
-                returnVal.next(cacheData.data);
-            }
-            this.loginWithRefreshToken('administration').then(tokens => {
-                if (!this.cache.isCacheValid(cacheData) || forceRefresh) {
-                    this.administrationService.getMessageList(state, this.administrationTokens).then(data => {
-                        returnVal.next(data);
-                        this.cache.updateCache(this.cacheIds[`${state}MessageList`], data);
-                        returnVal.complete()
-                    }).catch(error => {
-                        returnVal.error(error);
-                    });
-                } else {
-                    returnVal.complete();
-                }
-            }).catch(error => {
-                returnVal.error(error);
-            });
-        });
-        return returnVal;
+    public async getMessageList(state: 'inbox' | 'outbox' | 'deleted') {
+        await this.loginWithRefreshToken('administration');
+        return this.administrationService.getMessageList(state, this.administrationTokens);
     }
     public async getMessageAdministration(messageId: number): Promise<AdministrationMessage> {
         await this.loginWithRefreshToken('administration');
@@ -1064,27 +618,15 @@ export class User {
     }
     //#endregion
 }
-interface LoadedStudent {
-    data: Student;
-    type: "skeleton" | "placeholder" | "final";
+export interface userInitData {
+    id: number;
+    tokens: Token;
+    adminstrationTokens: Token;
+    institute: Institute;
+    fullName: string;
+    notificationsEnabled: boolean;
+    lastNotificationSetTime: number;
 }
-interface LoadedTests {
-    data: Test[];
-    type: "skeleton" | "placeholder" | "final";
-}
-interface LoadedMessageList {
-    data: Message[];
-    type: "skeleton" | "placeholder" | "final";
-}
-interface LoadedEvents {
-    data: Event[];
-    type: "skeleton" | "placeholder" | "final";
-}
-type LoadedCombined = {
-    [request in 'Student' | 'Tests' | 'Events' | 'MessageList']: any;
-} & {
-    type: "skeleton" | "placeholder" | "final";
-};
 export interface CollapsibleCombined {
     index: number;
     header: string;
@@ -1096,13 +638,4 @@ export interface CollapsibleCombined {
     showDocs: boolean;
     showMessages: boolean;
     showAll: boolean;
-}
-export interface userInitData {
-    id: number;
-    tokens: Token;
-    adminstrationTokens: Token;
-    institute: Institute;
-    fullName: string;
-    notificationsEnabled: boolean;
-    lastNotificationSetTime: number;
 }

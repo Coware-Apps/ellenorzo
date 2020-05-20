@@ -101,46 +101,54 @@ export class UserAgentPage implements OnInit {
         spinner: "lines",
       });
       await loading.present();
-      let currentTest: TestData = {
-        UA: this.currentUA,
-        data: [],
-        average: 0,
-      };
-      //getting the first day and last day to show
-      let weekFirst;
-      let weekLast;
-      let today = new Date().getDay();
-      console.log("today", today);
-      if (today == 0 || today == 6) {
-        weekFirst = this.fDate.getWeekFirst(1);
-        weekLast = this.fDate.getWeekLast(1);
-      } else {
-        weekFirst = this.fDate.getWeekFirst();
-        weekLast = this.fDate.getWeekLast();
+
+      try {
+        let currentTest: TestData = {
+          UA: this.currentUA,
+          data: [],
+          average: 0,
+        };
+        //getting the first day and last day to show
+        let weekFirst;
+        let weekLast;
+        let today = new Date().getDay();
+        console.log("today", today);
+        if (today == 0 || today == 6) {
+          weekFirst = this.fDate.getWeekFirst(1);
+          weekLast = this.fDate.getWeekLast(1);
+        } else {
+          weekFirst = this.fDate.getWeekFirst();
+          weekLast = this.fDate.getWeekLast();
+        }
+
+        for (let i = 0; i < 5; i++) {
+          let labRes = await this.userManager.currentUser.getLessonLAB(weekFirst, weekLast, this.currentUA);
+          currentTest.data.push(labRes ? labRes : 0);
+          await this.delay(2000);
+        }
+
+        let average = 0;
+        currentTest.data.forEach(time => {
+          average += time;
+        })
+        average = average / currentTest.data.length;
+        currentTest.average = average;
+
+        this.testData.push(currentTest);
+        this.hasItLoaded = true;
+        this.showLine(this.testData);
+
+        if (clickCount == 5) {
+          this.prompt.toast(this.translator.instant('pages.user-agent.hourlyLimitReachedText'), true);
+        }
+        antiSpamUA = new Date().valueOf() + '&' + clickCount;
+        await this.storage.set('antiSpamUA', antiSpamUA);
+
+      } catch (error) {
+        throw error;
+      } finally {
+        await loading.dismiss();
       }
-
-      for (let i = 0; i < 5; i++) {
-        currentTest.data.push(await this.userManager.currentUser.getLessonLAB(weekFirst, weekLast, this.currentUA));
-        await this.delay(2000);
-      }
-
-      let average = 0;
-      currentTest.data.forEach(time => {
-        average += time;
-      })
-      average = average / currentTest.data.length;
-      currentTest.average = average;
-
-      this.testData.push(currentTest);
-      this.hasItLoaded = true;
-      this.showLine(this.testData);
-
-      if (clickCount == 5) {
-        this.prompt.toast(this.translator.instant('pages.user-agent.hourlyLimitReachedText'), true);
-      }
-      antiSpamUA = new Date().valueOf() + '&' + clickCount;
-      await this.storage.set('antiSpamUA', antiSpamUA);
-      await loading.dismiss();
     }
   }
 

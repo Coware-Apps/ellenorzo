@@ -44,27 +44,33 @@ export class NotificationSettingsPage implements OnInit {
   }
 
   async enableNotificationsForUser(userId: number) {
-    console.log('userId', userId);
     let loading = await this.loadingCtrl.create({
       spinner: "crescent",
       message: this.translator.instant('pages.notification-settings.operationInProgressText')
     });
     await loading.present();
-    await this.notificationService.cancelAllNotifications();
-    for (let i = 0; i < this.userManager.allUsers.length; i++) {
-      if (this.userManager.allUsers[i].id == userId) {
-        this.userManager.allUsers[i].localNotificationsEnabler(true);
-      } else {
-        this.userManager.allUsers[i].localNotificationsEnabler(false);
+
+    try {
+      await this.notificationService.cancelAllNotifications();
+
+      for (let i = 0; i < this.userManager.allUsers.length; i++) {
+        if (this.userManager.allUsers[i].id == userId) {
+          this.userManager.allUsers[i].localNotificationsEnabler(true);
+        } else {
+          this.userManager.allUsers[i].localNotificationsEnabler(false);
+        }
       }
-    }
-    for (let i = 0; i < this.userManager.allUsers.length; i++) {
-      if (this.userManager.allUsers[i].notificationsEnabled) {
-        await this.userManager.allUsers[i].setLocalNotifications(2);
+      for (let i = 0; i < this.userManager.allUsers.length; i++) {
+        if (this.userManager.allUsers[i].notificationsEnabled) {
+          await this.userManager.allUsers[i].setLocalNotifications(2);
+        }
       }
+      await this.app.changeConfig('usersInitData', this.app.usersInitData);
+    } catch (error) {
+      throw error;
+    } finally {
+      await loading.dismiss();
     }
-    await this.app.changeConfig('usersInitData', this.app.usersInitData);
-    await loading.dismiss();
   }
 
   async showScheduledNotifications() {

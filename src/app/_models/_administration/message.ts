@@ -78,6 +78,12 @@ export interface AttachmentToSend {
     fajlNev: string;
     fajl: {
         ideiglenesFajlAzonosito: string;
+        /** set to '' */
+        utvonal?: string;
+        /** set to 'Local' */
+        fileHandler?: string;
+        /** set to null */
+        azonosito?: any;
     };
     iktatoszam?: any;
     /**

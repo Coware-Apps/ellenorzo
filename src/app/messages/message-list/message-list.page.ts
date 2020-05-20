@@ -95,11 +95,18 @@ export class MessageListPage implements OnDestroy, OnInit {
       return;
     }
     this.error = null;
-    this.userManager.currentUser.getMessageList(this.folder, forceRefresh).pipe(takeUntil(this.willLeaveUnsubscribe$)).subscribe(
+    this.userManager.currentUser.getAsyncAsObservableWithCache(
+      [{
+        name: 'getMessageList',
+        cacheKey: `${this.folder}MessageList`,
+        params: [this.folder]
+      }],
+      forceRefresh
+    ).pipe(takeUntil(this.willLeaveUnsubscribe$)).subscribe(
       {
         next: d => {
-          if (d) {
-            this.messages = d;
+          if (d[0]) {
+            this.messages = d[0];
             this.messages = this.messages.sort((a, b) => new Date(b.uzenetKuldesDatum).valueOf() - new Date(a.uzenetKuldesDatum).valueOf());
             this.displayedMessages = this.messages
             this.componentState = "loadedProgress";

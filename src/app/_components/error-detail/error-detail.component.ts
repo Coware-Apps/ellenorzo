@@ -13,6 +13,7 @@ import { GlobalError } from 'src/app/_exceptions/global-exception';
 export class ErrorDetailComponent implements OnInit {
 
   @Input() public error: GlobalError | any;
+  @Input() public showTranslatorKeys: boolean = true;
   public showMore = false;
   constructor(
     private clipboard: Clipboard,

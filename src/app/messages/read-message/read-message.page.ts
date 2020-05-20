@@ -147,25 +147,22 @@ export class ReadMessagePage implements OnInit {
     let attachment = this.message.uzenet.csatolmanyok.find(x => x.azonosito == id);
     attachment.loading = true;
 
-    try {
-      const fileEntry = await this.userManager.currentUser.getAttachmentThroughAdministration(id, fullName);
+    const fileEntry = await this.userManager.currentUser.getAttachmentThroughAdministration(id, fullName);
 
-      fileEntry.file(file => {
-        this.FileOpener.open(fileEntry.nativeURL, file.type)
-          .catch(error => {
-            this.prompt.showDetailedToast(
-              this.translator.instant('pages.read-message.cannotOpenFile.title'),
-              this.translator.instant('pages.read-message.cannotOpenFile.text'),
-              3000,
-            )
-          });
+
+    fileEntry.file(file => {
+      this.FileOpener.open(fileEntry.nativeURL, file.type).catch(error => {
+        console.error('Couldnt open file', error);
+
+        this.prompt.showDetailedToast(
+          this.translator.instant('pages.read-message.cannotOpenFile.title'),
+          this.translator.instant('pages.read-message.cannotOpenFile.text'),
+          3000,
+        )
+
+        throw error;
       });
-    } catch (error) {
-      console.log('THIS SHIT THREW AN ERROR');
-
-      throw error;
-    } finally {
-      attachment.loading = false;
-    }
+    });
+    attachment.loading = false;
   }
 }

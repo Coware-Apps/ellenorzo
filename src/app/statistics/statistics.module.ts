@@ -8,6 +8,7 @@ import { StatisticsPageRoutingModule } from './statistics-routing.module';
 
 import { StatisticsPage } from './statistics.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from '../_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     StatisticsPageRoutingModule,
     TranslateModule,
+    ComponentsModule,
   ],
   declarations: [StatisticsPage]
 })

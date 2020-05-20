@@ -117,7 +117,7 @@ export class GraphsPage implements OnInit {
     this.firebase.setScreenName('graphs');
   }
 
-  ionViewDidEnter() {
+  ionViewWillEnter() {
     this.chartSwitch(this.statisticsType);
   }
 

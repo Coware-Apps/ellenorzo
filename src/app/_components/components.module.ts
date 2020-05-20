@@ -16,6 +16,7 @@ import { TestComponent } from './test/test.component';
 import { MessageCardComponent } from './message-card/message-card.component';
 import { LessonComponent } from './lesson/lesson.component';
 import { AverageComponent } from './average/average.component';
+import { KretaErrorComponent } from './kreta-error/kreta-error.component';
 
 @NgModule({
     declarations: [
@@ -32,6 +33,7 @@ import { AverageComponent } from './average/average.component';
         MessageCardComponent,
         LessonComponent,
         AverageComponent,
+        KretaErrorComponent,
     ],
     imports: [
         CommonModule,
@@ -52,7 +54,8 @@ import { AverageComponent } from './average/average.component';
         TestComponent,
         MessageCardComponent,
         LessonComponent,
-        AverageComponent
+        AverageComponent,
+        KretaErrorComponent,
     ],
     providers: [],
 })

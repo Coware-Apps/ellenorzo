@@ -1,14 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { stringify } from 'querystring';
-import { Lesson } from '../_models/lesson';
-import { Institute } from '../_models/institute';
-import { Student } from '../_models/student';
-import { Test } from '../_models/test';
 import { PromptService } from './prompt.service';
-import { Message } from '../_models/message';
-import { DataService } from './data.service';
-import { Event } from '../_models/event';
 
 interface storedData {
   data: any;

@@ -275,7 +275,7 @@ export class AverageGraphsPage implements OnInit {
     this.drawGraphTypes('all');
   }
 
-  ionViewDidEnter() {
+  ionViewWillEnter() {
     this.drawGraphTypes("all");
   }
 

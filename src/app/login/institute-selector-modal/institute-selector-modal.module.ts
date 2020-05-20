@@ -8,6 +8,7 @@ import { InstituteSelectorModalPageRoutingModule } from './institute-selector-mo
 
 import { InstituteSelectorModalPage } from './institute-selector-modal.page';
 import { TranslateModule } from '@ngx-translate/core';
+import { ComponentsModule } from 'src/app/_components/components.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
     IonicModule,
     InstituteSelectorModalPageRoutingModule,
     TranslateModule,
+    ComponentsModule,
   ],
   declarations: [InstituteSelectorModalPage]
 })

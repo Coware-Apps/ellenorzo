@@ -1,20 +1,20 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormattedDateService } from '../_services/formatted-date.service';
-import { Student, Absence } from '../_models/student';
-import { IonSlides, AlertController, IonContent } from '@ionic/angular';
-import { ColorService } from '../_services/color.service';
+import { Student } from '../_models/student';
+import { IonSlides, IonContent } from '@ionic/angular';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { PromptService } from '../_services/prompt.service';
 import { CollapsifyService, UniversalSortedData } from '../_services/collapsify.service';
-import { Observable, Subscription, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { TranslateService } from '@ngx-translate/core';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { takeUntil } from 'rxjs/operators';
+import { KretaError } from '../_exceptions/kreta-exception';
 
 interface AbsenceGroup {
   data: UniversalSortedData[];
-  empty: boolean;
   name: string;
   fullName: string;
 }
@@ -27,17 +27,14 @@ export class AbsencesPage implements OnInit {
   @ViewChild('slides', { static: true }) slides: IonSlides;
   @ViewChild('scroll', { static: true }) content: IonContent;
 
+  public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
   public focused: number;
   public title: string;
-  public sans;
-  public scroll: boolean;
   public a: boolean;
   public totalAbsences: number;
-  public allAbsences: Observable<AbsenceGroup[]>;
-  public showProgressBar: boolean;
+  public allAbsences: AbsenceGroup[] = [];
+  public error: KretaError;
 
-  private studentSubscription: Subscription;
-  private reloaderSubscription: Subscription;
   public unsubscribe$: Subject<void>;
 
   constructor(
@@ -45,8 +42,6 @@ export class AbsencesPage implements OnInit {
     public app: AppService,
 
     private hw: HwBackButtonService,
-    private alertCtrl: AlertController,
-    private color: ColorService,
     private firebase: FirebaseX,
     private prompt: PromptService,
     private collapsifyService: CollapsifyService,
@@ -57,175 +52,155 @@ export class AbsencesPage implements OnInit {
     this.title = this.translator.instant('pages.absences.justifiedTitle');
     this.a = false;
     this.totalAbsences = 0;
-    this.showProgressBar = true;
-    this.sans = true;
   }
 
   async ngOnInit() {
     this.firebase.setScreenName('absences');
   }
 
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
-    await this.loadData();
-    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
-      if (value == 'reload') {
-        this.sans = true;
-        this.showProgressBar = true;
-        this.studentSubscription.unsubscribe();
+    this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(val => {
+      if (val == 'reload') {
+        this.componentState = 'loading';
         this.loadData();
       }
     });
+    this.loadData();
   }
 
   ionViewWillLeave() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    if (this.studentSubscription != null) {
-      this.studentSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
-  private async loadData() {
-    this.allAbsences = new Observable<AbsenceGroup[]>((observer) => {
-      this.studentSubscription = this.userManager.currentUser.student.subscribe(subscriptionData => {
-        if (subscriptionData.type == "skeleton") {
-          this.sans = true;
-          this.showProgressBar = true;
-          //there is no data in the storage, showing skeleton text until the server responds
-        } else if (subscriptionData.type == "placeholder") {
-          //there is data in the storage, showing that data (placeholder) until the server responds, disabling skeleton text
-          observer.next(this.formatStudent(subscriptionData.data));
-          this.sans = false;
-          this.showProgressBar = true;
-        } else {
-          //the server has now responded, disabling progress bar and skeleton text if it's still there
-          observer.next(this.formatStudent(subscriptionData.data));
-          this.showProgressBar = false;
-          this.sans = false;
+  private async loadData(forceRefresh: boolean = false, event?) {
+
+
+    this.userManager.currentUser.getAsyncAsObservableWithCache<[Student]>(
+      [{
+        name: "getStudent",
+        cacheKey: "student",
+        params: [null, null, true]
+      }],
+      forceRefresh
+    ).pipe(takeUntil(this.unsubscribe$)).subscribe(
+      {
+        next: d => {
+          if (d[0]) {
+            this.totalAbsences = this.getTotalMinutes(d[0]);
+            this.allAbsences = this.formatStudent(d[0]);
+            this.componentState == 'loadedProgress'
+          }
+        },
+        complete: () => {
+          if (event) event.target.complete();
+
+          this.setComponentState();
+        },
+        error: (error) => {
+          console.error(error);
+          this.error = error;
+
+          if (event) event.target.complete();
+
+          if (!this.allAbsences || (this.allAbsences && this.allAbsences.length == 0)) {
+            this.componentState = 'error';
+            error.isHandled = true;
+          } else {
+            this.componentState = 'loaded'
+          }
+
+          throw error;
         }
-      });
-    });
-    await this.userManager.currentUser.initializeStudent();
+      }
+    )
+  }
+
+  private setComponentState() {
+    if (!this.allAbsences) {
+      this.componentState = 'error'
+    } else if (
+      this.allAbsences.findIndex(absGroup => absGroup.data && absGroup.data.length > 0) == -1
+    ) {
+      this.componentState = 'empty'
+    } else {
+      this.componentState = 'loaded'
+    }
   }
 
   private formatStudent(student: Student): AbsenceGroup[] {
-    let allAbsences: AbsenceGroup[] = [];
-    let justifiedEmpty = true;
-    let unJustifiedEmpty = true;
-    let beJustifiedEmpty = true;
-    let justifiedAbsences: Absence[] = [];
-    let unJustifiedAbsences: Absence[] = [];
-    let beJustifiedAbsences: Absence[] = [];
+    const categories: string[] = [
+      'Justified',
+      'BeJustified',
+      'UnJustified'
+    ]
 
-    this.focused = 0;
-    for (let i = 0; i < student.Absences.length; i++) {
-
-      this.totalAbsences += student.Absences[i].Type == 'Delay' ? student.Absences[i].DelayTimeMinutes : 45;
-
-      switch (student.Absences[i].JustificationStateName) {
-        case "Igazolt mulasztás":
-          justifiedAbsences.push(student.Absences[i]);
-          justifiedEmpty = false;
-          break;
-
-        case "Igazolandó mulasztás":
-          beJustifiedAbsences.push(student.Absences[i]);
-          beJustifiedEmpty = false;
-          break;
-
-        default:
-          unJustifiedAbsences.push(student.Absences[i]);
-          unJustifiedEmpty = false;
-          break;
+    return categories.map(c => {
+      return {
+        name: c.charAt(0).toLowerCase() + c.slice(1),
+        data:
+          this.collapsifyService.closeAllOpenTop(
+            this.collapsifyService.collapsifyByDates(
+              student.Absences.filter(abs => abs.JustificationState == c),
+              'LessonStartTime'
+            )
+          ),
+        fullName: this.translator.instant(`pages.absences.${c.charAt(0).toLowerCase() + c.slice(1)}`),
       }
-    }
+    });
+  }
 
-    allAbsences[0] = {
-      data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(justifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
-      empty: justifiedEmpty,
-      name: 'justified',
-      fullName: this.translator.instant('pages.absences.justified'),
-    };
-    allAbsences[1] = {
-      data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(beJustifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
-      empty: beJustifiedEmpty,
-      name: 'beJustified',
-      fullName: this.translator.instant('pages.absences.beJustified'),
-    }
-    allAbsences[2] = {
-      data: this.collapsifyService.closeAllOpenTop(this.collapsifyService.collapsifyByDates(unJustifiedAbsences, 'LessonStartTime', 'LessonStartTime')),
-      empty: unJustifiedEmpty,
-      name: 'unJustified',
-      fullName: this.translator.instant('pages.absences.unJustified'),
-    }
-    return allAbsences;
+  private getTotalMinutes(student: Student): number {
+    let r = 0;
+    student.Absences.forEach(abs => {
+      if (abs.Type == 'Delay') {
+        r += abs.DelayTimeMinutes;
+      } else {
+        r += 45;
+      }
+    });
+    return r;
   }
 
   async ionSlideWillChange() {
     this.focused = await this.slides.getActiveIndex();
-    switch (this.focused) {
-      case 0:
-        this.title = this.translator.instant('pages.absences.justifiedTitle');
-        break;
-      case 1:
-        this.title = this.translator.instant('pages.absences.beJustifiedTitle');
-        break;
-      case 2:
-        this.title = this.translator.instant('pages.absences.unJustifiedTitle');
-        break;
-    }
+    const keys = ['justifiedTitle', 'beJustifiedTitle', 'unJustifiedTitle'];
+
+    this.title = this.translator.instant(`pages.absences.${keys[this.focused]}`)
   }
 
   async getData(event: any) {
     if (await this.slides.getActiveIndex() == this.focused) {
       //the segment's ionChange event wasn't fired by a slide moving
-      let day = event.detail.value;
-      this.focused = day;
-      this.slides.slideTo(day);
-      switch (day) {
-        case 0:
-          this.title = this.translator.instant('pages.absences.justifiedTitle');
-          break;
-        case 1:
-          this.title = this.translator.instant('pages.absences.beJustifiedTitle');
-          break;
-        case 2:
-          this.title = this.translator.instant('pages.absences.unJustifiedTitle');
-          break;
-      }
+      this.focused = event.detail.value;
+      const keys = ['justifiedTitle', 'beJustifiedTitle', 'unJustifiedTitle'];
+
+      this.slides.slideTo(this.focused);
+      this.title = this.translator.instant(`pages.absences.${keys[this.focused]}`)
     }
   }
 
-  getMoreData(absence: Absence) {
-    this.prompt.absenceAlert(absence);
-  }
-
-  async doRefresh(event: any) {
-    this.showProgressBar = true;
-    await this.userManager.currentUser.updateStudent();
-    event.target.complete();
+  async doRefresh(event?) {
+    if (this.componentState == 'error') {
+      this.componentState = 'loading';
+    } else {
+      this.componentState = 'loadedProgress';
+    }
+    this.loadData(true, event);
   }
 
   scrollToTop() {
-    this.content.scrollToTop();
+    this.content.scrollToTop(300);
   }
 
   ionScroll(event) {
-    if (event.detail.scrollTop == 0) {
-      this.a = false;
-    }
-    else {
-      this.a = true;
-    }
+    this.a = event.detail.scrollTop != 0;
   }
 
   showTotal() {
-    this.presentAlert(
+    this.prompt.presentUniversalAlert(
       this.translator.instant('pages.absences.totalAlert.title'),
       null,
       this.translator.instant('pages.absences.totalAlert.totalText') +
@@ -236,19 +211,7 @@ export class AbsencesPage implements OnInit {
       " " +
       this.totalAbsences % 45 +
       " " +
-      this.translator.instant('pages.absences.totalAlert.minuteUnit'),
-      this.color.getPopUpClass());
+      this.translator.instant('pages.absences.totalAlert.minuteUnit')
+    );
   }
-
-  async presentAlert(header: string, subHeader: string, message: string, css: string) {
-    const alert = await this.alertCtrl.create({
-      cssClass: css,
-      header: header,
-      subHeader: subHeader,
-      message: message,
-      buttons: ['OK']
-    });
-    await alert.present();
-  }
-
 }

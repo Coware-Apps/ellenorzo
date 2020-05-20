@@ -65,7 +65,7 @@ export class AdministrationFileError extends AdministrationHttpError {
         this.fileName = fileName;
     }
 }
-export class AdministrationInvalidGrantErorr extends AdministrationHttpError {
+export class AdministrationInvalidGrantError extends AdministrationHttpError {
     constructor(queryName: string, httpErrorObject: HTTPResponse) {
         super(queryName, httpErrorObject, 'invalid-grant.title', 'invalid-grant.text');
     }

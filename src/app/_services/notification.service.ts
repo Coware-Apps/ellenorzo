@@ -1,12 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Storage } from '@ionic/storage';
 import { FormattedDateService } from './formatted-date.service';
 import { LocalNotifications, ILocalNotification } from '@ionic-native/local-notifications/ngx';
-import { Router } from '@angular/router';
 import { Lesson } from '../_models/lesson';
 import { TranslateService } from '@ngx-translate/core';
-import { Platform } from '@ionic/angular';
-import { AppService } from './app.service';
 
 @Injectable({
   providedIn: 'root'

@@ -12,11 +12,14 @@
 </ion-header>
 
 <ion-content>
+
   <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
     (ionRefresh)="doRefresh($event)">
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
+
+  <!-- DATA DISPLAY -->
   <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
     <ion-slide *ngFor="let day of getDisplayDays()">
       <ion-list *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
@@ -25,9 +28,10 @@
     </ion-slide>
   </ion-slides>
 
-  <app-empty *ngIf="componentState == 'empty' || componentState == 'error'" translatorKey="pages.list.emptyText"
-    icon="calendar-outline"></app-empty>
+  <!-- EMPTY -->
+  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.list.emptyText" icon="calendar-outline"></app-empty>
 
+  <!-- SKELETON -->
   <div *ngIf="this.componentState == 'loading'">
     <ion-list>
       <ion-item-divider>
@@ -99,7 +103,11 @@
     </ion-list>
   </div>
 
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>
+
 <ion-footer>
   <ion-toolbar>
     <ion-buttons class="justify-content-center align-items-center" style="height: 100%; flex-direction: column">

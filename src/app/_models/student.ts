@@ -1,3 +1,4 @@
+import { Injectable } from "@angular/core";
 
 export interface CollapsibleStudent {
     index: number;
@@ -11,11 +12,10 @@ export interface CollapsibleStudent {
 }
 
 export interface evaluation {
-    //don't use this for id bc: https://github.com/boapps/e-kreta-api-docs
+    //don't use this for id
     EvaluationId: number;
     //This can be "Mark" which is a regular grade or "Text" or "Percent"
     Form: string;
-    //Some weird description of how its a num betw 1 and 5
     FormName: string;
     //HalfYear/MidYear/EndYear
     Type: string;
@@ -48,7 +48,6 @@ export interface evaluation {
 }
 export interface SubjectAverage {
     Subject: string;
-    //whaaaaaaaaaaaat are subject categories?
     Value: number;
     ClassValue: number;
     Difference: number;
@@ -65,10 +64,10 @@ export interface Absence {
     DelayTimeMinutes: number;
     Teacher: string;
     LessonStartTime: string;
-    //"UnJustified"/?
+    /*"UnJustified"/"BeJustified"/"Justified"*/
     JustificationState: string;
     JustificationStateName: string;
-    //when have the parents seen it? if they haven't, it's null
+    /*when have the parents seen it? if they haven't, it's null*/
     SeenByTutelaryUTC: string;
 
     JustificationType?: string;
@@ -76,7 +75,7 @@ export interface Absence {
 }
 export interface Note {
     NoteId: number;
-    //"Elektronikus üzenet"
+    /*"Elektronikus üzenet"*/
     Type: string;
     Title: string;
     Content: string;
@@ -111,6 +110,7 @@ export interface Jelleg {
     Leiras: string;
 }
 
+@Injectable()
 export class Student {
     //studentID
     public StudentId: number;

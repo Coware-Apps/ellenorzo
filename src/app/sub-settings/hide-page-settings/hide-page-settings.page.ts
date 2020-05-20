@@ -35,7 +35,7 @@ export class HidePageSettingsPage implements OnInit {
     this.firebase.setScreenName('hide-page-settings');
   }
 
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     this.appPages = this.app.appPages;
     let storedPages = await this.storage.get('sidemenu');
     console.time('loops')

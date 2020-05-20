@@ -5,6 +5,7 @@ import { Institute } from 'src/app/_models/institute';
 import { DataService } from 'src/app/_services/data.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { DiacriticsHelper } from 'src/app/_helpers/diacritics-helper';
+import { KretaError } from 'src/app/_exceptions/kreta-exception';
 
 @Component({
   selector: 'app-institute-selector-modal',
@@ -13,8 +14,10 @@ import { DiacriticsHelper } from 'src/app/_helpers/diacritics-helper';
 })
 export class InstituteSelectorModalPage implements OnInit {
 
+  public componentState: "loaded" | "empty" | "error" | "loading" = "loading";
   public institutes: Institute[];
   public filteredInstitutes: Institute[];
+  public error: KretaError;
 
   constructor(
     private kreta: KretaService,
@@ -25,11 +28,35 @@ export class InstituteSelectorModalPage implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.institutes = await this.kreta.getInstituteList();
-    this.filteredInstitutes = this.institutes;
     this.firebase.setScreenName('institute-selector-modal');
+    this.loadData();
   }
-  ngOnDestroy(): void { }
+
+  async loadData(forceRefresh: boolean = false, event?) {
+    try {
+      this.institutes = await this.kreta.getInstituteList();
+      this.filteredInstitutes = this.institutes;
+      this.componentState = 'loaded';
+    } catch (error) {
+      console.error(error);
+      this.error = error;
+
+      if (!this.institutes) {
+        this.componentState = 'error';
+        error.isHandled = true;
+      } else {
+        this.componentState = 'loaded'
+      }
+      throw error;
+    } finally {
+      if (event) event.target.complete();
+    }
+  }
+
+  doRefresh(event?) {
+    this.componentState = 'loading';
+    this.loadData(true, event);
+  }
 
   doFilter($event) {
     const search = this.diacriticsHelper.removeDiacritics(

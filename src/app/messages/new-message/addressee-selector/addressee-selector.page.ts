@@ -161,7 +161,7 @@ export class AddresseeSelectorPage implements OnInit {
     }
     this.sans = false;
   }
-  ionViewDidEnter() {
+  ionViewWillEnter() {
     if (this.dataService.getData("currentAddresseeList") != null) {
       this.finalAddresseeList = this.dataService.getData(
         "currentAddresseeList"

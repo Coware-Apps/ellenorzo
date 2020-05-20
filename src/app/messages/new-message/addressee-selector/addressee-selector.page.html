@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-item color="brand">
+  <ion-item lines="none" color="brand">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="messages/new-message"></ion-back-button>
     </ion-buttons>
@@ -19,7 +19,8 @@
       </ion-button>
     </ion-buttons>
   </ion-item>
-  <ion-item *ngIf="this.showSearchbar || this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK'">
+  <ion-item color="brand"
+    *ngIf="this.showSearchbar || this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK'">
     <ion-searchbar (ionCancel)="this.showSearchbar = false" class="slide-top" *ngIf="this.showSearchbar" animated
       showCancelButton="250" placeholder="{{'pages.addressee-selector.searchPlaceholder' | translate}}"
       [(ngModel)]="filter" (ionInput)="doFilter($event)" [debounce]="250" [disabled]="this.sans">

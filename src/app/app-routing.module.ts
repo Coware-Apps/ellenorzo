@@ -3,11 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { NavigationGuard } from './_guards/navigation.guard';
 
 const routes: Routes = [
-  {
-    path: '',
-    redirectTo: '/home?startup=true',
-    pathMatch: 'full',
-  },
+
   {
     path: 'home',
     loadChildren: () => import('./home/home.module').then(m => m.HomePageModule),
@@ -130,9 +126,10 @@ const routes: Routes = [
     path: 'home-settings',
     loadChildren: () => import('./sub-settings/home-settings/home-settings.module').then(m => m.HomeSettingsPageModule),
     canActivate: [NavigationGuard]
-  },  {
+  },
+  {
     path: 'login-administration',
-    loadChildren: () => import('./login-administration/login-administration.module').then( m => m.LoginAdministrationPageModule)
+    loadChildren: () => import('./login-administration/login-administration.module').then(m => m.LoginAdministrationPageModule)
   }
 
 ];

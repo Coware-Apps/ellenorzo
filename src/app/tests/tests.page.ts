@@ -2,10 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormattedDateService } from '../_services/formatted-date.service';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { UniversalSortedData, CollapsifyService } from '../_services/collapsify.service';
-import { Observable, Subscription, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AppService } from '../_services/app.service';
 import { UserManagerService } from '../_services/user-manager.service';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { takeUntil } from 'rxjs/operators';
+import { Test } from '../_models/test';
+import { KretaError } from '../_exceptions/kreta-exception';
 
 
 @Component({
@@ -14,13 +17,10 @@ import { HwBackButtonService } from '../_services/hw-back-button.service';
   styleUrls: ['./tests.page.scss'],
 })
 export class TestsPage implements OnInit {
-  public sans: boolean;
-  public showProgressBar: boolean;
-  public testsByMonth: Observable<UniversalSortedData[]>;
-  public monthsName: string[];
+  public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
+  public testsByMonth: UniversalSortedData[];
+  public error: KretaError;
 
-  private testsSubscription: Subscription;
-  private reloaderSubscription: Subscription;
   public unsubscribe$: Subject<void>;
 
   constructor(
@@ -32,61 +32,82 @@ export class TestsPage implements OnInit {
     private userManager: UserManagerService,
     private hw: HwBackButtonService,
   ) {
-    this.monthsName = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-    this.sans = true;
-    this.showProgressBar = true;
   }
 
   async ngOnInit() {
     this.firebase.setScreenName('tests');
   }
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
-    await this.loadData();
-    this.reloaderSubscription = this.userManager.reloader.subscribe(value => {
-      if (value == 'reload') {
-        this.sans = true;
-        this.showProgressBar = true;
-        this.testsSubscription.unsubscribe();
+    this.userManager.reloader.pipe(takeUntil(this.unsubscribe$)).subscribe(val => {
+      if (val == 'reload') {
+        this.componentState = 'loading';
         this.loadData();
       }
     });
+    this.loadData();
   }
   ionViewWillLeave() {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
-    if (this.testsSubscription != null) {
-      this.testsSubscription.unsubscribe();
-    }
-    if (this.reloaderSubscription != null) {
-      this.reloaderSubscription.unsubscribe();
-    }
   }
 
-  private async loadData() {
-    this.testsByMonth = new Observable<UniversalSortedData[]>((observer) => {
-      this.testsSubscription = this.userManager.currentUser.tests.subscribe(subscriptionData => {
-        if (subscriptionData.type == "skeleton") {
-          this.sans = true;
-          this.showProgressBar = true;
-        } else if (subscriptionData.type == "placeholder") {
-          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data, 'Datum'));
-          this.sans = false;
-          this.showProgressBar = true;
-        } else {
-          observer.next(this.collapsifyService.collapsifyByMonths(subscriptionData.data, 'Datum'));
-          this.showProgressBar = false;
-          this.sans = false;
+  private loadData(forceRefresh: boolean = false, event?) {
+    this.userManager.currentUser.getAsyncAsObservableWithCache<[Test[]]>(
+      [{
+        name: "getTests",
+        cacheKey: "tests",
+        params: [null, null, true]
+      }],
+      forceRefresh
+    ).pipe(takeUntil(this.unsubscribe$)).subscribe(
+      {
+        next: d => {
+          if (d[0]) {
+            this.testsByMonth = this.collapsifyService.collapsifyByMonths(d[0], 'Datum')
+          }
+        },
+        complete: () => {
+          if (event) event.target.complete();
+
+          this.setComponentState();
+        },
+        error: (error) => {
+          console.error(error);
+          this.error = error;
+
+          if (event) event.target.complete();
+
+          if (!this.testsByMonth || (this.testsByMonth && this.testsByMonth.findIndex(md => md.data && md.data.length > 0) == -1)) {
+            this.componentState = 'error';
+            error.isHandled = true;
+          } else {
+            this.componentState = 'loaded'
+          }
+
+          throw error;
         }
-      });
-    });
-    await this.userManager.currentUser.initializeTests()
+      }
+    )
   }
-
-  async doRefresh(event: any) {
-    this.showProgressBar = true;
-    await this.userManager.currentUser.updateTests();
-    event.target.complete();
+  private setComponentState() {
+    if (!this.testsByMonth) {
+      this.componentState = 'error'
+    } else if (
+      this.testsByMonth.findIndex(md => md.data && md.data.length > 0) == -1
+    ) {
+      this.componentState = 'empty'
+    } else {
+      this.componentState = 'loaded'
+    }
+  }
+  async doRefresh(event?) {
+    if (this.componentState == 'error') {
+      this.componentState = 'loading';
+    } else {
+      this.componentState = 'loadedProgress';
+    }
+    this.loadData(true, event);
   }
 }

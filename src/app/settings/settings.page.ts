@@ -88,7 +88,7 @@ export class SettingsPage implements OnInit {
     this.firebase.setScreenName('settings');
   }
 
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
     await this.menuCtrl.enable(true);

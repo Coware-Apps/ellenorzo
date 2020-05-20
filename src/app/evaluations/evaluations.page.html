@@ -5,103 +5,119 @@
     </ion-buttons>
     <ion-title>{{'pages.evaluations.title' | translate}}</ion-title>
     <ion-buttons slot="end">
-      <ion-button [disabled]="this.showProgressBar" (click)="this.openCategorySelector($event)">
+      <ion-button [disabled]="this.componentState != 'loaded' && this.componentState != 'loadedProgress'"
+        (click)="this.openCategorySelector($event)">
         <ion-icon slot="icon-only" name="filter-sharp"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
+    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
+    </ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-select #categorySelector [(ngModel)]="selected" [disabled]="this.sans" (ionChange)="selectorChanged($event)"
+  <ion-select #categorySelector [(ngModel)]="selected" (ionChange)="selectorChanged($event)"
     [interfaceOptions]="customAlertOptions" interface="popover" slot="end">
     <ion-select-option *ngFor="let option of selectOptions" value="{{option.id}}">{{option.name}}
     </ion-select-option>
   </ion-select>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
     (ionRefresh)="doRefresh($event)">
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
-  <ion-list [hidden]="this.selected != item.id" *ngFor="let item of this.selectOptionsWithData | async">
-    <ion-item *ngIf="this.sans == false" [hidden]="item.data.length != 0" style="text-align: center;">
-      <ion-label style="text-align: center">{{'pages.evaluations.noEvaluationsText' | translate}}</ion-label>
-    </ion-item>
-    <!-- Grouped -->
-    <!-- bySubject -->
-    <div *ngIf="item.id == 'bySubject'">
-      <div *ngFor="let dataGroup of item.data">
 
-        <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
-          <ion-item-divider (click)="dataGroup.showAll = !dataGroup.showAll" *ngIf="dataGroup.data.length > 0">
-            <ion-buttons slot="end">
-              <ion-button (click)="showModal(dataGroup.header); $event.stopPropagation()">
-                <ion-icon slot="icon-only" name="bar-chart-outline">
-                </ion-icon>
-              </ion-button>
-              <ion-button>
-                <ion-icon *ngIf="!dataGroup.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
-                <ion-icon *ngIf="dataGroup.showAll" slot="icon-only" name="chevron-down"></ion-icon>
-              </ion-button>
-            </ion-buttons>
+  <!-- DATA DISPLAY -->
+  <ng-container *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
+    <ion-list [hidden]="this.selected != item.id || isCurrentCategoryEmpty()" *ngFor="let item of this.selectOptions">
+      <!-- Grouped -->
+
+      <!-- bySubject -->
+      <div *ngIf="item.id == 'bySubject'">
+        <div *ngFor="let dataGroup of item.data">
+
+          <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
+            <ion-item-divider (click)="dataGroup.showAll = !dataGroup.showAll" *ngIf="dataGroup.data.length > 0">
+              <ion-buttons slot="end">
+                <ion-button (click)="showModal(dataGroup.header); $event.stopPropagation()">
+                  <ion-icon slot="icon-only" name="bar-chart-outline">
+                  </ion-icon>
+                </ion-button>
+                <ion-button>
+                  <ion-icon *ngIf="!dataGroup.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
+                  <ion-icon *ngIf="dataGroup.showAll" slot="icon-only" name="chevron-down"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+              <ion-label>
+                {{dataGroup.header}}
+              </ion-label>
+            </ion-item-divider>
+            <ion-ripple-effect type="bounded"></ion-ripple-effect>
+          </div>
+
+
+
+          <div *ngFor="let evaluation of dataGroup.data">
+            <app-evaluation *ngIf="dataGroup.showAll" [evaluation]="evaluation" [type]="'displayDate'"></app-evaluation>
+          </div>
+        </div>
+      </div>
+
+      <!-- byDates -->
+      <div *ngIf="item.id == 'byDate'">
+        <div *ngFor="let dataGroup of item.data">
+          <ion-item-divider>
             <ion-label>
               {{dataGroup.header}}
             </ion-label>
           </ion-item-divider>
-          <ion-ripple-effect type="bounded"></ion-ripple-effect>
-        </div>
-
-
-
-        <div *ngFor="let evaluation of dataGroup.data">
-          <app-evaluation *ngIf="dataGroup.showAll" [evaluation]="evaluation" [type]="'displayDate'"></app-evaluation>
+          <div *ngFor="let evaluation of dataGroup.data">
+            <app-evaluation *ngIf="dataGroup.showAll" [evaluation]="evaluation" [type]="'displaySubject'">
+            </app-evaluation>
+          </div>
         </div>
       </div>
-    </div>
-    <!-- byDates -->
-    <div *ngIf="item.id == 'byDate'">
-      <div *ngFor="let dataGroup of item.data">
-        <ion-item-divider>
-          <ion-label>
-            {{dataGroup.header}}
-          </ion-label>
-        </ion-item-divider>
-        <div *ngFor="let evaluation of dataGroup.data">
-          <app-evaluation *ngIf="dataGroup.showAll" [evaluation]="evaluation" [type]="'displaySubject'">
+
+      <!-- Ungrouped -->
+      <div *ngIf="item.id != 'bySubject' && item.id != 'byDate'">
+        <div *ngFor="let evaluation of item.data">
+          <app-evaluation [evaluation]="evaluation" [type]="'displaySubject'">
           </app-evaluation>
         </div>
       </div>
-    </div>
-    <!-- Ungrouped -->
-    <div *ngIf="item.id != 'bySubject' && item.id != 'byDate'">
-      <div *ngFor="let evaluation of item.data">
-        <app-evaluation [evaluation]="evaluation" [type]="'displaySubject'">
-        </app-evaluation>
-      </div>
-    </div>
+    </ion-list>
+
+    <!-- EMPTY -->
+    <app-empty *ngIf="isCurrentCategoryEmpty()" translatorKey="pages.evaluations.noEvaluationsText"
+      icon="school-outline">
+    </app-empty>
+  </ng-container>
+
+  <!-- SKELETON -->
+  <ion-list *ngIf="this.componentState == 'loading'">
+    <ion-item-divider>
+      <ion-skeleton-text style="width: 80%"></ion-skeleton-text>
+    </ion-item-divider>
+    <ion-card>
+      <ion-card-content *ngFor="let i of [0, 1, 2, 3, 4, 5]">
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+      </ion-card-content>
+    </ion-card>
+    <ion-item-divider>
+      <ion-skeleton-text style="width: 80%"></ion-skeleton-text>
+    </ion-item-divider>
+    <ion-card>
+      <ion-card-content *ngFor="let i of [0, 1, 2, 3, 4, 5]">
+        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
+      </ion-card-content>
+    </ion-card>
   </ion-list>
 
-  <ion-list *ngIf="this.sans">
-    <ion-item-divider>
-      <ion-skeleton-text style="width: 80%"></ion-skeleton-text>
-    </ion-item-divider>
-    <ion-card>
-      <ion-card-content *ngFor="let i of [0, 1, 2, 3, 4, 5]">
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-      </ion-card-content>
-    </ion-card>
-    <ion-item-divider>
-      <ion-skeleton-text style="width: 80%"></ion-skeleton-text>
-    </ion-item-divider>
-    <ion-card>
-      <ion-card-content *ngFor="let i of [0, 1, 2, 3, 4, 5]">
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-      </ion-card-content>
-    </ion-card>
-  </ion-list>
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>

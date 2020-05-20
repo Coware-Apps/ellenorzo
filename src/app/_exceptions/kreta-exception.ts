@@ -45,14 +45,23 @@ export class KretaTokenError extends KretaHttpError {
         super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
     }
 }
+export class KretaRenewTokenError extends KretaHttpError {
+    constructor(
+        httpErrorObject: HTTPResponse,
+
+        customTitleTranslatorKey?: string,
+        customTextTranslatorKey?: string
+    ) {
+        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
+    }
+}
 
 
-export class KretaInvalidResponseError extends KretaHttpError {
+export class KretaInvalidResponseError extends KretaError {
     constructor(
         queryName: string,
-        httpErrorObject: HTTPResponse
     ) {
-        super(queryName, httpErrorObject, "invalid.title", "invalid.text")
+        super(queryName, "invalid.title", "invalid.text")
     }
 }
 export class KretaNetworkError extends KretaError {

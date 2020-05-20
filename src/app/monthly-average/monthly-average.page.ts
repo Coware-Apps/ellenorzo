@@ -46,7 +46,7 @@ export class MonthlyAveragePage implements OnInit {
     return returnVal;
   }
 
-  ionViewDidEnter() {
+  ionViewWillEnter() {
     this.menuCtrl.enable(false);
     for (let i = 0; i < this.monthlySubjectData.length; i++) {
       if (this.monthlySubjectData[i].Form == "Mark" && this.monthlySubjectData[i].Type == "MidYear") {

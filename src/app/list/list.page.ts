@@ -13,6 +13,7 @@ import { Subject, Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { takeUntil } from 'rxjs/operators';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
+import { KretaError } from '../_exceptions/kreta-exception';
 
 @Component({
   selector: 'app-list',
@@ -79,6 +80,7 @@ export class ListPage implements OnInit {
   public extraWeekIndex: number = 0;
 
   public unsubscribe$: Subject<void>;
+  public error: KretaError;
 
   constructor(
     public storage: Storage,
@@ -109,7 +111,7 @@ export class ListPage implements OnInit {
     this.firebase.setScreenName('timetable');
     this.loadData(false, null, "current");
   }
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     await this.menuCtrl.enable(true);
     this.unsubscribe$ = new Subject();
     this.hw.registerHwBackButton(this.unsubscribe$);
@@ -164,21 +166,17 @@ export class ListPage implements OnInit {
           this.componentState = empty ? 'empty' : 'loaded'
         },
         error: (error) => {
-          console.error(error);
+          console.error('ON PAGE', error);
+          this.error = error;
 
           if (event) event.target.complete();
 
-          let empty = true;
-          this.days.forEach(d => {
-            if (d.data && d.data.length > 0) {
-              empty = false;
-            }
-          });
-
-          if (empty) {
-            this.days.map(d => d.data = []);
+          if (this.days.findIndex(d => d.data && d.data.length > 0) == -1) {
+            this.componentState = 'error';
+            error.isHandled = true;
+          } else {
+            this.componentState = 'loaded'
           }
-          this.componentState = empty ? 'empty' : 'error'
 
           throw error;
         }
@@ -218,8 +216,12 @@ export class ListPage implements OnInit {
     this.navRouter.navigateByUrl('/timetable-homeworks?id=currentLesson');
   }
 
-  doRefresh(event) {
-    this.componentState = 'loadedProgress';
+  async doRefresh(event?) {
+    if (this.componentState == 'error') {
+      this.componentState = 'loading';
+    } else {
+      this.componentState = 'loadedProgress';
+    }
     this.loadData(true, event);
   }
 

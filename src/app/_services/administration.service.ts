@@ -17,7 +17,7 @@ import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { IOSFilePicker } from '@ionic-native/file-picker/ngx';
-import { AdministrationHttpError, AdministrationInvalidResponseError, AdministrationTokenError, AdministrationFileError, AdministrationError, AdministrationNetworkError, AdministrationInvalidGrantErorr, AdministrationRenewTokenError } from '../_exceptions/administration-exception';
+import { AdministrationHttpError, AdministrationInvalidResponseError, AdministrationTokenError, AdministrationFileError, AdministrationError, AdministrationNetworkError, AdministrationInvalidGrantError, AdministrationRenewTokenError } from '../_exceptions/administration-exception';
 
 @Injectable({
   providedIn: 'root'
@@ -114,7 +114,7 @@ export class AdministrationService {
       console.error("Hiba a 'Token' lekérése közben: ", error);
 
       if (error instanceof SyntaxError) throw new AdministrationInvalidResponseError('getToken');
-      if (error.status && error.status == 400) throw new AdministrationInvalidGrantErorr('getToken', error);
+      if (error.status && error.status == 400) throw new AdministrationInvalidGrantError('getToken', error);
       if (error.status && error.status < 0) throw new AdministrationNetworkError('getToken');
       throw new AdministrationTokenError(error, 'getToken.title', 'getToken.text');
     }
@@ -352,6 +352,14 @@ export class AdministrationService {
     attachmentList: AttachmentToSend[],
     tokens: Token,
   ) {
+
+    for (let i = 0; i < attachmentList.length; i++) {
+      attachmentList[i].fajl.azonosito = null;
+      attachmentList[i].fajl.fileHandler = 'Local';
+      attachmentList[i].fajl.utvonal = ''
+    }
+
+
     const headers = {
       "Authorization": "Bearer " + tokens.access_token,
       "User-Agent": this._userAgent,
@@ -537,7 +545,7 @@ export class AdministrationService {
         let returnVal: AttachmentToSend = {
           fajlNev: fileName,
           fajl: {
-            ideiglenesFajlAzonosito: response.data
+            ideiglenesFajlAzonosito: JSON.parse(response.data).fajlAzonosito
           },
           iktatoszam: null,
         }
@@ -551,10 +559,11 @@ export class AdministrationService {
           opts.headers = headers;
           try {
             let res = await transfer.upload(encodeURI(filePath), uri, opts);
+
             let returnVal: AttachmentToSend = {
               fajlNev: fileName,
               fajl: {
-                ideiglenesFajlAzonosito: res.response,
+                ideiglenesFajlAzonosito: JSON.parse(res.response).fajlAzonosito,
               },
               iktatoszam: null,
             }
@@ -581,10 +590,13 @@ export class AdministrationService {
       "Content-Type": "application/x-www-form-urlencoded",
       "Authorization": "Bearer " + tokens.access_token,
     };
-    const params = {};
+    const params = {
+      utvonal: '',
+      fajlAzonosito: attachmentId
+    };
     try {
       await this._http.delete(
-        this._host + this._endpoints.temporaryAttachmentStorage + `/${attachmentId}`,
+        this._host + this._endpoints.temporaryAttachmentStorage,
         params,
         headers
       );

@@ -4,18 +4,21 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>{{'pages.tests.title' | translate}}</ion-title>
+    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
+    </ion-progress-bar>
   </ion-toolbar>
-  <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
 </ion-header>
 
 <ion-content>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
     (ionRefresh)="doRefresh($event)">
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
+
+  <!-- DISPLAYING DATA -->
   <ion-list>
-    <div *ngFor="let monthlyData of this.testsByMonth | async">
+    <div *ngFor="let monthlyData of this.testsByMonth">
 
       <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
         <ion-item-divider lines="full" button (click)="monthlyData.showAll = monthlyData.showAll ? false : true">
@@ -36,8 +39,13 @@
     </div>
   </ion-list>
 
+  <!-- EMPTY -->
+  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.tests.emptyText"
+    iconSrc="/assets/extraicons/test.svg">
+  </app-empty>
 
-  <div *ngIf="sans">
+  <!-- SKELETON -->
+  <div *ngIf="componentState == 'loading'">
     <ion-card *ngFor="let number of [0, 1, 2, 3, 4, 5]">
       <ion-card-header>
         <ion-card-title>
@@ -57,4 +65,8 @@
       </ion-card-content>
     </ion-card>
   </div>
+
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>

@@ -22,11 +22,12 @@ export class ThemeService {
 
   public async onInit() {
     let storedTheme = await this.storage.get("theme");
-    if (storedTheme == null) {
+    if (!storedTheme) {
       this.storage.set("theme", "light");
+      storedTheme = "light";
     }
 
-    switch (await this.storage.get("theme")) {
+    switch (storedTheme) {
       case "light":
         this.enableLight();
         break;

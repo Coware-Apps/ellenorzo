@@ -52,7 +52,8 @@
             "classAverageText": "Osztályátlag:",
             "loadingToastText": "Adatok betöltése folyamatban!",
             "totalGradesText": "Jegyek száma:",
-            "totalCountingGradesText": "Átlagba beleszámít:"
+            "totalCountingGradesText": "Átlagba beleszámít:",
+            "emptyText": "Az átlagok listája üres"
         },
         "absences": {
             "title": "Mulasztások",
@@ -71,7 +72,8 @@
             }
         },
         "notes": {
-            "title": "Feljegyzések"
+            "title": "Feljegyzések",
+            "emptyText": "Nincsenek rögzített bejegyzések"
         },
         "homeworks": {
             "title": "Házi feladatok",
@@ -80,7 +82,8 @@
             "allCompletedText": "Minden házi feladat elkészítve!"
         },
         "tests": {
-            "title": "Számonkérések"
+            "title": "Számonkérések",
+            "emptyText": "A bejelentett számonkérések listája üres"
         },
         "messages": {
             "title": "Üzenetek",
@@ -639,7 +642,7 @@
             },
             "network": {
                 "title": "Hálózati hiba",
-                "text": "Nem sikerült kapcsolódni az internethez. Ellenőrizd az internetkapcsolatot majd próbáld újra."
+                "text": "Nem sikerült kapcsolódni a szerverekhez. Ellenőrizd az internetkapcsolatot majd próbáld újra."
             },
             "invalid": {
                 "title": "A szerver hibás választ küldött",
@@ -709,7 +712,7 @@
             },
             "network": {
                 "title": "Hálózati hiba",
-                "text": "Nem sikerült kapcsolódni az internethez. Ellenőrizd az internetkapcsolatot majd próbáld újra."
+                "text": "Nem sikerült kapcsolódni a szerverekhez. Ellenőrizd az internetkapcsolatot majd próbáld újra."
             },
             "invalid": {
                 "title": "A szerver hibás választ küldött",
@@ -719,9 +722,65 @@
                 "title": "A Tokenek lekérése sikertelen volt.",
                 "text": "Nem sikerült érvényes tokeneket lekérni, a hitelesítés sikertelen volt."
             },
+            "renewToken": {
+                "title": "A Tokenek frissítése sikertelen volt.",
+                "text": "Nem sikerült érvényes tokeneket lekérni, a hitelesítés sikertelen volt."
+            },
             "changeHomeworkState": {
                 "title": "Nem sikerült a házi feladat státuszát megváltoztatni",
                 "text": "Hiba történt a lekérés közben."
+            },
+            "getStudent": {
+                "title": "Hiba történt a tanuló adatai lekérése közben",
+                "text": "A kért adatokat nem sikerült betölteni"
+            },
+            "getLesson": {
+                "title": "Hiba történt az órarend lekérése közben",
+                "text": "Nem sikerült betölteni az órarendet. Kérlek próbáld újra később."
+            },
+            "getStudentHomeworks": {
+                "title": "Hiba történt a tanuló házi feladatok lekérése közben",
+                "text": "Nem sikerült betölteni a tanuló házi feladatokat. Kérlek próbáld újra később."
+            },
+            "getTeacherHomeworks": {
+                "title": "Hiba történt a tanári házi feladatok lekérése közben",
+                "text": "Nem sikerült betölteni a tanár által feladott házi feladatokat. Kérlek próbáld újra később."
+            },
+            "getTests": {
+                "title": "Hiba történt a számonkérések betöltése közben",
+                "text": "A bejelentett számonkéréseket nem sikerült betölteni. Kérlek próbáld újra később."
+            },
+            "getEvents": {
+                "title": "Hiba történt a faliújság betöltése közben",
+                "text": "A faliújságot nem sikerült betölteni. Kérlek próbáld újra később."
+            },
+            "getInstituteList": {
+                "title": "Hiba történt az intézmények betöltése közben",
+                "text": "Az intézmények listáját nem sikerült betölteni. Kérlek próbáld újra később."
+            },
+            "getMessageList": {
+                "title": "Hiba történt az üzenetek lekérése közben (a mobil szerverről)",
+                "text": "Kérlek próbáld az üzenetek oldalon megtekinteni őket (ott más szervert használunk)."
+            },
+            "getMessage": {
+                "title": "Hiba történt az üzenet lekérése közben (a mobil szerverről)",
+                "text": "A kért üzenetet nem sikerült betölteni. Kérlek próbáld újra később."
+            },
+            "setMessageAsRead": {
+                "title": "Hiba történt az üzenet olvasottnak jelölése közben (mobil szerver)",
+                "text": "A kért üzenetet nem sikerült olvasottnak jelölni. Kérlek próbáld újra később."
+            },
+            "addStudentHomework": {
+                "title": "Hiba történt a házi feladat hozzáadása közben",
+                "text": "A házi feladatot nem sikerült hozzáadni. Kérlek próbáld újra később."
+            },
+            "deleteStudentHomework": {
+                "title": "Hiba történt a házi feladat törlése közben",
+                "text": "A házi feladatot nem sikerült törölni. Kérlek próbáld újra később."
+            },
+            "getLessonLAB": {
+                "title": "Hiba történt a Lesson LAB lekérések közben",
+                "text": "A kért lekérések (lesson / órarend) nem voltak sikeresek. Kérlek próbáld újra később."
             }
         }
     }

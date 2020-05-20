@@ -7,6 +7,7 @@ import * as HighCharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
 import { FirebaseX } from '@ionic-native/firebase-x/ngx';
 import { TranslateService } from '@ngx-translate/core';
+import { SubjectAverage } from '../_models/student';
 more(HighCharts);
 
 @Component({
@@ -28,6 +29,7 @@ export class ColorPickerPage implements OnInit {
   public focused: number;
   public title: string;
   public mockEvaluations = [];
+  public mockAverages: SubjectAverage[] = [];
 
   constructor(
     public colorService: ColorService,
@@ -56,7 +58,13 @@ export class ColorPickerPage implements OnInit {
           Date: new Date(946684800),
           CreatingTime: new Date(946684800)
         }
-      )
+      );
+      if (i != 0) this.mockAverages.push({
+        ClassValue: 0,
+        Difference: 0,
+        Subject: this.translator.instant('pages.color-picker.averageCard.placeholderSubject'),
+        Value: i,
+      })
     });
     this.menuCtrl.enable(false);
     let a;
@@ -72,7 +80,7 @@ export class ColorPickerPage implements OnInit {
     this.firebase.setScreenName('color-picker');
   }
 
-  async ionViewDidEnter() {
+  async ionViewWillEnter() {
     var parent = this;
     let myChart = HighCharts.chart('pie_0', {
       chart: {
@@ -125,7 +133,7 @@ export class ColorPickerPage implements OnInit {
           events: {
             click: function (event) {
               parent.changeColor(parseInt(event.point.name.substring(0, 1)));
-              parent.ionViewDidEnter();
+              parent.ionViewWillEnter();
             }.bind(parent)
           },
         },
@@ -178,7 +186,7 @@ export class ColorPickerPage implements OnInit {
         break;
       case 2:
         this.title = this.translator.instant('pages.statistics.title');
-        this.ionViewDidEnter();
+        this.ionViewWillEnter();
         break;
     }
   }
@@ -197,7 +205,7 @@ export class ColorPickerPage implements OnInit {
           break;
         case 2:
           this.title = this.translator.instant('pages.statistics.title');
-          this.ionViewDidEnter();
+          this.ionViewWillEnter();
           break;
       }
     }

@@ -5,18 +5,19 @@
     </ion-buttons>
     <ion-title>{{'pages.statistics.title' | translate}}</ion-title>
     <ion-buttons slot="end">
-      <ion-button [disabled]="this.showProgressBar" (click)="openCategorySelector($event)">
+      <ion-button [disabled]="this.componentState != 'loaded' && this.componentState != 'loadedProgress'"
+        (click)="openCategorySelector($event)">
         <ion-icon slot="icon-only" name="filter-sharp"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-progress-bar [hidden]="!this.showProgressBar" type="indeterminate"></ion-progress-bar>
+    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
+    </ion-progress-bar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-select #categorySelector [(ngModel)]="selected" [disabled]="this.showProgressBar"
-    (ionChange)="selectorChanged($event, true, true)" [interfaceOptions]="customPopoverOptions" interface="popover"
-    slot="end" placeholder="Adatok">
+  <ion-select #categorySelector [(ngModel)]="selected" (ionChange)="selectorChanged($event, true, true)"
+    [interfaceOptions]="customPopoverOptions" interface="popover" slot="end" placeholder="Adatok">
     <ion-select-option value="yBySubject">{{'pages.statistics.categorySelector.options.yBySubject' | translate}}
     </ion-select-option>
     <ion-select-option value="yearly">{{'pages.statistics.categorySelector.options.yearly' | translate}}
@@ -26,12 +27,15 @@
     <ion-select-option value="monthly">{{'pages.statistics.categorySelector.options.monthly' | translate}}
     </ion-select-option>
   </ion-select>
-  <ion-refresher [disabled]="showProgressBar" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
+
+  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
     (ionRefresh)="doRefresh($event)">
     <ion-refresher-content>
     </ion-refresher-content>
   </ion-refresher>
-  <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
+
+  <ion-slides [hidden]="componentState != 'loaded' && componentState != 'loadedProgress'"
+    (ionSlideWillChange)="ionSlideWillChange()" #slides>
     <ion-slide class="wide">
       <!-- LINE -->
       <ion-card class="wide">
@@ -76,35 +80,21 @@
     </ion-slide>
   </ion-slides>
 
-  <div hidden="true" id="placeholder" *ngIf="!showGraphs" style="display: block;">
-
-    <ion-card *ngIf="sans">
-      <ion-card-header>
-        <ion-skeleton-text width="80%"></ion-skeleton-text>
-        <ion-skeleton-text width="80%"></ion-skeleton-text>
-        <ion-skeleton-text width="80%"></ion-skeleton-text>
-        <ion-skeleton-text width="80%"></ion-skeleton-text>
-        <ion-skeleton-text width="80%"></ion-skeleton-text>
-        <ion-skeleton-text width="80%"></ion-skeleton-text>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-skeleton-text width="80%"></ion-skeleton-text>
-      </ion-card-content>
-    </ion-card>
-
-  </div>
+  <!-- ERROR -->
+  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+  </app-kreta-error>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="this.componentState != 'error'">
   <ion-toolbar>
     <ion-segment (ionChange)="getData($event)" [value]="this.focused">
-      <ion-segment-button [disabled]="sans" value="0">
+      <ion-segment-button [disabled]="this.componentState == 'loading'" value="0">
         <ion-icon name="analytics"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="1">
+      <ion-segment-button [disabled]="this.componentState == 'loading'" value="1">
         <ion-icon name="stats-chart"></ion-icon>
       </ion-segment-button>
-      <ion-segment-button [disabled]="sans" value="2">
+      <ion-segment-button [disabled]="this.componentState == 'loading'" value="2">
         <ion-icon name="pie-chart"></ion-icon>
       </ion-segment-button>
     </ion-segment>
