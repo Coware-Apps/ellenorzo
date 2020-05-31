@@ -20,7 +20,7 @@ interface SelectOption {
   id: string;
   show: boolean;
   empty: boolean;
-  data: evaluation[] | UniversalSortedData[];
+  data: any;
 }
 @Component({
   selector: 'app-evaluations',
@@ -39,41 +39,42 @@ export class EvaluationsPage implements OnInit {
 
   public componentState: "loaded" | "empty" | "error" | "loading" | "loadedProgress" = "loading";
   public selected: string;
-  public selectOptions: SelectOption[] = [{
-    name: this.translator.instant(`pages.evaluations.categorySelector.bySubject`),
-    id: "bySubject",
-    show: true,
-    empty: false,
-    data: [],
-  },
-  {
-    name: this.translator.instant(`pages.evaluations.categorySelector.byDate`),
-    id: "byDate",
-    show: true,
-    empty: false,
-    data: [],
-  },
-  {
-    name: this.translator.instant(`pages.evaluations.categorySelector.halfYear`),
-    id: "halfYear",
-    show: true,
-    empty: false,
-    data: [],
-  },
-  {
-    name: this.translator.instant(`pages.evaluations.categorySelector.endYear`),
-    id: "endYear",
-    show: true,
-    empty: false,
-    data: [],
-  },
-  {
-    name: this.translator.instant(`pages.evaluations.categorySelector.other`),
-    id: "other",
-    show: true,
-    empty: false,
-    data: [],
-  }]
+  public selectOptions: SelectOption[] = [
+    {
+      name: this.translator.instant(`pages.evaluations.categorySelector.bySubject`),
+      id: "bySubject",
+      show: true,
+      empty: false,
+      data: [],
+    },
+    {
+      name: this.translator.instant(`pages.evaluations.categorySelector.byDate`),
+      id: "byDate",
+      show: true,
+      empty: false,
+      data: [],
+    },
+    {
+      name: this.translator.instant(`pages.evaluations.categorySelector.halfYear`),
+      id: "halfYear",
+      show: true,
+      empty: false,
+      data: [],
+    },
+    {
+      name: this.translator.instant(`pages.evaluations.categorySelector.endYear`),
+      id: "endYear",
+      show: true,
+      empty: false,
+      data: [],
+    },
+    {
+      name: this.translator.instant(`pages.evaluations.categorySelector.other`),
+      id: "other",
+      show: true,
+      empty: false,
+      data: [],
+    }]
   public unsubscribe$: Subject<void>;
   public error: KretaError;
 
@@ -157,7 +158,16 @@ export class EvaluationsPage implements OnInit {
       }
     )
   }
+  allSubjetsOpened() {
+    return this.selectOptions[0].data.find(d => d.showAll) != null;
+  }
+  collapseSubjects() {
+    const openOrClose = !this.allSubjetsOpened();
 
+    for (let i = 0; i < this.selectOptions[0].data.length; i++) {
+      this.selectOptions[0].data[i].showAll = openOrClose;
+    }
+  }
   openCategorySelector(event: UIEvent) {
     this.categorySelector.interface = 'popover';
     this.categorySelector.open(event);

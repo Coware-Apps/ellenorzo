@@ -8,6 +8,7 @@ import { NotificationService } from './notification.service';
 import { Storage } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
+import { StorageMigrationService } from './data-migration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,19 +20,23 @@ export class AppInitializerService {
     private userManager: UserManagerService,
     private theme: ThemeService,
     private color: ColorService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private storageMigrationService: StorageMigrationService,
+    private storage: Storage,
   ) {
 
   }
 
   async initializeApp() {
-    console.log('APPINITIALIZER STARTED AT', new Date().valueOf());
-    return Promise.all([
+    console.time('appInit');
+    await this.storageMigrationService.onInit();
+    await Promise.all([
       this.app.onInit(),
       this.theme.onInit(),
       this.color.onInit(),
       this.notificationService.onInit(),
       this.userManager.onInit(),
     ]);
+    console.timeEnd('appInit');
   }
 }

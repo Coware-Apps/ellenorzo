@@ -617,6 +617,16 @@
                 "title": "A KRÉTA kijelentkeztetett",
                 "text": "A szerver kijelentkeztetett. Kérjük, jelentkezz be újra az e-üzenetek modulba.",
                 "loginBtnText": "Bejelentkezés"
+            },
+            "redoLogin": {
+                "usernameLabel": "Felhasználónév",
+                "passwordLabel": "Jelszó",
+                "instituteLabel": "Intézmény",
+                "toastText": "Az alkalmazás nem tud frissíteni",
+                "solveBtnText": "Megoldás",
+                "alertHeader": "Jelszó megerősítése",
+                "alertTextStart": "Az adatok lekéréséhez, kérlek erősítsd meg",
+                "alertTextEnd": "bejelentkezési adatait"
             }
         },
         "notification": {
@@ -624,6 +634,9 @@
             "substitutionText": "Helyettesítés",
             "nextLessonText": "Következő óra",
             "timeName": "Időpont"
+        },
+        "error-handler": {
+            "confirmationText": "Köszönjük a megerősítést! Most már frissítheted az oldalt."
         }
     },
     "common": {

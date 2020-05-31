@@ -48,7 +48,7 @@ export class UserManagerService {
         let oldInstitute = await this.storage.get('institute');
         let newTokens = await this.kreta.renewToken(oldRefreshToken, oldInstitute);
         if (newTokens != null) {
-          await this.addUser(newTokens, oldInstitute);
+          await this.addUser(newTokens, oldInstitute, null, null);
           await this.storage.remove('refresh_token');
           await this.storage.remove('institute');
           await this.menuCtrL.enable(true);
@@ -65,8 +65,8 @@ export class UserManagerService {
   @param {Institute} institute the institute to create a new user object with
   @returns {Promise<boolean>} true if the user doesn't yet exist, false if it does
   */
-  public async addUser(tokens: Token, institute: Institute): Promise<boolean> {
-    let newUser = this.userFactory.createUser(tokens, institute);
+  public async addUser(tokens: Token, institute: Institute, username: string, yx: string): Promise<boolean> {
+    let newUser = this.userFactory.createUser(tokens, institute, username, yx);
     if (await newUser.fetchUserData()) {
       this.allUsers.push(newUser);
       this.switchToUser(newUser.id);
@@ -132,7 +132,7 @@ export class UserManagerService {
   public createExistingUsers(usersInitData: userInitData[]) {
     this.allUsers = [];
     usersInitData.forEach(userInitData => {
-      let newUser = this.userFactory.createUser(userInitData.tokens, userInitData.institute);
+      let newUser = this.userFactory.createUser(userInitData.tokens, userInitData.institute, userInitData.username, userInitData.yx);
       newUser.setUserData(
         userInitData.fullName,
         userInitData.id,

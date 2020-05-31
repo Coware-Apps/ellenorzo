@@ -48,7 +48,7 @@ export function initializeApp(
     HttpClientModule,
     AppRoutingModule,
     IonicStorageModule.forRoot({
-      driverOrder: ['indexeddb', 'sqlite', 'websql'],
+      driverOrder: ['sqlite', 'indexeddb', 'websql'],
     }),
     TranslateModule.forRoot({
       loader: {

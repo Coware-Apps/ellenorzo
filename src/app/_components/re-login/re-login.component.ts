@@ -39,6 +39,8 @@ export class ReLoginComponent implements OnInit {
     if (this.userManager.allUsers.length == 1) {
       this.username = await this.storage.get('username');
     }
+
+    if (this.userManager.currentUser.username) this.username = this.userManager.currentUser.username;
   }
 
   public async onSubmit() {
@@ -75,6 +77,7 @@ export class ReLoginComponent implements OnInit {
           }
         }
         this.prompt.toast(this.translator.instant('components.re-login.onSuccessfulLogin'), true);
+
         this.onSuccessfulLogin.emit(true);
       }
     } finally {

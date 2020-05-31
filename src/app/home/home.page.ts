@@ -16,6 +16,7 @@ import { CollapsibleCombined } from '../_models/user';
 import { Message } from '../_models/message';
 import { HwBackButtonService } from '../_services/hw-back-button.service';
 import { KretaError } from '../_exceptions/kreta-exception';
+import { JwtDecodeHelper } from '../_helpers/jwt-decode-helper';
 
 @Component({
   selector: 'app-home',
@@ -63,6 +64,7 @@ export class HomePage implements OnInit, OnDestroy {
     private menuCtrl: MenuController,
     private translator: TranslateService,
     private router: Router,
+    private jwtDecodeHelper: JwtDecodeHelper,
   ) {
     this.monthNames = this.translator.instant("dates.monthNames");
   }

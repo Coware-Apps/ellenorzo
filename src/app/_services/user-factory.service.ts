@@ -32,10 +32,12 @@ export class UserFactoryService {
 
   }
 
-  public createUser(tokens: Token, institute: Institute): User {
+  public createUser(tokens: Token, institute: Institute, username: string, yx: string): User {
     let newUser = new User(
       tokens,
       institute,
+      username,
+      yx,
       this.kreta,
       this.storage,
       this.fDate,

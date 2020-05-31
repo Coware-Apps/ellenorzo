@@ -617,6 +617,16 @@
                 "title": "KRÉTA logged you out",
                 "text": "The server ended your login session. Please log in to the messages module again.",
                 "loginBtnText": "Login"
+            },
+            "redoLogin": {
+                "usernameLabel": "Username",
+                "passwordLabel": "Password",
+                "instituteLabel": "Institute",
+                "toastText": "The app cannot refresh",
+                "solveBtnText": "Fix",
+                "alertHeader": "Confirm login",
+                "alertTextStart": "In order to refresh your data, please confirm credentials for",
+                "alertTextEnd": ""
             }
         },
         "notification": {
@@ -624,6 +634,9 @@
             "substitutionText": "Substitution",
             "nextLessonText": "Next lesson",
             "timeName": "At"
+        },
+        "error-handler": {
+            "confirmationText": "Thanks for confirming! You can refresh the page now."
         }
     },
     "common": {

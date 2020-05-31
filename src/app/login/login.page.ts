@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Storage } from '@ionic/storage';
-import { AlertController, ModalController, MenuController, LoadingController, AnimationController } from '@ionic/angular';
+import { AlertController, ModalController, MenuController, LoadingController } from '@ionic/angular';
 import { InstituteSelectorModalPage } from './institute-selector-modal/institute-selector-modal.page';
 import { KretaService } from '../_services/kreta.service';
 import { Router } from '@angular/router';
@@ -11,7 +11,6 @@ import { PromptService } from '../_services/prompt.service';
 import { TranslateService } from '@ngx-translate/core';
 import { GlobalError } from '../_exceptions/global-exception';
 import { KretaError } from '../_exceptions/kreta-exception';
-import { DOCUMENT } from '@angular/common';
 import { ThemeService } from '../_services/theme.service';
 
 @Component({
@@ -41,9 +40,6 @@ export class LoginPage implements OnInit {
     private prompt: PromptService,
     private translator: TranslateService,
     private theme: ThemeService,
-
-    private animationCtrl: AnimationController,
-    @Inject(DOCUMENT) private document: Document,
   ) { }
 
   ngOnInit() {
@@ -81,9 +77,9 @@ export class LoginPage implements OnInit {
 
       try {
         let tokenResult = await this.kreta.getToken(this.user, this.pass, this.data.getData('institute'));
-        if (await this.userManager.addUser(tokenResult, this.data.getData('institute'))) {
-          //the user doesn't exist
+        if (await this.userManager.addUser(tokenResult, this.data.getData('institute'), this.user, this.pass)) {
 
+          //the user doesn't exist
           await this.menuCtrl.enable(true);
           await loading.dismiss();
           this.app.isStudentSelectorReady = true;
@@ -101,13 +97,7 @@ export class LoginPage implements OnInit {
           }
 
           this.kretaError = null;
-          // await this.animationCtrl.create().addElement(
-          //   [this.document.querySelector('#errorInfo'),
-          //   this.document.querySelector('#errorInfoItem')]
-          // )
-          //   .duration(0)
-          //   .to('max-height', '0')
-          //   .play();
+
           await this.router.navigateByUrl('home');
         } else {
           //the user already exists
@@ -120,13 +110,6 @@ export class LoginPage implements OnInit {
         }
       } catch (error) {
         this.kretaError = error;
-        // this.animationCtrl.create().addElement(
-        //   [this.document.querySelector('#errorInfo'),
-        //   this.document.querySelector('#errorInfoItem')]
-        // )
-        //   .duration(200)
-        //   .fromTo('max-height', '0px', '100px')
-        //   .play();
         throw error;
       } finally {
         loading.dismiss();
@@ -161,4 +144,10 @@ export class LoginPage implements OnInit {
 
     await alert.present();
   }
+}
+
+function randomString(length, chars) {
+  var result = '';
+  for (var i = length; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
+  return result;
 }

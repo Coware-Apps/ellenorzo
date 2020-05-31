@@ -1,7 +1,5 @@
-import { Subject, Observable, observable, from, defer } from 'rxjs';
-import { mergeMap, } from "rxjs/operators";
+import { Subject, Observable } from 'rxjs';
 import { Storage } from '@ionic/storage';
-import { Student } from '../_models/student';
 import { Test } from '../_models/test';
 import { Message } from '../_models/message';
 import { KretaService } from '../_services/kreta.service';
@@ -16,13 +14,15 @@ import { NotificationService } from '../_services/notification.service';
 import { PromptService } from '../_services/prompt.service';
 import { Event } from './event';
 import { AdministrationService } from '../_services/administration.service';
-import { MessageListItem, Addressee, AttachmentToSend, AdministrationMessage } from './_administration/message';
+import { Addressee, AttachmentToSend, AdministrationMessage } from './_administration/message';
 import { AddresseeType } from './_administration/addresseeType';
 import { AddresseeListItem } from './_administration/addresseeListItem';
 export class User {
     //unique data
     public fullName: string;
     public id: number;
+    public username: string;
+    public yx: string;
     public institute: Institute;
     public role: string;
     //functional data
@@ -65,6 +65,8 @@ export class User {
     constructor(
         tokens: Token,
         institute: Institute,
+        username: string,
+        yx: string,
         private kreta: KretaService,
         private storage: Storage,
         private fDate: FormattedDateService,
@@ -76,6 +78,8 @@ export class User {
     ) {
         this.tokens = tokens;
         this.institute = institute;
+        this.username = username;
+        this.yx = yx;
     }
 
     //#region user data manipulation 
@@ -118,15 +122,17 @@ export class User {
             try {
                 newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
             } catch (error) {
+                newTokens = await this.attemptReLogin(toApi);
                 this.loginInProgress = false;
-                throw error;
+                if (!newTokens) throw error;
             }
         } else {
             try {
                 newTokens = await this.administrationService.renewToken(this.administrationTokens.refresh_token, this.institute);
             } catch (error) {
+                newTokens = await this.attemptReLogin(toApi);
                 this.loginInProgress = false;
-                throw error;
+                if (!newTokens) throw error;
             }
         }
 
@@ -145,12 +151,14 @@ export class User {
                 if (newUsersInitData[i].id == this.id) {
                     newUsersInitData[i] = {
                         id: this.id,
+                        username: this.username,
                         tokens: this.tokens,
                         adminstrationTokens: this.administrationTokens,
                         institute: this.institute,
                         fullName: this.fullName,
                         notificationsEnabled: this.notificationsEnabled,
                         lastNotificationSetTime: this.lastNotificationSetTime,
+                        yx: this.yx,
                     }
                 }
             }
@@ -160,6 +168,24 @@ export class User {
     }
     private delay(timer: number): Promise<void> {
         return new Promise(resolve => setTimeout(() => resolve(), timer));
+    }
+    private async attemptReLogin(toApi: "mobile" | "administration") {
+        console.warn("Attempting re-login");
+
+        if (!this.username || !this.yx) return;
+
+        let tokens;
+        try {
+            if (toApi == "mobile") {
+                tokens = await this.kreta.getToken(this.username, this.yx, this.institute);
+            } else {
+                tokens = await this.administrationService.getToken(this.username, this.yx, this.institute)
+            }
+        } catch (e) {
+            console.error("Re-login failed with:", e);
+        }
+
+        return tokens;
     }
     /**
      * Fills the users missing data (fullName, id etc - with a getStudent request) of a user that doesn't yet exist
@@ -172,12 +198,14 @@ export class User {
             //overwriting the name and id of the users init data
             let newUserInitData: userInitData = {
                 id: this.id,
+                username: this.username,
                 tokens: this.tokens,
                 adminstrationTokens: this.administrationTokens,
                 institute: this.institute,
                 fullName: this.fullName,
                 notificationsEnabled: this.notificationsEnabled,
                 lastNotificationSetTime: this.lastNotificationSetTime,
+                yx: this.yx,
             }
             let doesUserAlreadyExist = false;
             this.app.usersInitData.forEach(userInitData => {
@@ -254,16 +282,34 @@ export class User {
             await this.storage.remove(this.cacheIds[key]);
         }
     }
+    public async redoKretaLogin(newUsername: string, newPassword: string) {
+        let newTokens = await this.kreta.getToken(newUsername, newPassword, this.institute);
+
+        if (newTokens) {
+            this.tokens = newTokens;
+            this.username = newUsername;
+            this.yx = newPassword
+
+            let i = this.app.usersInitData.findIndex(uid => uid.id == this.id);
+            this.app.usersInitData[i].tokens = newTokens;
+            this.app.usersInitData[i].username = newUsername;
+            this.app.usersInitData[i].yx = newPassword;
+
+            await this.app.changeConfig('usersInitData', this.app.usersInitData);
+        }
+    }
     public async logOutOfAdministration() {
         this.administrationTokens = null;
         let newUserInitData: userInitData = {
             adminstrationTokens: null,
             fullName: this.fullName,
+            username: this.username,
             id: this.id,
             institute: this.institute,
             lastNotificationSetTime: this.lastNotificationSetTime,
             notificationsEnabled: this.notificationsEnabled,
             tokens: this.tokens,
+            yx: this.yx,
         };
         for (let i = 0; i < this.app.usersInitData.length; i++) {
             if (this.app.usersInitData[i].id == this.id) {
@@ -326,12 +372,14 @@ export class User {
                 if (newUsersInitData[i].id == this.id) {
                     newUsersInitData[i] = {
                         id: this.id,
+                        username: this.username,
                         tokens: this.tokens,
                         adminstrationTokens: this.tokens,
                         institute: this.institute,
                         fullName: this.fullName,
                         notificationsEnabled: this.notificationsEnabled,
                         lastNotificationSetTime: new Date().valueOf(),
+                        yx: this.yx,
                     }
                 }
             }
@@ -538,7 +586,10 @@ export class User {
         let newTokens = await this.administrationService.getToken(username, password, this.institute);
         if (newTokens) {
             this.administrationTokens = newTokens;
+            this.username = username;
             this.app.usersInitData.find(u => u.id == this.id).adminstrationTokens = newTokens;
+            this.app.usersInitData.find(u => u.id == this.id).username = username;
+            this.app.usersInitData.find(u => u.id == this.id).yx = password;
             await this.app.changeConfig(`usersInitData`, this.app.usersInitData);
             //successfully logged user in to administration
             return true;
@@ -620,6 +671,8 @@ export class User {
 }
 export interface userInitData {
     id: number;
+    username: string;
+    yx: string;
     tokens: Token;
     adminstrationTokens: Token;
     institute: Institute;

@@ -6,8 +6,10 @@ import { UserManagerService } from './user-manager.service';
 import * as StackTrace from "stacktrace-js";
 import { AdministrationRenewTokenError } from '../_exceptions/administration-exception';
 import { AppService } from './app.service';
-import { KretaError } from '../_exceptions/kreta-exception';
+import { KretaError, KretaRenewTokenError } from '../_exceptions/kreta-exception';
 import { environment } from 'src/environments/environment.prod';
+import { TranslateService } from '@ngx-translate/core';
+import { JwtDecodeHelper } from '../_helpers/jwt-decode-helper';
 
 @Injectable({
     providedIn: "root",
@@ -18,6 +20,8 @@ export class ErrorHandlerService extends ErrorHandler {
         private prompt: PromptService,
         private userManager: UserManagerService,
         private app: AppService,
+        private translator: TranslateService,
+        private jwtDecodeHelper: JwtDecodeHelper,
     ) {
         super();
     }
@@ -42,7 +46,32 @@ export class ErrorHandlerService extends ErrorHandler {
         if (error instanceof AdministrationRenewTokenError && error.httpErrorObject && error.httpErrorObject.status == 400) {
             if (await this.prompt.administrationLoginExpiredToast()) {
                 await this.userManager.currentUser.logOutOfAdministration();
+
+                //reloads the page
                 this.userManager.reloader.next("reload");
+            }
+        } else if (
+            (error instanceof KretaRenewTokenError && error.httpErrorObject) &&
+            (error.httpErrorObject.status == 401 || error.httpErrorObject.status == 400)
+        ) {
+
+            let res = await this.prompt.redoLoginDialog(
+                this.userManager.currentUser.institute.Name,
+                this.userManager.currentUser.username,
+                this.userManager.currentUser.fullName,
+                this.jwtDecodeHelper.decodeToken(this.userManager.currentUser.tokens.access_token).role,
+            );
+
+            if (res) {
+                try {
+                    await this.userManager.currentUser.redoKretaLogin(res.username, res.password);
+                    this.prompt.timedToast(
+                        this.translator.instant('services.error-handler.confirmationText'),
+                        2000
+                    )
+                } catch (error) {
+                    this.prompt.errorDetailToast(error);
+                }
             }
         } else {
             if (error instanceof GlobalError && error.isHandled != true) {

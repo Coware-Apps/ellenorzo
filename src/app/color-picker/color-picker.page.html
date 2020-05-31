@@ -161,7 +161,8 @@
       </app-evaluation>
     </ion-slide>
     <ion-slide style="text-align: left;" class="wide">
-      <app-average *ngFor="let avg of this.mockAverages" [totalGrades]="10" [subjectAverage]="avg"></app-average>
+      <app-average (click)="changeColor(avg.Value)" *ngFor="let avg of this.mockAverages" [totalGrades]="10"
+        [subjectAverage]="avg"></app-average>
     </ion-slide>
     <ion-slide class="wide">
       <ion-card class="wide">

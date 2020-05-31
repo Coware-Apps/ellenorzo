@@ -10,6 +10,8 @@ import { CommunityServiceData } from '../_models/communityService';
 import { TranslateService } from '@ngx-translate/core';
 import { GlobalError } from '../_exceptions/global-exception';
 import { stringify } from 'querystring';
+import { Institute } from '../_models/institute';
+import { JwtDecodeHelper } from '../_helpers/jwt-decode-helper';
 
 @Injectable({
   providedIn: 'root'
@@ -133,7 +135,69 @@ export class PromptService {
       return false;
     }
   }
+  async redoLogin(instituteName: string, username: string, userFullName: string, role: string) {
+    const key = 'components.re-login.roles.' + role;
+    const finalRole = this.t.instant(key) != key ? this.t.instant(key) : role;
 
+    const loginAlert = await this.alertCtrl.create({
+      header: this.t.instant('services.prompt.redoLogin.alertHeader'),
+      message: this.t.instant('services.prompt.redoLogin.alertTextStart') + " " + userFullName + ` (${finalRole}) ` + this.t.instant('services.prompt.redoLogin.alertTextEnd'),
+      inputs: [
+        {
+          name: 'username',
+          type: 'text',
+          placeholder: this.t.instant('services.prompt.redoLogin.usernameLabel'),
+          value: username,
+        },
+        {
+          name: 'password',
+          type: 'password',
+          placeholder: this.t.instant('services.prompt.redoLogin.passwordLabel'),
+        },
+        {
+          name: 'instituteName',
+          type: 'text',
+          placeholder: this.t.instant('services.prompt.redoLogin.instituteLabel'),
+          value: instituteName,
+          disabled: true,
+        },
+      ],
+      buttons: [
+        {
+          text: 'OK',
+        }
+      ]
+    });
+
+    await loginAlert.present();
+
+    const res = await loginAlert.onDidDismiss();
+
+    const data = res && res.data ? res.data.values : null;
+
+    return data;
+  }
+  async redoLoginDialog(instituteName: string, username: string, userFullName: string, role: string) {
+    await this.dismissTopToast();
+    let confirm = false;
+    let t = await this.toastCtrl.create({
+      message: this.t.instant('services.prompt.redoLogin.toastText'),
+      duration: 5000,
+      buttons: [{
+        text: this.t.instant('services.prompt.redoLogin.solveBtnText'),
+        handler: () => {
+          confirm = true;
+        }
+      }]
+    });
+
+    await t.present();
+    await t.onDidDismiss();
+
+    if (confirm) {
+      return this.redoLogin(instituteName, username, userFullName, role);
+    }
+  }
   //#endregion
 
   //#region alerts
@@ -298,7 +362,6 @@ export class PromptService {
       `${this.t.instant('services.prompt.communityServiceAlert.noteName')}: ${note}`,
       this.color.getPopUpClass());
   }
-
   private formatAlertBody(params: { title: string, text: string }[]) {
     let returnVal: string = "";
     for (let i = 0; i < params.length; i++) {
@@ -404,9 +467,18 @@ export class PromptService {
   public topToast(message: string, autoDismiss: boolean) {
     this.presentToast(message, autoDismiss, `top`);
   }
+  public async timedToast(message: string, duration: number) {
+    await this.dismissTopToast();
+    let t = await this.toastCtrl.create({
+      duration: duration,
+      message: message
+    });
+    return t.present();
+  }
   public async dismissTopToast() {
     let topToast = await this.toastCtrl.getTop();
-    if (topToast != null) {
+    console.log('topToast', topToast);
+    if (topToast) {
       topToast.dismiss();
     }
   }

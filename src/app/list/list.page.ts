@@ -193,6 +193,10 @@ export class ListPage implements OnInit {
       this.days[d].data.push(l);
     });
 
+    this.days = this.days.map(d => {
+      d.data.sort((a, b) => new Date(a.StartTime).valueOf() - new Date(b.StartTime).valueOf());
+      return d;
+    })
 
     if (slideRequest == 'first') {
       this.slides.slideTo(0);

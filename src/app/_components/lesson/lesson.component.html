@@ -2,9 +2,11 @@
   <ion-buttons [hidden]="hideHomeworkBtn()"
     *ngIf="lesson.IsTanuloHaziFeladatEnabled || lesson.TeacherHomeworkId != null" class="homeworksBtn" slot="end">
     <ion-button (click)="homeworkClick.emit(); $event.stopPropagation();">
-      <ion-icon *ngIf="lesson.TeacherHomeworkId == null" slot="icon-only" name="home"></ion-icon>
-      <ion-icon *ngIf="lesson.TeacherHomeworkId != null" color="warning" slot="icon-only"
+      <ion-icon *ngIf="!lesson.TeacherHomeworkId" slot="icon-only" name="home"></ion-icon>
+      <ion-icon *ngIf="lesson.TeacherHomeworkId && !lesson.IsHaziFeladatMegoldva" color="warning" slot="icon-only"
         src="/assets/extraicons/homewarning.svg"></ion-icon>
+      <ion-icon *ngIf="lesson.TeacherHomeworkId && lesson.IsHaziFeladatMegoldva" style="color: green;" slot="icon-only"
+        name="checkmark-done"></ion-icon>
     </ion-button>
   </ion-buttons>
 

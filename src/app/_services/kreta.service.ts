@@ -205,6 +205,9 @@ export class KretaService {
       let parsedResponse: Token;
       parsedResponse = <Token>JSON.parse(response.data);
 
+
+      console.log('refresh', parsedResponse.refresh_token);
+
       this.decoded_user = this.jwtDecoder.decodeToken(parsedResponse.access_token);
       this.initializeFirebase(this.decoded_user["kreta:institute_user_id"]);
       this.errorStatus.next(0);

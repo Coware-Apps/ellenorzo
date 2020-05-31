@@ -55,4 +55,14 @@ export class UserSettingsPage implements OnInit {
     this.userManager.switchToUser(userId);
     this.router.navigateByUrl('/user');
   }
+
+  fuckUpSessionTokens(userId: number) {
+
+    //random refresh token
+    this.userManager.allUsers[
+      this.userManager.allUsers.findIndex(uid => uid.id == userId)
+    ].tokens.refresh_token = 'nuked_token';
+
+    this.prompt.toast('Nuked refresh_token for current session. Restart the app to undo!', true)
+  }
 }

@@ -15,6 +15,10 @@
 
     <ion-item button *ngFor="let user of this.userManager.allUsers" (click)="showUserInfo(user.id)">
       <ion-buttons slot="end">
+        <ion-button *ngIf="this.app.devSettingsEnabled"
+          (click)="fuckUpSessionTokens(user.id); $event.stopPropagation()">
+          <ion-icon color="danger" slot="icon-only" name="skull-outline"></ion-icon>
+        </ion-button>
         <ion-button *ngIf="this.app.devSettingsEnabled" [disabled]="this.isTokenTimeZero('mobile', user.id)"
           (click)="resetTokenTime('mobile', user.id); $event.stopPropagation()">
           <ion-icon color="warning" slot="icon-only" name="stopwatch-outline"></ion-icon>
