@@ -1,54 +1,57 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="settings"></ion-back-button>
-    </ion-buttons>
-    <ion-buttons slot="end">
-      <ion-button (click)="resetUA()">
-        <ion-icon slot="icon-only" name="refresh"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>{{'pages.user-agent.title' | translate}}</ion-title>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-back-button
+                defaultHref="settings"
+                [text]="app.getBackButtonText()"
+            ></ion-back-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-button disabled (click)="resetUA()">
+                <ion-icon slot="icon-only" name="refresh"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'pages.user-agent.title' | translate}}</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-card [hidden]="!hasItLoaded">
-    <ion-card-header>
-      <div id="line" class="chart"></div>
-    </ion-card-header>
-  </ion-card>
+    <ion-card [hidden]="!hasItLoaded">
+        <ion-card-header>
+            <div id="line" class="chart"></div>
+        </ion-card-header>
+    </ion-card>
 
-  <ion-card>
-    <ion-card-content>
-      <ion-card-title>{{'pages.user-agent.currentUAText' | translate}}</ion-card-title>
-      <ion-list>
+    <ion-card>
+        <ion-card-content>
+            <ion-card-title>{{'pages.user-agent.currentUAText' | translate}}</ion-card-title>
+            <ion-list>
+                <ion-item>
+                    <ion-textarea readonly [(ngModel)]="this.currentUA"></ion-textarea>
+                </ion-item>
+                <ion-buttons>
+                    <ion-button slot="end" (click)="testUA()">
+                        {{'pages.user-agent.testBtnText' | translate}}
+                        <ion-icon slot="start" name="flask"></ion-icon>
+                    </ion-button>
+                    <ion-button disabled slot="end" (click)="saveUA()">
+                        {{'pages.user-agent.saveBtnText' | translate}}
+                        <ion-icon slot="start" name="save"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-list>
+        </ion-card-content>
+    </ion-card>
+
+    <ion-list mode="md" lines="none">
         <ion-item>
-          <ion-textarea [(ngModel)]="this.currentUA"></ion-textarea>
+            <ion-icon slot="start" name="information-circle-outline"></ion-icon>
+            <ion-note>{{'pages.user-agent.info' | translate}}</ion-note>
         </ion-item>
-        <ion-buttons>
-          <ion-button slot="end" (click)="testUA()">
-            {{'pages.user-agent.testBtnText' | translate}}
-            <ion-icon slot="start" name="flask"></ion-icon>
-          </ion-button>
-          <ion-button slot="end" (click)="saveUA()">
-            {{'pages.user-agent.saveBtnText' | translate}}
-            <ion-icon slot="start" name="save"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-list>
-    </ion-card-content>
-  </ion-card>
-
-  <ion-list mode="md" lines="none">
-    <ion-item>
-      <ion-icon slot="start" name="information-circle-outline"></ion-icon>
-      <ion-note>{{'pages.user-agent.info' | translate}}</ion-note>
-    </ion-item>
-  </ion-list>
-  <ion-card [hidden]='!this.showPreviousData'>
-    <ion-card-header>
-      <div id="previousData" class="chart"></div>
-    </ion-card-header>
-  </ion-card>
+    </ion-list>
+    <ion-card [hidden]="!this.showPreviousData">
+        <ion-card-header>
+            <div id="previousData" class="chart"></div>
+        </ion-card-header>
+    </ion-card>
 </ion-content>

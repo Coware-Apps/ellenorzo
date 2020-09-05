@@ -1,19 +1,27 @@
 <ion-grid>
-  <ion-row class="ion-text-center ion-align-items-center">
-    <ion-col>
-      <ion-icon [name]="iconName"></ion-icon>
-      <ion-text class="ion-text-center">
-        <h1 *ngIf="error?.customTitleTranslatorKey">{{ error.customTitleTranslatorKey | translate}}</h1>
-        <h1 *ngIf="!error?.customTitleTranslatorKey">{{ 'errors.administration.defaultTitle' | translate}}</h1>
+    <ion-row class="ion-text-center ion-align-items-center">
+        <ion-col>
+            <ion-icon [name]="iconName"></ion-icon>
+            <ion-text class="ion-text-center">
+                <h1 *ngIf="error?.customTitleTranslatorKey">
+                    {{ error.customTitleTranslatorKey | translate }}
+                </h1>
+                <h1 *ngIf="!error?.customTitleTranslatorKey">
+                    {{ "errors.administration.defaultTitle" | translate }}
+                </h1>
 
-        <p *ngIf="error?.customTextTranslatorKey">{{error.customTextTranslatorKey | translate}}</p>
-        <p *ngIf="!error?.customTextTranslatorKey">{{ 'errors.administration.defaultText' | translate}}</p>
-      </ion-text>
-      <ion-button color="primary" (click)="retry.emit()" *ngIf="buttonText">
-        {{ 'errors.administration.retryText' | translate }}
-      </ion-button>
+                <p *ngIf="error?.customTextTranslatorKey">
+                    {{ error.customTextTranslatorKey | translate }}
+                </p>
+                <p *ngIf="!error?.customTextTranslatorKey">
+                    {{ "errors.administration.defaultText" | translate }}
+                </p>
+            </ion-text>
+            <ion-button color="primary" (click)="retry.emit()" *ngIf="buttonText">
+                {{ "errors.administration.retryText" | translate }}
+            </ion-button>
 
-      <app-error-detail [showTranslatorKeys]="false" [error]="this.error"></app-error-detail>
-    </ion-col>
-  </ion-row>
+            <app-error-detail [showTranslatorKeys]="false" [error]="this.error"></app-error-detail>
+        </ion-col>
+    </ion-row>
 </ion-grid>

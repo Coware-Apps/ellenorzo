@@ -1,22 +1,23 @@
-import { Subject, Observable } from 'rxjs';
-import { Storage } from '@ionic/storage';
-import { Test } from '../_models/test';
-import { Message } from '../_models/message';
-import { KretaService } from '../_services/kreta.service';
-import { FormattedDateService } from '../_services/formatted-date.service';
-import { CacheService } from '../_services/cache.service';
-import { Institute } from './institute';
-import { Token } from './token';
-import { Lesson } from './lesson';
-import { StudentHomework, TeacherHomework, HomeworkResponse } from './homework';
-import { AppService } from '../_services/app.service';
-import { NotificationService } from '../_services/notification.service';
-import { PromptService } from '../_services/prompt.service';
-import { Event } from './event';
-import { AdministrationService } from '../_services/administration.service';
-import { Addressee, AttachmentToSend, AdministrationMessage } from './_administration/message';
-import { AddresseeType } from './_administration/addresseeType';
-import { AddresseeListItem } from './_administration/addresseeListItem';
+import { Subject, Observable } from "rxjs";
+import { Storage } from "@ionic/storage";
+import { Test } from "./kreta-v2/test";
+import { Message } from "./kreta-v2/message";
+import { KretaService } from "../_services/kreta.service";
+import { FormattedDateService } from "../_services/formatted-date.service";
+import { CacheService } from "../_services/cache.service";
+import { Institute } from "./institute";
+import { Token } from "./token";
+import { Lesson } from "./kreta-v2/lesson";
+import { StudentHomework, TeacherHomework, HomeworkResponse } from "./kreta-v2/homework";
+import { AppService } from "../_services/app.service";
+import { NotificationService } from "../_services/notification.service";
+import { PromptService } from "../_services/prompt.service";
+import { Event } from "./kreta-v2/event";
+import { AdministrationService } from "../_services/administration.service";
+import { Addressee, AttachmentToSend, AdministrationMessage } from "./administration/message";
+import { AddresseeType } from "./administration/addresseeType";
+import { AddresseeListItem } from "./administration/addresseeListItem";
+import { KretaV3Service } from "../_services";
 export class User {
     //unique data
     public fullName: string;
@@ -31,8 +32,10 @@ export class User {
     //public allowUpdatesIn = 10;
     public lastLoggedIn: number = 0;
     public lastLoggedInAdministration: number = 0;
+    public lastLoggedInV3: number = 0;
     public tokens: Token;
     public administrationTokens: Token;
+    public v3Tokens: Token;
     private authDiff: number = 300000;
     private cacheIds: {
         student: string;
@@ -44,8 +47,8 @@ export class User {
         events: string;
         combined: string;
         //administration
-        inboxMessageList: string,
-        outboxMessageList: string,
+        inboxMessageList: string;
+        outboxMessageList: string;
         deletedMessageList: string;
         // addresseeTypeList: string;
         // studentAddresseeGroups: string;
@@ -59,7 +62,21 @@ export class User {
         // directorateAddresseeList: string;
         // adminAddresseeList: string;
         // szmkAddresseeList: string;
-    }
+        //v3
+        v3Student: string;
+        v3ClassGroups: string;
+        v3Absences: string;
+        v3Notes: string;
+        v3Evaluations: string;
+        v3Tests: string;
+        v3SchoolYearPlan: string;
+        v3Homeworks: string;
+        v3Lessons: string;
+        v3Averages: string;
+        v3HeadTeachers: string;
+        v3Events: string;
+        v3ClassAverages: string;
+    };
     private loginInProgress: boolean = false;
 
     constructor(
@@ -75,50 +92,107 @@ export class User {
         private notificationService: NotificationService,
         private prompt: PromptService,
         private administrationService: AdministrationService,
+        private kretaV3: KretaV3Service
     ) {
-        this.tokens = tokens;
+        this.v3Tokens = tokens;
         this.institute = institute;
         this.username = username;
         this.yx = yx;
     }
 
-    //#region user data manipulation 
+    //#region user data manipulation
     /**
      * Logs in with the users current refresh token if needed (the token's expires_in minus the user's authDiff passes)
      */
-    public async loginWithRefreshToken(toApi: 'mobile' | 'administration' = 'mobile') {
+    public async loginWithRefreshToken(toApi: "mobile" | "administration" | "v3" = "mobile") {
         let now = new Date().valueOf();
-        let loggedInFor = ((toApi == 'mobile' ? this.tokens.expires_in : this.administrationTokens.expires_in) * 1000) - this.authDiff;
-        let lastLoggedIn = toApi == 'mobile' ? this.lastLoggedIn : this.lastLoggedInAdministration;
+
+        let expIn: number;
+        let lastLoggedIn: number;
+        if (toApi == "mobile") {
+            if (!this.tokens) this.tokens = await this.attemptReLogin(toApi);
+            expIn = this.tokens.expires_in;
+            lastLoggedIn = this.lastLoggedIn;
+        } else if (toApi == "administration") {
+            if (!this.administrationTokens)
+                this.administrationTokens = await this.attemptReLogin(toApi);
+            expIn = this.administrationTokens.expires_in;
+            lastLoggedIn = this.lastLoggedInAdministration;
+        } else if (toApi == "v3") {
+            if (!this.v3Tokens) this.v3Tokens = await this.attemptReLogin(toApi);
+            expIn = this.v3Tokens.expires_in;
+            lastLoggedIn = this.lastLoggedInV3;
+        }
+
+        let loggedInFor = expIn * 1000 - this.authDiff;
 
         if (lastLoggedIn + loggedInFor <= now) {
             await this.acquireRefreshToken(toApi, now, lastLoggedIn, loggedInFor);
         } else {
-            if (toApi == 'mobile') {
-                console.log(`%c${this.fullName} - Not renewing ${toApi} tokens yet (${(this.lastLoggedIn + loggedInFor - now) / 1000} / ${(this.tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
+            if (toApi == "mobile") {
+                console.log(
+                    `%c${this.fullName} - Not renewing ${toApi} tokens yet (${
+                        (this.lastLoggedIn + loggedInFor - now) / 1000
+                    } / ${(this.tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`,
+                    "background: #F6FF6B; color: black"
+                );
+            } else if (toApi == "administration") {
+                console.log(
+                    `%c${this.fullName} - Not renewing ${toApi} tokens yet (${
+                        (this.lastLoggedInAdministration + loggedInFor - now) / 1000
+                    } / ${
+                        (this.administrationTokens.expires_in * 1000 - this.authDiff) / 1000
+                    }s remaining)`,
+                    "background: #F6FF6B; color: black"
+                );
             } else {
-                console.log(`%c${this.fullName} - Not renewing ${toApi} tokens yet (${(this.lastLoggedInAdministration + loggedInFor - now) / 1000} / ${(this.administrationTokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`, 'background: #F6FF6B; color: black')
+                console.log(
+                    `%c${this.fullName} - Not renewing ${toApi} tokens yet (${
+                        (this.lastLoggedInV3 + loggedInFor - now) / 1000
+                    } / ${(this.v3Tokens.expires_in * 1000 - this.authDiff) / 1000}s remaining)`,
+                    "background: #F6FF6B; color: black"
+                );
             }
         }
     }
-    private async acquireRefreshToken(toApi: 'mobile' | 'administration' = 'mobile', now: number, lastLoggedIn: number, loggedInFor: number) {
-
+    private async acquireRefreshToken(
+        toApi: "mobile" | "administration" | "v3" = "mobile",
+        now: number,
+        lastLoggedIn: number,
+        loggedInFor: number
+    ) {
         if (this.loginInProgress) {
             while (this.loginInProgress) await this.delay(20);
-            return this.loginWithRefreshToken();
+            return this.loginWithRefreshToken(toApi);
         }
 
         this.loginInProgress = true;
 
-
         if (toApi == "mobile") {
-            console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (lastLoggedIn + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
+            console.log(
+                `%c${this.fullName} - Renewing ${toApi} tokens (${
+                    now / 1000 - (lastLoggedIn + loggedInFor) / 1000
+                }s) over token expiry`,
+                "background: #93FF6B; color: black"
+            );
+        } else if (toApi == "administration") {
+            console.log(
+                `%c${this.fullName} - Renewing ${toApi} tokens (${
+                    now / 1000 - (this.lastLoggedInAdministration + loggedInFor) / 1000
+                }s) over token expiry`,
+                "background: #93FF6B; color: black"
+            );
         } else {
-            console.log(`%c${this.fullName} - Renewing ${toApi} tokens (${now / 1000 - (this.lastLoggedInAdministration + loggedInFor) / 1000}s) over token expiry`, 'background: #93FF6B; color: black')
+            console.log(
+                `%c${this.fullName} - Renewing ${toApi} tokens (${
+                    now / 1000 - (this.lastLoggedInV3 + loggedInFor) / 1000
+                }s) over token expiry`,
+                "background: #93FF6B; color: black"
+            );
         }
 
         let newTokens;
-        if (toApi == 'mobile') {
+        if (toApi == "mobile") {
             try {
                 newTokens = await this.kreta.renewToken(this.tokens.refresh_token, this.institute);
             } catch (error) {
@@ -126,9 +200,20 @@ export class User {
                 this.loginInProgress = false;
                 if (!newTokens) throw error;
             }
+        } else if (toApi == "administration") {
+            try {
+                newTokens = await this.administrationService.renewToken(
+                    this.administrationTokens.refresh_token,
+                    this.institute
+                );
+            } catch (error) {
+                newTokens = await this.attemptReLogin(toApi);
+                this.loginInProgress = false;
+                if (!newTokens) throw error;
+            }
         } else {
             try {
-                newTokens = await this.administrationService.renewToken(this.administrationTokens.refresh_token, this.institute);
+                newTokens = await this.kretaV3.renewToken(this.v3Tokens.refresh_token);
             } catch (error) {
                 newTokens = await this.attemptReLogin(toApi);
                 this.loginInProgress = false;
@@ -137,12 +222,15 @@ export class User {
         }
 
         if (newTokens != null) {
-            if (toApi == 'mobile') {
+            if (toApi == "mobile") {
                 this.tokens = newTokens;
                 this.lastLoggedIn = new Date().valueOf();
-            } else {
+            } else if (toApi == "administration") {
                 this.administrationTokens = newTokens;
                 this.lastLoggedInAdministration = new Date().valueOf();
+            } else {
+                this.v3Tokens = newTokens;
+                this.lastLoggedInV3 = new Date().valueOf();
             }
 
             //overwriting the tokens of the stored users init data
@@ -154,12 +242,13 @@ export class User {
                         username: this.username,
                         tokens: this.tokens,
                         adminstrationTokens: this.administrationTokens,
+                        v3Tokens: this.v3Tokens,
                         institute: this.institute,
                         fullName: this.fullName,
                         notificationsEnabled: this.notificationsEnabled,
                         lastNotificationSetTime: this.lastNotificationSetTime,
                         yx: this.yx,
-                    }
+                    };
                 }
             }
             await this.app.changeConfig("usersInitData", newUsersInitData);
@@ -169,7 +258,7 @@ export class User {
     private delay(timer: number): Promise<void> {
         return new Promise(resolve => setTimeout(() => resolve(), timer));
     }
-    private async attemptReLogin(toApi: "mobile" | "administration") {
+    private async attemptReLogin(toApi: "mobile" | "administration" | "v3") {
         console.warn("Attempting re-login");
 
         if (!this.username || !this.yx) return;
@@ -178,8 +267,14 @@ export class User {
         try {
             if (toApi == "mobile") {
                 tokens = await this.kreta.getToken(this.username, this.yx, this.institute);
+            } else if (toApi == "administration") {
+                tokens = await this.administrationService.getToken(
+                    this.username,
+                    this.yx,
+                    this.institute
+                );
             } else {
-                tokens = await this.administrationService.getToken(this.username, this.yx, this.institute)
+                tokens = await this.kretaV3.getToken(this.username, this.yx, this.institute);
             }
         } catch (e) {
             console.error("Re-login failed with:", e);
@@ -192,21 +287,29 @@ export class User {
     @returns {Promise<boolean>} Promise that resolves to `true` if the user doesn't yet exist, `false` if it does
      */
     public async fetchUserData(): Promise<boolean> {
-        let student = await this.kreta.getStudent(this.fDate.getDate("today"), this.fDate.getDate("today"), true, this.tokens, this.institute, '_studentLoginData');
+        let student = await this.kretaV3.getStudent(this.v3Tokens, this.institute);
         if (student != null) {
-            this.setUserData(student.Name, student.StudentId, this.notificationsEnabled, this.lastNotificationSetTime, this.administrationTokens);
+            this.setUserData(
+                student.Nev,
+                +student.Uid,
+                this.notificationsEnabled,
+                this.lastNotificationSetTime,
+                this.administrationTokens,
+                this.v3Tokens
+            );
             //overwriting the name and id of the users init data
             let newUserInitData: userInitData = {
                 id: this.id,
                 username: this.username,
                 tokens: this.tokens,
                 adminstrationTokens: this.administrationTokens,
+                v3Tokens: this.v3Tokens,
                 institute: this.institute,
                 fullName: this.fullName,
                 notificationsEnabled: this.notificationsEnabled,
                 lastNotificationSetTime: this.lastNotificationSetTime,
                 yx: this.yx,
-            }
+            };
             let doesUserAlreadyExist = false;
             this.app.usersInitData.forEach(userInitData => {
                 if (userInitData.id == newUserInitData.id) {
@@ -232,13 +335,21 @@ export class User {
      * @param notificationsEnabled whether notifications for the user are enabled
      * @param lastNotificationSetTime the last time notifications for this user were set
      */
-    public setUserData(fullName: string, id: number, notificationsEnabled: boolean, lastNotificationSetTime: number, administrationTokens: Token) {
+    public setUserData(
+        fullName: string,
+        id: number,
+        notificationsEnabled: boolean,
+        lastNotificationSetTime: number,
+        administrationTokens: Token,
+        v3Tokens: Token
+    ) {
         this.fullName = fullName;
         this.id = id;
         this.administrationTokens = administrationTokens;
-        this.notificationsEnabled = notificationsEnabled,
-            this.lastNotificationSetTime = lastNotificationSetTime,
-            this.cacheIds = {
+        this.v3Tokens = v3Tokens;
+        (this.notificationsEnabled = notificationsEnabled),
+            (this.lastNotificationSetTime = lastNotificationSetTime),
+            (this.cacheIds = {
                 student: `${this.id}_studentData`,
                 tests: `${this.id}_testsData`,
                 messageList: `${this.id}_messageListData`,
@@ -262,17 +373,43 @@ export class User {
                 // directorateAddresseeList: `${this.id}_directorateAddresseeListData`,
                 // adminAddresseeList: `${this.id}_adminAddresseeListData`,
                 // szmkAddresseeList: `${this.id}_szmkAddresseeListData`,
-            }
+                v3Averages: `${this.id}_v3AveragesData`,
+                v3ClassAverages: `${this.id}_v3ClassAveragesData`,
+                v3ClassGroups: `${this.id}_v3ClassGroupsData`,
+                v3Evaluations: `${this.id}_v3EvaluationsData`,
+                v3Events: `${this.id}_v3EventsData`,
+                v3HeadTeachers: `${this.id}_v3HeadTeachersData`,
+                v3Homeworks: `${this.id}_v3HomeworksData`,
+                v3Lessons: `${this.id}_v3LessonsData`,
+                v3Notes: `${this.id}_v3NotesData`,
+                v3SchoolYearPlan: `${this.id}_v3SchoolYearPlanData`,
+                v3Student: `${this.id}_v3StudentData`,
+                v3Tests: `${this.id}_v3TestsData`,
+                v3Absences: `${this.id}_v3AbsencesData`,
+            });
     }
-    public resetTokenTime(API: 'mobile' | 'administration') {
+    public resetTokenTime(API: "mobile" | "administration" | "v3") {
         if (API == "mobile") {
             this.lastLoggedIn = 0;
-        } else {
+        } else if (API == "administration") {
             this.lastLoggedInAdministration = 0;
+        } else {
+            this.lastLoggedInV3 = 0;
         }
     }
-    public isTokenTimeZero(API: 'mobile' | 'administration') {
-        return API == "mobile" ? this.lastLoggedIn == 0 : this.lastLoggedInAdministration == 0;
+    public isTokenTimeZero(API: "mobile" | "administration" | "v3") {
+        return API == "mobile"
+            ? this.lastLoggedIn == 0
+            : API == "administration"
+            ? this.lastLoggedInAdministration == 0
+            : this.lastLoggedInV3 == 0;
+    }
+    public removePassword() {
+        let i = this.app.usersInitData.findIndex(uid => uid.id == this.id);
+        this.app.usersInitData[i].yx = null;
+        this.yx = null;
+
+        this.app.changeConfig("usersInitData", this.app.usersInitData);
     }
     /**
      * Clears all of the cached data that the user had ever stored
@@ -284,18 +421,21 @@ export class User {
     }
     public async redoKretaLogin(newUsername: string, newPassword: string) {
         let newTokens = await this.kreta.getToken(newUsername, newPassword, this.institute);
+        let newTokensV3 = await this.kretaV3.getToken(newUsername, newPassword, this.institute);
 
         if (newTokens) {
             this.tokens = newTokens;
+            this.v3Tokens = newTokensV3;
             this.username = newUsername;
-            this.yx = newPassword
+            this.yx = newPassword;
 
             let i = this.app.usersInitData.findIndex(uid => uid.id == this.id);
             this.app.usersInitData[i].tokens = newTokens;
+            this.app.usersInitData[i].v3Tokens = newTokensV3;
             this.app.usersInitData[i].username = newUsername;
             this.app.usersInitData[i].yx = newPassword;
 
-            await this.app.changeConfig('usersInitData', this.app.usersInitData);
+            await this.app.changeConfig("usersInitData", this.app.usersInitData);
         }
     }
     public async logOutOfAdministration() {
@@ -309,6 +449,7 @@ export class User {
             lastNotificationSetTime: this.lastNotificationSetTime,
             notificationsEnabled: this.notificationsEnabled,
             tokens: this.tokens,
+            v3Tokens: this.v3Tokens,
             yx: this.yx,
         };
         for (let i = 0; i < this.app.usersInitData.length; i++) {
@@ -316,17 +457,38 @@ export class User {
                 this.app.usersInitData[i] = newUserInitData;
             }
         }
-        await this.app.changeConfig('usersInitData', this.app.usersInitData);
+        await this.app.changeConfig("usersInitData", this.app.usersInitData);
     }
     /**
      * Clears the user's stored cache for a specific category (this will enforce some pages to be reloaded)
      * @param key the name of the category you want to be cleared from the storage
      */
     public async clearUserCacheByCategory(
-        key: 'student' | 'tests' | 'messageList' | 'lesson' |
-            'studentHomeworks' | 'teacherHomeworks' | 'events' |
-            'combined' | 'administration.inboxMessageList' |
-            'administration.outboxMessageList' | 'administration.deletedMessageList'
+        key:
+            | "student"
+            | "tests"
+            | "messageList"
+            | "lesson"
+            | "studentHomeworks"
+            | "teacherHomeworks"
+            | "events"
+            | "combined"
+            | "inboxMessageList"
+            | "outboxMessageList"
+            | "deletedMessageList"
+            | "v3Student"
+            | "v3ClassGroupsData"
+            | "v3absences"
+            | "v3Notes"
+            | "v3Evaluations"
+            | "v3Tests"
+            | "v3SchoolYearPlan"
+            | "v3Homeworks"
+            | "v3Lessons"
+            | "v3Averages"
+            | "v3HeadTeachers"
+            | "v3Events"
+            | "v3ClassAverages"
     ) {
         await this.storage.remove(this.cacheIds[key]);
     }
@@ -336,9 +498,15 @@ export class User {
      */
     public localNotificationsEnabler(changeTo: boolean) {
         if (changeTo) {
-            console.log(`%c[USER->localNotificationsEnabler()] Enabling notifications for ${this.fullName}`, 'background-color: darkgreen; color: white');
+            console.log(
+                `%c[USER->localNotificationsEnabler()] Enabling notifications for ${this.fullName}`,
+                "background-color: darkgreen; color: white"
+            );
         } else {
-            console.log(`%c[USER->localNotificationsEnabler()] Disabling notifications for ${this.fullName}`, 'background-color: pink; color: black')
+            console.log(
+                `%c[USER->localNotificationsEnabler()] Disabling notifications for ${this.fullName}`,
+                "background-color: pink; color: black"
+            );
         }
         this.notificationsEnabled = changeTo;
 
@@ -357,15 +525,23 @@ export class User {
      * @param howManyWeeks how many weeks in the future to set the user's local timetable notifications (1 means the current week only)
      */
     public async setLocalNotifications(howManyWeeks: number) {
-        let lessons = await this.getLesson(this.fDate.getWeekFirst(0), this.fDate.getWeekLast(howManyWeeks - 1), true);
+        let lessons = await this.getLessonsV3(
+            this.fDate.getWeekFirst(0),
+            this.fDate.getWeekLast(howManyWeeks - 1)
+        );
         this.notificationService.setLocalNotifications(lessons);
     }
     /**
      * Pre-initializes local notifications for 2 weeks (if it hasn't been initialized this week and notifications are enabled on the user)
      */
     public async preInitializeLocalNotifications() {
-        if (this.notificationsEnabled && (await this.notificationService.getAllNonDismissed()).length < 10) {
-            console.log(`[USER->preInitializeLocalNotifications()] pre-initializing notifications for ${this.fullName}`);
+        if (
+            this.notificationsEnabled &&
+            (await this.notificationService.getAllNonDismissed()).length < 10
+        ) {
+            console.log(
+                `[USER->preInitializeLocalNotifications()] pre-initializing notifications for ${this.fullName}`
+            );
             await this.setLocalNotifications(2);
             let newUsersInitData = this.app.usersInitData;
             for (let i = 0; i < newUsersInitData.length; i++) {
@@ -375,33 +551,39 @@ export class User {
                         username: this.username,
                         tokens: this.tokens,
                         adminstrationTokens: this.tokens,
+                        v3Tokens: this.v3Tokens,
                         institute: this.institute,
                         fullName: this.fullName,
                         notificationsEnabled: this.notificationsEnabled,
                         lastNotificationSetTime: new Date().valueOf(),
                         yx: this.yx,
-                    }
+                    };
                 }
             }
-            await this.app.changeConfig('usersInitData', newUsersInitData);
+            await this.app.changeConfig("usersInitData", newUsersInitData);
         }
     }
     //#endregion
 
     public getAsyncAsObservableWithCache<T>(
         asyncFns: {
-            name: string,
-            cacheKey: string,
-            params: any[],
+            name: string;
+            cacheKey: string;
+            params: any[];
         }[],
         forceRefresh: boolean = false,
-        skipCache: boolean = false,
+        skipCache: boolean = false
     ): Observable<T> {
-
         asyncFns.forEach(fn => {
-            if (!this[fn.name]) throw new Error(`The user class has no declared function '${fn.name}()'. Check your spelling or declare it manually.`)
-            if (!this.cacheIds[fn.cacheKey]) throw new Error(`The user class contains no cacheId called '${fn.name}'. Check your spelling or add it to the cacheIds object.`)
-        })
+            if (!this[fn.name])
+                throw new Error(
+                    `The user class has no declared function '${fn.name}()'. Check your spelling or declare it manually.`
+                );
+            if (!this.cacheIds[fn.cacheKey])
+                throw new Error(
+                    `The user class contains no cacheId corresponding to key: '${fn.cacheKey}'. Check your spelling or add it to the cacheIds object.`
+                );
+        });
 
         let returnVal = new Subject<T | any>();
         Promise.all(
@@ -431,41 +613,42 @@ export class User {
                     asyncFns.map(asyncFn => {
                         return this[asyncFn.name].apply(this, asyncFn.params);
                     })
-                ).then(res => {
-                    console.log(
-                        `%c[USER] ✓ Performed ${
-                        asyncFns.length
-                        } request${
-                        asyncFns.length > 1 ? 's' : ''
-                        } in ${
-                        Math.round((new Date().valueOf() - d1) * 1000) / 1000
-                        }ms`,
-                        'color: #2196f3'
-                    )
+                )
+                    .then(res => {
+                        console.log(
+                            `%c[USER] ✓ Performed ${asyncFns.length} request${
+                                asyncFns.length > 1 ? "s" : ""
+                            } in ${Math.round((new Date().valueOf() - d1) * 1000) / 1000}ms`,
+                            "color: #2196f3"
+                        );
 
-                    let d = [];
-                    res.forEach((e, i) => {
-                        if (e) {
-                            d.push(e);
-                            if (!skipCache) this.cache.setCache(this.cacheIds[asyncFns[i].cacheKey], e);
-                        }
+                        let d = [];
+                        res.forEach((e, i) => {
+                            if (e) {
+                                d.push(e);
+                                if (!skipCache)
+                                    this.cache.setCache(this.cacheIds[asyncFns[i].cacheKey], e);
+
+                                //lastUpdated (for notifications)
+                                this.storage.set(
+                                    `LU_${asyncFns[i].cacheKey}`,
+                                    new Date().valueOf()
+                                );
+                            }
+                        });
+
+                        returnVal.next(d);
+                        returnVal.complete();
+                    })
+                    .catch(error => {
+                        console.log(
+                            `%c[USER] X Failed to perform ${asyncFns.length} request${
+                                asyncFns.length > 1 ? "s" : ""
+                            } in ${Math.round((new Date().valueOf() - d1) * 1000) / 1000}ms`,
+                            "color: #ff5131"
+                        );
+                        returnVal.error(error);
                     });
-
-                    returnVal.next(d);
-                    returnVal.complete();
-                }).catch(error => {
-                    console.log(
-                        `%c[USER] X Failed to perform ${
-                        asyncFns.length
-                        } request${
-                        asyncFns.length > 1 ? 's' : ''
-                        } in ${
-                        Math.round((new Date().valueOf() - d1) * 1000) / 1000
-                        }ms`,
-                        'color: #ff5131'
-                    )
-                    returnVal.error(error);
-                });
             } else {
                 returnVal.complete();
             }
@@ -481,23 +664,54 @@ export class User {
      * @param skipCache whether or not it should be attempted to get, renew and return cached data.
      * @returns {Promise} Promise that resolves to a Lesson object array
      */
-    public async getLesson(fromDate: string, toDate: string, skipCache: boolean = false): Promise<Lesson[]> {
+    public async getLesson(
+        fromDate: string,
+        toDate: string,
+        skipCache: boolean = false
+    ): Promise<Lesson[]> {
         await this.loginWithRefreshToken();
-        let lessons = await this.kreta.getLesson(fromDate, toDate, skipCache, this.tokens, this.institute, this.cacheIds.lesson)
+        let lessons = await this.kreta.getLesson(
+            fromDate,
+            toDate,
+            skipCache,
+            this.tokens,
+            this.institute,
+            this.cacheIds.lesson
+        );
         //await this.updateLocalNotifications(lessons); (deprecated for now)
         return lessons;
     }
     public async getStudent(fromDate: string, toDate: string, forceRefresh: boolean = false) {
         await this.loginWithRefreshToken();
-        return this.kreta.getStudent(fromDate, toDate, forceRefresh, this.tokens, this.institute, this.cacheIds.student);
+        return this.kreta.getStudent(
+            fromDate,
+            toDate,
+            forceRefresh,
+            this.tokens,
+            this.institute,
+            this.cacheIds.student
+        );
     }
     public async getEvents(): Promise<Event[]> {
         await this.loginWithRefreshToken();
         return this.kreta.getEvents(this.tokens, this.institute);
     }
-    public async getTests(fromDate: string, toDate: string, forceRefresh: boolean = false, skipCache: boolean = false): Promise<Test[]> {
+    public async getTests(
+        fromDate: string,
+        toDate: string,
+        forceRefresh: boolean = false,
+        skipCache: boolean = false
+    ): Promise<Test[]> {
         await this.loginWithRefreshToken();
-        return this.kreta.getTests(fromDate, toDate, forceRefresh, skipCache, this.tokens, this.institute, this.cacheIds.tests)
+        return this.kreta.getTests(
+            fromDate,
+            toDate,
+            forceRefresh,
+            skipCache,
+            this.tokens,
+            this.institute,
+            this.cacheIds.tests
+        );
     }
     public async getMessageListMobile(forceRefresh: boolean) {
         await this.loginWithRefreshToken();
@@ -510,9 +724,20 @@ export class User {
      * @param homeworkId the homeworkId to get the homeworks by
      * @returns {Promise} Promise that resolves to a StudentHomework object array
      *  */
-    public async getStudentHomeworks(fromDate: string = null, toDate: string = null, homeworkId: number = null): Promise<StudentHomework[]> {
+    public async getStudentHomeworks(
+        fromDate: string = null,
+        toDate: string = null,
+        homeworkId: number = null
+    ): Promise<StudentHomework[]> {
         await this.loginWithRefreshToken();
-        return await this.kreta.getStudentHomeworks(fromDate, toDate, homeworkId, this.tokens, this.institute, this.cacheIds.studentHomeworks);
+        return await this.kreta.getStudentHomeworks(
+            fromDate,
+            toDate,
+            homeworkId,
+            this.tokens,
+            this.institute,
+            this.cacheIds.studentHomeworks
+        );
     }
     /**
      * Gets the user's teacher homeworks between two dates or by a homeworkId
@@ -521,9 +746,20 @@ export class User {
      * @param homeworkId the homeworkId to get the homeworks by
      * @returns {Promise} Promise that resolves to a TeacherHomework object array
      */
-    public async getTeacherHomeworks(fromDate: string, toDate: string, homeworkId: number = null): Promise<TeacherHomework[]> {
+    public async getTeacherHomeworks(
+        fromDate: string,
+        toDate: string,
+        homeworkId: number = null
+    ): Promise<TeacherHomework[]> {
         await this.loginWithRefreshToken();
-        return await this.kreta.getTeacherHomeworks(fromDate, toDate, homeworkId, this.tokens, this.institute, this.cacheIds.teacherHomeworks);
+        return await this.kreta.getTeacherHomeworks(
+            fromDate,
+            toDate,
+            homeworkId,
+            this.tokens,
+            this.institute,
+            this.cacheIds.teacherHomeworks
+        );
     }
     public async changeHomeworkState(done: boolean, teacherHomeworkId: number) {
         await this.loginWithRefreshToken();
@@ -540,7 +776,7 @@ export class User {
     }
     /**
      * Sets one of the user's messages as read
-     * @param messageId 
+     * @param messageId
      */
     public async setMessageAsRead(messageId: number): Promise<void> {
         await this.loginWithRefreshToken();
@@ -558,7 +794,7 @@ export class User {
     }
     /**
      * Deletes one of the user's student homeworks. (It doesn't need to have been added by the user)
-     * @param id 
+     * @param id
      * @returns {Promise} Promise that resolves true if the request was successful, false if not
      */
     public async deleteStudentHomework(id: number): Promise<boolean> {
@@ -572,18 +808,32 @@ export class User {
      * @param userAgent the User-Agent that should be used in the HTTP request as a header
      * @returns {Promise} Promise that resolves to the response time [ms]
      */
-    public async getLessonLAB(fromDate: string, toDate: string, userAgent: string): Promise<number> {
-        await this.loginWithRefreshToken();
-        return await this.kreta.getLessonLAB(fromDate, toDate, userAgent, this.tokens, this.institute);
+    public async getLessonLAB(
+        fromDate: string,
+        toDate: string,
+        userAgent: string
+    ): Promise<number> {
+        await this.loginWithRefreshToken("v3");
+        return await this.kretaV3.getLessonLAB(
+            fromDate,
+            toDate,
+            userAgent,
+            this.v3Tokens,
+            this.institute
+        );
     }
     public async getMessageFile(fileId: number, fileName: string, fileExtension: string) {
         await this.loginWithRefreshToken();
         return this.kreta.getMessageFile(fileId, fileName, fileExtension, this.tokens);
     }
 
-
+    //administration
     public async logIntoAdministration(username: string, password: string) {
-        let newTokens = await this.administrationService.getToken(username, password, this.institute);
+        let newTokens = await this.administrationService.getToken(
+            username,
+            password,
+            this.institute
+        );
         if (newTokens) {
             this.administrationTokens = newTokens;
             this.username = username;
@@ -601,72 +851,185 @@ export class User {
     public isAdministrationRegistered() {
         return this.administrationTokens != null;
     }
-    public async getMessageList(state: 'inbox' | 'outbox' | 'deleted') {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.getMessageList(state, this.administrationTokens);
+    public async getMessageList(state: "inbox" | "outbox" | "deleted") {
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.getMessageList(state, this.v3Tokens);
     }
     public async getMessageAdministration(messageId: number): Promise<AdministrationMessage> {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.getMessage(messageId, this.administrationTokens);
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.getMessage(messageId, this.v3Tokens);
     }
-    public async binMessage(action: 'put' | 'remove', messageIdList: number[]) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.binMessages(action, messageIdList, this.administrationTokens);
+    public async binMessage(action: "put" | "remove", messageIdList: number[]) {
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.binMessages(action, messageIdList, this.v3Tokens);
     }
     public async deleteMessage(messageIdList: number[]) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.deleteMessages(messageIdList, this.administrationTokens);
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.deleteMessages(messageIdList, this.v3Tokens);
     }
-    public async changeMessageState(newState: 'read' | 'unread', messageIdList: number[]) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.changeMessageState(newState, messageIdList, this.administrationTokens)
+    public async changeMessageState(newState: "read" | "unread", messageIdList: number[]) {
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.changeMessageState(
+            newState,
+            messageIdList,
+            this.v3Tokens
+        );
     }
     public async replyToMessage(
         messageId: number,
         targy: string,
         szoveg: string,
-        attachmentList: AttachmentToSend[],
+        attachmentList: AttachmentToSend[]
     ) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.replyToMessage(messageId, targy, szoveg, attachmentList, this.administrationTokens);
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.replyToMessage(
+            messageId,
+            targy,
+            szoveg,
+            attachmentList,
+            this.v3Tokens
+        );
     }
     public async sendNewMessage(
         addresseeList: Addressee[],
         targy: string,
         szoveg: string,
-        attachmentList: AttachmentToSend[],
+        attachmentList: AttachmentToSend[]
     ) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.sendNewMessage(addresseeList, targy, szoveg, attachmentList, this.administrationTokens);
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.sendNewMessage(
+            addresseeList,
+            targy,
+            szoveg,
+            attachmentList,
+            this.v3Tokens
+        );
     }
     public async getAddresseeTypeList(): Promise<AddresseeType[]> {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.getAddresseeTypeList(this.administrationTokens);
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.getAddresseeTypeList(this.v3Tokens);
     }
-    public async getAddresseListByCategory(category: 'teachers' | 'headTeachers' | 'directorate' | 'tutelaries' | 'students' | 'admins' | 'szmk'): Promise<AddresseeListItem[]> {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.getAddresseeListByCategory(category, this.administrationTokens);
+    public async getAddresseListByCategory(
+        category:
+            | "teachers"
+            | "headTeachers"
+            | "directorate"
+            | "tutelaries"
+            | "students"
+            | "admins"
+            | "szmk"
+    ): Promise<AddresseeListItem[]> {
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.getAddresseeListByCategory(category, this.v3Tokens);
     }
-    public async getAddresseeGroups(addresseeType: 'tutelaries' | 'students', groupType: 'classes' | 'groups', ) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.getAddresseeGroups(addresseeType, groupType, this.administrationTokens);
+    public async getAddresseeGroups(
+        addresseeType: "tutelaries" | "students",
+        groupType: "classes" | "groups"
+    ) {
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.getAddresseeGroups(
+            addresseeType,
+            groupType,
+            this.v3Tokens
+        );
     }
-    public async getStudentsOrParents(category: 'students' | 'tutelaries', by: 'byGroups' | 'byClasses', groupOrClassId: number) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.getStudentsOrParents(category, by, groupOrClassId, this.administrationTokens);
+    public async getStudentsOrParents(
+        category: "students" | "tutelaries",
+        by: "byGroups" | "byClasses",
+        groupOrClassId: number
+    ) {
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.getStudentsOrParents(
+            category,
+            by,
+            groupOrClassId,
+            this.v3Tokens
+        );
     }
-    public async addAttachment(using: 'camera' | 'gallery' | 'file'): Promise<AttachmentToSend> {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.addAttachment(using, this.administrationTokens);
+    public async addAttachment(using: "camera" | "gallery" | "file"): Promise<AttachmentToSend> {
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.addAttachment(using, this.v3Tokens);
     }
     public async removeAttachment(attachmentId: string) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.removeAttachment(attachmentId, this.administrationTokens);
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.removeAttachment(attachmentId, this.v3Tokens);
     }
     public async getAttachmentThroughAdministration(fileId: number, fileName: string) {
-        await this.loginWithRefreshToken('administration');
-        return this.administrationService.getAttachment(fileId, fileName, this.administrationTokens);
+        await this.loginWithRefreshToken("v3");
+        return this.administrationService.getAttachment(fileId, fileName, this.v3Tokens);
     }
+
+    //v3 (commented functions not yet implemented due to limitations with testing ://)
+    public async getStudentV3() {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getStudent(this.v3Tokens, this.institute);
+    }
+    public async getClassGroupsV3() {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getClassGroups(this.v3Tokens, this.institute);
+    }
+    public async getAbsencesV3() {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getAbsences(this.v3Tokens, this.institute);
+    }
+    public async getNotesV3() {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getNotes(this.v3Tokens, this.institute);
+    }
+    public async getEvaluationsV3() {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getEvaluations(this.v3Tokens, this.institute);
+    }
+    public async getTestsV3() {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getTests(this.v3Tokens, this.institute);
+    }
+    public async getSchoolYearPlanV3() {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getSchoolYearPlan(this.v3Tokens, this.institute);
+    }
+    // public async getEventsV3() {
+    //     await this.loginWithRefreshToken("v3");
+    //     return this.kretaV3.getEvents(this.v3Tokens, this.institute);
+    // }
+
+    public async getHomeworksV3(fromDate: string, toDate: string) {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getHomeworks(this.v3Tokens, this.institute, fromDate, toDate);
+    }
+    public async getLessonsV3(fromDate: string, toDate: string) {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getLessons(this.v3Tokens, this.institute, fromDate, toDate);
+    }
+
+    public async getAveragesV3() {
+        const classGroups = await this.kretaV3.getClassGroups(this.v3Tokens, this.institute);
+        if (!classGroups[0] || !classGroups[0].OktatasNevelesiFeladat)
+            throw new Error(
+                "Cannot get averages: No OktatasiNevelesiFeladat registered with the current user"
+            );
+
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getAverages(
+            this.v3Tokens,
+            this.institute,
+            classGroups[0].OktatasNevelesiFeladat.Uid
+        );
+    }
+    // public async getClassAveragesV3(oktatasiNevelesiFeladatUid: string) {
+    //     await this.loginWithRefreshToken("v3");
+    //     return this.kretaV3.getClassAverages(
+    //         this.v3Tokens,
+    //         this.institute,
+    //         oktatasiNevelesiFeladatUid
+    //     );
+    // }
+
+    // public async getHeadTeachersByUidV3(uids: string[]) {
+    //     await this.loginWithRefreshToken("v3");
+    //     return this.kretaV3.getHeadTeachersByUid(this.v3Tokens, this.institute, uids);
+    // }
+
     //#endregion
 }
 export interface userInitData {
@@ -675,6 +1038,7 @@ export interface userInitData {
     yx: string;
     tokens: Token;
     adminstrationTokens: Token;
+    v3Tokens: Token;
     institute: Institute;
     fullName: string;
     notificationsEnabled: boolean;

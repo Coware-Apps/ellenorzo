@@ -1,11 +1,13 @@
-<ion-card button [ngClass]="{'unread': !message.isElolvasva}">
-  <ion-card-header>
-    <ion-icon class="categoryIcon" name="chatbox-outline"></ion-icon>
-    <ion-card-subtitle>{{this.fDate.formatDateWithZerosAndDots(message.uzenet.kuldesDatum)}} -
-      {{this.fDate.getTime(message.uzenet.kuldesDatum)}}</ion-card-subtitle>
-    <ion-card-title>{{message.uzenet.feladoNev}}</ion-card-title>
-  </ion-card-header>
-  <ion-card-content>
-    {{message.uzenet.targy}}
-  </ion-card-content>
+<ion-card button [ngClass]="{ unread: !message.isElolvasva }">
+    <ion-card-header>
+        <ion-icon class="categoryIcon" name="chatbox-outline"></ion-icon>
+        <ion-card-subtitle
+            >{{ this.fDate.formatDateWithZerosAndDots(message.uzenetKuldesDatum) }} -
+            {{ this.fDate.getTime(message.uzenetKuldesDatum) }}</ion-card-subtitle
+        >
+        <ion-card-title>{{ message.uzenetFeladoNev }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+        {{ message.uzenetTargy }}
+    </ion-card-content>
 </ion-card>

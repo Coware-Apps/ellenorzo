@@ -1,49 +1,78 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="settings"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{'pages.notification-settings.title' | translate}}</ion-title>
-    <ion-toggle [checked]="this.app.localNotificationsEnabled" (ionChange)="toggleNotifications()" slot="end">
-    </ion-toggle>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-back-button
+                defaultHref="settings"
+                [text]="app.getBackButtonText()"
+            ></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'pages.notification-settings.title' | translate}}</ion-title>
+        <ion-toggle
+            [checked]="this.app.localNotificationsEnabled"
+            (ionChange)="toggleNotifications()"
+            slot="end"
+        >
+        </ion-toggle>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item [disabled]='!this.app.localNotificationsEnabled' *ngFor="let user of this.userManager.allUsers">
-      <ion-buttons slot="end">
-        <ion-button (click)="enableNotificationsForUser(user.id)" [disabled]='!this.app.localNotificationsEnabled'>
-          <ion-icon *ngIf="user.notificationsEnabled && this.app.localNotificationsEnabled" slot="icon-only"
-            name="notifications-sharp"></ion-icon>
-          <ion-icon *ngIf="!user.notificationsEnabled || !this.app.localNotificationsEnabled" slot="icon-only"
-            name="notifications-off-sharp"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-label>
-        <h2>{{user.fullName}}</h2>
-        <ion-note>{{user.institute.Name}} - {{user.id}}</ion-note>
-      </ion-label>
-    </ion-item>
-    <ion-item button (click)="this.showScheduledNotifications()" *ngIf="this.app.devSettingsEnabled">
-      <ion-icon slot="start" name="list-circle-sharp"></ion-icon>
-      <ion-label>{{'pages.notification-settings.currentlyScheduledText' | translate}}</ion-label>
-    </ion-item>
-    <ion-item button (click)="this.cancelAllNotifications()" *ngIf="this.app.devSettingsEnabled">
-      <ion-icon slot="start" name="close-sharp"></ion-icon>
-      <ion-label>{{'pages.notification-settings.cancelAllText' | translate}}</ion-label>
-    </ion-item>
-  </ion-list>
-  <ion-list mode="md" lines="none">
-    <ion-item>
-      <ion-icon slot="start" name="information-circle-outline"></ion-icon>
-      <ion-note>{{'pages.notification-settings.info' | translate}}</ion-note>
-    </ion-item>
-  </ion-list>
-  <!-- <ion-button (click)="testBug(186220)" expand="block" fill="clear" shape="round">
+    <ion-list>
+        <ion-item
+            [disabled]="!this.app.localNotificationsEnabled"
+            *ngFor="let user of this.userManager.allUsers"
+        >
+            <ion-buttons slot="end">
+                <ion-button
+                    (click)="enableNotificationsForUser(user.id)"
+                    [disabled]="!this.app.localNotificationsEnabled"
+                >
+                    <ion-icon
+                        *ngIf="user.notificationsEnabled && this.app.localNotificationsEnabled"
+                        slot="icon-only"
+                        name="notifications-sharp"
+                    ></ion-icon>
+                    <ion-icon
+                        *ngIf="!user.notificationsEnabled || !this.app.localNotificationsEnabled"
+                        slot="icon-only"
+                        name="notifications-off-sharp"
+                    ></ion-icon>
+                </ion-button>
+            </ion-buttons>
+            <ion-label>
+                <h2>{{user.fullName}}</h2>
+                <ion-note>{{user.institute.name}} - {{user.id}}</ion-note>
+            </ion-label>
+        </ion-item>
+        <ion-item
+            button
+            (click)="this.showScheduledNotifications()"
+            *ngIf="this.app.devSettingsEnabled"
+        >
+            <ion-icon slot="start" name="list-circle-sharp"></ion-icon>
+            <ion-label
+                >{{'pages.notification-settings.currentlyScheduledText' | translate}}</ion-label
+            >
+        </ion-item>
+        <ion-item
+            button
+            (click)="this.cancelAllNotifications()"
+            *ngIf="this.app.devSettingsEnabled"
+        >
+            <ion-icon slot="start" name="close-sharp"></ion-icon>
+            <ion-label>{{'pages.notification-settings.cancelAllText' | translate}}</ion-label>
+        </ion-item>
+    </ion-list>
+    <ion-list mode="md" lines="none">
+        <ion-item>
+            <ion-icon slot="start" name="information-circle-outline"></ion-icon>
+            <ion-note>{{'pages.notification-settings.info' | translate}}</ion-note>
+        </ion-item>
+    </ion-list>
+    <!-- <ion-button (click)="testBug(186220)" expand="block" fill="clear" shape="round">
     Halál
   </ion-button> -->
-  <!-- <ion-button (click)="testNotification()" expand="block" fill="clear" shape="round">
+    <!-- <ion-button (click)="testNotification()" expand="block" fill="clear" shape="round">
     Csinálj értesítést
   </ion-button>
   <ion-button (click)="updateNotification()" expand="block" fill="clear" shape="round">

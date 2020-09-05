@@ -1,18 +1,28 @@
 <ion-card class="evaluationCard" button>
-  <ion-grid class="ion-no-padding">
-    <ion-row>
-      <ion-col id="evaluation-col-numberValue" class="ion-align-items-center" [ngStyle]="getCardStyle()" size="4">
-        <div class="center">
-          {{subjectAverage.Value}}
-        </div>
-      </ion-col>
-      <ion-col id="evaluation-col-desc-top" size="8">
-        <h3 id="evaluation-subject-compact" class="ion-text-wrap">
-          {{subjectAverage.Subject.charAt(0).toUpperCase() + subjectAverage.Subject.slice(1)}}</h3>
+    <ion-grid class="ion-no-padding">
+        <ion-row>
+            <ion-col
+                id="evaluation-col-numberValue"
+                class="ion-align-items-center"
+                [ngStyle]="getCardStyle()"
+                size="4"
+            >
+                <div class="center">
+                    {{ subjectAverage.Atlag?.toLocaleString(this.app.currentLng) }}
+                </div>
+            </ion-col>
+            <ion-col id="evaluation-col-desc-top" size="8">
+                <h3 id="evaluation-subject-compact" class="ion-text-wrap">
+                    {{
+                        subjectAverage.Tantargy?.Nev.charAt(0).toUpperCase() +
+                            subjectAverage.Tantargy?.Nev.slice(1)
+                    }}
+                </h3>
 
-        <p *ngIf="totalGrades" id="evaluation-theme" class="ion-text-wrap">
-          {{'pages.averages.totalGradesText' | translate}} {{totalGrades}}</p>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+                <p *ngIf="totalGrades" id="evaluation-theme" class="ion-text-wrap">
+                    {{ "pages.averages.totalGradesText" | translate }} {{ totalGrades }}
+                </p>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </ion-card>

@@ -1,78 +1,161 @@
 <ion-card button *ngIf="type == 'full'" class="evaluationCard" (click)="getMoreData(evaluation)">
-  <ion-grid class="ion-no-padding">
-    <ion-row>
-      <ion-col id="evaluation-col-numberValue" [ngStyle]="styleEval(evaluation)" size="4">
-        <div *ngIf="evaluation.Form != 'Percent'">
-          <div *ngIf="evaluation.NumberValue == 0 || evaluation.Form == 'Text'">
-            <ion-icon name="text-outline"></ion-icon>
-          </div>
-          <div *ngIf="evaluation.NumberValue != 0">
-            {{evaluation.NumberValue}}<small id="evaluation-small-weight">{{evaluation.Weight}}</small>
-          </div>
-        </div>
-        <div *ngIf="evaluation.Form == 'Percent'">
-          {{evaluation.NumberValue}}%
-        </div>
-      </ion-col>
-      <ion-col id="evaluation-col-desc-top" size="8">
-        <ion-icon class="categoryIcon" name="school-outline"></ion-icon>
-        <h3 *ngIf="evaluation.Subject" id="evaluation-subject" class="ion-text-wrap">
-          {{getSubject(evaluation).charAt(0).toUpperCase() + getSubject(evaluation).slice(1)}}</h3>
-        <h3 *ngIf="!evaluation.Subject" id="evaluation-subject" class="ion-text-wrap">
-          {{evaluation.Jelleg.Leiras}}</h3>
-        <p *ngIf="evaluation.Theme" id="evaluation-theme" class="ion-text-wrap">{{evaluation.Theme}}</p>
-        <p *ngIf="!evaluation.Theme" id="evaluation-theme" class="ion-text-wrap">{{evaluation.Mode}}</p>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col id="evaluation-col-date" class="ion-justify-content-center" [ngStyle]="styleEval(evaluation)" size="4">
-        <ion-row class="ion-justify-content-center">
-          <ion-col size="auto">
-            <p id="evaluation-text-date" class="ion-text-uppercase ion-no-margin">Dátum</p>
-            <strong id="evaluation-strong-date">{{fDate.formatDateWithZerosAndDots(evaluation.Date)}}</strong>
-          </ion-col>
+    <ion-grid class="ion-no-padding">
+        <ion-row>
+            <ion-col id="evaluation-col-numberValue" [ngStyle]="styleEval(evaluation)" size="4">
+                <div *ngIf="evaluation.ErtekFajta.Nev != 'Szazalekos'">
+                    <div
+                        *ngIf="evaluation.SzamErtek == 0 || evaluation.ErtekFajta.Nev == 'Szoveges'"
+                    >
+                        <ion-icon name="text-outline"></ion-icon>
+                    </div>
+                    <div *ngIf="evaluation.SzamErtek != 0">
+                        {{ evaluation.SzamErtek
+                        }}<small id="evaluation-small-weight"
+                            >{{
+                                evaluation.SulySzazalekErteke
+                                    ? evaluation.SulySzazalekErteke
+                                    : "100"
+                            }}%</small
+                        >
+                    </div>
+                </div>
+                <div *ngIf="evaluation.ErtekFajta.Nev == 'Szazalekos'">
+                    {{ evaluation.SzamErtek }}%
+                </div>
+            </ion-col>
+            <ion-col id="evaluation-col-desc-top" size="8">
+                <ion-icon class="categoryIcon" name="school-outline"></ion-icon>
+                <h3 *ngIf="evaluation.Tantargy.Nev" id="evaluation-subject" class="ion-text-wrap">
+                    {{
+                        getSubject(evaluation).charAt(0).toUpperCase() +
+                            getSubject(evaluation).slice(1)
+                    }}
+                </h3>
+                <h3
+                    *ngIf="!evaluation?.Tantargy?.Nev"
+                    id="evaluation-subject"
+                    class="ion-text-wrap"
+                >
+                    {{ evaluation.Jelleg }}
+                </h3>
+                <p *ngIf="evaluation.Tema" id="evaluation-theme" class="ion-text-wrap">
+                    {{ evaluation.Tema }}
+                </p>
+                <p *ngIf="!evaluation.Tema" id="evaluation-theme" class="ion-text-wrap">
+                    {{ evaluation.Mod?.Leiras }}
+                </p>
+            </ion-col>
         </ion-row>
-      </ion-col>
-      <ion-col size="8">
-        <ion-chip id="ion-teacher-chip" outline="false" class="ion-float-end ion-padding-end">
-          <ion-icon class="contrast-color" name="person-circle-outline"></ion-icon>
-          <ion-label>{{evaluation.Teacher}}</ion-label>
-        </ion-chip>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+        <ion-row>
+            <ion-col
+                id="evaluation-col-date"
+                class="ion-justify-content-center"
+                [ngStyle]="styleEval(evaluation)"
+                size="4"
+            >
+                <ion-row class="ion-justify-content-center">
+                    <ion-col size="auto">
+                        <p
+                            id="evaluation-text-date"
+                            class="ion-text-uppercase ion-no-margin"
+                            translate="components.evaluation.date"
+                        ></p>
+                        <strong id="evaluation-strong-date">{{
+                            fDate.formatDateWithZerosAndDots(evaluation.KeszitesDatuma)
+                        }}</strong>
+                    </ion-col>
+                </ion-row>
+            </ion-col>
+            <ion-col size="8">
+                <ion-chip
+                    id="ion-teacher-chip"
+                    outline="false"
+                    class="ion-float-end ion-padding-end"
+                >
+                    <ion-icon class="contrast-color" name="person-circle-outline"></ion-icon>
+                    <ion-label>{{ evaluation.ErtekeloTanarNeve }}</ion-label>
+                </ion-chip>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </ion-card>
 
-<ion-card *ngIf="type == 'displaySubject' || type == 'displayDate'" class="evaluationCard" button
-  (click)="this.getMoreData(evaluation)">
-  <ion-grid class="ion-no-padding">
-    <ion-row>
-      <ion-col id="evaluation-col-numberValue" [ngStyle]="styleEval(evaluation)" size="4">
-        <div *ngIf="evaluation.Form != 'Percent'">
-          <div *ngIf="evaluation.NumberValue == 0 || evaluation.Form == 'Text'">
-            <ion-icon name="text-outline"></ion-icon>
-          </div>
-          <div *ngIf="evaluation.NumberValue != 0">
-            {{evaluation.NumberValue}}<small id="evaluation-small-weight"
-              [innerHTML]="getWeight(evaluation.Weight)"></small>
-          </div>
-        </div>
-        <div *ngIf="evaluation.Form == 'Percent'">
-          {{evaluation.NumberValue}}%
-        </div>
-      </ion-col>
-      <ion-col id="evaluation-col-desc-top" size="8">
-        <h3 *ngIf="type == 'displayDate'" id="evaluation-subject-compact" class="ion-text-wrap">
-          {{fDate.formatDateWithZerosAndDots(evaluation.Date)}}</h3>
-        <h3 *ngIf="type == 'displaySubject'" id="evaluation-subject-compact" class="ion-text-wrap">
-          {{getSubject(evaluation).charAt(0).toUpperCase() + getSubject(evaluation).slice(1)}}</h3>
+<ion-card
+    *ngIf="type == 'displaySubject' || type == 'displayDate'"
+    class="evaluationCard"
+    button
+    (click)="this.getMoreData(evaluation)"
+>
+    <ion-grid class="ion-no-padding">
+        <ion-row>
+            <!-- NUMBERVALUE COL (LEFT) -->
+            <ion-col id="evaluation-col-numberValue" [ngStyle]="styleEval(evaluation)" size="4">
+                <div *ngIf="evaluation.ErtekFajta.Nev != 'Szazalekos'">
+                    <!-- Numbervalue == 0 || Text evaluation || NumberValue == null (Displaying: "Aa" icon, no percentage) -->
+                    <div
+                        *ngIf="
+                            evaluation.SzamErtek == 0 ||
+                            !evaluation.SzamErtek ||
+                            evaluation.ErtekFajta.Nev == 'Szoveges'
+                        "
+                    >
+                        <ion-icon name="text-outline"></ion-icon>
+                    </div>
 
-        <p *ngIf="evaluation.Theme" id="evaluation-theme" class="ion-text-wrap">{{evaluation.Theme}}</p>
-        <p *ngIf="!evaluation.Theme && getValue(evaluation) == ''" id="evaluation-theme" class="ion-text-wrap">
-          {{evaluation.Mode}}</p>
-        <p *ngIf="!evaluation.Theme && getValue(evaluation) != ''" id="evaluation-theme" class="ion-text-wrap">
-          {{getValue(evaluation)}}</p>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+                    <!-- Numbervalue != 0 && NumberValue != null (Displaying: NumberValue + xx%) -->
+                    <div
+                        *ngIf="
+                            evaluation.SzamErtek != 0 &&
+                            evaluation.SzamErtek &&
+                            evaluation.ErtekFajta.Nev != 'Szoveges'
+                        "
+                    >
+                        {{ evaluation.SzamErtek
+                        }}<small
+                            id="evaluation-small-weight"
+                            [innerHTML]="
+                                getWeight(
+                                    evaluation.SulySzazalekErteke
+                                        ? evaluation.SulySzazalekErteke + '%'
+                                        : '100' + '%'
+                                )
+                            "
+                        ></small>
+                    </div>
+                </div>
+                <!-- Percent evaluation -->
+                <div *ngIf="evaluation.ErtekFajta.Nev == 'Szazalekos'">
+                    {{ evaluation.SzamErtek }}%
+                </div>
+            </ion-col>
+            <!-- DATE / SUBJECT COL (RIGHT) -->
+            <ion-col id="evaluation-col-desc-top" size="8">
+                <!-- DATE -->
+                <h3
+                    *ngIf="type == 'displayDate'"
+                    id="evaluation-subject-compact"
+                    class="ion-text-wrap"
+                >
+                    {{ fDate.formatDateWithZerosAndDots(evaluation.KeszitesDatuma) }}
+                </h3>
+
+                <!-- SUBJECT -->
+                <h3
+                    *ngIf="type == 'displaySubject'"
+                    id="evaluation-subject-compact"
+                    class="ion-text-wrap"
+                >
+                    {{
+                        getSubject(evaluation).charAt(0).toUpperCase() +
+                            getSubject(evaluation).slice(1)
+                    }}
+                </h3>
+
+                <!-- Small text -->
+                <p id="evaluation-theme" class="ion-text-wrap">
+                    {{ getSmallText(evaluation) }}
+                </p>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </ion-card>

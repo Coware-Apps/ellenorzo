@@ -1,66 +1,88 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>{{'pages.notes.title' | translate}}</ion-title>
-    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading'"></ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>{{'pages.notes.title' | translate}}</ion-title>
+        <ion-progress-bar
+            type="indeterminate"
+            [hidden]="componentState != 'loading'"
+        ></ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
 
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
+    <!-- DISPLAYING DATA -->
+    <ion-list *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
+        <div *ngFor="let item of this.collapsifiedData">
+            <div
+                class="ion-activatable ripple-parent"
+                style="overflow: hidden; position: relative;"
+            >
+                <ion-item-divider
+                    lines="full"
+                    button
+                    (click)="item.showAll = item.showAll ? false : true"
+                >
+                    <ion-label>{{item.header}}</ion-label>
+                    <ion-buttons slot="end">
+                        <ion-button>
+                            <ion-icon
+                                *ngIf="!item.showAll"
+                                slot="icon-only"
+                                name="chevron-forward"
+                            ></ion-icon>
+                            <ion-icon
+                                *ngIf="item.showAll"
+                                slot="icon-only"
+                                name="chevron-down"
+                            ></ion-icon>
+                        </ion-button>
+                    </ion-buttons>
+                </ion-item-divider>
+                <ion-ripple-effect type="bounded"></ion-ripple-effect>
+            </div>
 
-  <!-- DISPLAYING DATA -->
-  <ion-list *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
-
-    <div *ngFor="let item of this.collapsifiedData">
-      <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
-        <ion-item-divider lines="full" button (click)="item.showAll = item.showAll ? false : true">
-          <ion-label>{{item.header}}</ion-label>
-          <ion-buttons slot="end">
-            <ion-button>
-              <ion-icon *ngIf="!item.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
-              <ion-icon *ngIf="item.showAll" slot="icon-only" name="chevron-down"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-item-divider>
-        <ion-ripple-effect type="bounded"></ion-ripple-effect>
-      </div>
-
-      <div *ngIf="item.showAll">
-        <div *ngFor="let de of item.data">
-          <app-note *ngIf="de.NoteId" [note]="de"></app-note>
-          <app-event *ngIf="de.EventId" [event]="de"></app-event>
+            <div *ngIf="item.showAll">
+                <div *ngFor="let de of item.data">
+                    <app-note [note]="de"></app-note>
+                </div>
+            </div>
         </div>
+    </ion-list>
 
-      </div>
-    </div>
+    <!-- SKELETON -->
+    <ion-list *ngIf="componentState == 'loading'">
+        <ion-item *ngFor="let note of [0, 1, 2, 3, 4, 5, 6]">
+            <ion-label>
+                <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+            </ion-label>
+        </ion-item>
+    </ion-list>
 
-  </ion-list>
+    <!-- EMPTY -->
+    <app-empty
+        *ngIf="componentState == 'empty'"
+        translatorKey="pages.notes.emptyText"
+        icon="document-text-outline"
+    >
+    </app-empty>
 
-  <!-- SKELETON -->
-  <ion-list *ngIf="componentState == 'loading'">
-    <ion-item *ngFor="let note of [0, 1, 2, 3, 4, 5, 6]">
-      <ion-label>
-        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-
-  <!-- EMPTY -->
-  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.notes.emptyText" icon="document-text-outline">
-  </app-empty>
-
-  <!-- ERROR -->
-  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
-  </app-kreta-error>
+    <!-- ERROR -->
+    <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+    </app-kreta-error>
 </ion-content>

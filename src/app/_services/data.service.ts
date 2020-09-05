@@ -1,23 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: "root",
 })
 export class DataService {
+    private data = [];
 
-  private data = [];
+    constructor() {}
 
-  constructor() { }
+    setData(id, data) {
+        this.data[id] = data;
+    }
 
-  setData(id, data) {
-    this.data[id] = data;
-  }
+    getData(id) {
+        return this.data[id];
+    }
 
-  getData(id) {
-    return this.data[id]
-  }
-
-  clearData(id) {
-    this.data[id] = null;
-  }
+    clearData(id) {
+        this.data[id] = null;
+    }
 }

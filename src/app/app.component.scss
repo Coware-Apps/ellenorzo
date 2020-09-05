@@ -1,24 +1,27 @@
 #title {
-  padding: 5px;
-  text-align: center;
-  position: relative;
-  color: var(--ion-color-brand-contrast);
+    padding: 5px;
+    text-align: center;
+    position: relative;
+    color: var(--ion-color-brand-contrast);
 }
 #logo {
-  width: 20%;
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
+    width: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 #logoDiv {
-  display: inline-block;
+    display: inline-block;
 }
 //this is only needed to avoid the status bar overlap on iOS (above iPhone X)
 #emptyToolbar {
-  height: 0;
-  //by default there is an annoying 0.55px (what) line here
-  --border-width: 0 0 0px;
+    height: 0;
+    //by default there is an annoying 0.55px (what) line here
+    --border-width: 0 0 0px;
 }
 .background-brand {
-  background-color: var(--ion-color-brand);
+    background-color: var(--ion-color-brand);
+}
+.custom-small-margin {
+    margin-bottom: 8px;
 }

@@ -110,7 +110,10 @@
             "piecesName": "db",
             "messageSentText": "Üzenet sikeresen elküldve",
             "loadingText": "Adatok betöltése folyamatban",
-            "fillAllFieldsText": "Kérlek töltsd ki a megfelelő mezőket!"
+            "fillAllFieldsText": "Kérlek töltsd ki a megfelelő mezőket!",
+            "attachmentFile": "Fájl",
+            "attachmentCamera": "Kamera",
+            "attachmentLibrary": "Kép"
         },
         "list-addressees": {
             "title": "Címzettek",
@@ -241,10 +244,12 @@
         "average-graphs": {
             "title": "Részletek",
             "averageName": "átlag",
-            "gradeName": "Jegy",
-            "weightName": "Súly",
+            "gradesName": "Jegyek",
+            "gradeName": "jegy",
             "whatIfText": "Mi lenne, ha?",
-            "wrongDataToastText": "Hibás adatok!"
+            "wrongDataToastText": "Hibás adatok!",
+            "addedGradeName": "Hozzáadott jegy",
+            "grade": "Grade"
         },
         "timetable-homeworks": {
             "title": "Házi feladatok",
@@ -373,7 +378,8 @@
                 "message": "Ezzel az azonosítóval már létezik bejelentkezett felhasználó a rendszerben."
             },
             "filterInstitutesText": "Intézmények szűrése...",
-            "errorDetails": "Kattints ide a hiba pontos leírásáért"
+            "errorDetails": "Kattints ide a hiba pontos leírásáért",
+            "naploText": "Tanároknak"
         },
         "error": {
             "title": "Hiba leírása",
@@ -389,24 +395,29 @@
         "home-settings": {
             "title": "Főoldal testreszabása",
             "info": "A főoldal betöltési ideje a legkritikusabb az egész alkalmazás összes oldala közül. Ez a szerverek válaszidejének köszönhető, sajnos ezzel az alkalmazás fejlesztői sem tudnak mit kezdeni. Ritkán használt komponensek kikapcsolásával az oldal gyorsabban be fog tölteni.",
-            "Student": {
-                "title": "Tanuló adatai",
-                "description": "Értékelések, mulasztások, feljegyzések",
+            "getEvaluationsV3": {
+                "title": "Értékelések",
+                "description": "Jegyek, szöveges, százalékos értékelések",
                 "impactName": "közepes"
             },
-            "Tests": {
+            "getTestsV3": {
                 "title": "Számonkérések",
-                "description": "Tanárok által bejelentett számonkérések",
-                "impactName": "gyors"
+                "description": "Bejelentett dolgozatok, feladatok",
+                "impactName": "közepes"
             },
-            "MessageListMobile": {
+            "getMessageList": {
                 "title": "Üzenetek",
-                "description": "Beérkezett üzenetek",
-                "impactName": "gyors"
+                "description": "Beérkezett üzenetek (KRÉTA e-ügyintézés)",
+                "impactName": "közepes"
             },
-            "Events": {
-                "title": "Faliújság",
-                "description": "Faliújságon szereplő elemek",
+            "getNotesV3": {
+                "title": "Feljegyzések",
+                "description": "Faliújság, közlemények, felszereléshiány stb.",
+                "impactName": "közepes"
+            },
+            "getAbsencesV3": {
+                "title": "Mulasztások",
+                "description": "Mulasztások, késések",
                 "impactName": "közepes"
             }
         },
@@ -429,15 +440,7 @@
             "November",
             "December"
         ],
-        "dayNames": [
-            "vasárnap",
-            "hétfő",
-            "kedd",
-            "szerda",
-            "csütörtök",
-            "péntek",
-            "szombat"
-        ],
+        "dayNames": ["vasárnap", "hétfő", "kedd", "szerda", "csütörtök", "péntek", "szombat"],
         "days": {
             "monday": {
                 "name": "hétfő",
@@ -471,7 +474,7 @@
     },
     "components": {
         "appComponent": {
-            "editUsersText": "Szerkesztés"
+            "editUsersText": "Fiókok kezelése"
         },
         "refresher": {
             "pullingText": "Húzd le a frissítéshez"
@@ -508,6 +511,9 @@
                 "Student": "Tanuló",
                 "Teacher": "Tanár"
             }
+        },
+        "evaluation": {
+            "date": "Dátum"
         }
     },
     "graphs": {
@@ -627,6 +633,17 @@
                 "alertHeader": "Jelszó megerősítése",
                 "alertTextStart": "Az adatok lekéréséhez, kérlek erősítsd meg",
                 "alertTextEnd": "bejelentkezési adatait"
+            },
+            "homeworkV3Alert": {
+                "homeworkName": "Házi feladat",
+                "date": "Dátum",
+                "loggingDate": "Feladás dátuma",
+                "teacherName": "Tanár",
+                "text": "Feladat szövege",
+                "deadline": "Határidő",
+                "isSolved": "Állapot",
+                "solvedName": "Megoldva",
+                "unsolvedName": "Nincs megoldva"
             }
         },
         "notification": {
@@ -636,12 +653,15 @@
             "timeName": "Időpont"
         },
         "error-handler": {
-            "confirmationText": "Köszönjük a megerősítést! Most már frissítheted az oldalt."
+            "confirmationText": "Köszönjük a megerősítést! Most már frissítheted az oldalt.",
+            "loggedOutToast": "Hitelesítési hiba. A kommunikációhoz új bejelentkezés szükséges."
         }
     },
     "common": {
         "alertText": "Figyelem!",
-        "dataWillBeLost": "A megadott adatok el fognak veszni. Biztosan folytatja?"
+        "dataWillBeLost": "A megadott adatok el fognak veszni. Biztosan folytatja?",
+        "back": "Vissza",
+        "cancel": "Mégse"
     },
     "errors": {
         "administration": {
@@ -731,6 +751,10 @@
                 "title": "A szerver hibás választ küldött",
                 "text": "A szerver válasza hibás volt. Valószínűleg jelenleg karbantartás alatt van. Próbáld újra később."
             },
+            "schoolYearChanged": {
+                "title": "Az intézmény tanévet váltott. Új bejelentkezés szükséges.",
+                "text": "A tanévváltást követően az előző tanév adatai már nem, de az új tanévben rögzített adatok válnak elérhetővé."
+            },
             "getToken": {
                 "title": "A Tokenek lekérése sikertelen volt.",
                 "text": "Nem sikerült érvényes tokeneket lekérni, a hitelesítés sikertelen volt."
@@ -794,6 +818,10 @@
             "getLessonLAB": {
                 "title": "Hiba történt a Lesson LAB lekérések közben",
                 "text": "A kért lekérések (lesson / órarend) nem voltak sikeresek. Kérlek próbáld újra később."
+            },
+            "getEvaluations": {
+                "title": "Hiba történt az értékelések lekérése közben",
+                "text": "A szerverrel való kommunikáció sikertelen volt."
             }
         }
     }

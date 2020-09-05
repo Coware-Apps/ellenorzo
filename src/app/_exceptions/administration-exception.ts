@@ -1,6 +1,6 @@
-import { HTTPResponse } from '@ionic-native/http/ngx';
-import { GlobalError } from './global-exception';
-import { HttpResponse } from '@angular/common/http';
+import { HTTPResponse } from "@ionic-native/http/ngx";
+import { GlobalError } from "./global-exception";
+import { HttpResponse } from "@angular/common/http";
 
 export class AdministrationError extends GlobalError {
     constructor(
@@ -10,8 +10,10 @@ export class AdministrationError extends GlobalError {
     ) {
         super(
             queryName,
-            'errors.administration.' + (customTitleTranslatorKey ? customTitleTranslatorKey : 'defaultTitle'),
-            'errors.administration.' + (customTextTranslatorKey ? customTextTranslatorKey : 'defaultText'),
+            "errors.administration." +
+                (customTitleTranslatorKey ? customTitleTranslatorKey : "defaultTitle"),
+            "errors.administration." +
+                (customTextTranslatorKey ? customTextTranslatorKey : "defaultText")
         );
     }
 }
@@ -37,7 +39,7 @@ export class AdministrationTokenError extends AdministrationHttpError {
         customTitleTranslatorKey?: string,
         customTextTranslatorKey?: string
     ) {
-        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
+        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey);
     }
 }
 export class AdministrationRenewTokenError extends AdministrationHttpError {
@@ -47,7 +49,7 @@ export class AdministrationRenewTokenError extends AdministrationHttpError {
         customTitleTranslatorKey?: string,
         customTextTranslatorKey?: string
     ) {
-        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
+        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey);
     }
 }
 export class AdministrationFileError extends AdministrationHttpError {
@@ -67,21 +69,17 @@ export class AdministrationFileError extends AdministrationHttpError {
 }
 export class AdministrationInvalidGrantError extends AdministrationHttpError {
     constructor(queryName: string, httpErrorObject: HTTPResponse) {
-        super(queryName, httpErrorObject, 'invalid-grant.title', 'invalid-grant.text');
+        super(queryName, httpErrorObject, "invalid-grant.title", "invalid-grant.text");
     }
 }
 
-
-
 export class AdministrationInvalidResponseError extends AdministrationError {
-    constructor(
-        queryName: string,
-    ) {
-        super(queryName, "invalid.title", "invalid.text")
+    constructor(queryName: string) {
+        super(queryName, "invalid.title", "invalid.text");
     }
 }
 export class AdministrationNetworkError extends AdministrationError {
     constructor(queryName: string) {
-        super(queryName, 'network.title', 'network.text');
+        super(queryName, "network.title", "network.text");
     }
 }

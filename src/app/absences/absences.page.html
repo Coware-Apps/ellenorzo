@@ -1,101 +1,121 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-buttons slot="end">
-      <ion-button (click)="showTotal()">
-        <ion-icon slot="icon-only" name="information-circle"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-title>{{'pages.absences.title' | translate}} - {{title}}</ion-title>
-    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
-    </ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-buttons slot="end">
+            <ion-button (click)="showTotal()">
+                <ion-icon slot="icon-only" name="information-circle-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>{{'pages.absences.title' | translate}} - {{title}}</ion-title>
+        <ion-progress-bar
+            type="indeterminate"
+            [hidden]="componentState != 'loading' && componentState != 'loadedProgress'"
+        >
+        </ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
-<ion-content (ionScroll)="ionScroll($event)" scrollEvents="true" #scroll>
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
+<ion-content>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
 
-  <ion-fab [hidden]="!a" vertical="top" horizontal="center" slot="fixed">
-    <ion-fab-button (click)="scrollToTop()" translucent="true">
-      <ion-icon name="arrow-up"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+    <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
+        <ion-slide *ngFor="let absenceGroup of this.allAbsences">
+            <ion-list>
+                <ion-item
+                    *ngIf="!absenceGroup.data || absenceGroup.data.length == 0"
+                    style="text-align: center;"
+                >
+                    <ion-label
+                        >{{'pages.absences.justificationText' | translate: {type:
+                        absenceGroup.fullName} }}</ion-label
+                    >
+                </ion-item>
 
-  <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
-    <ion-slide *ngFor="let absenceGroup of this.allAbsences">
-      <ion-list>
+                <div *ngFor="let item of absenceGroup.data">
+                    <div
+                        class="ion-activatable ripple-parent"
+                        style="overflow: hidden; position: relative;"
+                    >
+                        <ion-item-divider
+                            lines="full"
+                            button
+                            (click)="item.showAll = item.showAll ? false : true"
+                        >
+                            <ion-label>
+                                {{item.header}}
+                            </ion-label>
+                            <ion-buttons slot="end">
+                                <ion-button>
+                                    <ion-icon
+                                        *ngIf="!item.showAll"
+                                        slot="icon-only"
+                                        name="chevron-forward"
+                                    ></ion-icon>
+                                    <ion-icon
+                                        *ngIf="item.showAll"
+                                        slot="icon-only"
+                                        name="chevron-down"
+                                    ></ion-icon>
+                                </ion-button>
+                            </ion-buttons>
+                        </ion-item-divider>
+                        <ion-ripple-effect type="bounded"></ion-ripple-effect>
+                    </div>
 
-        <ion-item *ngIf="!absenceGroup.data || absenceGroup.data.length == 0" style="text-align: center;">
-          <ion-label>{{'pages.absences.justificationText' | translate: {type: absenceGroup.fullName} }}</ion-label>
+                    <div *ngFor="let absence of item.data">
+                        <app-absence *ngIf="item.showAll" [absence]="absence"></app-absence>
+                    </div>
+                </div>
+            </ion-list>
+        </ion-slide>
+    </ion-slides>
+
+    <!-- EMPTY -->
+    <ion-list *ngIf="componentState == 'loading'">
+        <ion-item-divider>
+            <ion-skeleton-text style="width: 30%;" animated></ion-skeleton-text>
+        </ion-item-divider>
+        <ion-item *ngFor="let number of [0, 1, 2, 3, 4, 5, 6]">
+            <ion-avatar slot="start">
+                <ion-skeleton-text animated></ion-skeleton-text>
+            </ion-avatar>
+            <ion-label class="ion-text-wrap">
+                <ion-skeleton-text style="width: 80%;" animated></ion-skeleton-text>
+                <ion-skeleton-text style="width: 80%;" animated></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text animated></ion-skeleton-text>
+            </ion-label>
         </ion-item>
+    </ion-list>
 
-        <div *ngFor="let item of absenceGroup.data">
-          <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
-            <ion-item-divider lines="full" button (click)="item.showAll = item.showAll ? false : true">
-              <ion-label>
-                {{item.header}}
-              </ion-label>
-              <ion-buttons slot="end">
-                <ion-button>
-                  <ion-icon *ngIf="!item.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
-                  <ion-icon *ngIf="item.showAll" slot="icon-only" name="chevron-down"></ion-icon>
-                </ion-button>
-              </ion-buttons>
-            </ion-item-divider>
-            <ion-ripple-effect type="bounded"></ion-ripple-effect>
-          </div>
-
-          <div *ngFor="let absence of item.data">
-            <app-absence *ngIf="item.showAll" [absence]="absence"></app-absence>
-          </div>
-        </div>
-      </ion-list>
-    </ion-slide>
-  </ion-slides>
-
-  <!-- EMPTY -->
-  <ion-list *ngIf="componentState == 'loading'">
-    <ion-item-divider>
-      <ion-skeleton-text style="width: 30%" animated></ion-skeleton-text>
-    </ion-item-divider>
-    <ion-item *ngFor="let number of [0, 1, 2, 3, 4, 5, 6]">
-      <ion-avatar slot="start">
-        <ion-skeleton-text animated></ion-skeleton-text>
-      </ion-avatar>
-      <ion-label class="ion-text-wrap">
-        <ion-skeleton-text style="width: 80%" animated></ion-skeleton-text>
-        <ion-skeleton-text style="width: 80%" animated></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text animated></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-
-  <!-- ERROR -->
-  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
-  </app-kreta-error>
-
+    <!-- ERROR -->
+    <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+    </app-kreta-error>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar>
-    <ion-segment [value]="this.focused" (ionChange)="getData($event)">
-      <ion-segment-button [disabled]="componentState == 'loading'" value="0">
+<ion-tab-bar slot="bottom" *ngIf="componentState != 'loading'">
+    <ion-tab-button (click)="getData(0)" [selected]="focused == 0">
         <ion-icon name="checkmark-done"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button [disabled]="componentState == 'loading'" value="1">
+        <ion-label translate="pages.absences.justifiedTitle"></ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="getData(1)" [selected]="focused == 1">
         <ion-icon name="warning"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button [disabled]="componentState == 'loading'" value="2">
+        <ion-label translate="pages.absences.beJustifiedTitle"></ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="getData(2)" [selected]="focused == 2">
         <ion-icon name="close"></ion-icon>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
-</ion-footer>
+        <ion-label translate="pages.absences.unJustifiedTitle"></ion-label>
+    </ion-tab-button>
+</ion-tab-bar>

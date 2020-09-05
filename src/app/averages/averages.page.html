@@ -1,51 +1,67 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>{{'pages.averages.title' | translate}}</ion-title>
-    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
-    </ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>{{'pages.averages.title' | translate}}</ion-title>
+        <ion-progress-bar
+            type="indeterminate"
+            [hidden]="componentState != 'loading' && componentState != 'loadedProgress'"
+        >
+        </ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
 
-  <!-- DISPLAYING DATA -->
-  <ion-list *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
-    <app-average *ngFor="let item of this.subjectAverages" (click)="this.showModal(item.Subject, item.ClassValue)"
-      [subjectAverage]="item" [totalGrades]="getCountingGrades(item.Subject)"></app-average>
-  </ion-list>
-
-  <!-- EMPTY -->
-  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.averages.emptyText" icon="bar-chart-outline">
-  </app-empty>
-
-  <!-- SKELETON -->
-  <div *ngIf="componentState == 'loading'">
-    <ion-list>
-      <ion-card *ngFor="let item of [0, 1, 2, 3, 4, 5, 6]">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-          </ion-card-title>
-          <ion-card-subtitle>
-            <ion-skeleton-text animated style="width: 20%"></ion-skeleton-text>
-          </ion-card-subtitle>
-          <ion-card-subtitle>
-            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-          </ion-card-subtitle>
-        </ion-card-header>
-      </ion-card>
+    <!-- DISPLAYING DATA -->
+    <ion-list *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
+        <app-average
+            *ngFor="let item of this.subjectAverages"
+            (click)="this.showModal(item.Tantargy.Nev, null)"
+            [subjectAverage]="item"
+            [totalGrades]="getCountingGrades(item.Tantargy?.Nev)"
+        ></app-average>
     </ion-list>
-  </div>
 
-  <!-- ERROR -->
-  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
-  </app-kreta-error>
+    <!-- EMPTY -->
+    <app-empty
+        *ngIf="componentState == 'empty'"
+        translatorKey="pages.averages.emptyText"
+        icon="bar-chart-outline"
+    >
+    </app-empty>
+
+    <!-- SKELETON -->
+    <div *ngIf="componentState == 'loading'">
+        <ion-list>
+            <ion-card *ngFor="let item of [0, 1, 2, 3, 4, 5, 6]">
+                <ion-card-header>
+                    <ion-card-title>
+                        <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                    </ion-card-title>
+                    <ion-card-subtitle>
+                        <ion-skeleton-text animated style="width: 20%;"></ion-skeleton-text>
+                    </ion-card-subtitle>
+                    <ion-card-subtitle>
+                        <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                    </ion-card-subtitle>
+                </ion-card-header>
+            </ion-card>
+        </ion-list>
+    </div>
+
+    <!-- ERROR -->
+    <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+    </app-kreta-error>
 </ion-content>

@@ -1,58 +1,118 @@
 <ion-app>
-  <ion-split-pane contentId="main-content">
-    <ion-menu (ionDidClose)="menuClosed()" contentId="main-content" type="overlay">
-      <ion-header color="brand" class="ion-no-border">
-        <ion-toolbar color="brand" id="emptyToolbar">
-        </ion-toolbar>
-      </ion-header>
-      <ion-content>
-        <ion-list class="ion-no-padding">
-          <div class="background-brand" id="logoDiv">
-            <img *ngIf="this.theme.currentTheme.value != 'light' && theme.currentTheme.value != 'dark'" id="logo"
-              src="../assets/img/logo_white.png">
-            <img *ngIf="this.theme.currentTheme.value == 'light' || theme.currentTheme.value == 'dark'" id="logo"
-              src="../assets/img/logo_black.png">
-            <ion-title color="brand-contrast" id="title">Arisztokréta</ion-title>
-          </div>
+    <ion-split-pane contentId="main-content">
+        <ion-menu (ionDidClose)="menuClosed()" contentId="main-content" type="overlay">
+            <ion-header color="brand" class="ion-no-border">
+                <ion-toolbar color="brand" id="emptyToolbar"> </ion-toolbar>
+            </ion-header>
+            <ion-content>
+                <ion-list class="ion-no-padding">
+                    <div class="background-brand ion-padding-bottom" id="logoDiv">
+                        <img
+                            *ngIf="
+                                this.theme.currentTheme.value != 'light' &&
+                                theme.currentTheme.value != 'dark'
+                            "
+                            id="logo"
+                            src="../assets/img/logo_white.png"
+                        />
+                        <img
+                            *ngIf="
+                                this.theme.currentTheme.value == 'light' ||
+                                theme.currentTheme.value == 'dark'
+                            "
+                            id="logo"
+                            src="../assets/img/logo_black.png"
+                        />
+                        <ion-title color="brand-contrast" id="title">Arisztokréta</ion-title>
+                    </div>
 
-          <ion-item lines="full" color="brand" *ngIf="this.app.isStudentSelectorReady" button
-            (click)="this.showAppPages = !this.showAppPages">
-            <ion-label>{{this.userManager.currentUser.fullName}}</ion-label>
-            <ion-icon *ngIf="!this.showAppPages" slot="end" name="caret-up"></ion-icon>
-            <ion-icon *ngIf="this.showAppPages" slot="end" name="caret-down"></ion-icon>
-          </ion-item>
+                    <ion-item
+                        lines="full"
+                        color="brand"
+                        detail="false"
+                        *ngIf="this.app.isStudentSelectorReady"
+                        button
+                        (click)="this.showAppPages = !this.showAppPages"
+                        class="custom-small-margin"
+                    >
+                        <ion-label>{{ this.userManager.currentUser.fullName }}</ion-label>
+                        <ion-icon
+                            *ngIf="!this.showAppPages"
+                            slot="end"
+                            name="caret-up"
+                            class="ion-no-margin"
+                        ></ion-icon>
+                        <ion-icon
+                            *ngIf="this.showAppPages"
+                            slot="end"
+                            name="caret-down"
+                            class="ion-no-margin"
+                        ></ion-icon>
+                    </ion-item>
 
-          <div *ngIf="this.showAppPages">
-            <ion-menu-toggle (ionWillOpen)="checkConfig()" auto-hide="false" *ngFor="let p of app.appPages">
-              <ion-item [hidden]="!p.show" [routerDirection]="'root'" [routerLink]="[p.url]">
-                <ion-icon slot="start" [name]="p.icon" [src]="p.src"></ion-icon>
-                <ion-label>
-                  {{p.translatorVal | translate}}
-                </ion-label>
-              </ion-item>
-            </ion-menu-toggle>
-          </div>
-        </ion-list>
-        <ion-list *ngIf="!this.showAppPages && this.app.isStudentSelectorReady">
-          <div *ngFor="let user of this.userManager.allUsers">
-            <ion-item button (click)="userChanged(user)">
-              <ion-icon (click)="showUserInfo(user.id); $event.stopPropagation()"
-                *ngIf="this.userManager.currentUser.id != user.id" slot="start" name="person-outline">
-              </ion-icon>
-              <ion-icon (click)="showUserInfo(user.id); $event.stopPropagation()"
-                *ngIf="this.userManager.currentUser.id == user.id" slot="start" name="person-sharp"></ion-icon>
-              <ion-label>
-                <h2>{{user.fullName}}</h2>
-                <ion-note>{{user.institute.Name}}</ion-note>
-              </ion-label>
-            </ion-item>
-          </div>
-          <ion-button (click)="editUsers()" expand="block" fill="outline" shape="round">
-            {{'components.appComponent.editUsersText' | translate}}
-          </ion-button>
-        </ion-list>
-      </ion-content>
-    </ion-menu>
-    <ion-router-outlet id="main-content"></ion-router-outlet>
-  </ion-split-pane>
+                    <div *ngIf="this.showAppPages">
+                        <ion-menu-toggle
+                            (ionWillOpen)="checkConfig()"
+                            auto-hide="false"
+                            *ngFor="let p of app.appPages"
+                        >
+                            <ion-item
+                                [hidden]="!p.show"
+                                [routerDirection]="'root'"
+                                [routerLink]="[p.url]"
+                            >
+                                <ion-icon slot="start" [name]="p.icon" [src]="p.src"></ion-icon>
+                                <ion-label>
+                                    {{ p.translatorVal | translate }}
+                                </ion-label>
+                            </ion-item>
+                        </ion-menu-toggle>
+                    </div>
+                </ion-list>
+                <ion-list
+                    *ngIf="!this.showAppPages && this.app.isStudentSelectorReady"
+                    class="ion-no-padding ion-padding-horizontal"
+                >
+                    <div *ngFor="let user of this.userManager.allUsers">
+                        <ion-item
+                            button
+                            detail="false"
+                            (click)="userChanged(user)"
+                            class="ion-no-padding"
+                        >
+                            <ion-icon
+                                (click)="showUserInfo(user.id); $event.stopPropagation()"
+                                *ngIf="this.userManager.currentUser.id != user.id"
+                                slot="start"
+                                name="person-outline"
+                            >
+                            </ion-icon>
+                            <ion-icon
+                                (click)="showUserInfo(user.id); $event.stopPropagation()"
+                                *ngIf="this.userManager.currentUser.id == user.id"
+                                slot="start"
+                                name="person-sharp"
+                            ></ion-icon>
+                            <ion-label>
+                                <h2>{{ user.fullName }}</h2>
+                                <ion-note>{{ user.institute.name }}</ion-note>
+                            </ion-label>
+                        </ion-item>
+                    </div>
+                    <ion-button
+                        (click)="editUsers()"
+                        expand="block"
+                        fill="outline"
+                        class="ion-margin-vertical"
+                    >
+                        {{ "components.appComponent.editUsersText" | translate }}
+                    </ion-button>
+                </ion-list>
+            </ion-content>
+        </ion-menu>
+        <ion-router-outlet
+            id="main-content"
+            [swipeGesture]="this.app.swipeGestureEnabled"
+        ></ion-router-outlet>
+    </ion-split-pane>
 </ion-app>

@@ -1,40 +1,54 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="messages/addressee-selector"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{'pages.list-addressees.title' | translate}}</ion-title>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-back-button
+                defaultHref="messages/addressee-selector"
+                [text]="app.getBackButtonText()"
+            ></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'pages.list-addressees.title' | translate}}</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-virtual-scroll *ngIf="this.currentAddresseeList != null && this.currentAddresseeList.length > 50"
-    [items]="this.currentAddresseeList" approxItemHeight="63px">
-    <ion-item *virtualItem="let a">
-      <ion-label>
-        <h2>{{a.nev}}</h2>
-        <ion-note>{{'pages.list-addressees.addresseeTitleName' | translate}}: {{a.titulus}}</ion-note>
-      </ion-label>
-      <ion-buttons slot="end">
-        <ion-button (click)="this.removeAddressee(a)">
-          <ion-icon slot="icon-only" name="close" style="color: red;"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-item>
-  </ion-virtual-scroll>
-  <ion-list *ngIf="this.currentAddresseeList != null && this.currentAddresseeList.length <= 50">
-    <ion-item *ngFor="let a of this.currentAddresseeList">
-      <ion-label>
-        <h2>{{a.nev}}</h2>
-        <ion-note>{{'pages.list-addressees.addresseeTitleName' | translate}}: {{a.titulus}}</ion-note>
-      </ion-label>
-      <ion-buttons slot="end">
-        <ion-button (click)="this.removeAddressee(a)">
-          <ion-icon slot="icon-only" name="close" style="color: red;"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-item>
-  </ion-list>
-  <app-empty translatorKey="pages.list-addressees.emptyText"
-    *ngIf="this.currentAddresseeList != null && this.currentAddresseeList.length == 0"></app-empty>
+    <ion-virtual-scroll
+        *ngIf="this.currentAddresseeList != null && this.currentAddresseeList.length > 50"
+        [items]="this.currentAddresseeList"
+        approxItemHeight="63px"
+    >
+        <ion-item *virtualItem="let a" detail="false">
+            <ion-label>
+                <h2>{{a.nev}}</h2>
+                <ion-note
+                    >{{'pages.list-addressees.addresseeTitleName' | translate}}:
+                    {{a.titulus}}</ion-note
+                >
+            </ion-label>
+            <ion-buttons slot="end">
+                <ion-button (click)="this.removeAddressee(a)">
+                    <ion-icon slot="icon-only" name="close" style="color: red;"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-virtual-scroll>
+    <ion-list *ngIf="this.currentAddresseeList != null && this.currentAddresseeList.length <= 50">
+        <ion-item *ngFor="let a of this.currentAddresseeList" detail="false">
+            <ion-label>
+                <h2>{{a.nev}}</h2>
+                <ion-note
+                    >{{'pages.list-addressees.addresseeTitleName' | translate}}:
+                    {{a.titulus}}</ion-note
+                >
+            </ion-label>
+            <ion-buttons slot="end">
+                <ion-button (click)="this.removeAddressee(a)">
+                    <ion-icon slot="icon-only" name="close" style="color: red;"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-list>
+    <app-empty
+        translatorKey="pages.list-addressees.emptyText"
+        *ngIf="this.currentAddresseeList != null && this.currentAddresseeList.length == 0"
+    ></app-empty>
 </ion-content>

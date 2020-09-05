@@ -4,7 +4,10 @@
 .chart {
     display: block;
     width: 100% !important;
-    min-width: 350px !important;
-    padding-left: 2%;
-    padding-right: 2%;
+}
+#percentInput {
+    --padding-start: 40%;
+}
+#gradeInput {
+    --padding-start: 0;
 }

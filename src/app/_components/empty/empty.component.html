@@ -1,9 +1,9 @@
 <ion-grid class="list-empty">
-  <ion-row class="ion-text-center ion-align-items-center">
-    <ion-col>
-      <ion-icon *ngIf="!this.iconSrc" [name]="this.icon"></ion-icon>
-      <ion-icon *ngIf="this.iconSrc" [src]="iconSrc"></ion-icon>
-      <h3>{{this.translatorKey | translate}}</h3>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-text-center ion-align-items-center">
+        <ion-col class="ion-margin-horizontal">
+            <ion-icon *ngIf="!this.iconSrc" [name]="this.icon"></ion-icon>
+            <ion-icon *ngIf="this.iconSrc" [src]="iconSrc"></ion-icon>
+            <h3>{{ this.translatorKey | translate }}</h3>
+        </ion-col>
+    </ion-row>
 </ion-grid>

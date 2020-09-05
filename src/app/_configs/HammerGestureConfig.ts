@@ -1,4 +1,4 @@
-import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
+import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from "@angular/platform-browser";
 import { Injectable } from "@angular/core";
 
 declare var Hammer: any;

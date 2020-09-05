@@ -1,6 +1,5 @@
-import { GlobalError } from './global-exception';
-import { HTTPResponse } from '@ionic-native/http/ngx';
-import { HttpResponse } from '@angular/common/http';
+import { GlobalError } from "./global-exception";
+import { HTTPResponse } from "@ionic-native/http/ngx";
 
 export class KretaError extends GlobalError {
     constructor(
@@ -10,8 +9,9 @@ export class KretaError extends GlobalError {
     ) {
         super(
             queryName,
-            'errors.kreta.' + (customTitleTranslatorKey ? customTitleTranslatorKey : 'defaultTitle'),
-            'errors.kreta.' + (customTextTranslatorKey ? customTextTranslatorKey : 'defaultText'),
+            "errors.kreta." +
+                (customTitleTranslatorKey ? customTitleTranslatorKey : "defaultTitle"),
+            "errors.kreta." + (customTextTranslatorKey ? customTextTranslatorKey : "defaultText")
         );
     }
 }
@@ -32,7 +32,7 @@ export class KretaHttpError extends KretaError {
 }
 export class KretaInvalidGrantError extends KretaHttpError {
     constructor(queryName: string, httpErrorObject: HTTPResponse) {
-        super(queryName, httpErrorObject, 'invalid-grant.title', 'invalid-grant.text');
+        super(queryName, httpErrorObject, "invalid-grant.title", "invalid-grant.text");
     }
 }
 export class KretaTokenError extends KretaHttpError {
@@ -42,7 +42,7 @@ export class KretaTokenError extends KretaHttpError {
         customTitleTranslatorKey?: string,
         customTextTranslatorKey?: string
     ) {
-        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
+        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey);
     }
 }
 export class KretaRenewTokenError extends KretaHttpError {
@@ -52,20 +52,17 @@ export class KretaRenewTokenError extends KretaHttpError {
         customTitleTranslatorKey?: string,
         customTextTranslatorKey?: string
     ) {
-        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey)
+        super("Token", httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey);
     }
 }
 
-
 export class KretaInvalidResponseError extends KretaError {
-    constructor(
-        queryName: string,
-    ) {
-        super(queryName, "invalid.title", "invalid.text")
+    constructor(queryName: string) {
+        super(queryName, "invalid.title", "invalid.text");
     }
 }
 export class KretaNetworkError extends KretaError {
     constructor(queryName: string) {
-        super(queryName, 'network.title', 'network.text');
+        super(queryName, "network.title", "network.text");
     }
 }

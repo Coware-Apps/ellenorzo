@@ -1,0 +1,16 @@
+<ion-list>
+    <ion-item (click)="choose('file')">
+        <ion-icon name="folder-outline" slot="start"></ion-icon>
+        <ion-label translate="pages.new-message.attachmentFile"></ion-label>
+    </ion-item>
+
+    <ion-item (click)="choose('gallery')">
+        <ion-icon name="image-outline" slot="start"></ion-icon>
+        <ion-label translate="pages.new-message.attachmentLibrary"></ion-label>
+    </ion-item>
+
+    <ion-item (click)="choose('camera')" lines="none">
+        <ion-icon name="camera-outline" slot="start"></ion-icon>
+        <ion-label translate="pages.new-message.attachmentCamera"></ion-label>
+    </ion-item>
+</ion-list>

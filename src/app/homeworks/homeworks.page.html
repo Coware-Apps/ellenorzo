@@ -1,92 +1,127 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>{{'pages.homeworks.title' | translate}}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="filterChanged()">
-        <ion-icon *ngIf="!this.app.doHomeworkFilter" slot="start" name="funnel-outline"></ion-icon>
-        <ion-icon *ngIf="this.app.doHomeworkFilter" slot="start" name="funnel"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-  <ion-toolbar color="brand" (swipe)="swipe($event)" class="ion-text-center">
-    <ion-buttons slot="start">
-      <ion-button [disabled]="this.componentState == 'loading'" (click)="this.getPrevWeek()">
-        <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-label class="ion-text-center">{{fDate.formatDateWithZerosAndDots(fDate.getWeekFirstDate(extraWeekIndex))}} -
-      {{fDate.formatDateWithZerosAndDots(fDate.getWeekLastDate(extraWeekIndex))}}</ion-label>
-    <ion-buttons slot="end">
-      <ion-button [disabled]="this.componentState == 'loading'" (click)="this.getNextWeek()">
-        <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-progress-bar *ngIf="componentState == 'loading' || componentState == 'loadedProgress'" type="indeterminate">
-    </ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>{{'pages.homeworks.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="filterChanged()">
+                <ion-icon
+                    *ngIf="!this.app.doHomeworkFilter"
+                    slot="start"
+                    name="funnel-outline"
+                ></ion-icon>
+                <ion-icon *ngIf="this.app.doHomeworkFilter" slot="start" name="funnel"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+    <ion-toolbar color="brand" (swipe)="swipe($event)" class="ion-text-center">
+        <ion-buttons slot="start">
+            <ion-button [disabled]="this.componentState == 'loading'" (click)="this.getPrevWeek()">
+                <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-label class="ion-text-center"
+            >{{fDate.formatDateWithZerosAndDots(fDate.getWeekFirstDate(extraWeekIndex))}} &ndash;
+            {{fDate.formatDateWithZerosAndDots(fDate.getWeekLastDate(extraWeekIndex))}}</ion-label
+        >
+        <ion-buttons slot="end">
+            <ion-button [disabled]="this.componentState == 'loading'" (click)="this.getNextWeek()">
+                <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-progress-bar
+            *ngIf="componentState == 'loading' || componentState == 'loadedProgress'"
+            type="indeterminate"
+        >
+        </ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
 
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
+    <!-- DISPLAYING DATA -->
+    <ion-list [ngClass]="{'ion-no-padding': componentState != 'loaded' || app.doHomeworkFilter}">
+        <ion-item-divider *ngIf="app.doHomeworkFilter" class="ion-no-margin ion-no-padding">
+            <ion-label style="margin: auto;"
+                >{{'pages.homeworks.completedHiddenText' | translate}}</ion-label
+            >
+        </ion-item-divider>
 
-  <!-- DISPLAYING DATA -->
-  <ion-list [ngClass]="{'ion-no-padding': componentState != 'loaded' || app.doHomeworkFilter}">
-    <ion-item-divider *ngIf="app.doHomeworkFilter" class="ion-no-margin ion-no-padding">
-      <ion-label style="margin: auto">{{'pages.homeworks.completedHiddenText' | translate}}</ion-label>
-    </ion-item-divider>
+        <div *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
+            <div *ngFor="let d of lessons">
+                <ion-item-group *ngIf="showGroup(d.data)">
+                    <ion-item-divider>
+                        <ion-label>
+                            {{d.header}}
+                        </ion-label>
+                    </ion-item-divider>
+                    <div *ngFor="let l of d.data">
+                        <ion-item
+                            button
+                            *ngIf="d.showAll && !(l.IsHaziFeladatMegoldva && app.doHomeworkFilter)"
+                            (click)="openHomeworks(l)"
+                        >
+                            <ion-icon
+                                *ngIf="!l.IsHaziFeladatMegoldva"
+                                src="../../assets/extraicons/homewarning.svg"
+                                slot="start"
+                            >
+                            </ion-icon>
+                            <ion-icon
+                                style="color: green;"
+                                *ngIf="l.IsHaziFeladatMegoldva"
+                                name="checkmark-done"
+                                slot="start"
+                            >
+                            </ion-icon>
+                            <ion-label>
+                                <h2>{{l.Tantargy?.Nev}}</h2>
+                                <ion-note *ngIf="l.Tema">{{l.Tema}}</ion-note>
+                            </ion-label>
+                        </ion-item>
+                    </div>
+                </ion-item-group>
+            </div>
+        </div>
 
-    <div *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
-      <div *ngFor="let d of homeworkLessons">
-        <ion-item-group *ngIf="showGroup(d.data)">
-          <ion-item-divider>
-            <ion-label>
-              {{d.header}}
-            </ion-label>
-          </ion-item-divider>
-          <div *ngFor="let l of d.data">
-            <ion-item button *ngIf="d.showAll && !(l.IsHaziFeladatMegoldva && app.doHomeworkFilter)"
-              (click)="openHomeworks(l)">
-              <ion-icon *ngIf="!l.IsHaziFeladatMegoldva" src="../../assets/extraicons/homewarning.svg" slot="start">
-              </ion-icon>
-              <ion-icon style="color: green" *ngIf="l.IsHaziFeladatMegoldva" name="checkmark-done" slot="start">
-              </ion-icon>
-              <ion-label>
-                <h2>{{l.Subject}}</h2>
-                <ion-note *ngIf="l.Theme">{{l.Theme}}</ion-note>
-              </ion-label>
+        <div *ngIf="componentState == 'loading'">
+            <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5, 6]">
+                <ion-label>
+                    <ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text>
+                    <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                </ion-label>
             </ion-item>
-          </div>
-        </ion-item-group>
-      </div>
-    </div>
+        </div>
+    </ion-list>
 
-    <div *ngIf="componentState == 'loading'">
-      <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5, 6]">
-        <ion-label>
-          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-          <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        </ion-label>
-      </ion-item>
-    </div>
-  </ion-list>
+    <!-- EMPTY -->
+    <app-empty
+        *ngIf="componentState == 'empty'"
+        translatorKey="pages.homeworks.emptyText"
+        icon="library-outline"
+    >
+    </app-empty>
 
-  <!-- EMPTY -->
-  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.homeworks.emptyText" icon="library-outline">
-  </app-empty>
+    <!-- ALL COMPLETED -->
+    <app-empty
+        *ngIf="showCompletedComponent()"
+        translatorKey="pages.homeworks.allCompletedText"
+        icon="happy-outline"
+    >
+    </app-empty>
 
-  <!-- ALL COMPLETED -->
-  <app-empty *ngIf="showCompletedComponent()" translatorKey="pages.homeworks.allCompletedText" icon="happy-outline">
-  </app-empty>
-
-  <!-- ERROR -->
-  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
-  </app-kreta-error>
+    <!-- ERROR -->
+    <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+    </app-kreta-error>
 </ion-content>

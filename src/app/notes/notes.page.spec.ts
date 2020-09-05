@@ -1,24 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { IonicModule } from "@ionic/angular";
 
-import { NotesPage } from './notes.page';
+import { NotesPage } from "./notes.page";
 
-describe('NotesPage', () => {
-  let component: NotesPage;
-  let fixture: ComponentFixture<NotesPage>;
+describe("NotesPage", () => {
+    let component: NotesPage;
+    let fixture: ComponentFixture<NotesPage>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ NotesPage ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [NotesPage],
+            imports: [IonicModule.forRoot()],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(NotesPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(NotesPage);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it("should create", () => {
+        expect(component).toBeTruthy();
+    });
 });

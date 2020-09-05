@@ -1,195 +1,204 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{'pages.color-picker.title' | translate}} - {{title}}</ion-title>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="home" [text]="app.getBackButtonText()"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'pages.color-picker.title' | translate}} - {{title}}</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div>
-    <ion-grid>
-      <ion-row class="firstRow">
-        <ion-col style="background:#d50000" (click)="setColor('#d50000')">&nbsp;</ion-col>
-        <ion-col style="background:#c51162" (click)="setColor('#c51162')">&nbsp;</ion-col>
-        <ion-col style="background:#aa00ff" (click)="setColor('#aa00ff')">&nbsp;</ion-col>
-        <ion-col style="background:#6200ea" (click)="setColor('#6200ea')">&nbsp;</ion-col>
-        <ion-col style="background:#304ffe" (click)="setColor('#304ffe')">&nbsp;</ion-col>
-        <ion-col style="background:#2962ff" (click)="setColor('#2962ff')">&nbsp;</ion-col>
-        <ion-col style="background:#0091ea" (click)="setColor('#0091ea')">&nbsp;</ion-col>
-        <ion-col style="background:#00c853" (click)="setColor('#00c853')">&nbsp;</ion-col>
-        <ion-col style="background:#64dd17" (click)="setColor('#64dd17')">&nbsp;</ion-col>
-        <ion-col style="background:#aeea00" (click)="setColor('#aeea00')">&nbsp;</ion-col>
-        <ion-col style="background:#ffd600" (click)="setColor('#ffd600')">&nbsp;</ion-col>
-        <ion-col style="background:#ffab00" (click)="setColor('#ffab00')">&nbsp;</ion-col>
-        <ion-col style="background:#ff6d00" (click)="setColor('#ff6d00')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#b71c1c" (click)="setColor('#b71c1c')"></ion-col>
-        <ion-col style="background:#880e4f" (click)="setColor('#880e4f')">&nbsp;</ion-col>
-        <ion-col style="background:#4a148c" (click)="setColor('#4a148c')">&nbsp;</ion-col>
-        <ion-col style="background:#311b92" (click)="setColor('#311b92')">&nbsp;</ion-col>
-        <ion-col style="background:#1a237e" (click)="setColor('#1a237e')">&nbsp;</ion-col>
-        <ion-col style="background:#0d47a1" (click)="setColor('#0d47a1')">&nbsp;</ion-col>
-        <ion-col style="background:#01579b" (click)="setColor('#01579b')">&nbsp;</ion-col>
-        <ion-col style="background:#1b5e20" (click)="setColor('#1b5e20')">&nbsp;</ion-col>
-        <ion-col style="background:#33691e" (click)="setColor('#33691e')">&nbsp;</ion-col>
-        <ion-col style="background:#827717" (click)="setColor('#827717')">&nbsp;</ion-col>
-        <ion-col style="background:#f57f17" (click)="setColor('#f57f17')">&nbsp;</ion-col>
-        <ion-col style="background:#ff6f00" (click)="setColor('#ff6f00')">&nbsp;</ion-col>
-        <ion-col style="background:#e65100" (click)="setColor('#e65100')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#c62828" (click)="setColor('#c62828')">&nbsp;</ion-col>
-        <ion-col style="background:#ad1457" (click)="setColor('#ad1457')">&nbsp;</ion-col>
-        <ion-col style="background:#6a1b9a" (click)="setColor('#6a1b9a')">&nbsp;</ion-col>
-        <ion-col style="background:#4527a0" (click)="setColor('#4527a0')">&nbsp;</ion-col>
-        <ion-col style="background:#283593" (click)="setColor('#283593')">&nbsp;</ion-col>
-        <ion-col style="background:#1565c0" (click)="setColor('#1565c0')">&nbsp;</ion-col>
-        <ion-col style="background:#0277bd" (click)="setColor('#0277bd')">&nbsp;</ion-col>
-        <ion-col style="background:#2e7d32" (click)="setColor('#2e7d32')">&nbsp;</ion-col>
-        <ion-col style="background:#558b2f" (click)="setColor('#558b2f')">&nbsp;</ion-col>
-        <ion-col style="background:#9e9d24" (click)="setColor('#9e9d24')">&nbsp;</ion-col>
-        <ion-col style="background:#f9a825" (click)="setColor('#f9a825')">&nbsp;</ion-col>
-        <ion-col style="background:#ff8f00" (click)="setColor('#ff8f00')">&nbsp;</ion-col>
-        <ion-col style="background:#ef6c00" (click)="setColor('#ef6c00')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#d32f2f" (click)="setColor('#d32f2f')">&nbsp;</ion-col>
-        <ion-col style="background:#c2185b" (click)="setColor('#c2185b')">&nbsp;</ion-col>
-        <ion-col style="background:#7b1fa2" (click)="setColor('#7b1fa2')">&nbsp;</ion-col>
-        <ion-col style="background:#512da8" (click)="setColor('#512da8')">&nbsp;</ion-col>
-        <ion-col style="background:#303f9f" (click)="setColor('#303f9f')">&nbsp;</ion-col>
-        <ion-col style="background:#1976d2" (click)="setColor('#1976d2')">&nbsp;</ion-col>
-        <ion-col style="background:#0288d1" (click)="setColor('#0288d1')">&nbsp;</ion-col>
-        <ion-col style="background:#388e3c" (click)="setColor('#388e3c')">&nbsp;</ion-col>
-        <ion-col style="background:#689f38" (click)="setColor('#689f38')">&nbsp;</ion-col>
-        <ion-col style="background:#afb42b" (click)="setColor('#afb42b')">&nbsp;</ion-col>
-        <ion-col style="background:#fbc02d" (click)="setColor('#fbc02d')">&nbsp;</ion-col>
-        <ion-col style="background:#ffa000" (click)="setColor('#ffa000')">&nbsp;</ion-col>
-        <ion-col style="background:#f57c00" (click)="setColor('#f57c00')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#e53935" (click)="setColor('#e53935')">&nbsp;</ion-col>
-        <ion-col style="background:#d81b60" (click)="setColor('#d81b60')">&nbsp;</ion-col>
-        <ion-col style="background:#8e24aa" (click)="setColor('#8e24aa')">&nbsp;</ion-col>
-        <ion-col style="background:#5e35b1" (click)="setColor('#5e35b1')">&nbsp;</ion-col>
-        <ion-col style="background:#3949ab" (click)="setColor('#3949ab')">&nbsp;</ion-col>
-        <ion-col style="background:#1e88e5" (click)="setColor('#1e88e5')">&nbsp;</ion-col>
-        <ion-col style="background:#039be5" (click)="setColor('#039be5')">&nbsp;</ion-col>
-        <ion-col style="background:#43a047" (click)="setColor('#43a047')">&nbsp;</ion-col>
-        <ion-col style="background:#7cb342" (click)="setColor('#7cb342')">&nbsp;</ion-col>
-        <ion-col style="background:#c0ca33" (click)="setColor('#c0ca33')">&nbsp;</ion-col>
-        <ion-col style="background:#fdd835" (click)="setColor('#fdd835')">&nbsp;</ion-col>
-        <ion-col style="background:#ffb300" (click)="setColor('#ffb300')">&nbsp;</ion-col>
-        <ion-col style="background:#fb8c00" (click)="setColor('#fb8c00')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#f44336" (click)="setColor('#f44336')">&nbsp;</ion-col>
-        <ion-col style="background:#e91e63" (click)="setColor('#e91e63')">&nbsp;</ion-col>
-        <ion-col style="background:#9c27b0" (click)="setColor('#9c27b0')">&nbsp;</ion-col>
-        <ion-col style="background:#673ab7" (click)="setColor('#673ab7')">&nbsp;</ion-col>
-        <ion-col style="background:#3f51b5" (click)="setColor('#3f51b5')">&nbsp;</ion-col>
-        <ion-col style="background:#2196f3" (click)="setColor('#2196f3')">&nbsp;</ion-col>
-        <ion-col style="background:#03a9f4" (click)="setColor('#03a9f4')">&nbsp;</ion-col>
-        <ion-col style="background:#4caf50" (click)="setColor('#4caf50')">&nbsp;</ion-col>
-        <ion-col style="background:#8bc34a" (click)="setColor('#8bc34a')">&nbsp;</ion-col>
-        <ion-col style="background:#cddc39" (click)="setColor('#cddc39')">&nbsp;</ion-col>
-        <ion-col style="background:#ffeb3b" (click)="setColor('#ffeb3b')">&nbsp;</ion-col>
-        <ion-col style="background:#ffc107" (click)="setColor('#ffc107')">&nbsp;</ion-col>
-        <ion-col style="background:#ff9800" (click)="setColor('#ff9800')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#ef5350" (click)="setColor('#ef5350')">&nbsp;</ion-col>
-        <ion-col style="background:#ec407a" (click)="setColor('#ec407a')">&nbsp;</ion-col>
-        <ion-col style="background:#ab47bc" (click)="setColor('#ab47bc')">&nbsp;</ion-col>
-        <ion-col style="background:#7e57c2" (click)="setColor('#7e57c2')">&nbsp;</ion-col>
-        <ion-col style="background:#5c6bc0" (click)="setColor('#5c6bc0')">&nbsp;</ion-col>
-        <ion-col style="background:#42a5f5" (click)="setColor('#42a5f5')">&nbsp;</ion-col>
-        <ion-col style="background:#29b6f6" (click)="setColor('#29b6f6')">&nbsp;</ion-col>
-        <ion-col style="background:#66bb6a" (click)="setColor('#66bb6a')">&nbsp;</ion-col>
-        <ion-col style="background:#9ccc65" (click)="setColor('#9ccc65')">&nbsp;</ion-col>
-        <ion-col style="background:#cddc39" (click)="setColor('#cddc39')">&nbsp;</ion-col>
-        <ion-col style="background:#ffeb3b" (click)="setColor('#ffeb3b')">&nbsp;</ion-col>
-        <ion-col style="background:#ffc107" (click)="setColor('#ffc107')">&nbsp;</ion-col>
-        <ion-col style="background:#ff9800" (click)="setColor('#ff9800')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#e57373" (click)="setColor('#e57373')">&nbsp;</ion-col>
-        <ion-col style="background:#f06292" (click)="setColor('#f06292')">&nbsp;</ion-col>
-        <ion-col style="background:#ba68c8" (click)="setColor('#ba68c8')">&nbsp;</ion-col>
-        <ion-col style="background:#9575cd" (click)="setColor('#9575cd')">&nbsp;</ion-col>
-        <ion-col style="background:#7986cb" (click)="setColor('#7986cb')">&nbsp;</ion-col>
-        <ion-col style="background:#64b5f6" (click)="setColor('#64b5f6')">&nbsp;</ion-col>
-        <ion-col style="background:#4fc3f7" (click)="setColor('#4fc3f7')">&nbsp;</ion-col>
-        <ion-col style="background:#81c784" (click)="setColor('#81c784')">&nbsp;</ion-col>
-        <ion-col style="background:#aed581" (click)="setColor('#aed581')">&nbsp;</ion-col>
-        <ion-col style="background:#dce775" (click)="setColor('#dce775')">&nbsp;</ion-col>
-        <ion-col style="background:#fff176" (click)="setColor('#fff176')">&nbsp;</ion-col>
-        <ion-col style="background:#ffd54f" (click)="setColor('#ffd54f')">&nbsp;</ion-col>
-        <ion-col style="background:#ffb74d" (click)="setColor('#ffb74d')">&nbsp;</ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col style="background:#ef9a9a" (click)="setColor('#ef9a9a')">&nbsp;</ion-col>
-        <ion-col style="background:#f48fb1" (click)="setColor('#f48fb1')">&nbsp;</ion-col>
-        <ion-col style="background:#ce93d8" (click)="setColor('#ce93d8')">&nbsp;</ion-col>
-        <ion-col style="background:#b39ddb" (click)="setColor('#b39ddb')">&nbsp;</ion-col>
-        <ion-col style="background:#9fa8da" (click)="setColor('#9fa8da')">&nbsp;</ion-col>
-        <ion-col style="background:#90caf9" (click)="setColor('#90caf9')">&nbsp;</ion-col>
-        <ion-col style="background:#81d4fa" (click)="setColor('#81d4fa')">&nbsp;</ion-col>
-        <ion-col style="background:#a5d6a7" (click)="setColor('#a5d6a7')">&nbsp;</ion-col>
-        <ion-col style="background:#c5e1a5" (click)="setColor('#c5e1a5')">&nbsp;</ion-col>
-        <ion-col style="background:#e6ee9c" (click)="setColor('#e6ee9c')">&nbsp;</ion-col>
-        <ion-col style="background:#fff59d" (click)="setColor('#fff59d')">&nbsp;</ion-col>
-        <ion-col style="background:#ffe082" (click)="setColor('#ffe082')">&nbsp;</ion-col>
-        <ion-col style="background:#ffcc80" (click)="setColor('#ffcc80')">&nbsp;</ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
-
-
-  <ion-item style="text-align: center;">
-    <div class="color-indicator-box" [ngStyle]="styleEval()">
-      <p>{{'pages.color-picker.selectionZoneText' | translate}}</p>
+    <div>
+        <ion-grid>
+            <ion-row class="firstRow">
+                <ion-col style="background: #d50000" (click)="setColor('#d50000')">&nbsp;</ion-col>
+                <ion-col style="background: #c51162" (click)="setColor('#c51162')">&nbsp;</ion-col>
+                <ion-col style="background: #aa00ff" (click)="setColor('#aa00ff')">&nbsp;</ion-col>
+                <ion-col style="background: #6200ea" (click)="setColor('#6200ea')">&nbsp;</ion-col>
+                <ion-col style="background: #304ffe" (click)="setColor('#304ffe')">&nbsp;</ion-col>
+                <ion-col style="background: #2962ff" (click)="setColor('#2962ff')">&nbsp;</ion-col>
+                <ion-col style="background: #0091ea" (click)="setColor('#0091ea')">&nbsp;</ion-col>
+                <ion-col style="background: #00c853" (click)="setColor('#00c853')">&nbsp;</ion-col>
+                <ion-col style="background: #64dd17" (click)="setColor('#64dd17')">&nbsp;</ion-col>
+                <ion-col style="background: #aeea00" (click)="setColor('#aeea00')">&nbsp;</ion-col>
+                <ion-col style="background: #ffd600" (click)="setColor('#ffd600')">&nbsp;</ion-col>
+                <ion-col style="background: #ffab00" (click)="setColor('#ffab00')">&nbsp;</ion-col>
+                <ion-col style="background: #ff6d00" (click)="setColor('#ff6d00')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #b71c1c" (click)="setColor('#b71c1c')"></ion-col>
+                <ion-col style="background: #880e4f" (click)="setColor('#880e4f')">&nbsp;</ion-col>
+                <ion-col style="background: #4a148c" (click)="setColor('#4a148c')">&nbsp;</ion-col>
+                <ion-col style="background: #311b92" (click)="setColor('#311b92')">&nbsp;</ion-col>
+                <ion-col style="background: #1a237e" (click)="setColor('#1a237e')">&nbsp;</ion-col>
+                <ion-col style="background: #0d47a1" (click)="setColor('#0d47a1')">&nbsp;</ion-col>
+                <ion-col style="background: #01579b" (click)="setColor('#01579b')">&nbsp;</ion-col>
+                <ion-col style="background: #1b5e20" (click)="setColor('#1b5e20')">&nbsp;</ion-col>
+                <ion-col style="background: #33691e" (click)="setColor('#33691e')">&nbsp;</ion-col>
+                <ion-col style="background: #827717" (click)="setColor('#827717')">&nbsp;</ion-col>
+                <ion-col style="background: #f57f17" (click)="setColor('#f57f17')">&nbsp;</ion-col>
+                <ion-col style="background: #ff6f00" (click)="setColor('#ff6f00')">&nbsp;</ion-col>
+                <ion-col style="background: #e65100" (click)="setColor('#e65100')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #c62828" (click)="setColor('#c62828')">&nbsp;</ion-col>
+                <ion-col style="background: #ad1457" (click)="setColor('#ad1457')">&nbsp;</ion-col>
+                <ion-col style="background: #6a1b9a" (click)="setColor('#6a1b9a')">&nbsp;</ion-col>
+                <ion-col style="background: #4527a0" (click)="setColor('#4527a0')">&nbsp;</ion-col>
+                <ion-col style="background: #283593" (click)="setColor('#283593')">&nbsp;</ion-col>
+                <ion-col style="background: #1565c0" (click)="setColor('#1565c0')">&nbsp;</ion-col>
+                <ion-col style="background: #0277bd" (click)="setColor('#0277bd')">&nbsp;</ion-col>
+                <ion-col style="background: #2e7d32" (click)="setColor('#2e7d32')">&nbsp;</ion-col>
+                <ion-col style="background: #558b2f" (click)="setColor('#558b2f')">&nbsp;</ion-col>
+                <ion-col style="background: #9e9d24" (click)="setColor('#9e9d24')">&nbsp;</ion-col>
+                <ion-col style="background: #f9a825" (click)="setColor('#f9a825')">&nbsp;</ion-col>
+                <ion-col style="background: #ff8f00" (click)="setColor('#ff8f00')">&nbsp;</ion-col>
+                <ion-col style="background: #ef6c00" (click)="setColor('#ef6c00')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #d32f2f" (click)="setColor('#d32f2f')">&nbsp;</ion-col>
+                <ion-col style="background: #c2185b" (click)="setColor('#c2185b')">&nbsp;</ion-col>
+                <ion-col style="background: #7b1fa2" (click)="setColor('#7b1fa2')">&nbsp;</ion-col>
+                <ion-col style="background: #512da8" (click)="setColor('#512da8')">&nbsp;</ion-col>
+                <ion-col style="background: #303f9f" (click)="setColor('#303f9f')">&nbsp;</ion-col>
+                <ion-col style="background: #1976d2" (click)="setColor('#1976d2')">&nbsp;</ion-col>
+                <ion-col style="background: #0288d1" (click)="setColor('#0288d1')">&nbsp;</ion-col>
+                <ion-col style="background: #388e3c" (click)="setColor('#388e3c')">&nbsp;</ion-col>
+                <ion-col style="background: #689f38" (click)="setColor('#689f38')">&nbsp;</ion-col>
+                <ion-col style="background: #afb42b" (click)="setColor('#afb42b')">&nbsp;</ion-col>
+                <ion-col style="background: #fbc02d" (click)="setColor('#fbc02d')">&nbsp;</ion-col>
+                <ion-col style="background: #ffa000" (click)="setColor('#ffa000')">&nbsp;</ion-col>
+                <ion-col style="background: #f57c00" (click)="setColor('#f57c00')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #e53935" (click)="setColor('#e53935')">&nbsp;</ion-col>
+                <ion-col style="background: #d81b60" (click)="setColor('#d81b60')">&nbsp;</ion-col>
+                <ion-col style="background: #8e24aa" (click)="setColor('#8e24aa')">&nbsp;</ion-col>
+                <ion-col style="background: #5e35b1" (click)="setColor('#5e35b1')">&nbsp;</ion-col>
+                <ion-col style="background: #3949ab" (click)="setColor('#3949ab')">&nbsp;</ion-col>
+                <ion-col style="background: #1e88e5" (click)="setColor('#1e88e5')">&nbsp;</ion-col>
+                <ion-col style="background: #039be5" (click)="setColor('#039be5')">&nbsp;</ion-col>
+                <ion-col style="background: #43a047" (click)="setColor('#43a047')">&nbsp;</ion-col>
+                <ion-col style="background: #7cb342" (click)="setColor('#7cb342')">&nbsp;</ion-col>
+                <ion-col style="background: #c0ca33" (click)="setColor('#c0ca33')">&nbsp;</ion-col>
+                <ion-col style="background: #fdd835" (click)="setColor('#fdd835')">&nbsp;</ion-col>
+                <ion-col style="background: #ffb300" (click)="setColor('#ffb300')">&nbsp;</ion-col>
+                <ion-col style="background: #fb8c00" (click)="setColor('#fb8c00')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #f44336" (click)="setColor('#f44336')">&nbsp;</ion-col>
+                <ion-col style="background: #e91e63" (click)="setColor('#e91e63')">&nbsp;</ion-col>
+                <ion-col style="background: #9c27b0" (click)="setColor('#9c27b0')">&nbsp;</ion-col>
+                <ion-col style="background: #673ab7" (click)="setColor('#673ab7')">&nbsp;</ion-col>
+                <ion-col style="background: #3f51b5" (click)="setColor('#3f51b5')">&nbsp;</ion-col>
+                <ion-col style="background: #2196f3" (click)="setColor('#2196f3')">&nbsp;</ion-col>
+                <ion-col style="background: #03a9f4" (click)="setColor('#03a9f4')">&nbsp;</ion-col>
+                <ion-col style="background: #4caf50" (click)="setColor('#4caf50')">&nbsp;</ion-col>
+                <ion-col style="background: #8bc34a" (click)="setColor('#8bc34a')">&nbsp;</ion-col>
+                <ion-col style="background: #cddc39" (click)="setColor('#cddc39')">&nbsp;</ion-col>
+                <ion-col style="background: #ffeb3b" (click)="setColor('#ffeb3b')">&nbsp;</ion-col>
+                <ion-col style="background: #ffc107" (click)="setColor('#ffc107')">&nbsp;</ion-col>
+                <ion-col style="background: #ff9800" (click)="setColor('#ff9800')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #ef5350" (click)="setColor('#ef5350')">&nbsp;</ion-col>
+                <ion-col style="background: #ec407a" (click)="setColor('#ec407a')">&nbsp;</ion-col>
+                <ion-col style="background: #ab47bc" (click)="setColor('#ab47bc')">&nbsp;</ion-col>
+                <ion-col style="background: #7e57c2" (click)="setColor('#7e57c2')">&nbsp;</ion-col>
+                <ion-col style="background: #5c6bc0" (click)="setColor('#5c6bc0')">&nbsp;</ion-col>
+                <ion-col style="background: #42a5f5" (click)="setColor('#42a5f5')">&nbsp;</ion-col>
+                <ion-col style="background: #29b6f6" (click)="setColor('#29b6f6')">&nbsp;</ion-col>
+                <ion-col style="background: #66bb6a" (click)="setColor('#66bb6a')">&nbsp;</ion-col>
+                <ion-col style="background: #9ccc65" (click)="setColor('#9ccc65')">&nbsp;</ion-col>
+                <ion-col style="background: #cddc39" (click)="setColor('#cddc39')">&nbsp;</ion-col>
+                <ion-col style="background: #ffeb3b" (click)="setColor('#ffeb3b')">&nbsp;</ion-col>
+                <ion-col style="background: #ffc107" (click)="setColor('#ffc107')">&nbsp;</ion-col>
+                <ion-col style="background: #ff9800" (click)="setColor('#ff9800')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #e57373" (click)="setColor('#e57373')">&nbsp;</ion-col>
+                <ion-col style="background: #f06292" (click)="setColor('#f06292')">&nbsp;</ion-col>
+                <ion-col style="background: #ba68c8" (click)="setColor('#ba68c8')">&nbsp;</ion-col>
+                <ion-col style="background: #9575cd" (click)="setColor('#9575cd')">&nbsp;</ion-col>
+                <ion-col style="background: #7986cb" (click)="setColor('#7986cb')">&nbsp;</ion-col>
+                <ion-col style="background: #64b5f6" (click)="setColor('#64b5f6')">&nbsp;</ion-col>
+                <ion-col style="background: #4fc3f7" (click)="setColor('#4fc3f7')">&nbsp;</ion-col>
+                <ion-col style="background: #81c784" (click)="setColor('#81c784')">&nbsp;</ion-col>
+                <ion-col style="background: #aed581" (click)="setColor('#aed581')">&nbsp;</ion-col>
+                <ion-col style="background: #dce775" (click)="setColor('#dce775')">&nbsp;</ion-col>
+                <ion-col style="background: #fff176" (click)="setColor('#fff176')">&nbsp;</ion-col>
+                <ion-col style="background: #ffd54f" (click)="setColor('#ffd54f')">&nbsp;</ion-col>
+                <ion-col style="background: #ffb74d" (click)="setColor('#ffb74d')">&nbsp;</ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col style="background: #ef9a9a" (click)="setColor('#ef9a9a')">&nbsp;</ion-col>
+                <ion-col style="background: #f48fb1" (click)="setColor('#f48fb1')">&nbsp;</ion-col>
+                <ion-col style="background: #ce93d8" (click)="setColor('#ce93d8')">&nbsp;</ion-col>
+                <ion-col style="background: #b39ddb" (click)="setColor('#b39ddb')">&nbsp;</ion-col>
+                <ion-col style="background: #9fa8da" (click)="setColor('#9fa8da')">&nbsp;</ion-col>
+                <ion-col style="background: #90caf9" (click)="setColor('#90caf9')">&nbsp;</ion-col>
+                <ion-col style="background: #81d4fa" (click)="setColor('#81d4fa')">&nbsp;</ion-col>
+                <ion-col style="background: #a5d6a7" (click)="setColor('#a5d6a7')">&nbsp;</ion-col>
+                <ion-col style="background: #c5e1a5" (click)="setColor('#c5e1a5')">&nbsp;</ion-col>
+                <ion-col style="background: #e6ee9c" (click)="setColor('#e6ee9c')">&nbsp;</ion-col>
+                <ion-col style="background: #fff59d" (click)="setColor('#fff59d')">&nbsp;</ion-col>
+                <ion-col style="background: #ffe082" (click)="setColor('#ffe082')">&nbsp;</ion-col>
+                <ion-col style="background: #ffcc80" (click)="setColor('#ffcc80')">&nbsp;</ion-col>
+            </ion-row>
+        </ion-grid>
     </div>
-  </ion-item>
-  <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
-    <ion-slide class="wide" style="text-align: left;">
-      <app-evaluation *ngFor="let e of this.mockEvaluations" [evaluation]="e" [enableClick]="false"
-        (click)="changeColor(e.NumberValue)">
-      </app-evaluation>
-    </ion-slide>
-    <ion-slide style="text-align: left;" class="wide">
-      <app-average (click)="changeColor(avg.Value)" *ngFor="let avg of this.mockAverages" [totalGrades]="10"
-        [subjectAverage]="avg"></app-average>
-    </ion-slide>
-    <ion-slide class="wide">
-      <ion-card class="wide">
-        <div id="pie_0" class="chart"></div>
-        <ion-card-header>
-          <ion-card-title>{{'pages.color-picker.pieChart.totalAverage' | translate}}</ion-card-title>
-          <ion-card-subtitle>{{'pages.color-picker.pieChart.totalGrades' | translate}}</ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-        </ion-card-content>
-      </ion-card>
-    </ion-slide>
-  </ion-slides>
+
+    <div class="color-indicator-box ion-text-center ion-margin ion-padding" [ngStyle]="styleEval()">
+        {{'pages.color-picker.selectionZoneText' | translate}}
+    </div>
+
+    <ion-slides (ionSlideWillChange)="ionSlideWillChange()" #slides>
+        <ion-slide class="wide" style="text-align: left">
+            <app-evaluation
+                *ngFor="let e of this.mockEvaluations"
+                [evaluation]="e"
+                [enableClick]="false"
+                (click)="changeColor(e.SzamErtek)"
+            >
+            </app-evaluation>
+        </ion-slide>
+        <ion-slide style="text-align: left" class="wide">
+            <app-average
+                (click)="changeColor(avg.Atlag)"
+                *ngFor="let avg of this.mockAverages"
+                [totalGrades]="10"
+                [subjectAverage]="avg"
+            ></app-average>
+        </ion-slide>
+        <ion-slide class="wide">
+            <ion-card class="wide">
+                <div id="pie_0" class="chart"></div>
+                <ion-card-header>
+                    <ion-card-title
+                        >{{'pages.color-picker.pieChart.totalAverage' | translate}}</ion-card-title
+                    >
+                    <ion-card-subtitle
+                        >{{'pages.color-picker.pieChart.totalGrades' |
+                        translate}}</ion-card-subtitle
+                    >
+                </ion-card-header>
+                <ion-card-content> </ion-card-content>
+            </ion-card>
+        </ion-slide>
+    </ion-slides>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar>
-    <ion-segment (ionChange)="getData($event.detail.value)" [value]="this.focused">
-      <ion-segment-button value="0">
-        <ion-icon name="home-outline"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button value="1">
+<ion-tab-bar slot="bottom">
+    <ion-tab-button (click)="getData(0)" [selected]="focused == 0">
+        <ion-icon name="school-outline"></ion-icon>
+        <ion-label translate="pages.evaluations.title"></ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="getData(1)" [selected]="focused == 1">
         <ion-icon name="trending-up"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button value="2">
-        <ion-icon name="pie-chart"></ion-icon>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
-</ion-footer>
+        <ion-label translate="pages.averages.title"></ion-label>
+    </ion-tab-button>
+    <ion-tab-button (click)="getData(2)" [selected]="focused == 2">
+        <ion-icon name="pie-chart-outline"></ion-icon>
+        <ion-label translate="pages.statistics.title"></ion-label>
+    </ion-tab-button>
+</ion-tab-bar>

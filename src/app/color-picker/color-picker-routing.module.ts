@@ -1,17 +1,17 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
+import { Routes, RouterModule } from "@angular/router";
 
-import { ColorPickerPage } from './color-picker.page';
+import { ColorPickerPage } from "./color-picker.page";
 
 const routes: Routes = [
-  {
-    path: '',
-    component: ColorPickerPage
-  }
+    {
+        path: "",
+        component: ColorPickerPage,
+    },
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
 export class ColorPickerPageRoutingModule {}

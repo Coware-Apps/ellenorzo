@@ -1,24 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { async, ComponentFixture, TestBed } from "@angular/core/testing";
+import { IonicModule } from "@ionic/angular";
 
-import { LessonComponent } from './lesson.component';
+import { LessonComponent } from "./lesson.component";
 
-describe('LessonComponent', () => {
-  let component: LessonComponent;
-  let fixture: ComponentFixture<LessonComponent>;
+describe("LessonComponent", () => {
+    let component: LessonComponent;
+    let fixture: ComponentFixture<LessonComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ LessonComponent ],
-      imports: [IonicModule.forRoot()]
-    }).compileComponents();
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [LessonComponent],
+            imports: [IonicModule.forRoot()],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(LessonComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  }));
+        fixture = TestBed.createComponent(LessonComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it("should create", () => {
+        expect(component).toBeTruthy();
+    });
 });

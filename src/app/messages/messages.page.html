@@ -1,18 +1,18 @@
 <ion-tabs>
-  <ion-tab-bar [hidden]="!this.userManager.currentUser.administrationTokens" slot="bottom">
-    <ion-tab-button tab="inbox">
-      <ion-icon name="file-tray-outline"></ion-icon>
-      <ion-label translate="pages.messages.tabs.inbox"></ion-label>
-    </ion-tab-button>
+    <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="inbox">
+            <ion-icon name="file-tray-outline"></ion-icon>
+            <ion-label translate="pages.messages.tabs.inbox"></ion-label>
+        </ion-tab-button>
 
-    <ion-tab-button tab="outbox">
-      <ion-icon name="paper-plane-outline"></ion-icon>
-      <ion-label translate="pages.messages.tabs.outbox"></ion-label>
-    </ion-tab-button>
+        <ion-tab-button tab="outbox">
+            <ion-icon name="paper-plane-outline"></ion-icon>
+            <ion-label translate="pages.messages.tabs.outbox"></ion-label>
+        </ion-tab-button>
 
-    <ion-tab-button tab="deleted">
-      <ion-icon name="trash-bin-outline"></ion-icon>
-      <ion-label translate="pages.messages.tabs.trash"></ion-label>
-    </ion-tab-button>
-  </ion-tab-bar>
+        <ion-tab-button tab="deleted">
+            <ion-icon name="trash-bin-outline"></ion-icon>
+            <ion-label translate="pages.messages.tabs.trash"></ion-label>
+        </ion-tab-button>
+    </ion-tab-bar>
 </ion-tabs>

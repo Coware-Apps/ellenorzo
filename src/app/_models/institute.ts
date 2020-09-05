@@ -1,11 +1,11 @@
 export interface Institute {
-    InstituteId: number;
-    InstituteCode: string;
-    Name: string;
-    Url: string;
-    City: string;
-    AdvertisingUrl: string;
-    FeatureToggleSet: {
-        JustificationFeatureEnabled: string;
+    instituteId: number;
+    instituteCode: string;
+    name: string;
+    url: string;
+    city: string;
+    advertisingUrl: string;
+    featureToggleSet: {
+        justificationFeatureEnabled: string;
     };
 }

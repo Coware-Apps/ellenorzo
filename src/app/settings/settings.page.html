@@ -1,190 +1,238 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>{{'pages.settings.title' | translate}}</ion-title>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>{{'pages.settings.title' | translate}}</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item-divider>
-      <ion-label>
-        {{'pages.settings.themes.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <ion-radio-group>
+    <ion-list>
+        <ion-item-divider>
+            <ion-label>
+                {{'pages.settings.themes.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-radio-group>
+            <ion-item button (click)="enableLight()" detail="false">
+                <ion-label>{{'pages.settings.themes.lightName' | translate}}</ion-label>
+                <ion-icon
+                    [color]="currentTheme == 'light' ? 'primary': ''"
+                    slot="start"
+                    name="sunny"
+                ></ion-icon>
+            </ion-item>
 
-      <ion-item button (click)="enableLight()">
-        <ion-label>{{'pages.settings.themes.lightName' | translate}}</ion-label>
-        <ion-icon [color]="currentTheme == 'light' ? 'primary': ''" slot="start" name="sunny"></ion-icon>
-      </ion-item>
+            <ion-item button (click)="enableDark()" detail="false">
+                <ion-label>{{'pages.settings.themes.darkName' | translate}}</ion-label>
+                <ion-icon
+                    [color]="currentTheme == 'dark' ? 'primary': ''"
+                    slot="start"
+                    name="moon"
+                ></ion-icon>
+            </ion-item>
 
-      <ion-item button (click)="enableDark()">
-        <ion-label>{{'pages.settings.themes.darkName' | translate}}</ion-label>
-        <ion-icon [color]="currentTheme == 'dark' ? 'primary': ''" slot="start" name="moon"></ion-icon>
-      </ion-item>
+            <ion-item button (click)="enableMinimalDark()" detail="false">
+                <ion-label>{{'pages.settings.themes.amoledName' | translate}}</ion-label>
+                <ion-icon
+                    [color]="currentTheme == 'minimalDark' ? 'primary': ''"
+                    slot="start"
+                    name="contrast"
+                ></ion-icon>
+            </ion-item>
 
-      <ion-item button (click)="enableMinimalDark()">
-        <ion-label>{{'pages.settings.themes.amoledName' | translate}}</ion-label>
-        <ion-icon [color]="currentTheme == 'minimalDark' ? 'primary': ''" slot="start" name="contrast"></ion-icon>
-      </ion-item>
+            <ion-item button (click)="enableCustom()" detail="false">
+                <ion-label>{{'pages.settings.themes.customName' | translate}}</ion-label>
+                <ion-icon
+                    [color]="currentTheme == 'custom' ? 'primary': ''"
+                    slot="start"
+                    name="image"
+                ></ion-icon>
+                <ion-buttons slot="end">
+                    <ion-button (click)="openBgSettings()">
+                        <ion-icon slot="icon-only" name="settings"></ion-icon>
+                    </ion-button>
+                    <ion-button (click)="getImage()">
+                        <ion-icon slot="icon-only" name="folder-open"></ion-icon>
+                    </ion-button>
+                </ion-buttons>
+            </ion-item>
+        </ion-radio-group>
 
-      <ion-item button (click)="enableCustom()">
-        <ion-label>{{'pages.settings.themes.customName' | translate}}</ion-label>
-        <ion-icon [color]="currentTheme == 'custom' ? 'primary': ''" slot="start" name="image"></ion-icon>
-        <ion-buttons slot="end">
-          <ion-button (click)="openBgSettings()">
-            <ion-icon slot="icon-only" name="settings"></ion-icon>
-          </ion-button>
-          <ion-button (click)="getImage()">
-            <ion-icon slot="icon-only" name="folder-open"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-item>
-    </ion-radio-group>
+        <ion-item button (click)="showPicker()">
+            {{'pages.settings.themes.customizeColorsName' | translate}}
+            <ion-icon slot="start" name="color-palette"></ion-icon>
+        </ion-item>
 
+        <ion-item-divider>
+            <ion-label>
+                {{'pages.settings.pages.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-item>
+            <ion-icon slot="start" name="home"></ion-icon>
+            <ion-label>{{'pages.settings.pages.startingPageName' | translate}}</ion-label>
+            <ion-select
+                [(ngModel)]="defaultPage"
+                (ionChange)="selectorChanged($event)"
+                [interfaceOptions]="customAlertOptions"
+                interface="alert"
+                slot="end"
+                placeholder="Órarend"
+                [cancelText]="'common.cancel' | translate"
+            >
+                <div *ngFor="let page of appPages">
+                    <ion-select-option
+                        *ngIf="page.translatorVal != 'settings' && page.show"
+                        value="{{page.url}}"
+                    >
+                        {{page.translatorVal | translate}}
+                    </ion-select-option>
+                </div>
+            </ion-select>
+        </ion-item>
+        <ion-item button (click)="hidePages()">
+            <ion-icon slot="start" name="eye"></ion-icon>
+            <ion-label>{{'pages.settings.pages.hidePagesName' | translate}}</ion-label>
+        </ion-item>
+        <ion-item button (click)="openHomeSettings()">
+            <ion-icon slot="start" name="options"></ion-icon>
+            <ion-label>{{'pages.settings.pages.homeSettingsName' | translate}}</ion-label>
+        </ion-item>
 
-    <ion-item button (click)="showPicker()">
-      {{'pages.settings.themes.customizeColorsName' | translate}}
-      <ion-icon slot="start" name="color-palette"></ion-icon>
-    </ion-item>
+        <ion-item-divider>
+            <ion-label>
+                {{'pages.settings.language.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-item>
+            <ion-icon slot="start" name="language-outline"></ion-icon>
+            <ion-label>{{'pages.settings.language.displayLanguageName' | translate}}</ion-label>
+            <ion-select
+                (ionChange)="this.currentLngChanged($event)"
+                [interfaceOptions]="customPopoverOptions"
+                interface="popover"
+                [value]="this.app.currentLng"
+            >
+                <ion-select-option
+                    *ngFor="let language of this.app.languages"
+                    value="{{language.id}}"
+                    >{{language.displayName}}
+                </ion-select-option>
+            </ion-select>
+        </ion-item>
 
-    <ion-item-divider>
-      <ion-label>
-        {{'pages.settings.pages.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <ion-item>
-      <ion-icon slot="start" name="home"></ion-icon>
-      <ion-label>{{'pages.settings.pages.startingPageName' | translate}}</ion-label>
-      <ion-select [(ngModel)]="defaultPage" (ionChange)="selectorChanged($event)"
-        [interfaceOptions]="customAlertOptions" interface="alert" slot="end" placeholder="Órarend">
-        <div *ngFor="let page of appPages">
-          <ion-select-option *ngIf="page.translatorVal != 'settings' && page.show" value="{{page.url}}">
-            {{page.translatorVal | translate}}
-          </ion-select-option>
-        </div>
-      </ion-select>
-    </ion-item>
-    <ion-item button (click)="hidePages()">
-      <ion-icon slot="start" name="eye"></ion-icon>
-      <ion-label>{{'pages.settings.pages.hidePagesName' | translate}}</ion-label>
-    </ion-item>
-    <ion-item button (click)="openHomeSettings()">
-      <ion-icon slot="start" name="options"></ion-icon>
-      <ion-label>{{'pages.settings.pages.homeSettingsName' | translate}}</ion-label>
-    </ion-item>
+        <ion-item-divider>
+            <ion-label>
+                {{'pages.settings.notifications.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-item button (click)="openNotificationSettings()">
+            <ion-icon slot="start" name="notifications-sharp"></ion-icon>
+            <ion-label>
+                {{'pages.settings.notifications.timetableNotificationsName' | translate}}
+            </ion-label>
+        </ion-item>
 
-    <ion-item-divider>
-      <ion-label>
-        {{'pages.settings.language.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <ion-item>
-      <ion-icon slot="start" name="language-outline"></ion-icon>
-      <ion-label>{{'pages.settings.language.displayLanguageName' | translate}}</ion-label>
-      <ion-select (ionChange)="this.currentLngChanged($event)" [interfaceOptions]="customPopoverOptions"
-        interface="popover" [value]="this.app.currentLng">
-        <ion-select-option *ngFor="let language of this.app.languages" value="{{language.id}}">{{language.displayName}}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+        <ion-item-divider>
+            <ion-label>
+                {{'pages.settings.dataHandling.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-item>
+            <ion-icon slot="start" name="analytics"></ion-icon>
+            <ion-label>
+                <h2>{{'pages.settings.dataHandling.anonymusStatistics.name' | translate}}</h2>
+                <ion-note
+                    >{{'pages.settings.dataHandling.anonymusStatistics.note' | translate}}</ion-note
+                >
+            </ion-label>
+            <ion-toggle
+                [checked]="this.app.analyticsCollectionEnabled"
+                (ionChange)="this.analyticsChanged($event)"
+                slot="end"
+            >
+            </ion-toggle>
+        </ion-item>
+        <a style="text-decoration: none;" href="https://arisztokreta.hu/privacy">
+            <ion-item button>
+                <ion-icon slot="start" name="information-circle"></ion-icon>
+                <ion-label
+                    >{{'pages.settings.dataHandling.privacyPolicyName' | translate}}</ion-label
+                >
+            </ion-item>
+        </a>
 
-    <ion-item-divider>
-      <ion-label>
-        {{'pages.settings.notifications.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <ion-item (click)="openNotificationSettings()">
-      <ion-icon slot="start" name="notifications-sharp"></ion-icon>
-      <ion-label>
-        {{'pages.settings.notifications.timetableNotificationsName' | translate}}
-      </ion-label>
-    </ion-item>
+        <ion-item-divider [hidden]="!this.app.devSettingsEnabled">
+            <ion-label>
+                {{'pages.settings.devSettings.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-item [hidden]="!this.app.devSettingsEnabled">
+            <ion-icon slot="start" name="code"></ion-icon>
+            <ion-label>{{'pages.settings.devSettings.toastLoggingName' | translate}}</ion-label>
+            <ion-toggle
+                [checked]="this.app.toastLoggingEnabled"
+                (ionChange)="toastLoggingChanged($event)"
+                slot="end"
+            >
+            </ion-toggle>
+        </ion-item>
+        <ion-item [hidden]="!this.app.devSettingsEnabled" button (click)="customUAClicked()">
+            <ion-icon slot="start" name="flask"></ion-icon>
+            <ion-label>
+                <h2>{{'pages.settings.devSettings.UALAB.name' | translate}}</h2>
+                <ion-note>{{'pages.settings.devSettings.UALAB.note' | translate}}</ion-note>
+            </ion-label>
+        </ion-item>
 
-    <ion-item-divider>
-      <ion-label>
-        {{'pages.settings.dataHandling.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <ion-item>
-      <ion-icon slot="start" name="analytics"></ion-icon>
-      <ion-label>
-        <h2>{{'pages.settings.dataHandling.anonymusStatistics.name' | translate}}</h2>
-        <ion-note>{{'pages.settings.dataHandling.anonymusStatistics.note' | translate}}</ion-note>
-      </ion-label>
-      <ion-toggle [checked]="this.app.analyticsCollectionEnabled" (ionChange)="this.analyticsChanged($event)"
-        slot="end">
-      </ion-toggle>
-    </ion-item>
-    <a style="text-decoration: none;" href="https://arisztokreta.hu/privacy">
-      <ion-item button>
-        <ion-icon slot="start" name="information-circle"></ion-icon>
-        <ion-label>{{'pages.settings.dataHandling.privacyPolicyName' | translate}}</ion-label>
-      </ion-item>
-    </a>
+        <ion-item-divider>
+            <ion-label>
+                {{'pages.settings.accounts.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
+        <ion-item button (click)="openUserSettings()">
+            <ion-icon slot="start" name="people-sharp"></ion-icon>
+            <ion-label>
+                <h2>{{'pages.settings.accounts.handling.name' | translate}}</h2>
+                <ion-note>{{'pages.settings.accounts.handling.note' | translate}}</ion-note>
+            </ion-label>
+        </ion-item>
 
+        <ion-item-divider>
+            <ion-label>
+                {{'pages.settings.application.title' | translate}}
+            </ion-label>
+        </ion-item-divider>
 
-    <ion-item-divider [hidden]="!this.app.devSettingsEnabled">
-      <ion-label>
-        {{'pages.settings.devSettings.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <ion-item [hidden]="!this.app.devSettingsEnabled">
-      <ion-icon slot="start" name="code"></ion-icon>
-      <ion-label>{{'pages.settings.devSettings.toastLoggingName' | translate}}</ion-label>
-      <ion-toggle [checked]="this.app.toastLoggingEnabled" (ionChange)="toastLoggingChanged($event)" slot="end">
-      </ion-toggle>
-    </ion-item>
-    <ion-item [hidden]="!this.app.devSettingsEnabled" button (click)="customUAClicked()">
-      <ion-icon slot="start" name="flask"></ion-icon>
-      <ion-label>
-        <h2>{{'pages.settings.devSettings.UALAB.name' | translate}}</h2>
-        <ion-note>{{'pages.settings.devSettings.UALAB.note' | translate}}</ion-note>
-      </ion-label>
-    </ion-item>
+        <ion-item button (click)="openNaplo()">
+            <ion-icon slot="start" [name]="getStoreIcon()"></ion-icon>
+            <ion-label>{{'pages.login.naploText' | translate}}</ion-label>
+        </ion-item>
 
-    <ion-item-divider>
-      <ion-label>
-        {{'pages.settings.accounts.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <ion-item button (click)="openUserSettings()">
-      <ion-icon slot="start" name="people-sharp"></ion-icon>
-      <ion-label>
-        <h2>{{'pages.settings.accounts.handling.name' | translate}}</h2>
-        <ion-note>{{'pages.settings.accounts.handling.note' | translate}}</ion-note>
-      </ion-label>
-    </ion-item>
+        <a
+            style="text-decoration: none;"
+            href="https://github.com/Coware-Apps/ellenorzo/issues/new"
+        >
+            <ion-item button>
+                <ion-icon slot="start" name="bug-sharp"></ion-icon>
+                <ion-label>{{'pages.settings.application.reportErrorName' | translate}}</ion-label>
+            </ion-item>
+        </a>
 
-    <ion-item-divider>
-      <ion-label>
-        {{'pages.settings.application.title' | translate}}
-      </ion-label>
-    </ion-item-divider>
-    <a style="text-decoration: none;" href="https://github.com/Coware-Apps/ellenorzo/issues/new">
-      <ion-item button>
-        <ion-icon slot="start" name="bug-sharp"></ion-icon>
-        <ion-label>{{'pages.settings.application.reportErrorName' | translate}}</ion-label>
-      </ion-item>
-    </a>
-    <a style="text-decoration: none;" href="https://github.com/Coware-Apps/ellenorzo">
-      <ion-item button>
-        <ion-icon slot="start" name="logo-github"></ion-icon>
-        <ion-label>{{'pages.settings.application.seeSourceCodeName' | translate}}</ion-label>
-      </ion-item>
-    </a>
-    <a style="text-decoration: none;" href="https://documenter.getpostman.com/view/10379752/SzKPULz6">
-      <ion-item button>
-        <ion-icon slot="start" name="cloud-sharp"></ion-icon>
-        <ion-label>{{'pages.settings.application.documentationName' | translate}}</ion-label>
-      </ion-item>
-    </a>
-    <ion-item button (click)="this.versionClicked()">
-      <ion-icon slot="start" name="code-working-sharp"></ion-icon>
-      <ion-label slot="start">{{this.appV}}</ion-label>
-    </ion-item>
-  </ion-list>
+        <a style="text-decoration: none;" href="https://github.com/Coware-Apps/ellenorzo">
+            <ion-item button>
+                <ion-icon slot="start" name="logo-github"></ion-icon>
+                <ion-label
+                    >{{'pages.settings.application.seeSourceCodeName' | translate}}</ion-label
+                >
+            </ion-item>
+        </a>
+
+        <ion-item button (click)="this.versionClicked()" detail="false">
+            <ion-icon slot="start" name="code-working-sharp"></ion-icon>
+            <ion-label slot="start">{{this.appV}}</ion-label>
+        </ion-item>
+    </ion-list>
 </ion-content>

@@ -1,18 +1,29 @@
 <ion-card button>
-  <ion-card-header (click)="getMoreData(note)">
-    <ion-icon class="categoryIcon" name="document-text-outline"></ion-icon>
-    <ion-card-subtitle>{{note.Teacher}} - {{this.fDate.formatDateWithZerosAndDots(note.CreatingTime)}}
-    </ion-card-subtitle>
-    <ion-card-title>{{note.Title}}</ion-card-title>
-  </ion-card-header>
-  <hr>
-  <div (click)="note.opened = !note.opened">
-    <ion-card-content *ngIf="!note.opened" class="selectableText">
-      {{getLongItemText(note.Content)}}
-      <p style="text-decoration: underline; text-align: center;">{{isOpenableNeeded(note.Content)}}</p>
+    <ion-card-header>
+        <ion-icon
+            class="categoryIcon ion-padding-start"
+            name="document-text-outline"
+            (click)="getMoreData(note)"
+        ></ion-icon>
+        <ion-card-subtitle
+            >{{ note.KeszitoTanarNeve }} &ndash;
+            {{ this.fDate.formatDateWithZerosAndDots(note.KeszitesDatuma) }}
+        </ion-card-subtitle>
+        <ion-card-title (click)="note.opened = !note.opened">{{ note.Cim }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content
+        *ngIf="!note.opened"
+        class="selectableText"
+        (click)="note.opened = !note.opened"
+    >
+        {{ note.Teaser }}
+        <p class="ion-text-center">{{ isOpenableNeeded(note.Tartalom) }}</p>
     </ion-card-content>
-    <ion-card-content *ngIf="note.opened" class="selectableText">
-      {{note.Content}}
+    <ion-card-content
+        *ngIf="note.opened"
+        class="selectableText"
+        (click)="note.opened = !note.opened"
+        [innerHTML]="note.Tartalom"
+    >
     </ion-card-content>
-  </div>
 </ion-card>

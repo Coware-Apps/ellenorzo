@@ -1,51 +1,81 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-back-button slot="start"></ion-back-button>
-    <ion-title>{{'pages.bg-settings.title' | translate}}</ion-title>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-back-button slot="start" [text]="app.getBackButtonText()"></ion-back-button>
+        <ion-title>{{'pages.bg-settings.title' | translate}}</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list>
-    <ion-item>
-      <ion-label>{{'pages.bg-settings.autoResizeBgText' | translate}}</ion-label>
-      <ion-toggle (ionChange)="sizeChange($event)" [(ngModel)]="sizeChanger" slot="end"></ion-toggle>
-    </ion-item>
-    <ion-item>
-      <ion-range min="-100" max="100" [(ngModel)]="this.x" (ionChange)="xChange($event)" color="primary">
-        <ion-icon slot="start" name="arrow-back"></ion-icon>
-        <ion-icon slot="end" name="arrow-forward"></ion-icon>
-      </ion-range>
-    </ion-item>
-    <ion-item>
-      <ion-range [disabled]="sizeChanger" min="-100" max="100" [(ngModel)]="this.y" (ionChange)="yChange($event)"
-        color="primary">
-        <ion-icon slot="start" name="arrow-up"></ion-icon>
-        <ion-icon slot="end" name="arrow-down"></ion-icon>
-      </ion-range>
-    </ion-item>
-    <ion-item>
-      <ion-range [disabled]="sizeChanger" min="100" max="200" [(ngModel)]="this.size" (ionChange)="sizeSlider($event)"
-        color="primary">
-        <ion-icon size="small" slot="start" name="image"></ion-icon>
-        <ion-icon slot="end" name="image"></ion-icon>
-      </ion-range>
-    </ion-item>
-    <ion-item>
-      <ion-label>{{'pages.bg-settings.bgSaturationText' | translate}}</ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-range step="25" snaps="true" ticks="true" min="0" max="100" [(ngModel)]="this.backdrop"
-        (ionChange)="backdropSlider($event)" color="primary">
-        <ion-icon slot="start" name="color-fill-outline"></ion-icon>
-        <ion-icon slot="end" name="color-fill"></ion-icon>
-      </ion-range>
-    </ion-item>
-  </ion-list>
-  <ion-list lines="none" mode="md">
-    <ion-item>
-      <ion-icon slot="start" name="information-circle-outline"></ion-icon>
-      <ion-note>{{'pages.bg-settings.info' | translate}}</ion-note>
-    </ion-item>
-  </ion-list>
+    <ion-list>
+        <ion-item>
+            <ion-label>{{'pages.bg-settings.autoResizeBgText' | translate}}</ion-label>
+            <ion-toggle
+                (ionChange)="sizeChange($event)"
+                [(ngModel)]="sizeChanger"
+                slot="end"
+            ></ion-toggle>
+        </ion-item>
+        <ion-item>
+            <ion-range
+                min="-100"
+                max="100"
+                [(ngModel)]="this.x"
+                (ionChange)="xChange($event)"
+                color="primary"
+            >
+                <ion-icon slot="start" name="arrow-back"></ion-icon>
+                <ion-icon slot="end" name="arrow-forward"></ion-icon>
+            </ion-range>
+        </ion-item>
+        <ion-item>
+            <ion-range
+                [disabled]="sizeChanger"
+                min="-100"
+                max="100"
+                [(ngModel)]="this.y"
+                (ionChange)="yChange($event)"
+                color="primary"
+            >
+                <ion-icon slot="start" name="arrow-up"></ion-icon>
+                <ion-icon slot="end" name="arrow-down"></ion-icon>
+            </ion-range>
+        </ion-item>
+        <ion-item>
+            <ion-range
+                [disabled]="sizeChanger"
+                min="100"
+                max="200"
+                [(ngModel)]="this.size"
+                (ionChange)="sizeSlider($event)"
+                color="primary"
+            >
+                <ion-icon size="small" slot="start" name="image"></ion-icon>
+                <ion-icon slot="end" name="image"></ion-icon>
+            </ion-range>
+        </ion-item>
+        <ion-item>
+            <ion-label>{{'pages.bg-settings.bgSaturationText' | translate}}</ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-range
+                step="25"
+                snaps="true"
+                ticks="true"
+                min="0"
+                max="100"
+                [(ngModel)]="this.backdrop"
+                (ionChange)="backdropSlider($event)"
+                color="primary"
+            >
+                <ion-icon slot="start" name="color-fill-outline"></ion-icon>
+                <ion-icon slot="end" name="color-fill"></ion-icon>
+            </ion-range>
+        </ion-item>
+    </ion-list>
+    <ion-list lines="none" mode="md">
+        <ion-item>
+            <ion-icon slot="start" name="information-circle-outline"></ion-icon>
+            <ion-note>{{'pages.bg-settings.info' | translate}}</ion-note>
+        </ion-item>
+    </ion-list>
 </ion-content>

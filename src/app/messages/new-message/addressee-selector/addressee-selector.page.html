@@ -1,92 +1,158 @@
 <ion-header>
-  <ion-item lines="none" color="brand">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="messages/new-message"></ion-back-button>
-    </ion-buttons>
-    <ion-select [(ngModel)]="currentCategory" (ionChange)="categoryChanged($event)" slot="start" interface="popover"
-      placeholder="{{'pages.addressee-selector.categorySelectPlaceholder' | translate}}">
-      <ion-select-option *ngFor="let at of this.addresseeTypes" [value]="at.kod">{{at.rovidNev}}</ion-select-option>
-    </ion-select>
-    <ion-buttons slot="end">
-      <ion-button *ngIf="!this.showSearchbar" class="slide-bottom" (click)="this.showSearchbar = true">
-        <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
-      </ion-button>
-      <ion-button (click)="selectOrRemoveAllFromCategory(currentCategory); $event.stopPropagation()">
-        <ion-icon slot="icon-only" *ngIf="!isAllSelectedFromCategory(currentCategory)" name="square-outline">
-        </ion-icon>
-        <ion-icon *ngIf="isAllSelectedFromCategory(currentCategory)" slot="icon-only" name="checkbox">
-        </ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-item>
-  <ion-item color="brand"
-    *ngIf="this.showSearchbar || this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK'">
-    <ion-searchbar (ionCancel)="this.showSearchbar = false" class="slide-top" *ngIf="this.showSearchbar" animated
-      showCancelButton="250" placeholder="{{'pages.addressee-selector.searchPlaceholder' | translate}}"
-      [(ngModel)]="filter" (ionInput)="doFilter($event)" [debounce]="250" [disabled]="this.sans">
-    </ion-searchbar>
-    <ion-select class="slide-top"
-      *ngIf="(this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK') && !this.showSearchbar"
-      [(ngModel)]="this.currentClassId" (ionChange)="subCategoryChanged('byClasses', $event)" slot="start"
-      interface="popover" placeholder="{{'pages.addressee-selector.classSelectPlaceholder' | translate}}">
-      <ion-select-option *ngFor="let c of this.classes" [value]="c.kretaAzonosito">{{c.nev}}</ion-select-option>
-    </ion-select>
-    <ion-select class="slide-top"
-      *ngIf="(this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK') && !this.showSearchbar"
-      [(ngModel)]="this.currentGroupId" (ionChange)="subCategoryChanged('byGroups', $event)" slot="end"
-      interface="popover" placeholder="{{'pages.addressee-selector.groupSelectPlaceholder' | translate}}">
-      <ion-select-option *ngFor="let g of this.displayGroups" [value]="g.kretaAzonosito">{{g.nev}}</ion-select-option>
-    </ion-select>
-  </ion-item>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-back-button
+                defaultHref="messages/new-message"
+                [text]="app.getBackButtonText()"
+            ></ion-back-button>
+        </ion-buttons>
+
+        <ion-select
+            [(ngModel)]="currentCategory"
+            (ionChange)="categoryChanged($event)"
+            slot="start"
+            interface="popover"
+            placeholder="{{'pages.addressee-selector.categorySelectPlaceholder' | translate}}"
+            class="ion-margin-horizontal"
+        >
+            <ion-select-option *ngFor="let at of this.addresseeTypes" [value]="at.kod"
+                >{{at.rovidNev}}</ion-select-option
+            >
+        </ion-select>
+
+        <ion-buttons slot="end">
+            <ion-button
+                *ngIf="!this.showSearchbar"
+                class="slide-bottom"
+                (click)="this.showSearchbar = true"
+            >
+                <ion-icon slot="icon-only" name="search-sharp"></ion-icon>
+            </ion-button>
+            <ion-button
+                (click)="selectOrRemoveAllFromCategory(currentCategory); $event.stopPropagation()"
+            >
+                <ion-icon
+                    slot="icon-only"
+                    *ngIf="!isAllSelectedFromCategory(currentCategory)"
+                    name="square-outline"
+                >
+                </ion-icon>
+                <ion-icon
+                    *ngIf="isAllSelectedFromCategory(currentCategory)"
+                    slot="icon-only"
+                    name="checkbox"
+                >
+                </ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+
+    <ion-toolbar
+        color="brand"
+        *ngIf="this.showSearchbar || this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK'"
+    >
+        <ion-searchbar
+            (ionCancel)="this.showSearchbar = false"
+            class="slide-top"
+            *ngIf="this.showSearchbar"
+            animated
+            showCancelButton="focus"
+            cancelButtonText="{{ 'common.cancel' | translate }}"
+            placeholder="{{'pages.addressee-selector.searchPlaceholder' | translate}}"
+            [(ngModel)]="filter"
+            (ionInput)="doFilter($event)"
+            [debounce]="250"
+            [disabled]="this.sans"
+        >
+        </ion-searchbar>
+        <ion-select
+            class="slide-top"
+            *ngIf="(this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK') && !this.showSearchbar"
+            [(ngModel)]="this.currentClassId"
+            (ionChange)="subCategoryChanged('byClasses', $event)"
+            slot="start"
+            interface="popover"
+            placeholder="{{'pages.addressee-selector.classSelectPlaceholder' | translate}}"
+        >
+            <ion-select-option *ngFor="let c of this.classes" [value]="c.kretaAzonosito"
+                >{{c.nev}}</ion-select-option
+            >
+        </ion-select>
+        <ion-select
+            class="slide-top"
+            *ngIf="(this.currentCategory == 'GONDVISELOK' || this.currentCategory == 'TANULOK') && !this.showSearchbar"
+            [(ngModel)]="this.currentGroupId"
+            (ionChange)="subCategoryChanged('byGroups', $event)"
+            slot="end"
+            interface="popover"
+            placeholder="{{'pages.addressee-selector.groupSelectPlaceholder' | translate}}"
+        >
+            <ion-select-option *ngFor="let g of this.displayGroups" [value]="g.kretaAzonosito"
+                >{{g.nev}}</ion-select-option
+            >
+        </ion-select>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-virtual-scroll *ngIf="this.filteredAddresseeList.length > 0" [items]="this.filteredAddresseeList"
-    approxItemHeight="63px">
-    <ion-item button (click)="addOrRemoveAddressee(a)" *virtualItem="let a">
-      <ion-buttons slot="end">
-        <ion-button>
-          <ion-icon *ngIf="!a.isAdded" slot="icon-only" name="square-outline"></ion-icon>
-          <ion-icon color="primary" *ngIf="a.isAdded" slot="icon-only" name="checkbox"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-label>
-        <h2>{{getName(a)}}</h2>
-        <ion-note *ngIf="a.osztaly">{{a.osztaly}}</ion-note>
-      </ion-label>
-    </ion-item>
-  </ion-virtual-scroll>
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="goBack()">
-      <ion-icon name="checkmark"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+    <ion-virtual-scroll
+        *ngIf="this.filteredAddresseeList.length > 0"
+        [items]="this.filteredAddresseeList"
+        approxItemHeight="63px"
+    >
+        <ion-item button (click)="addOrRemoveAddressee(a)" *virtualItem="let a" detail="false">
+            <ion-buttons slot="end">
+                <ion-button>
+                    <ion-icon *ngIf="!a.isAdded" slot="icon-only" name="square-outline"></ion-icon>
+                    <ion-icon
+                        color="primary"
+                        *ngIf="a.isAdded"
+                        slot="icon-only"
+                        name="checkbox"
+                    ></ion-icon>
+                </ion-button>
+            </ion-buttons>
+            <ion-label>
+                <h2>{{getName(a)}}</h2>
+                <ion-note *ngIf="a.osztaly">{{a.osztaly}}</ion-note>
+            </ion-label>
+        </ion-item>
+    </ion-virtual-scroll>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)="goBack()">
+            <ion-icon name="checkmark"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
 
-  <app-empty translatorKey="pages.messages.addresseeListEmpty"
-    *ngIf="this.filteredAddresseeList.length == 0 && !this.sans"></app-empty>
+    <app-empty
+        translatorKey="pages.messages.addresseeListEmpty"
+        *ngIf="this.filteredAddresseeList.length == 0 && !this.sans"
+    ></app-empty>
 
-  <div *ngIf="this.sans">
-    <ion-card *ngFor="let i of [0, 1, 2, 3]">
-      <ion-card-header>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-      </ion-card-header>
-    </ion-card>
-  </div>
+    <div *ngIf="this.sans">
+        <ion-card *ngFor="let i of [0, 1, 2, 3]">
+            <ion-card-header>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+            </ion-card-header>
+        </ion-card>
+    </div>
 </ion-content>
 <ion-footer *ngIf="this.finalAddresseeList.length > 0">
-  <ion-toolbar>
-    <ion-item button (click)="this.listAddressees()">
-      <ion-label slot="start">{{getFinalAddresseeString()}}</ion-label>
-      <ion-label style="float: right; text-align: right;">({{this.finalAddresseeList.length}}
-        {{'pages.addressee-selector.piecesName' | translate}})</ion-label>
-      <ion-buttons style="float: right;">
-        <ion-button>
-          <ion-icon slot="icon-only" name="information-circle"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-item>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-item button (click)="this.listAddressees()">
+            <ion-label slot="start">{{getFinalAddresseeString()}}</ion-label>
+            <ion-label style="float: right; text-align: right;"
+                >({{this.finalAddresseeList.length}} {{'pages.addressee-selector.piecesName' |
+                translate}})</ion-label
+            >
+            <ion-buttons style="float: right;">
+                <ion-button>
+                    <ion-icon slot="icon-only" name="information-circle"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+    </ion-toolbar>
 </ion-footer>

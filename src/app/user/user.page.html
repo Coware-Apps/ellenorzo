@@ -1,99 +1,118 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{'pages.user.title' | translate}}</ion-title>
-    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
-    </ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'pages.user.title' | translate}}</ion-title>
+        <ion-progress-bar
+            type="indeterminate"
+            [hidden]="componentState != 'loading' && componentState != 'loadedProgress'"
+        >
+        </ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
-  <div *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>
-          <h1>{{'pages.user.personalInfo.title' | translate}}</h1>
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content class="selectableText">
-        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.name' | translate}}</h2>
-        <p>{{student.Name}}</p>
-        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.birthName' | translate}}</h2>
-        <p>{{student.NameOfBirth}}</p>
-        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.birthDate' | translate}}</h2>
-        <p>{{this.fDate.formatDate(student.DateOfBirthUtc)}}</p>
-        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.birthPlace' | translate}}</h2>
-        <p>{{student.PlaceOfBirth}}</p>
-        <h2 style="font-weight: bold;">{{'pages.user.personalInfo.addressData' | translate}}</h2>
-        <p *ngFor="let address of student.AddressDataList">{{address}}</p>
-      </ion-card-content>
-    </ion-card>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
+    <div *ngIf="componentState == 'loaded' || componentState == 'loadedProgress'">
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title>
+                    <h1>{{'pages.user.personalInfo.title' | translate}}</h1>
+                </ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="selectableText">
+                <h2 style="font-weight: bold;">{{'pages.user.personalInfo.name' | translate}}</h2>
+                <p>{{student.Nev}}</p>
+                <h2 style="font-weight: bold;">
+                    {{'pages.user.personalInfo.birthName' | translate}}
+                </h2>
+                <p>{{student.SzuletesiNev}}</p>
+                <h2 style="font-weight: bold;">
+                    {{'pages.user.personalInfo.birthDate' | translate}}
+                </h2>
+                <p>{{this.fDate.formatDateWithZerosAndDots(student.SzuletesiDatum)}}</p>
+                <h2 style="font-weight: bold;">
+                    {{'pages.user.personalInfo.birthPlace' | translate}}
+                </h2>
+                <p>{{student.SzuletesiHely}}</p>
+                <h2 style="font-weight: bold;">
+                    {{'pages.user.personalInfo.addressData' | translate}}
+                </h2>
+                <p *ngFor="let address of student.Cimek">{{address}}</p>
+            </ion-card-content>
+        </ion-card>
 
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>
-          <h1>{{'pages.user.tutelaryInfo.title' | translate}}</h1>
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content class="selectableText">
-        <div *ngFor="let tutelary of student.Tutelaries">
-          <h1>{{tutelary.Name}}</h1>
-          <h2 style="font-weight: bold;">{{'pages.user.tutelaryInfo.email' | translate}}</h2>
-          <p>{{tutelary.Email == '' ? '-' : tutelary.Email}}</p>
-          <h2 style="font-weight: bold;">{{'pages.user.tutelaryInfo.phone' | translate}}</h2>
-          <p>{{tutelary.PhoneNumber == '' ? '-' : tutelary.PhoneNumber}}</p>
-        </div>
-      </ion-card-content>
-    </ion-card>
-  </div>
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title>
+                    <h1>{{'pages.user.tutelaryInfo.title' | translate}}</h1>
+                </ion-card-title>
+            </ion-card-header>
+            <ion-card-content class="selectableText">
+                <div *ngFor="let tutelary of student.Gondviselok">
+                    <h1>{{tutelary.Nev}}</h1>
+                    <h2 style="font-weight: bold;">
+                        {{'pages.user.tutelaryInfo.email' | translate}}
+                    </h2>
+                    <p>{{tutelary.EmailCim == '' ? '-' : tutelary.EmailCim}}</p>
+                    <h2 style="font-weight: bold;">
+                        {{'pages.user.tutelaryInfo.phone' | translate}}
+                    </h2>
+                    <p>{{tutelary.Telefonszam == '' ? '-' : tutelary.Telefonszam}}</p>
+                </div>
+            </ion-card-content>
+        </ion-card>
+    </div>
 
-  <div *ngIf="componentState == 'loading'">
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>
-          <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 70%"></ion-skeleton-text>
-      </ion-card-content>
-    </ion-card>
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>
-          <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
+    <div *ngIf="componentState == 'loading'">
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title>
+                    <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 70%;"></ion-skeleton-text>
+            </ion-card-content>
+        </ion-card>
+        <ion-card>
+            <ion-card-header>
+                <ion-card-title>
+                    <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
 
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-      </ion-card-content>
-    </ion-card>
-  </div>
-
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+            </ion-card-content>
+        </ion-card>
+    </div>
 </ion-content>

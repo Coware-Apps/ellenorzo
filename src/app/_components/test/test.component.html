@@ -1,14 +1,15 @@
 <ion-card>
-  <ion-card-header>
-    <ion-icon class="categoryIcon" src="/assets/extraicons/test.svg"></ion-icon>
-    <ion-card-subtitle>{{test.Tanar}} - {{this.fDate.formatDateWithZerosAndDots(test.Datum)}}
-      ({{test.HetNapja}})
-    </ion-card-subtitle>
-    <ion-card-title class="selectableText">
-      {{test.SzamonkeresMegnevezese == '' ? '-' : test.SzamonkeresMegnevezese}}</ion-card-title>
-    <ion-card-subtitle>{{test.SzamonkeresModja}}</ion-card-subtitle>
-  </ion-card-header>
-  <ion-card-content class="subject">
-    <h2>{{test.Tantargy}}</h2>
-  </ion-card-content>
+    <ion-card-header>
+        <ion-icon class="categoryIcon" src="/assets/extraicons/test.svg"></ion-icon>
+        <ion-card-subtitle
+            >{{ test.RogzitoTanarNeve }} - {{ this.fDate.formatDateWithZerosAndDots(test.Datum) }}
+        </ion-card-subtitle>
+        <ion-card-title class="selectableText">
+            {{ test.Temaja == "" ? "-" : test.Temaja }}</ion-card-title
+        >
+        <ion-card-subtitle>{{ test.Modja?.Leiras }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content class="subject">
+        <h2>{{ test.TantargyNeve }}</h2>
+    </ion-card-content>
 </ion-card>

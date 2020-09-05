@@ -1,102 +1,142 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title>{{'pages.statistics.title' | translate}}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button [disabled]="this.componentState != 'loaded' && this.componentState != 'loadedProgress'"
-        (click)="openCategorySelector($event)">
-        <ion-icon slot="icon-only" name="filter-sharp"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
-    </ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>{{'pages.statistics.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button
+                [disabled]="this.componentState != 'loaded' && this.componentState != 'loadedProgress'"
+                (click)="openCategorySelector($event)"
+            >
+                <ion-icon slot="icon-only" name="filter-sharp"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-progress-bar
+            type="indeterminate"
+            [hidden]="componentState != 'loading' && componentState != 'loadedProgress'"
+        >
+        </ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-select #categorySelector [(ngModel)]="selected" (ionChange)="selectorChanged($event, true, true)"
-    [interfaceOptions]="customPopoverOptions" interface="popover" slot="end" placeholder="Adatok">
-    <ion-select-option value="yBySubject">{{'pages.statistics.categorySelector.options.yBySubject' | translate}}
-    </ion-select-option>
-    <ion-select-option value="yearly">{{'pages.statistics.categorySelector.options.yearly' | translate}}
-    </ion-select-option>
-    <ion-select-option value="mBySubject">{{'pages.statistics.categorySelector.options.mBySubject' | translate}}
-    </ion-select-option>
-    <ion-select-option value="monthly">{{'pages.statistics.categorySelector.options.monthly' | translate}}
-    </ion-select-option>
-  </ion-select>
+    <ion-select
+        #categorySelector
+        [(ngModel)]="selected"
+        (ionChange)="selectorChanged($event, true, true)"
+        [interfaceOptions]="customPopoverOptions"
+        interface="popover"
+        slot="end"
+        placeholder="Adatok"
+    >
+        <!-- <ion-select-option value="yBySubject">
+            {{'pages.statistics.categorySelector.options.yBySubject' | translate}}
+        </ion-select-option> -->
+        <ion-select-option value="yearly">
+            {{'pages.statistics.categorySelector.options.yearly' | translate}}
+        </ion-select-option>
+        <!-- <ion-select-option value="mBySubject">
+            {{'pages.statistics.categorySelector.options.mBySubject' | translate}}
+        </ion-select-option> -->
+        <ion-select-option value="monthly">
+            {{'pages.statistics.categorySelector.options.monthly' | translate}}
+        </ion-select-option>
+    </ion-select>
 
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
 
-  <ion-slides [hidden]="componentState != 'loaded' && componentState != 'loadedProgress'"
-    (ionSlideWillChange)="ionSlideWillChange()" #slides>
-    <ion-slide class="wide">
-      <!-- LINE -->
-      <ion-card class="wide">
-        <div id="line0" class="chart"></div>
-        <ion-card-header *ngIf="showGraphs">
-          <ion-card-title>{{'pages.statistics.totalAverageText' | translate}}
-            {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
-          <ion-card-subtitle>{{'pages.statistics.totalGrades' | translate}} {{this.lineData[0].numOfGrades}}
-          </ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-        </ion-card-content>
-      </ion-card>
-    </ion-slide>
-    <ion-slide class="wide">
-      <!-- COLUMN -->
-      <ion-card class="wide">
-        <div id="column_0" class="chart"></div>
-        <ion-card-header *ngIf="showGraphs">
-          <ion-card-title>{{'pages.statistics.totalAverageText' | translate}}
-            {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
-          <ion-card-subtitle>{{'pages.statistics.totalGrades' | translate}} {{this.lineData[0].numOfGrades}}
-          </ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-        </ion-card-content>
-      </ion-card>
-    </ion-slide>
-    <ion-slide class="wide">
-      <!-- PIE -->
-      <ion-card class="wide">
-        <div id="pie_0" class="chart"></div>
-        <ion-card-header *ngIf="showGraphs">
-          <ion-card-title>{{'pages.statistics.totalAverageText' | translate}}
-            {{(this.lineData[0].average + "").substring(0, 4)}}</ion-card-title>
-          <ion-card-subtitle>{{'pages.statistics.totalGrades' | translate}} {{this.lineData[0].numOfGrades}}
-          </ion-card-subtitle>
-        </ion-card-header>
-        <ion-card-content>
-        </ion-card-content>
-      </ion-card>
-    </ion-slide>
-  </ion-slides>
+    <ion-slides
+        [hidden]="componentState != 'loaded' && componentState != 'loadedProgress'"
+        (ionSlideWillChange)="ionSlideWillChange()"
+        #slides
+    >
+        <ion-slide class="wide">
+            <!-- LINE -->
+            <ion-card class="wide">
+                <div id="line0" class="chart"></div>
+                <ion-card-header *ngIf="showGraphs">
+                    <ion-card-title>
+                        {{'pages.statistics.totalAverageText' | translate}} {{
+                        this.lineData[0].average.toLocaleString(this.app.currentLng).substring(0, 4)
+                        }}
+                    </ion-card-title>
+                    <ion-card-subtitle>
+                        {{'pages.statistics.totalGrades' | translate}}
+                        {{this.lineData[0].numOfGrades}}
+                    </ion-card-subtitle>
+                </ion-card-header>
+                <ion-card-content> </ion-card-content>
+            </ion-card>
+        </ion-slide>
+        <ion-slide class="wide">
+            <!-- COLUMN -->
+            <ion-card class="wide">
+                <div id="column_0" class="chart"></div>
+                <ion-card-header *ngIf="showGraphs">
+                    <ion-card-title
+                        >{{'pages.statistics.totalAverageText' | translate}}
+                        {{this.lineData[0].average.toLocaleString(this.app.currentLng).substring(0,
+                        4)}}</ion-card-title
+                    >
+                    <ion-card-subtitle
+                        >{{'pages.statistics.totalGrades' | translate}}
+                        {{this.lineData[0].numOfGrades}}
+                    </ion-card-subtitle>
+                </ion-card-header>
+                <ion-card-content> </ion-card-content>
+            </ion-card>
+        </ion-slide>
+        <ion-slide class="wide">
+            <!-- PIE -->
+            <ion-card class="wide">
+                <div id="pie_0" class="chart"></div>
+                <ion-card-header *ngIf="showGraphs">
+                    <ion-card-title>
+                        {{'pages.statistics.totalAverageText' | translate}} {{
+                        this.lineData[0].average.toLocaleString(this.app.currentLng).substring(0, 4)
+                        }}
+                    </ion-card-title>
+                    <ion-card-subtitle>
+                        {{'pages.statistics.totalGrades' | translate}}
+                        {{this.lineData[0].numOfGrades}}
+                    </ion-card-subtitle>
+                </ion-card-header>
+                <ion-card-content> </ion-card-content>
+            </ion-card>
+        </ion-slide>
+    </ion-slides>
 
-  <!-- ERROR -->
-  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
-  </app-kreta-error>
+    <ion-toolbar
+        *ngIf="this.componentState != 'error' && this.componentState != 'empty'"
+        mode="ios"
+    >
+        <ion-segment (ionChange)="getData($event)" [value]="this.focused">
+            <ion-segment-button [disabled]="this.componentState == 'loading'" value="0">
+                <ion-icon name="analytics"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button [disabled]="this.componentState == 'loading'" value="1">
+                <ion-icon name="stats-chart"></ion-icon>
+            </ion-segment-button>
+            <ion-segment-button [disabled]="this.componentState == 'loading'" value="2">
+                <ion-icon name="pie-chart"></ion-icon>
+            </ion-segment-button>
+        </ion-segment>
+    </ion-toolbar>
+
+    <!-- ERROR -->
+    <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+    </app-kreta-error>
+
+    <!-- EMPTY -->
+    <app-empty *ngIf="componentState == 'empty'"> </app-empty>
 </ion-content>
-
-<ion-footer *ngIf="this.componentState != 'error'">
-  <ion-toolbar>
-    <ion-segment (ionChange)="getData($event)" [value]="this.focused">
-      <ion-segment-button [disabled]="this.componentState == 'loading'" value="0">
-        <ion-icon name="analytics"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button [disabled]="this.componentState == 'loading'" value="1">
-        <ion-icon name="stats-chart"></ion-icon>
-      </ion-segment-button>
-      <ion-segment-button [disabled]="this.componentState == 'loading'" value="2">
-        <ion-icon name="pie-chart"></ion-icon>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
-</ion-footer>

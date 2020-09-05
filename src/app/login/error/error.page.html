@@ -1,17 +1,16 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="login"></ion-back-button>
-    </ion-buttons>
-    <ion-title>{{'pages.error.title' | translate}}</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="this.copyToClipboard()">
-        <ion-icon slot="icon-only" name="copy-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-back-button defaultHref="login"></ion-back-button>
+        </ion-buttons>
+        <ion-title>{{'pages.error.title' | translate}}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="this.copyToClipboard()">
+                <ion-icon slot="icon-only" name="copy-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
 </ion-header>
 <ion-content>
-  <app-error-detail [error]="this.error">
-  </app-error-detail>
+    <app-error-detail [error]="this.error"> </app-error-detail>
 </ion-content>

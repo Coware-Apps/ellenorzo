@@ -1,119 +1,189 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons>
-    <ion-title *ngIf="this.userManager && this.userManager.currentUser">
-      {{this.userManager.currentUser.fullName}}
-    </ion-title>
-    <ion-title *ngIf="!this.userManager || !this.userManager.currentUser">
-      {{'pages.home.title' | translate}}
-    </ion-title>
-    <ion-progress-bar type="indeterminate" [hidden]="componentState != 'loading' && componentState != 'loadedProgress'">
-    </ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+
+        <ion-title *ngIf="this.userManager && this.userManager.currentUser">
+            {{this.userManager.currentUser.fullName}}
+        </ion-title>
+
+        <ion-title *ngIf="!this.userManager || !this.userManager.currentUser">
+            {{'pages.home.title' | translate}}
+        </ion-title>
+
+        <ion-progress-bar
+            type="indeterminate"
+            [hidden]="componentState != 'loading' && componentState != 'loadedProgress'"
+        >
+        </ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
-  <ion-list>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
 
-    <!-- 'some requests are disabled' text -->
-    <ion-item-divider *ngIf="componentState == 'empty' && !areAllRequestsEnabled()"
-      class="ion-no-margin ion-no-padding">
-      <ion-label style="margin: auto">{{'pages.home.someComponentsDisabledText' | translate}}</ion-label>
-    </ion-item-divider>
-
-    <!-- FILTER -->
-    <ion-item lines="full" *ngIf="this.componentState == 'loaded' || componentState == 'loadedProgress'">
-      <ion-label>{{'pages.home.filterText' | translate}}</ion-label>
-      <ion-buttons slot="end">
-        <ion-button *ngIf="isRequestEnabled('Student')" (click)="showOrHide('showEvaluations')">
-          <ion-icon slot="icon-only" [color]="showEvaluations ? 'primary' : 'dark'" name="school-outline">
-          </ion-icon>
-        </ion-button>
-        <ion-button *ngIf="isRequestEnabled('Student')" (click)="showOrHide('showAbsences')">
-          <ion-icon slot="icon-only" [color]="showAbsences ? 'primary' : 'dark'" name="calendar-outline">
-          </ion-icon>
-        </ion-button>
-        <ion-button *ngIf="isRequestEnabled('Events') || isRequestEnabled('Student') || isRequestEnabled('Tests')"
-          (click)="showOrHide('showDocs')">
-          <ion-icon slot="icon-only" [color]="showDocs ? 'primary' : 'dark'" name="documents-outline">
-          </ion-icon>
-        </ion-button>
-        <ion-button *ngIf="isRequestEnabled('MessageListMobile')" (click)="showOrHide('showMessages')">
-          <ion-icon slot="icon-only" [color]="showMessages ? 'primary' : 'dark'" name="chatbox-outline">
-          </ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-item>
-
-    <!-- DATA DISPLAY -->
-    <div *ngFor="let monthlyGrades of this.formattedCombined">
-
-      <div class="ion-activatable ripple-parent" style="overflow: hidden; position: relative;">
-        <ion-item-divider (click)="showOrHideMonth(monthlyGrades)">
-          <ion-buttons slot="end">
-            <ion-button>
-              <ion-icon *ngIf="!monthlyGrades.showAll" slot="icon-only" name="chevron-forward"></ion-icon>
-              <ion-icon *ngIf="monthlyGrades.showAll" slot="icon-only" name="chevron-down"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-          <ion-label>{{monthlyGrades.header}}</ion-label>
+    <ion-list>
+        <!-- 'some requests are disabled' text -->
+        <ion-item-divider
+            *ngIf="componentState == 'empty' && !areAllRequestsEnabled()"
+            class="ion-no-margin ion-no-padding"
+        >
+            <ion-label style="margin: auto;"
+                >{{'pages.home.someComponentsDisabledText' | translate}}</ion-label
+            >
         </ion-item-divider>
-        <ion-ripple-effect type="bounded"></ion-ripple-effect>
-      </div>
 
-      <div *ngFor="let item of monthlyGrades.data">
-        <!-- Evaluation -->
-        <app-evaluation
-          *ngIf="item.EvaluationId != null && item.Type == 'MidYear' && !(!showEvaluations || !monthlyGrades.showAll)"
-          [evaluation]="item">
-        </app-evaluation>
-        <!-- Absence -->
-        <app-absence *ngIf="item.AbsenceId != null && !(!showAbsences || !monthlyGrades.showAll)" [absence]="item">
-        </app-absence>
-        <!-- Note -->
-        <app-note *ngIf="item.NoteId != null && !(!showDocs || !monthlyGrades.showAll)" [note]="item"></app-note>
-        <!-- Event -->
-        <app-event *ngIf="item.EventId != null && !(!showDocs || !monthlyGrades.showAll)" [event]="item"></app-event>
-        <!-- Test -->
-        <app-test *ngIf="item.Id != null && !(!showDocs || !monthlyGrades.showAll)" [test]="item"></app-test>
-        <!-- Message -->
-        <app-message-card *ngIf="item.azonosito != null && !(!showMessages || !monthlyGrades.showAll)"
-          (click)="openMessage(item)" [message]="item"></app-message-card>
-      </div>
+        <!-- FILTER -->
+        <ion-item
+            lines="full"
+            *ngIf="this.componentState == 'loaded' || componentState == 'loadedProgress'"
+        >
+            <ion-label>{{'pages.home.filterText' | translate}}</ion-label>
+            <ion-buttons slot="end">
+                <ion-button
+                    *ngIf="isRequestEnabled('getEvaluationsV3')"
+                    (click)="filterClicked('evaluations')"
+                    [color]="categories.evaluations ? 'primary' : 'dark'"
+                >
+                    <ion-icon
+                        slot="icon-only"
+                        [name]="categories.evaluations ? 'school' : 'school-outline'"
+                    >
+                    </ion-icon>
+                </ion-button>
+                <ion-button
+                    *ngIf="isRequestEnabled('getAbsencesV3')"
+                    (click)="filterClicked('absences')"
+                    [color]="categories.absences ? 'primary' : 'dark'"
+                >
+                    <ion-icon
+                        slot="icon-only"
+                        [name]="categories.absences ? 'calendar' : 'calendar-outline'"
+                    >
+                    </ion-icon>
+                </ion-button>
+                <ion-button
+                    *ngIf="isRequestEnabled('getNotesV3') || isRequestEnabled('getTestsV3')"
+                    (click)="filterClicked('docs')"
+                    [color]="categories.docs ? 'primary' : 'dark'"
+                >
+                    <ion-icon
+                        slot="icon-only"
+                        [name]="categories.docs ? 'documents' : 'documents-outline'"
+                    >
+                    </ion-icon>
+                </ion-button>
+                <ion-button
+                    *ngIf="isRequestEnabled('getMessageList')"
+                    (click)="filterClicked('messages')"
+                    [color]="categories.messages ? 'primary' : 'dark'"
+                >
+                    <ion-icon
+                        slot="icon-only"
+                        [name]="categories.messages ? 'chatbox' : 'chatbox-outline'"
+                    >
+                    </ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-item>
+
+        <!-- DATA DISPLAY -->
+        <div *ngFor="let monthlyGrades of this.formattedCombined">
+            <div
+                class="ion-activatable ripple-parent"
+                style="overflow: hidden; position: relative;"
+            >
+                <ion-item-divider (click)="showOrHideMonth(monthlyGrades)">
+                    <ion-buttons slot="end">
+                        <ion-button>
+                            <ion-icon
+                                *ngIf="!monthlyGrades.showAll"
+                                slot="icon-only"
+                                name="chevron-forward"
+                            ></ion-icon>
+                            <ion-icon
+                                *ngIf="monthlyGrades.showAll"
+                                slot="icon-only"
+                                name="chevron-down"
+                            ></ion-icon>
+                        </ion-button>
+                    </ion-buttons>
+                    <ion-label>{{monthlyGrades.header}}</ion-label>
+                </ion-item-divider>
+                <ion-ripple-effect type="bounded"></ion-ripple-effect>
+            </div>
+
+            <div *ngFor="let item of monthlyGrades.data">
+                <!-- Evaluation -->
+                <app-evaluation
+                    *ngIf="item.Tipus?.Nev == 'evkozi_jegy_ertekeles' && !(!categories.evaluations || !monthlyGrades.showAll)"
+                    [evaluation]="item"
+                >
+                </app-evaluation>
+                <!-- Absence -->
+                <app-absence
+                    *ngIf="item.IgazolasAllapota && !(!categories.absences || !monthlyGrades.showAll)"
+                    [absence]="item"
+                >
+                </app-absence>
+                <!-- Note -->
+                <app-note
+                    *ngIf="(item.Cim || item.Tartalom) && !(!categories.docs || !monthlyGrades.showAll)"
+                    [note]="item"
+                >
+                </app-note>
+                <!-- Test -->
+                <app-test
+                    *ngIf="(item.Temaja && item.Modja) && !(!categories.docs || !monthlyGrades.showAll)"
+                    [test]="item"
+                >
+                </app-test>
+                <!-- Message -->
+                <app-message-card
+                    *ngIf="item.azonosito && !(!categories.messages || !monthlyGrades.showAll)"
+                    (click)="openMessage(item)"
+                    [message]="item"
+                ></app-message-card>
+            </div>
+        </div>
+    </ion-list>
+
+    <!-- SKELETON TEXT -->
+    <div *ngIf="componentState == 'loading'">
+        <div *ngFor="let j of [0, 1]">
+            <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5]">
+                <ion-label>
+                    <ion-skeleton-text animated style="width: 60%;"></ion-skeleton-text>
+                    <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                </ion-label>
+            </ion-item>
+            <ion-item>
+                <ion-label>
+                    <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                </ion-label>
+            </ion-item>
+        </div>
     </div>
 
-  </ion-list>
+    <!-- EMPTY -->
+    <app-empty
+        *ngIf="componentState == 'empty'"
+        translatorKey="pages.home.emptyText"
+        icon="book-outline"
+    >
+    </app-empty>
 
-  <!-- SKELETON TEXT -->
-  <div *ngIf="componentState == 'loading'">
-    <div *ngFor="let j of [0, 1]">
-
-      <ion-item *ngFor="let i of [0, 1, 2, 3, 4, 5]">
-        <ion-label>
-          <ion-skeleton-text animated style="width: 60%"></ion-skeleton-text>
-          <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label>
-          <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-        </ion-label>
-      </ion-item>
-    </div>
-  </div>
-
-  <!-- EMPTY -->
-  <app-empty *ngIf="componentState == 'empty'" translatorKey="pages.home.emptyText" icon="book-outline">
-  </app-empty>
-
-  <!-- ERROR -->
-  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
-  </app-kreta-error>
+    <!-- ERROR -->
+    <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+    </app-kreta-error>
 </ion-content>

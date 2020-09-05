@@ -1,83 +1,109 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-searchbar placeholder="{{'pages.login.filterInstitutesText' | translate}}" (ionInput)="doFilter($event)"
-      [disabled]="componentState != 'loaded'"></ion-searchbar>
-    <ion-progress-bar *ngIf="componentState == 'loading'" type="indeterminate">
-    </ion-progress-bar>
-  </ion-toolbar>
+    <ion-toolbar color="brand">
+        <ion-searchbar
+            placeholder="{{'pages.login.filterInstitutesText' | translate}}"
+            (ionInput)="doFilter($event)"
+            [disabled]="componentState != 'loaded'"
+            [debounce]="250"
+            [showCancelButton]="platform.is('ios') ? 'never' : 'always'"
+            (ionCancel)="dismiss()"
+            color="light"
+            animated
+            inputmode="search"
+            type="search"
+        ></ion-searchbar>
+        <ion-buttons slot="end" *ngIf="platform.is('ios')">
+            <ion-button
+                (click)="dismiss()"
+                fill="clear"
+                translate="services.prompt.cancelBtnText"
+            ></ion-button>
+        </ion-buttons>
+        <ion-progress-bar *ngIf="componentState == 'loading'" type="indeterminate">
+        </ion-progress-bar>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
+    <ion-refresher
+        [disabled]="componentState == 'loading'"
+        slot="fixed"
+        pullFactor="0.8"
+        pullMin="50"
+        pullMax="110"
+        (ionRefresh)="doRefresh($event)"
+    >
+        <ion-refresher-content> </ion-refresher-content>
+    </ion-refresher>
 
-  <ion-refresher [disabled]="componentState == 'loading'" slot="fixed" pullFactor="0.8" pullMin="50" pullMax="110"
-    (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content>
-    </ion-refresher-content>
-  </ion-refresher>
+    <!-- DISPLAYING DATA -->
+    <ion-virtual-scroll
+        [items]="filteredInstitutes"
+        *ngIf="componentState == 'loaded'"
+        approxItemHeight="63px"
+    >
+        <ion-item *virtualItem="let i" (click)="onSelectionChange(i.instituteCode)">
+            <ion-label>
+                <h3>{{i.name}}</h3>
+                <p class="ion-float-right">{{i.instituteCode}}</p>
+                <p>{{i.city}}</p>
+            </ion-label>
+        </ion-item>
+    </ion-virtual-scroll>
 
-  <!-- DISPLAYING DATA -->
-  <ion-virtual-scroll [items]="filteredInstitutes" *ngIf="componentState == 'loaded'" approxItemHeight="63px">
-    <ion-item *virtualItem="let i" (click)="onSelectionChange(i.InstituteCode)">
-      <ion-label>
-        <h3>{{i.Name}}</h3>
-        <p>{{i.City}}</p>
-      </ion-label>
-    </ion-item>
-  </ion-virtual-scroll>
+    <!-- SKELETON -->
+    <ion-list *ngIf="componentState == 'loading'">
+        <ion-item>
+            <ion-label>
+                <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text width="40%" animated></ion-skeleton-text>
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label>
+                <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text width="40%" animated></ion-skeleton-text>
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label>
+                <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text width="40%" animated></ion-skeleton-text>
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label>
+                <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text width="40%" animated></ion-skeleton-text>
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label>
+                <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text width="40%" animated></ion-skeleton-text>
+            </ion-label>
+        </ion-item>
+        <ion-item>
+            <ion-label>
+                <ion-skeleton-text width="80%" animated></ion-skeleton-text>
+            </ion-label>
+            <ion-label>
+                <ion-skeleton-text width="40%" animated></ion-skeleton-text>
+            </ion-label>
+        </ion-item>
+    </ion-list>
 
-  <!-- SKELETON -->
-  <ion-list *ngIf="componentState == 'loading'">
-    <ion-item>
-      <ion-label>
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text width="40%" animated></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text width="40%" animated></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text width="40%" animated></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text width="40%" animated></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text width="40%" animated></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-    <ion-item>
-      <ion-label>
-        <ion-skeleton-text width="80%" animated></ion-skeleton-text>
-      </ion-label>
-      <ion-label>
-        <ion-skeleton-text width="40%" animated></ion-skeleton-text>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-
-  <!-- ERROR -->
-  <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
-  </app-kreta-error>
+    <!-- ERROR -->
+    <app-kreta-error *ngIf="componentState == 'error'" [error]="this.error" (retry)="doRefresh()">
+    </app-kreta-error>
 </ion-content>

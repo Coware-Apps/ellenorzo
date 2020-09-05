@@ -1,173 +1,168 @@
 <ion-header>
-  <ion-toolbar color="brand">
-    <ion-buttons slot="start">
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="homeworks"></ion-back-button>
-      </ion-buttons>
-    </ion-buttons>
-    <ion-title>{{'pages.timetable-homeworks.title' | translate}} ({{lesson.Subject}})</ion-title>
-  </ion-toolbar>
-  <ion-item *ngIf="showCompletedBar()" lines="none">
-    <ion-icon [ngStyle]="{'color': lesson.IsHaziFeladatMegoldva ? 'green' : ''}" id="checkmarkIcon"
-      name="checkmark-done" slot="start">
-    </ion-icon>
-    <ion-label>{{'pages.timetable-homeworks.completedText' | translate}}</ion-label>
-    <ion-checkbox slot="end" [(ngModel)]="lesson.IsHaziFeladatMegoldva" (ngModelChange)="changeState()">
-    </ion-checkbox>
-  </ion-item>
+    <ion-toolbar color="brand">
+        <ion-buttons slot="start">
+            <ion-buttons slot="start">
+                <ion-back-button
+                    defaultHref="homeworks"
+                    [text]="app.getBackButtonText()"
+                ></ion-back-button>
+            </ion-buttons>
+        </ion-buttons>
+        <ion-title
+            >{{'pages.timetable-homeworks.title' | translate}} ({{lesson.Tantargy?.Nev}})</ion-title
+        >
+    </ion-toolbar>
+    <!-- <ion-item *ngIf="showCompletedBar()" lines="none">
+        <ion-icon
+            [ngStyle]="{'color': lesson.IsHaziFeladatMegoldva ? 'green' : ''}"
+            id="checkmarkIcon"
+            name="checkmark-done"
+            slot="start"
+        >
+        </ion-icon>
+        <ion-label>{{'pages.timetable-homeworks.completedText' | translate}}</ion-label>
+        <ion-checkbox
+            slot="end"
+            [(ngModel)]="lesson.IsHaziFeladatMegoldva"
+            (ngModelChange)="changeState()"
+        >
+        </ion-checkbox>
+    </ion-item> -->
 </ion-header>
 
 <ion-content>
-  <ion-slides class="max-height" (ionSlideWillChange)="ionSlideWillChange()" #slides>
-    <!-- Teacher Homeworks -->
-    <ion-slide [hidden]="!lesson.TeacherHomeworkId" class="wide">
-      <div style="overflow-y: scroll;" class="max-height" *ngIf="!sans">
+    <ion-slides class="max-height" (ionSlideWillChange)="ionSlideWillChange()" #slides>
+        <!-- Homeworks -->
+        <ion-slide class="wide">
+            <div style="overflow-y: scroll;" class="max-height" *ngIf="!sans">
+                <app-empty
+                    *ngIf="homeworks.length == 0"
+                    translatorKey="pages.timetable-homeworks.noHomeworksText"
+                    icon="library-outline"
+                >
+                </app-empty>
 
-        <app-empty *ngIf="teacherHomeworks.length == 0 || areAllTeacherHomeworksEmpty()"
-          translatorKey="pages.timetable-homeworks.noHomeworksText" icon="library-outline">
-        </app-empty>
+                <ion-card *ngFor="let homework of homeworks">
+                    <ion-card-header (click)="showInfo(homework)">
+                        <ion-buttons class="ion-float-right">
+                            <ion-button>
+                                <ion-icon
+                                    slot="icon-only"
+                                    name="information-circle-outline"
+                                ></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                        <ion-card-subtitle class="subtitles"
+                            >{{homework.RogzitoTanarNeve}} -
+                            {{homework.RogzitesIdopontja.substring(0,10)}}
+                        </ion-card-subtitle>
+                        <ion-card-subtitle class="subtitles" style="color: red;">
+                            {{'pages.timetable-homeworks.teacherHomeworks.deadlineText' |
+                            translate}} {{homework.HataridoDatuma.substring(0, 10)}}
+                        </ion-card-subtitle>
+                    </ion-card-header>
+                    <ion-card-content class="selectableText">
+                        <div [innerHTML]="homework.Szoveg"></div>
+                    </ion-card-content>
+                </ion-card>
+            </div>
 
-        <ion-card [hidden]="homework.Szoveg == ''" *ngFor="let homework of teacherHomeworks">
-          <ion-card-header (click)="showInfo(homework)">
-            <ion-buttons style="float: right;">
-              <ion-button>
-                <ion-icon slot="icon-only" name="information-circle"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-            <ion-card-subtitle class="subtitles">{{homework.Rogzito}} - {{homework.FeladasDatuma.substring(0,10)}}
-            </ion-card-subtitle>
-            <ion-card-subtitle class="subtitles" style="color: red;">
-              {{'pages.timetable-homeworks.teacherHomeworks.deadlineText' | translate}}
-              {{homework.Hatarido.substring(0, 10)}}
-            </ion-card-subtitle>
-          </ion-card-header>
-          <ion-card-content class="selectableText">
-            <div [innerHTML]="homework.Szoveg"></div>
-          </ion-card-content>
-        </ion-card>
-      </div>
+            <!-- SANS -->
+            <div *ngIf="sans">
+                <ion-card>
+                    <ion-card-header>
+                        <ion-buttons class="ion-float-right">
+                            <ion-button>
+                                <ion-icon
+                                    disabled
+                                    slot="icon-only"
+                                    name="information-circle"
+                                ></ion-icon>
+                            </ion-button>
+                        </ion-buttons>
+                        <ion-card-title>
+                            <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                        </ion-card-title>
+                        <ion-card-subtitle>
+                            <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                        </ion-card-subtitle>
+                        <ion-card-subtitle class="deadlineText">
+                            <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                        </ion-card-subtitle>
+                        <ion-card-title>
+                            <div>
+                                <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+                            </div>
+                        </ion-card-title>
+                    </ion-card-header>
+                </ion-card>
+            </div>
+        </ion-slide>
+        <!-- Add Student Homework -->
+        <!-- <ion-slide [hidden]="(!lesson.IsTanuloHaziFeladatEnabled)" class="wide">
+            <ion-list
+                class="wide ion-align-self-start"
+                *ngIf="lesson.CalendarOraType !='UresOra' && isStudent()"
+            >
+                <ion-list-header>
+                    <ion-label
+                        >{{'pages.timetable-homeworks.addStudentHomework.newHomeworkText' |
+                        translate}}</ion-label
+                    >
+                </ion-list-header>
 
-      <!-- SANS -->
-      <div *ngIf="sans">
-        <ion-card>
-          <ion-card-header>
-            <ion-buttons style="float: right;">
-              <ion-button>
-                <ion-icon disabled slot="icon-only" name="information-circle"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-            <ion-card-title>
-              <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-            </ion-card-title>
-            <ion-card-subtitle>
-              <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-            </ion-card-subtitle>
-            <ion-card-subtitle class="deadlineText">
-              <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-            </ion-card-subtitle>
-            <ion-card-title>
-              <div>
-                <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-              </div>
-            </ion-card-title>
-          </ion-card-header>
-        </ion-card>
-      </div>
-    </ion-slide>
-    <!-- Student Homeworks -->
-    <ion-slide [hidden]="(!lesson.TeacherHomeworkId || !lesson.IsTanuloHaziFeladatEnabled || !this.isStudent())"
-      class="wide">
+                <ion-item>
+                    <ion-textarea
+                        rows="5"
+                        [(ngModel)]="homeworkText"
+                        placeholder="{{'pages.timetable-homeworks.textareaPlaceholder' | translate}}"
+                    >
+                    </ion-textarea>
+                </ion-item>
 
-      <div *ngIf="!sans" style="overflow-y: scroll;" class="max-height">
-        <ion-card *ngFor="let homework of studentHomeworks">
-          <ion-card-header>
-            <ion-buttons *ngIf="!homework.TanuloAltalTorolt" style="float: right;">
-              <ion-button (click)="deleteHomework(homework.Id)">
-                <ion-icon slot="icon-only" name="trash"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-            <ion-card-subtitle class="subtitles">{{homework.TanuloNev}} - {{homework.FeladasDatuma.substring(0,10)}}
-            </ion-card-subtitle>
-          </ion-card-header>
-          <ion-card-content [ngClass]="{'linethrough': homework.TanuloAltalTorolt}">
-            <div [innerHTML]="getHomeworkText(homework.FeladatSzovege)"></div>
-          </ion-card-content>
-        </ion-card>
-
-        <app-empty *ngIf="studentHomeworks.length == 0" translatorKey="pages.timetable-homeworks.noHomeworksText"
-          icon="library-outline">
-        </app-empty>
-      </div>
-
-
-      <!-- SANS -->
-      <div *ngIf="sans">
-        <ion-card *ngFor="let i of [0, 1, 2, 3]">
-          <ion-card-header>
-            <ion-buttons style="float: right;">
-              <ion-button>
-                <ion-icon disabled slot="icon-only" name="information-circle"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-            <ion-card-title>
-              <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-            </ion-card-title>
-            <ion-card-subtitle>
-              <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
-            </ion-card-subtitle>
-            <ion-card-subtitle class="deadlineText">
-              <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
-            </ion-card-subtitle>
-            <ion-card-title>
-              <div>
-                <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
-              </div>
-            </ion-card-title>
-          </ion-card-header>
-        </ion-card>
-      </div>
-    </ion-slide>
-    <!-- Add Student Homework -->
-    <ion-slide [hidden]="(!lesson.IsTanuloHaziFeladatEnabled)" class="wide">
-      <ion-list class="wide ion-align-self-start" *ngIf="lesson.CalendarOraType !='UresOra' && isStudent()">
-
-        <ion-list-header>
-          <ion-label>{{'pages.timetable-homeworks.addStudentHomework.newHomeworkText' | translate}}</ion-label>
-        </ion-list-header>
-
-        <ion-item>
-          <ion-textarea rows="5" [(ngModel)]="homeworkText"
-            placeholder="{{'pages.timetable-homeworks.textareaPlaceholder' | translate}}">
-          </ion-textarea>
-        </ion-item>
-
-        <ion-button [disabled]="!homeworkText || homeworkText == ''" class="ion-margin-top" expand="full"
-          (click)="addHomework()">
-          <ion-icon slot="start" name="add"></ion-icon>
-          {{'pages.timetable-homeworks.addStudentHomework.addBtnText' | translate}}
-        </ion-button>
-
-      </ion-list>
-      <app-empty [hidden]="!lesson.IsTanuloHaziFeladatEnabled || sans"
-        *ngIf="lesson.CalendarOraType == 'UresOra' || !isStudent()" icon="alert-circle-outline"
-        translatorKey="pages.timetable-homeworks.cannotAddHomeworkText"></app-empty>
-    </ion-slide>
-  </ion-slides>
+                <ion-button
+                    [disabled]="!homeworkText || homeworkText == ''"
+                    class="ion-margin-top"
+                    expand="block"
+                    (click)="addHomework()"
+                >
+                    <ion-icon slot="start" name="add"></ion-icon>
+                    {{'pages.timetable-homeworks.addStudentHomework.addBtnText' | translate}}
+                </ion-button>
+            </ion-list>
+            <app-empty
+                [hidden]="!lesson.IsTanuloHaziFeladatEnabled || sans"
+                *ngIf="lesson.CalendarOraType == 'UresOra' || !isStudent()"
+                icon="alert-circle-outline"
+                translatorKey="pages.timetable-homeworks.cannotAddHomeworkText"
+            ></app-empty>
+        </ion-slide> -->
+    </ion-slides>
 </ion-content>
 
-<ion-footer>
-  <ion-toolbar>
-    <ion-segment (ionChange)="getData($event)" [value]="this.focused">
-      <ion-segment-button *ngIf="lesson.TeacherHomeworkId" [disabled]="sans" value="0">
-        {{'pages.timetable-homeworks.segment.teacherName' | translate}}
-      </ion-segment-button>
-      <ion-segment-button *ngIf="lesson.TeacherHomeworkId && lesson.IsTanuloHaziFeladatEnabled && isStudent()"
-        [disabled]="sans" value="1">
-        {{'pages.timetable-homeworks.segment.studentName' | translate}}
-      </ion-segment-button>
-      <ion-segment-button *ngIf="lesson.IsTanuloHaziFeladatEnabled" [disabled]="sans" value="a3" value="2">
-        {{'pages.timetable-homeworks.segment.addName' | translate}}
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
-</ion-footer>
+<!-- <ion-tab-bar slot="bottom" *ngIf="!sans">
+    <ion-tab-button
+        (click)="getData(0)"
+        [selected]="this.focused == 0"
+        *ngIf="lesson.TeacherHomeworkId"
+    >
+        <ion-icon name="school-outline"></ion-icon>
+        <ion-label translate="pages.timetable-homeworks.segment.teacherName"></ion-label>
+    </ion-tab-button>
+    <ion-tab-button
+        (click)="getData(1)"
+        [selected]="this.focused == 1"
+        *ngIf="lesson.TeacherHomeworkId && lesson.IsTanuloHaziFeladatEnabled && isStudent()"
+    >
+        <ion-icon name="woman-outline"></ion-icon>
+        <ion-label translate="pages.timetable-homeworks.segment.studentName"></ion-label>
+    </ion-tab-button>
+    <ion-tab-button
+        (click)="getData(2)"
+        [selected]="this.focused == 2"
+        *ngIf="lesson.IsTanuloHaziFeladatEnabled"
+    >
+        <ion-icon name="add-circle-outline"></ion-icon>
+        <ion-label translate="pages.timetable-homeworks.segment.addName"></ion-label>
+    </ion-tab-button>
+</ion-tab-bar> -->

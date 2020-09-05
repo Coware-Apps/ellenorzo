@@ -1,31 +1,71 @@
-<ion-item (click)="getMoreData(lesson)" button [ngClass]="getStateClass()" slot="start">
-  <ion-buttons [hidden]="hideHomeworkBtn()"
-    *ngIf="lesson.IsTanuloHaziFeladatEnabled || lesson.TeacherHomeworkId != null" class="homeworksBtn" slot="end">
-    <ion-button (click)="homeworkClick.emit(); $event.stopPropagation();">
-      <ion-icon *ngIf="!lesson.TeacherHomeworkId" slot="icon-only" name="home"></ion-icon>
-      <ion-icon *ngIf="lesson.TeacherHomeworkId && !lesson.IsHaziFeladatMegoldva" color="warning" slot="icon-only"
-        src="/assets/extraicons/homewarning.svg"></ion-icon>
-      <ion-icon *ngIf="lesson.TeacherHomeworkId && lesson.IsHaziFeladatMegoldva" style="color: green;" slot="icon-only"
-        name="checkmark-done"></ion-icon>
-    </ion-button>
-  </ion-buttons>
+<!-- REGULAR LESSON -->
+<ion-item
+    *ngIf="lesson.Allapot?.Nev != 'TanevRendjeEsemeny'"
+    (click)="getMoreData(lesson)"
+    button
+    [ngClass]="getStateClass()"
+    slot="start"
+    detail="false"
+>
+    <!-- HOMEWORK BUTTON -->
+    <ion-buttons
+        [hidden]="hideHomeworkBtn()"
+        *ngIf="lesson.IsTanuloHaziFeladatEnabled || lesson.HaziFeladatUid"
+        class="homeworksBtn"
+        slot="end"
+    >
+        <ion-button (click)="homeworkClick.emit(); $event.stopPropagation()">
+            <!-- HOME BUTTON TO ADD A HOMEWORK -->
+            <ion-icon *ngIf="!lesson.HaziFeladatUid" slot="icon-only" name="home"></ion-icon>
 
-  <ion-label class="ion-text-wrap">
-    <h2 slot="start">{{lesson.Count == -1 ? '+' : lesson.Count}}. {{lesson.Subject}}</h2>
-    <p class="ion-text-nowrap">{{lesson.Theme}}</p>
-  </ion-label>
+            <!-- UNSOLVED HOMEWORKS EXIST -->
+            <ion-icon
+                *ngIf="lesson.HaziFeladatUid && !lesson.IsHaziFeladatMegoldva"
+                color="warning"
+                slot="icon-only"
+                src="/assets/extraicons/homewarning.svg"
+            ></ion-icon>
+            <!-- SOLVED HOMEWORKS EXIST -->
+            <ion-icon
+                *ngIf="lesson.HaziFeladatUid && lesson.IsHaziFeladatMegoldva"
+                style="color: green;"
+                slot="icon-only"
+                name="checkmark-done"
+            ></ion-icon>
+        </ion-button>
+    </ion-buttons>
 
-  <ion-label class="middleLabel ion-text-right">
-    <div *ngIf="lesson.DeputyTeacher == ''">
-      <div *ngIf="lesson.StateName == 'Elmaradt tanóra'">{{'pages.list.canceled' | translate}}</div>
-      <div *ngIf="lesson.StateName != 'Elmaradt tanóra'">
-        <p>{{lesson.ClassRoom}}</p>
-        <p>{{getTime()}}</p>
-      </div>
-    </div>
-    <div *ngIf="lesson.DeputyTeacher != ''">
-      <p>{{'pages.list.substitutes' | translate}}:</p>
-      <p>{{lesson.DeputyTeacher}}</p>
-    </div>
-  </ion-label>
+    <!-- COUNT AND SUBJECT -->
+    <ion-label class="ion-text-wrap">
+        <h2 slot="start">
+            {{ lesson.Oraszam == -1 ? "+" : lesson.Oraszam }}. {{ lesson.Tantargy?.Nev }}
+        </h2>
+        <p class="ion-text-nowrap">{{ lesson.Tema }}</p>
+    </ion-label>
+
+    <ion-label class="middleLabel ion-text-right">
+        <div *ngIf="!lesson.HelyettesTanarNeve">
+            <div *ngIf="lesson.Allapot?.Nev == 'Elmaradt'">
+                {{ "pages.list.canceled" | translate }}
+            </div>
+            <div *ngIf="lesson.Allapot?.Nev != 'Elmaradt'">
+                <p>{{ lesson.TeremNeve }}</p>
+                <p [innerHTML]="getTime()"></p>
+            </div>
+        </div>
+        <div *ngIf="lesson.HelyettesTanarNeve">
+            <p>{{ "pages.list.substitutes" | translate }}:</p>
+            <p>{{ lesson.HelyettesTanarNeve }}</p>
+        </div>
+    </ion-label>
+</ion-item>
+
+<!-- TANEVRENDJEESEMENY -->
+<ion-item *ngIf="lesson.Allapot?.Nev == 'TanevRendjeEsemeny'" slot="start" detail="false">
+    <!-- Name of the event -->
+    <ion-label class="ion-text-wrap">
+        <h2 slot="start" class="ion-text-center">
+            {{ lesson.Nev }}
+        </h2>
+    </ion-label>
 </ion-item>
