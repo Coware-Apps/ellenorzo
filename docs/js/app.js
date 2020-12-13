@@ -1,5 +1,6 @@
 $(document).ready(function () {
     AOS.init();
+    $('#playLink').tooltip();
     $('#hamburger,#close').click(function () {
         $('#hamburger,#close').toggle();
         $('.custom-navigation, #links').toggleClass('visible');
