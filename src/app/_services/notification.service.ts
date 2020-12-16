@@ -41,7 +41,7 @@ export class NotificationService {
             let stateNameIf =
                 lesson.Allapot?.Nev == "Elmaradt"
                     ? ` (${notificationTexts["canceledText"]})`
-                    : lesson.HelyettesTanarNeve != ""
+                    : lesson.HelyettesTanarNeve && lesson.HelyettesTanarNeve != ""
                     ? ` (${notificationTexts["substitutionText"]})`
                     : "";
 

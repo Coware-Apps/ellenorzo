@@ -1,9 +1,8 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Homework } from "src/app/_models/kreta-v3/homework";
-import { IonSlides, MenuController, LoadingController } from "@ionic/angular";
+import { IonSlides, MenuController } from "@ionic/angular";
 import { DataService } from "src/app/_services/data.service";
-import { FormattedDateService } from "src/app/_services/formatted-date.service";
 import { PromptService } from "src/app/_services/prompt.service";
 import { UserManagerService } from "src/app/_services/user-manager.service";
 import { TranslateService } from "@ngx-translate/core";
@@ -11,6 +10,7 @@ import { Lesson } from "../_models/kreta-v3/lesson";
 import { JwtDecodeHelper } from "../_helpers/jwt-decode-helper";
 import { FirebaseService } from "../_services/firebase.service";
 import { AppService } from "../_services/app.service";
+import { FileOpener } from "@ionic-native/file-opener/ngx";
 
 @Component({
     selector: "app-timetable-homeworks",
@@ -31,13 +31,12 @@ export class TimetableHomeworksPage implements OnInit {
         private actRoute: ActivatedRoute,
         private userManager: UserManagerService,
         private data: DataService,
-        private fDate: FormattedDateService,
         private firebase: FirebaseService,
         private prompt: PromptService,
         private menuCtrl: MenuController,
         private translator: TranslateService,
-        private loadingCtrl: LoadingController,
-        private jwtHelper: JwtDecodeHelper
+        private jwtHelper: JwtDecodeHelper,
+        private FileOpener: FileOpener,
     ) {
         this.focused = 0;
         this.sans = true;
@@ -52,22 +51,16 @@ export class TimetableHomeworksPage implements OnInit {
 
             if (this.lesson.HaziFeladatUid) {
                 this.homeworks = await this.userManager.currentUser.getHomeworksV3(
-                    this.fDate.getWeekFirstByDate(this.lesson.KezdetIdopont),
-                    this.fDate.getWeekLastByDate(this.lesson.KezdetIdopont)
+                    null,
+                    null,
+                    "uid",
+                    +this.lesson.HaziFeladatUid
                 );
-                this.homeworks = this.homeworks.filter(
-                    hw =>
-                        this.fDate.formatDate(new Date(hw.RogzitesIdopontja)) ==
-                        this.fDate.formatDate(new Date(this.lesson.KezdetIdopont))
-                );
-                console.log(
-                    "dates",
-                    this.fDate.getWeekFirstByDate(this.lesson.KezdetIdopont) +
-                        " - " +
-                        this.fDate.getWeekLastByDate(this.lesson.KezdetIdopont)
-                );
-                console.log("homeworks: ", this.homeworks);
             }
+
+            this.homeworks.forEach(hw => {
+                if (hw.IsMegoldva) this.lesson.IsHaziFeladatMegoldva = true;
+            });
             this.sans = false;
         });
         this.firebase.setScreenName("timetable-homeworks");
@@ -104,6 +97,33 @@ export class TimetableHomeworksPage implements OnInit {
 
     getHomeworkText(t: string) {
         return t.replace(/\n/g, "<br>").replace(/<br\/>/g, "<br>");
+    }
+
+    async getFile(id: number, fullName: string, homeworkId: string) {
+        let attachment = this.homeworks.find(hw => hw.Uid == homeworkId).Csatolmanyok.find(x => x.Uid == id);
+        attachment.loading = true;
+
+        const fileEntry = await this.userManager.currentUser.getHomeworkAttachment(
+            id,
+            fullName
+        );
+
+        this.firebase.logEvent("open_message_attachment");
+
+        fileEntry.file(file => {
+            this.FileOpener.open(fileEntry.nativeURL, file.type).catch(error => {
+                console.error("Couldnt open file", error);
+
+                this.prompt.showDetailedToast(
+                    this.translator.instant("pages.read-message.cannotOpenFile.title"),
+                    this.translator.instant("pages.read-message.cannotOpenFile.text"),
+                    3000
+                );
+
+                throw error;
+            });
+        });
+        attachment.loading = false;
     }
 
     // async addHomework() {
@@ -186,18 +206,18 @@ export class TimetableHomeworksPage implements OnInit {
     //     }
     // }
 
-    // async changeState() {
-    //     await this.userManager.currentUser.changeHomeworkState(
-    //         this.lesson.IsHaziFeladatMegoldva,
-    //         +this.lesson.TeacherHomeworkId
-    //     );
-    // }
+    async changeState() {
+        await this.userManager.currentUser.changeHomeworkStateV3(
+            +this.lesson.HaziFeladatUid,
+            !this.homeworks[0].IsMegoldva
+        );
+        this.homeworks[0].IsMegoldva = !this.homeworks[0].IsMegoldva;
+    }
 
-    // showCompletedBar() {
-    //     return (
-    //         this.lesson.TeacherHomeworkId &&
-    //         this.jwtHelper.decodeToken(this.userManager.currentUser.tokens.access_token).role ==
-    //             "Student"
-    //     );
-    // }
+    showCompletedBar() {
+        return (
+            this.jwtHelper.decodeToken(this.userManager.currentUser.v3Tokens?.access_token)?.role ==
+            "Tanulo"
+        );
+    }
 }

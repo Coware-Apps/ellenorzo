@@ -174,9 +174,8 @@ export class NewMessagePage implements DirtyPage, OnDestroy {
     }
 
     public getSelfName() {
-        return this.jwtHelper.decodeToken(
-            this.userManager.currentUser.administrationTokens.access_token
-        ).name;
+        return this.jwtHelper.decodeToken(this.userManager.currentUser.v3Tokens?.access_token)
+            ?.name;
     }
 
     public getName(a) {

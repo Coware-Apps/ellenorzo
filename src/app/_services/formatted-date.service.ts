@@ -235,9 +235,9 @@ export class FormattedDateService {
 
     returnCorrectTime(d: Date) {
         let date = new Date(d);
-        if (this.plt.is("ios")) {
-            date.setHours(new Date(date.getTime()).getHours() + date.getTimezoneOffset() / 60);
-        }
+        // if (this.plt.is("ios")) {
+        //     date.setHours(new Date(date.getTime()).getHours() + date.getTimezoneOffset() / 60);
+        // }
         return date;
     }
 

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HTTP, HTTPResponse } from "@ionic-native/http/ngx";
+import { HTTP } from "@ionic-native/http/ngx";
 import { Token } from "../_models/token";
 import { Institute } from "../_models";
 import {
@@ -8,6 +8,7 @@ import {
     KretaV3InvalidGrantError,
     KretaV3HttpError,
     KretaV3SchoolYearChangedError,
+    KretaV3FileError,
 } from "../_exceptions/kreta-v3-exception";
 import { Student } from "../_models/kreta-v3/student";
 import { ClassGroup } from "../_models/kreta-v3/classGroup";
@@ -21,6 +22,16 @@ import { Lesson } from "../_models/kreta-v3/lesson";
 import { SubjectAverage } from "../_models/kreta-v3/average";
 import { stringify } from "querystring";
 import { KretaRenewTokenError } from "../_exceptions";
+import { HomeworkComment } from "../_models/kreta-v3/!homeworkComment";
+import { FirebaseService } from '../_services/firebase.service';
+import { AndroidPermissions } from '@ionic-native/android-permissions/ngx';
+import { Platform } from '@ionic/angular';
+import { File, FileEntry } from "@ionic-native/file/ngx";
+import {
+    FileTransfer,
+    FileUploadOptions,
+    FileTransferObject,
+} from "@ionic-native/file-transfer/ngx";
 
 @Injectable({
     providedIn: "root",
@@ -37,6 +48,7 @@ export class KretaV3Service {
         classGroups: "/ellenorzo/v3/sajat/OsztalyCsoportok",
         absences: "/ellenorzo/v3/sajat/Mulasztasok",
         homeworks: "/ellenorzo/v3/sajat/HaziFeladatok",
+        homeworkAttachment: "ellenorzo/v3/sajat/HaziFeladatok/Csatolmanyok",
         notes: "/ellenorzo/v3/sajat/Feljegyzesek",
         evaluations: "/ellenorzo/v3/sajat/Ertekelesek",
         tests: "/ellenorzo/v3/sajat/BejelentettSzamonkeresek",
@@ -48,7 +60,14 @@ export class KretaV3Service {
         headTeachers: "/ellenorzo/v3/felhasznalok/Alkalmazottak/Tanarok/Osztalyfonokok",
     };
 
-    constructor(private http: HTTP) {}
+    constructor(
+        private http: HTTP, 
+        private _firebase: FirebaseService,
+        private _platform: Platform,
+        private _file: File,
+        private _androidPermissions: AndroidPermissions,
+        private _transfer: FileTransfer,
+        ) {}
 
     private async doRequestWithAuth<T>(
         url: string,
@@ -71,6 +90,7 @@ export class KretaV3Service {
         try {
             const res = await this.http[method](url, params, headers);
 
+            if (!res?.data) return null;
             return JSON.parse(res.data);
         } catch (error) {
             this.handleError(error, queryName, errorTitleKey, errorTextKey);
@@ -321,28 +341,183 @@ export class KretaV3Service {
     public async getHomeworks(
         tokens: Token,
         institute: Institute,
-        datumTol: string,
-        datumIg: string
+        datumTol?: string,
+        datumIg?: string,
+        type: "date" | "uid" = "date",
+        uid?: number
     ): Promise<Homework[]> {
         const queryName = "getHomeworks";
 
-        if (new Date(datumIg).valueOf() - new Date(datumTol).valueOf() > 1814400000)
-            throw new RangeError(
-                `${queryName} datumTol and datumIg values must have less than 3 weeks in between them.`
-            );
+        if (type == "date") {
+            if (new Date(datumIg).valueOf() - new Date(datumTol).valueOf() > 1814400000)
+                throw new RangeError(
+                    `${queryName} datumTol and datumIg values must have less than 3 weeks in between them.`
+                );
 
-        return this.get<Homework[]>(
-            institute.url + this.endpoints.homeworks,
-            {
-                datumTol: datumTol,
-                datumIg: datumIg,
-            },
+            return this.get<Homework[]>(
+                institute.url + this.endpoints.homeworks,
+                {
+                    datumTol: datumTol,
+                    datumIg: datumIg,
+                },
+                null,
+                tokens,
+                queryName,
+                `${queryName}.title`,
+                `${queryName}.text`
+            );
+        } else {
+            return [
+                await this.get<Homework>(
+                    institute.url + this.endpoints.homeworks + `/${uid}`,
+                    {},
+                    null,
+                    tokens,
+                    queryName,
+                    `${queryName}.title`,
+                    `${queryName}.text`
+                ),
+            ];
+        }
+    }
+
+    public async changeHomeworkState(
+        tokens: Token,
+        institute: Institute,
+        homeworkUid: number,
+        newState: boolean
+    ) {
+        const queryName = "changeHomeworkState";
+
+        const params = {
+            IsMegoldva: newState,
+            TanarHaziFeladatUid: homeworkUid,
+        };
+
+        console.log("params", params);
+
+        this.http.setDataSerializer("json");
+
+        try {
+            await this.post<any>(
+                institute.url + this.endpoints.homeworks + `/Megoldva`,
+                params,
+                null,
+                tokens,
+                queryName,
+                `${queryName}.title`,
+                `${queryName}.text`
+            );
+        } catch (error) {
+            //lemor xd
+        } finally {
+            this.http.setDataSerializer("urlencoded");
+        }
+    }
+
+    public async getHomeworkComments(
+        tokens: Token,
+        institute: Institute,
+        homeworkUid: number
+    ): Promise<HomeworkComment[]> {
+        const queryName = "getHomeworkComments";
+
+        return this.get<HomeworkComment[]>(
+            institute.url + this.endpoints.homeworks + `/${homeworkUid}/Kommentek`,
+            null,
             null,
             tokens,
             queryName,
             `${queryName}.title`,
             `${queryName}.text`
         );
+    }
+
+        /**
+     * Gets an attachment from the final attachment storage. Use this for existing messages.
+     * @param fileId The id of the file to get from the server
+     * @param fileName The name of the file to get from the server (used to save the file), include extensions!
+     * @param tokens `Token` used for authentication
+     */
+    public async getHomeworkAttachment(
+        fileId: number,
+        fileName: string,
+        tokens: Token,
+        institute: Institute,
+    ): Promise<FileEntry> {
+        this._firebase.logEvent("download_homework_attachment");
+
+        const splitAt = (index: number) => (x: string) => [x.slice(0, index), x.slice(index)];
+        const newName = splitAt(fileName.lastIndexOf("."))(fileName);
+        newName[1] = newName[1].slice(1);
+
+        const name = newName[0] + "_" + fileId + "." + newName[1];
+
+        await this.getPermission();
+
+        const messageCacheDir = await this._file.getDirectory(
+            await this._file.resolveDirectoryUrl(this._file.cacheDirectory),
+            "homeworkattachment",
+            { create: true }
+        );
+
+        const fileExists = await this._file
+            .checkFile(messageCacheDir.toInternalURL(), name)
+            .catch(() => false);
+        if (fileExists) {
+            console.log("File exists in cache");
+            const fileEntry = await this._file
+                .getFile(messageCacheDir, name, {
+                    create: false,
+                })
+                .catch(() => null);
+
+            if (fileEntry) return fileEntry;
+        }
+
+        const fileTransfer: FileTransferObject = this._transfer.create();
+        let fileEntry: FileEntry;
+
+        try {
+            fileEntry = await fileTransfer.download(
+                `${institute.url}/${this.endpoints.homeworkAttachment}/${fileId},Csatolmany`,
+                messageCacheDir.toInternalURL() + name,
+                undefined,
+                {
+                    headers: {
+                        Authorization: `Bearer ${tokens.access_token}`,
+                        "User-Agent": this._userAgent,
+                    },
+                }
+            );
+        } catch (error) {
+            if (error.status && error.status < 0)
+                throw new KretaV3NetworkError("getAttachment()");
+            throw new KretaV3FileError(
+                "getAttachment()",
+                error,
+                fileName,
+                "getAttachment.title",
+                "getAttachment.text"
+            );
+        }
+
+        return fileEntry;
+    }
+    protected async getPermission() {
+        if (this._platform.is("ios")) {
+            return;
+        }
+
+        await this._androidPermissions
+            .checkPermission(this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE)
+            .then(result => {
+                if (!result.hasPermission) {
+                    return this._androidPermissions.requestPermission(
+                        this._androidPermissions.PERMISSION.WRITE_EXTERNAL_STORAGE
+                    );
+                }
+            });
     }
 
     public async getLessons(

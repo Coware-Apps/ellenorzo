@@ -30,6 +30,22 @@ export class KretaV3HttpError extends KretaV3Error {
         this.httpErrorObject = httpErrorObject;
     }
 }
+
+export class KretaV3FileError extends KretaV3HttpError {
+    fileName: string;
+
+    constructor(
+        queryName: string,
+        httpErrorObject: HTTPResponse,
+        fileName: string,
+
+        customTitleTranslatorKey?: string,
+        customTextTranslatorKey?: string
+    ) {
+        super(queryName, httpErrorObject, customTitleTranslatorKey, customTextTranslatorKey);
+        this.fileName = fileName;
+    }
+}
 export class KretaV3InvalidGrantError extends KretaV3HttpError {
     constructor(queryName: string, httpErrorObject: HTTPResponse) {
         super(queryName, httpErrorObject, "invalid-grant.title", "invalid-grant.text");

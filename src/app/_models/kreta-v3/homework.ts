@@ -9,10 +9,17 @@ export interface Homework {
     Szoveg: string;
     TantargyNeve: string;
     OsztalyCsoport: OsztalyCsoport;
-    Csatolmanyok: null;
+    Csatolmanyok: Csatolmany[];
     Uid: string;
 }
 
 export interface OsztalyCsoport {
     Uid: string;
+}
+export interface Csatolmany {
+            "Uid": number,
+            "Nev": string;
+            "Tipus": string,
+
+            loading?: boolean,
 }

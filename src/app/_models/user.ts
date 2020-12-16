@@ -801,6 +801,10 @@ export class User {
         await this.loginWithRefreshToken();
         return await this.kreta.deleteStudentHomework(id, this.tokens, this.institute);
     }
+    public async getHomeworkAttachment(fileId: number, fileName: string) {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.getHomeworkAttachment(fileId, fileName, this.v3Tokens, this.institute);
+    }
     /**
      * Makes a 'Lesson' request, and returns the server's response time afterwards
      * @param fromDate the date from which to get the lessons needed for the request
@@ -993,9 +997,30 @@ export class User {
     //     return this.kretaV3.getEvents(this.v3Tokens, this.institute);
     // }
 
-    public async getHomeworksV3(fromDate: string, toDate: string) {
+    public async getHomeworksV3(
+        fromDate: string,
+        toDate: string,
+        type: "date" | "uid" = "date",
+        uid?: number
+    ) {
         await this.loginWithRefreshToken("v3");
-        return this.kretaV3.getHomeworks(this.v3Tokens, this.institute, fromDate, toDate);
+        return this.kretaV3.getHomeworks(
+            this.v3Tokens,
+            this.institute,
+            fromDate,
+            toDate,
+            type,
+            uid
+        );
+    }
+    public async changeHomeworkStateV3(homeworkUid: number, newState: boolean) {
+        await this.loginWithRefreshToken("v3");
+        return this.kretaV3.changeHomeworkState(
+            this.v3Tokens,
+            this.institute,
+            homeworkUid,
+            newState
+        );
     }
     public async getLessonsV3(fromDate: string, toDate: string) {
         await this.loginWithRefreshToken("v3");

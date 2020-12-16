@@ -307,6 +307,7 @@ export class AppService {
             if (!configs[12] || (configs[12] && new Date().valueOf() > configs[12] + 604800000)) {
                 console.log("Clearing cache storage");
                 this.clearAttachmentCache();
+                this.clearHomeworkCache();
                 this.storage.set("lastClearedCacheStorage", new Date().valueOf());
             }
         } catch (error) {
@@ -378,6 +379,19 @@ export class AppService {
                     { create: false }
                 )
                 .then(messageCacheDir => messageCacheDir.removeRecursively(resolve, reject))
+                .catch(resolve);
+        });
+    }
+
+    public clearHomeworkCache(): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            this.file
+                .getDirectory(
+                    await this.file.resolveDirectoryUrl(this.file.cacheDirectory),
+                    "homeworkattachment",
+                    { create: false }
+                )
+                .then(homeworkCacheDir => homeworkCacheDir.removeRecursively(resolve, reject))
                 .catch(resolve);
         });
     }

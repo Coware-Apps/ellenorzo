@@ -15,12 +15,13 @@ import { AppService } from "../_services/app.service";
 import { PromptService } from "../_services/prompt.service";
 import { TranslateService } from "@ngx-translate/core";
 import { GlobalError } from "../_exceptions/global-exception";
-import { KretaError } from "../_exceptions/kreta-exception";
+import { KretaError, KretaRenewTokenError } from "../_exceptions/kreta-exception";
 import { ThemeService } from "../_services/theme.service";
 import { JwtDecodeHelper } from "../_helpers/jwt-decode-helper";
 import { FirebaseService } from "../_services/firebase.service";
 import { Market } from "@ionic-native/market/ngx";
 import { KretaV3Service } from "../_services";
+import { KretaV3InvalidGrantError } from '../_exceptions/kreta-v3-exception';
 
 @Component({
     selector: "app-login",
@@ -128,12 +129,17 @@ export class LoginPage implements OnInit {
                         this.translator.instant("pages.login.userAlreadyExistsAlert.header"),
                         this.translator.instant("pages.login.userAlreadyExistsAlert.subHeader"),
                         this.translator.instant("pages.login.userAlreadyExistsAlert.message")
-                    );
+                    ); 
                     await loading.dismiss();
                 }
             } catch (error) {
                 this.kretaError = error;
-                throw error;
+
+                if(error instanceof KretaRenewTokenError) {
+                    this.prompt.toast(this.translator.instant('pages.login.invalidGrant.message'), true);
+                }
+
+                error.isHandled = true;
             } finally {
                 loading.dismiss();
             }

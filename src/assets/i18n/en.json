@@ -775,13 +775,21 @@
                 "title": "Error trying to load timetable",
                 "text": "The timetable could not be loaded at this time. Please try again later."
             },
-            "getStudentHomeworks": {
-                "title": "Error trying to load student homeworks",
-                "text": "Could not load homeworks added by students. Please try again later."
+            "getHomeworks": {
+                "title": "Error trying to load homeworks",
+                "text": "Could not load homeworks. Please try again later."
             },
-            "getTeacherHomeworks": {
-                "title": "Error trying to load teacher homeworks",
-                "text": "Could not load homeworks added by teachers. Please try again later."
+            "getHomeworkComments": {
+                "title": "Could not load comments",
+                "text": "Could not load comments for this homework. Please try again later."
+            },
+            "addHomeworkComment": {
+                "title": "Error trying to add homework",
+                "text": "There was an error during the request. Please try again later."
+            },
+            "removeHomeworkComment": {
+                "title": "Comment not deleted!",
+                "text": "The comment could not be deleted due to an error."
             },
             "getTests": {
                 "title": "Error trying to load tests",

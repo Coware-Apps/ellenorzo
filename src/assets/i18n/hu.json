@@ -366,7 +366,7 @@
             "administrationLoginError": "Sikertelen bejelentkezés az e-ügyintézés modulba",
             "invalidGrant": {
                 "header": "Hibás adatok",
-                "message": "A felhasználónév vagy jelszó helytelen!"
+                "message": "Hibás felhasználónév vagy jelszó!"
             },
             "insufficientDataAlert": {
                 "header": "Hibás adatok",
@@ -775,13 +775,21 @@
                 "title": "Hiba történt az órarend lekérése közben",
                 "text": "Nem sikerült betölteni az órarendet. Kérlek próbáld újra később."
             },
-            "getStudentHomeworks": {
-                "title": "Hiba történt a tanuló házi feladatok lekérése közben",
+            "getHomeworks": {
+                "title": "Hiba történt a házi feladatok lekérése közben",
                 "text": "Nem sikerült betölteni a tanuló házi feladatokat. Kérlek próbáld újra később."
             },
-            "getTeacherHomeworks": {
-                "title": "Hiba történt a tanári házi feladatok lekérése közben",
-                "text": "Nem sikerült betölteni a tanár által feladott házi feladatokat. Kérlek próbáld újra később."
+            "getHomeworkComments": {
+                "title": "Hiba történt a kommentek letöltése közben",
+                "text": "Nem sikerült betölteni a házi feladathoz tartozó kommenteket. Kérlek próbáld újra később."
+            },
+            "addHomeworkComment": {
+                "title": "A kért kommentet nem sikerült hozzáadni a házi feladathoz",
+                "text": "Nem sikerült hozzáadni a kommentet. Kérlek próbáld újra később."
+            },
+            "removeHomeworkComment": {
+                "title": "Sikertelen törlés!",
+                "text": "A kért kommentet nem sikerült törölni"
             },
             "getTests": {
                 "title": "Hiba történt a számonkérések betöltése közben",
@@ -810,6 +818,10 @@
             "addStudentHomework": {
                 "title": "Hiba történt a házi feladat hozzáadása közben",
                 "text": "A házi feladatot nem sikerült hozzáadni. Kérlek próbáld újra később."
+            },
+            "getAttachment": {
+                "title": "A csatolmány betöltése sikertelen volt",
+                "text": "Nem sikerült betölteni a kívánt csatolmányt. Kérlek ellenőrizd az internetkapcsolatot és próbáld újra."
             },
             "deleteStudentHomework": {
                 "title": "Hiba történt a házi feladat törlése közben",

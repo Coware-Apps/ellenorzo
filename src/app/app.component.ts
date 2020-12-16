@@ -43,19 +43,19 @@ export class AppComponent {
         );
 
         this.splashScreen.hide();
-        this.enableBgFetch();
+        // this.enableBgFetch();
     }
 
-    enableBgFetch() {
-        BackgroundFetch.scheduleTask({
-            taskId: "com.transistorsoft.notifications",
-            //half an hour, reduce this to idk save battery or something
-            delay: 60 * 30 * 1000,
-            periodic: true,
-            enableHeadless: true,
-            stopOnTerminate: false,
-        });
-    }
+    // enableBgFetch() {
+    //     BackgroundFetch.scheduleTask({
+    //         taskId: "com.transistorsoft.notifications",
+    //         //half an hour, reduce this to idk save battery or something
+    //         delay: 60 * 30 * 1000,
+    //         periodic: true,
+    //         enableHeadless: true,
+    //         stopOnTerminate: false,
+    //     });
+    // }
 
     checkConfig() {
         this.app.updated.subscribe(async state => {

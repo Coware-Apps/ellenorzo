@@ -12,9 +12,9 @@
             >{{'pages.timetable-homeworks.title' | translate}} ({{lesson.Tantargy?.Nev}})</ion-title
         >
     </ion-toolbar>
-    <!-- <ion-item *ngIf="showCompletedBar()" lines="none">
+    <!-- <ion-item *ngIf="showCompletedBar() && this.homeworks?.length > 0" lines="none">
         <ion-icon
-            [ngStyle]="{'color': lesson.IsHaziFeladatMegoldva ? 'green' : ''}"
+            [ngStyle]="{'color': homeworks[0].IsMegoldva ? 'green' : ''}"
             id="checkmarkIcon"
             name="checkmark-done"
             slot="start"
@@ -34,7 +34,7 @@
     <ion-slides class="max-height" (ionSlideWillChange)="ionSlideWillChange()" #slides>
         <!-- Homeworks -->
         <ion-slide class="wide">
-            <div style="overflow-y: scroll;" class="max-height" *ngIf="!sans">
+            <div style="overflow-y: scroll" class="max-height" *ngIf="!sans">
                 <app-empty
                     *ngIf="homeworks.length == 0"
                     translatorKey="pages.timetable-homeworks.noHomeworksText"
@@ -56,7 +56,7 @@
                             >{{homework.RogzitoTanarNeve}} -
                             {{homework.RogzitesIdopontja.substring(0,10)}}
                         </ion-card-subtitle>
-                        <ion-card-subtitle class="subtitles" style="color: red;">
+                        <ion-card-subtitle class="subtitles" style="color: red">
                             {{'pages.timetable-homeworks.teacherHomeworks.deadlineText' |
                             translate}} {{homework.HataridoDatuma.substring(0, 10)}}
                         </ion-card-subtitle>
@@ -64,6 +64,28 @@
                     <ion-card-content class="selectableText">
                         <div [innerHTML]="homework.Szoveg"></div>
                     </ion-card-content>
+
+                                                    <!-- MESSAGE ATTACHMENTS -->
+                                                    <ion-list *ngIf="homework.Csatolmanyok && homework.Csatolmanyok.length > 0"
+                                                    class="ion-no-padding"
+                                                >
+                                                    <ion-item
+                                                        button
+                                                        (click)="getFile(attachment.Uid, attachment.Nev, homework.Uid)"
+                                                        *ngFor="let attachment of homework.Csatolmanyok"
+                                                        detail="false"
+                                                    >
+                                                        <ion-icon slot="start" name="attach-outline"></ion-icon>
+                                                        <ion-label class="ion-text-wrap">{{attachment.Nev}}</ion-label>
+                                                        <ion-spinner
+                                                            *ngIf="attachment.loading == true"
+                                                            slot="end"
+                                                            style="float: right;"
+                                                            name="crescent"
+                                                        >
+                                                        </ion-spinner>
+                                                    </ion-item>
+                                                </ion-list>
                 </ion-card>
             </div>
 
@@ -81,17 +103,17 @@
                             </ion-button>
                         </ion-buttons>
                         <ion-card-title>
-                            <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
                         </ion-card-title>
                         <ion-card-subtitle>
-                            <ion-skeleton-text animated style="width: 40%;"></ion-skeleton-text>
+                            <ion-skeleton-text animated style="width: 40%"></ion-skeleton-text>
                         </ion-card-subtitle>
                         <ion-card-subtitle class="deadlineText">
-                            <ion-skeleton-text animated style="width: 30%;"></ion-skeleton-text>
+                            <ion-skeleton-text animated style="width: 30%"></ion-skeleton-text>
                         </ion-card-subtitle>
                         <ion-card-title>
                             <div>
-                                <ion-skeleton-text animated style="width: 80%;"></ion-skeleton-text>
+                                <ion-skeleton-text animated style="width: 80%"></ion-skeleton-text>
                             </div>
                         </ion-card-title>
                     </ion-card-header>
