@@ -122,7 +122,7 @@ export class AppService {
     public analyticsCollectionEnabled: boolean;
     public devSettingsEnabled: boolean;
     public localNotificationsEnabled: boolean;
-    public userAgent: string = "Kreta.Ellenorzo/2.9.11.2020033003 (Android; SM-G950F 0.0)";
+    public userAgent: string = "hu.coware.ellenorzo/2.9.11.2020033003 (Android; SM-G950F 0.0)";
     public usersInitData: userInitData[] = [];
     public webUser: WebUser;
     private _languages = [
@@ -332,7 +332,7 @@ export class AppService {
         //response time about 2000-10000ms per request
         //this.userAgent = 'Dalvik/2.1.0 (Linux; U; Android 9; AM-GADDF Build/PPR1.180610.011)';
         let rndString = Math.random().toString(36).substring(2, 9).toUpperCase();
-        let userAgent = `Kreta.Ellenorzo/2.9.11.2020033003 (Android; SM-G950F 0.0)`;
+        let userAgent = `hu.coware.ellenorzo/2.9.11.2020033003 (Android; SM-G950F 0.0)`;
 
         try {
             let result = await this.http.get(

@@ -42,7 +42,6 @@ export class KretaV3Service {
     public get userAgent() {
         return this._userAgent;
     }
-    private apiKey: string = "7856d350-1fda-45f5-822d-e1a2f3f1acf0";
     private clientId: string = "kreta-ellenorzo-mobile";
     private endpoints = {
         student: "/ellenorzo/v3/sajat/TanuloAdatlap",

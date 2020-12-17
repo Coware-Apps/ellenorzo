@@ -740,7 +740,7 @@ export class KretaService {
             try {
                 this.prompt.butteredToast("[KRETA] Refreshing institute list");
                 const headers = {
-                    apiKey: "7856d350-1fda-45f5-822d-e1a2f3f1acf0",
+                    apiKey: "",
                 };
 
                 let response = await this.http.get(
@@ -974,7 +974,7 @@ export class KretaService {
         try {
             const headers = {
                 Accept: "application/json",
-                apiKey: "7856d350-1fda-45f5-822d-e1a2f3f1acf0",
+                apiKey: "",
                 Authorization: "bearer " + tokens.access_token,
                 "Accept-Encoding": "gzip",
             };
@@ -1021,7 +1021,7 @@ export class KretaService {
         try {
             const headers = {
                 Accept: "application/json",
-                apiKey: "7856d350-1fda-45f5-822d-e1a2f3f1acf0",
+                apiKey: "",
                 Authorization: "bearer " + tokens.access_token,
                 "Accept-Encoding": "gzip",
             };
