@@ -32,12 +32,13 @@ import {
     FileUploadOptions,
     FileTransferObject,
 } from "@ionic-native/file-transfer/ngx";
+import { GithubError } from "../_exceptions/github-exception";
 
 @Injectable({
     providedIn: "root",
 })
 export class KretaV3Service {
-    private _userAgent: string = "hu.ekreta.student/1.0.5/SM-G950F/8.1.0/27";
+    private _userAgent: string = "hu.coware.ellenorzo/1.0.5/SM-G950F/8.1.0/27";
     public get userAgent() {
         return this._userAgent;
     }
@@ -164,22 +165,19 @@ export class KretaV3Service {
     public async getInstituteList(): Promise<Institute[]> {
         const queryName = "getInstituteList";
 
-        const headers = {
-            "User-Agent": this._userAgent,
-            apiKey: this.apiKey,
-        };
+        const headers = {};
         const params = {};
 
         try {
             const resp = await this.http.get(
-                "https://kretaglobalmobileapi2.ekreta.hu/api/v3/Institute",
+                "https://raw.githubusercontent.com/Coware-Apps/ellenorzo/master/docs/insitute_list.json",
                 params,
                 headers
             );
 
             return <Institute[]>JSON.parse(resp.data);
         } catch (error) {
-            this.handleError(error, queryName, `${queryName}.title`, `${queryName}.text`);
+            throw new GithubError(queryName);
         }
     }
 

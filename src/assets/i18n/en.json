@@ -831,6 +831,10 @@
                 "title": "Error trying to get evaluations",
                 "text": "There was an error with the request."
             }
+        },
+        "github":  {
+            "defaultTitle": "Error",
+            "defaultText": "Could not reach Github servers."
         }
     }
 }

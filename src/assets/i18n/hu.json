@@ -835,6 +835,10 @@
                 "title": "Hiba történt az értékelések lekérése közben",
                 "text": "A szerverrel való kommunikáció sikertelen volt."
             }
+        },
+        "github":  {
+            "defaultTitle": "Hiba",
+            "defaultText": "Hiba történt a Github szerverekkel való kommunikáció során."
         }
     }
 }

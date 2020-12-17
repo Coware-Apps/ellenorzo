@@ -44,7 +44,7 @@ import { FirebaseService } from "./firebase.service";
     providedIn: "root",
 })
 export class AdministrationService {
-    private _userAgent = "hu.ekreta.student/1.0.5/SM-G950F/8.1.0/27";
+    private _userAgent = "hu.coware.ellenorzo/1.0.5/SM-G950F/8.1.0/27";
     private _errorStatus = new BehaviorSubject(0);
     private _host = "https://eugyintezes.e-kreta.hu/api/v1/";
     private _endpoints = {
