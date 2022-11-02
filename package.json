@@ -62,7 +62,7 @@
     "cordova-plugin-filepath": "^1.5.8",
     "cordova-plugin-filepicker": "^1.1.6",
     "cordova-plugin-firebasex": "^7.0.2",
-    "cordova-plugin-localization-strings": "3.2.1",
+    "cordova-plugin-localization-strings": "4.2.0",
     "cordova-plugin-market": "^1.2.0",
     "cordova-plugin-save-image-gallery": "0.0.26",
     "cordova-sqlite-storage": "^5.1.0",
