@@ -11,7 +11,11 @@ A fentiek voltak a fő okai annak, hogy az Arisztokréta napló fejlesztését a
 
 Szeretném megemlíteni a Filc Napló fejlesztőit, akikkel az egyesített erőnk és a közös munkánk a projekt vége felé sokat segített a közösség és a KRÉTA felé irányuló kommunikációban. Ezt nagyon köszönöm nektek.
 
-És végül rengeteg köszönettel tartozok azoknak, akik letöltötték az alkalmazást bármelyik platformra, akik véleményt írtak az alkalmazás áruházakban, akik e-mailben, Discordon, vagy bármilyen más helyen adtak visszajelzést a projekttel kapcsolatban. Köszönöm azoknak is, akik a fejlesztést közvetlenül Github-on segítették Issue-k nyitásával és aktívan válaszoltak a kérdéseimre az aktuális hibákkal kapcsolatban. Kösozönöm, hogy ilyen sokan voltatok az App Store-ban és a Google Play-en is tesztelők között, hogy elviseltétek az itt-ott hibás működést azért, hogy az alkalmazás gyorsabban fejlődhessen.
+És végül rengeteg köszönettel tartozok azoknak, akik letöltötték az alkalmazást bármelyik platformra, akik véleményt írtak az alkalmazás áruházakban, akik e-mailben, Discordon, vagy bármilyen más helyen adtak visszajelzést a projekttel kapcsolatban. Köszönöm azoknak is, akik a fejlesztést közvetlenül Github-on segítették Issue-k nyitásával és aktívan válaszoltak a kérdéseimre az aktuális hibákkal kapcsolatban. Köszönöm, hogy ilyen sokan voltatok az App Store-ban és a Google Play-en is tesztelők között, hogy elviseltétek az itt-ott hibás működést azért, hogy az alkalmazás gyorsabban fejlődhessen.
+
+Az alkalmazásról nagyon kevés statisztika maradt meg, de a legfontosabb talán az alábbi. Még egyszer köszönöm szépen mind a két platformon összesen 27 000 embernek, aki az Arisztokrétát választotta az évek során!
+
+<img width="671" alt="analytics" src="https://github.com/Coware-Apps/ellenorzo/assets/45139741/1e9832b4-86cd-4050-8603-0c5bca21e6f3">
 
 A projekt az én részemről véget ért, de a forráskód továbbra is nyílt marad és a publikált verziók sem fognak eltűnni. Ammennyiben bárki érez motivációt, vagy akár ihletet merítene belőle egy másik projekthez, ilyen formában rendelkezésére fog állni az Arisztokréta. 
 
